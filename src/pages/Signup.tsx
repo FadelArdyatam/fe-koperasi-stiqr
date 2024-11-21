@@ -474,21 +474,7 @@ const Signup = () => {
                 </Form>
             </div>
 
-            <div className="mt-10">
-                <div className={`${currentSection === 2 ? 'block' : 'hidden'} flex flex-col items-end w-full md:w-2/3 space-y-7`}>
-                    <p className="font-semibold text-xl text-center">Terima Kasih Telah Mendaftar Sebagai Merchant STIQR!</p>
-
-                    <p className="text-md text-gray-500 text-center">Untuk keamanan akun anda, mohon masukkan kode OTP yang telah kami kirimkan.</p>
-
-                    <form className="mt-10 flex items-center gap-5">
-                        <div className="w-12 min-w-12 h-12 rounded-sm border border-black flex items-center justify-center">+62</div>
-
-                        <input type="number" placeholder="Masukkan No Hp Anda" className="rounded-sm border border-black px-4 w-full py-3" />
-                    </form>
-
-                    <OTP />
-                </div>
-            </div>
+            <OTP currentSection={currentSection} />
         </div>
     )
 }
