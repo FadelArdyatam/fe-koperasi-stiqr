@@ -53,7 +53,7 @@ const ForgotPassword = () => {
                 <p className='font-semibold m-auto text-2xl text-white text-center'>Lupa Password</p>
             </div>
 
-            <img src={logo} className='w-[80%]' alt="" />
+            <img src={logo} className='w-[80%] mt-32' alt="" />
 
             <div className='mt-10 text-center p-10'>
                 <p className='text-gray-500'>Kami akan mengirimkan konfirmasi ke email Anda untuk mengatur ulang password Anda.</p>
@@ -77,7 +77,7 @@ const ForgotPassword = () => {
                                                         <ChevronDown />
                                                     </div>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent className="w-full">
+                                                <DropdownMenuContent className="w-full bg-white p-5 border mt-3 rounded-lg flex flex-col gap-3">
                                                     <DropdownMenuItem onSelect={() => field.onChange("Email")} className="w-full">Email</DropdownMenuItem>
                                                     <DropdownMenuItem onSelect={() => field.onChange("No Hp")} className="w-full">No Hp</DropdownMenuItem>
                                                 </DropdownMenuContent>
