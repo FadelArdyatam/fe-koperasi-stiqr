@@ -14,7 +14,7 @@ const OTP = ({ currentSection }: OTPProps) => {
 	const [value, setValue] = useState("");
 	const [phoneNumber, setPhoneNumber] = useState("");
 	const [codeSent, setCodeSent] = useState(false);
-	const [code, setCode] = useState("");
+	// const [code, setCode] = useState("");
 	const [timeLeft, setTimeLeft] = useState(0); // State for the countdown timer
 
 	console.log(phoneNumber);
