@@ -7,6 +7,7 @@ import Signup from './pages/Signup.tsx'
 import ForgotPassword from './pages/ForgotPassword.tsx'
 import Dashboard from './pages/Dashboard.tsx'
 import Pulsa from './pages/Pulsa.tsx'
+import PAM from './pages/PAM.tsx'
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
   {
     path: 'pulsa',
     element: <Pulsa />
+  },
+  {
+    path: 'pam',
+    element: <PAM />
   }
 ])
 

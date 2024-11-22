@@ -123,7 +123,7 @@ const Dashboard = () => {
                     <p className="font-bold text-4xl mt-2 text-orange-400">200.000</p>
                 </div>
 
-                <div className="mt-10 flex items-center gap-2">
+                <div className="mt-10 flex items-center justify-center gap-2">
                     <div className="flex items-center gap-3">
                         <div className="w-10 min-w-10 min-h-10 h-10 flex items-center justify-center text-black bg-orange-400 rounded-full">
                             <HandCoins />
@@ -162,7 +162,7 @@ const Dashboard = () => {
 
                     <div className="w-10 min-w-10 h-[2px] min-h-[2px] bg-gray-300 rotate-90"></div>
 
-                    <Link to={'/'} className="flex flex-col items-center gap-3">
+                    <Link to={'/pam'} className="flex flex-col items-center gap-3">
                         <Droplet className="text-orange-400" />
 
                         <p className="uppercase text-center text-sm">PAM</p>

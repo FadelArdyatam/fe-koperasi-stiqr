@@ -80,7 +80,7 @@ const Pulsa = () => {
                 </Button>
             </div>
 
-            {showBill && dataBill && <Bill data={dataBill} />}
+            {showBill && dataBill && <Bill data={dataBill} marginTop={true} />}
         </div>
     )
 }

@@ -8,13 +8,14 @@ interface BillProps {
         date: string;
         time: string;
     };
+    marginTop?: boolean;
 }
 
-const Bill: React.FC<BillProps> = ({ data }) => {
+const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
 
     return (
         <>
-            <div className='mt-[130px] w-[90%] m-auto shadow-lg p-10 rounded-lg'>
+            <div className={`${marginTop ? 'mt-[130px]' : 'mt-[-90px] bg-white'} w-[90%] m-auto shadow-lg p-10 rounded-lg`}>
                 <div className='w-16 h-16 border-2 border-black bg-orange-400 rounded-full m-auto'></div>
 
                 <p className='font-semibold text-xl text-center text-orange-400 uppercase mt-7'>Detail Tagihan</p>
@@ -56,7 +57,6 @@ const Bill: React.FC<BillProps> = ({ data }) => {
                         <p>{data.date} | {data.time}</p>
                     </div>
                 </div>
-
             </div>
 
             <Button className='uppercase translate-y-10 block text-center w-[90%] m-auto bg-green-500 text-white'>Bayar</Button>
