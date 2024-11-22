@@ -8,6 +8,7 @@ import ForgotPassword from './pages/ForgotPassword.tsx'
 import Dashboard from './pages/Dashboard.tsx'
 import Pulsa from './pages/Pulsa.tsx'
 import PAM from './pages/PAM.tsx'
+import Listrik from './pages/Listrik.tsx'
 
 const router = createBrowserRouter([
   {
@@ -27,12 +28,16 @@ const router = createBrowserRouter([
     element: <Dashboard />
   },
   {
-    path: 'pulsa',
+    path: '/pulsa',
     element: <Pulsa />
   },
   {
-    path: 'pam',
+    path: '/pam',
     element: <PAM />
+  },
+  {
+    path: '/listrik',
+    element: <Listrik />
   }
 ])
 

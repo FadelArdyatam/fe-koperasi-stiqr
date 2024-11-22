@@ -170,7 +170,7 @@ const Dashboard = () => {
 
                     <div className="w-10 min-w-10 h-[2px] min-h-[2px] bg-gray-300 rotate-90"></div>
 
-                    <Link to={'/'} className="flex flex-col items-center gap-3">
+                    <Link to={'/listrik'} className="flex flex-col items-center gap-3">
                         <Zap className="text-orange-400" />
 
                         <p className="uppercase text-center text-sm">Listrik</p>
