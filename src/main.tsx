@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Signup from './pages/Signup.tsx'
 import ForgotPassword from './pages/ForgotPassword.tsx'
 import Dashboard from './pages/Dashboard.tsx'
+import Pulsa from './pages/Pulsa.tsx'
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: '/dashboard',
     element: <Dashboard />
+  },
+  {
+    path: 'pulsa',
+    element: <Pulsa />
   }
 ])
 

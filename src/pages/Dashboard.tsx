@@ -154,7 +154,7 @@ const Dashboard = () => {
 
             <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
                 <div className="flex items-center justify-between">
-                    <Link to={'/'} className="flex flex-col items-center gap-3">
+                    <Link to={'/pulsa'} className="flex flex-col items-center gap-3">
                         <Smartphone className="text-orange-400" />
 
                         <p className="uppercase text-center text-sm">Pulsa</p>
@@ -212,7 +212,7 @@ const Dashboard = () => {
                         <div key={index}>
                             <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] mb-5 bg-gray-300 rounded-full`}></div>
 
-                            <div className="flex items-center gap-5 justify-between">
+                            <div className="flex items-center gap-2 justify-between">
                                 <div className="flex items-start gap-2">
                                     <img src={payment.image} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="" />
 
