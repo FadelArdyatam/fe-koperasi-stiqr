@@ -106,9 +106,9 @@ const Dashboard = () => {
                 <div className="flex items-center gap-5">
                     <p className="text-2xl m-auto uppercase font-semibold text-center text-white">Home</p>
 
-                    <Button className="bg-transparent absolute right-5 hover:bg-transparent">
-                        <Mail className="scale-[1.5]" />
-                    </Button>
+                    <Link to={'/inbox'} className="bg-transparent text-white absolute right-5 hover:bg-transparent">
+                        <Mail className="scale-[1.3]" />
+                    </Link>
                 </div>
 
                 <p className="text-center text-white mt-16 font-semibold text-xl">Hi, Kopi Tuku</p>

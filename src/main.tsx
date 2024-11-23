@@ -10,6 +10,7 @@ import Pulsa from './pages/Pulsa.tsx'
 import PAM from './pages/PAM.tsx'
 import Listrik from './pages/Listrik.tsx'
 import BPJS from './pages/BPJS.tsx'
+import Inbox from './pages/Inbox.tsx'
 
 const router = createBrowserRouter([
   {
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
   {
     path: '/bpjs',
     element: <BPJS />
+  },
+  {
+    path: '/inbox',
+    element: <Inbox />
   }
 ])
 
