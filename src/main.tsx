@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard.tsx'
 import Pulsa from './pages/Pulsa.tsx'
 import PAM from './pages/PAM.tsx'
 import Listrik from './pages/Listrik.tsx'
+import BPJS from './pages/BPJS.tsx'
 
 const router = createBrowserRouter([
   {
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
   {
     path: '/listrik',
     element: <Listrik />
+  },
+  {
+    path: '/bpjs',
+    element: <BPJS />
   }
 ])
 
