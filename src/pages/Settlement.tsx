@@ -176,7 +176,7 @@ const Settlement = () => {
             </div>
 
             {/* Bill Display */}
-            <div className={`${showBill ? "block" : "hidden"} ${showCodePayment ? 'hidden' : 'block'} w-[90%] m-auto mt-28`}>
+            <div className={`${showBill ? "block" : "hidden"} ${showCodePayment ? 'hidden' : 'block'} w-[90%] m-auto mt-28 mb-32`}>
                 <img src={logo} className="w-28 m-auto" alt="" />
                 <div>
                     <p className="font-semibold text-xl mt-10 text-center uppercase">

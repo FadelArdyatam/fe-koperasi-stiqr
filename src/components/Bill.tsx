@@ -62,7 +62,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                 </div>
             </div>
 
-            <Button className='uppercase translate-y-10 block text-center w-[90%] m-auto bg-green-500 text-white'>Bayar</Button>
+            <Button className='uppercase translate-y-10 block text-center w-[90%] m-auto bg-green-500 mb-32 text-white'>Bayar</Button>
         </>
     )
 }

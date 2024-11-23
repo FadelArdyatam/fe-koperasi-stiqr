@@ -77,7 +77,7 @@ const ForgotPassword = () => {
                                                         <ChevronDown />
                                                     </div>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent className="w-full bg-white p-5 border mt-3 rounded-lg flex flex-col gap-3">
+                                                <DropdownMenuContent className="w-[250px] bg-white p-5 border mt-3 rounded-lg flex flex-col gap-3">
                                                     <DropdownMenuItem onSelect={() => field.onChange("Email")} className="w-full">Email</DropdownMenuItem>
                                                     <DropdownMenuItem onSelect={() => field.onChange("No Hp")} className="w-full">No Hp</DropdownMenuItem>
                                                 </DropdownMenuContent>

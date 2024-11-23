@@ -43,7 +43,7 @@ const Inbox = () => {
                 </Link>
             </div>
 
-            <div className="mt-10 w-[90%] m-auto">
+            <div className="mt-10 w-[90%] m-auto mb-32">
                 {paymentHistory.map((payment, index) => (
                     <div key={index}>
                         <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] my-5 bg-gray-300`}></div>
