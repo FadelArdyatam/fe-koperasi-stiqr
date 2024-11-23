@@ -60,7 +60,7 @@ const Listrik = () => {
             </div>
 
             <div className={`${showBill ? 'hidden' : 'block'}`}>
-                <div className="bg-white w-[90%] -translate-y-[70px] p-10 shadow-lg rounded-md m-auto">
+                <div className="bg-white w-[90%] -translate-y-[100px] p-10 shadow-lg rounded-md m-auto">
                     <p className="font-semibold m-auto text-xl text-center">
                         Beli Token Atau Bayar Listrik
                     </p>

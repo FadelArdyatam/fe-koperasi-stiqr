@@ -123,14 +123,14 @@ const Dashboard = () => {
                     <p className="font-bold text-4xl mt-2 text-orange-400">200.000</p>
                 </div>
 
-                <div className="mt-10 flex items-center justify-center gap-2">
+                <div className="mt-10 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-10 min-w-10 min-h-10 h-10 flex items-center justify-center text-black bg-orange-400 rounded-full">
                             <HandCoins />
                         </div>
 
                         <div>
-                            <p className="text-sm text-gray-500">Uang Masuk</p>
+                            <p className="text-xs text-gray-500">Uang Masuk</p>
 
                             <p className="text-sm font-semibold">IDR 500.000</p>
                         </div>
@@ -144,7 +144,7 @@ const Dashboard = () => {
                         </div>
 
                         <div>
-                            <p className="text-sm text-gray-500">Uang Keluar</p>
+                            <p className="text-xs text-gray-500">Uang Keluar</p>
 
                             <p className="text-sm font-semibold">IDR 300.000</p>
                         </div>
@@ -212,32 +212,32 @@ const Dashboard = () => {
                         <div key={index}>
                             <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] mb-5 bg-gray-300 rounded-full`}></div>
 
-                            <div className="flex items-center gap-2 justify-between">
+                            <div className="flex items-center justify-between">
                                 <div className="flex items-start gap-2">
                                     <img src={payment.image} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="" />
 
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <p className="uppercase">{payment.title}</p>
+                                            <p className="uppercase text-sm">{payment.title}</p>
 
-                                            <div className={`${payment.status === 'success' ? 'bg-green-400' : payment.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-sm py-[0.5]`}>
+                                            <div className={`${payment.status === 'success' ? 'bg-green-400' : payment.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
                                                 <p>{payment.status}</p>
                                             </div>
                                         </div>
 
-                                        <p className="text-sm text-gray-400">{payment.code}</p>
+                                        <p className="text-xs text-gray-400">{payment.code}</p>
                                     </div>
                                 </div>
 
                                 <div className="flex flex-col items-end">
-                                    <p className="text-lg font-semibold">{payment.amount}</p>
+                                    <p className="text-md font-semibold">{payment.amount}</p>
 
                                     <div className="flex items-center">
-                                        <p className="text-sm">{payment.date}</p>
+                                        <p className="text-xs">{payment.date}</p>
 
                                         <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
 
-                                        <p className="text-sm">{payment.time}</p>
+                                        <p className="text-xs">{payment.time}</p>
                                     </div>
                                 </div>
                             </div>

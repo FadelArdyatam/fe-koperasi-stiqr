@@ -49,7 +49,7 @@ const Pulsa = () => {
 
     return (
         <div>
-            <div className='fixed w-full top-0 z-10 p-10 flex items-center justify-center bg-orange-400 bg-opacity-100'>
+            <div className='fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400 bg-opacity-100'>
                 <Link to={'/dashboard'} className='bg-transparent hover:bg-transparent'>
                     <ChevronLeft className='scale-[1.3] text-white' />
                 </Link>
