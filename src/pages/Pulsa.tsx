@@ -12,11 +12,23 @@ interface BillData {
     time: string;
 }
 
+const amounts = [
+    '10.',
+    '25.',
+    '50.',
+    '100.',
+    '150.',
+    '200.',
+    '300.',
+    '500.',
+]
+
 const Pulsa = () => {
     const [phoneNumber, setPhoneNumber] = useState("")
     const [selectedAmount, setSelectedAmount] = useState("")
     const [dataBill, setDataBill] = useState<BillData | null>(null)
     const [showBill, setShowBill] = useState(false)
+    const [indexButton, setIndexButton] = useState(-1)
 
     const sendBill = () => {
         const data = {
@@ -28,6 +40,11 @@ const Pulsa = () => {
 
         setDataBill(data)
         setShowBill(true)
+    }
+
+    const selectedAmountHandler = (amount: string, index: number) => {
+        setSelectedAmount(`${amount}000`)
+        setIndexButton(index)
     }
 
     return (
@@ -64,14 +81,9 @@ const Pulsa = () => {
                     </div>
 
                     <div className="w-full flex flex-wrap">
-                        <button onClick={() => setSelectedAmount('10.000')} className="p-10 border border-gray-300 w-[50%] text-2xl font-semibold">10.<span className="text-xs">000</span></button>
-                        <button onClick={() => setSelectedAmount('25.000')} className="p-10 border border-gray-300 w-[50%] text-2xl font-semibold">25.<span className="text-xs">000</span></button>
-                        <button onClick={() => setSelectedAmount('50.000')} className="p-10 border border-gray-300 w-[50%] text-2xl font-semibold">50.<span className="text-xs">000</span></button>
-                        <button onClick={() => setSelectedAmount('100.000')} className="p-10 border border-gray-300 w-[50%] text-2xl font-semibold">100.<span className="text-xs">000</span></button>
-                        <button onClick={() => setSelectedAmount('150.000')} className="p-10 border border-gray-300 w-[50%] text-2xl font-semibold">150.<span className="text-xs">000</span></button>
-                        <button onClick={() => setSelectedAmount('200.000')} className="p-10 border border-gray-300 w-[50%] text-2xl font-semibold">200.<span className="text-xs">000</span></button>
-                        <button onClick={() => setSelectedAmount('300.000')} className="p-10 border border-gray-300 w-[50%] text-2xl font-semibold">300.<span className="text-xs">000</span></button>
-                        <button onClick={() => setSelectedAmount('500.000')} className="p-10 border border-gray-300 w-[50%] text-2xl font-semibold">500.<span className="text-xs">000</span></button>
+                        {amounts.map((amount, index) => (
+                            <button onClick={() => selectedAmountHandler(amount, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-2xl font-semibold`}>{amount}<span className="text-xs">000</span></button>
+                        ))}
                     </div>
                 </div>
 
