@@ -11,6 +11,7 @@ import PAM from './pages/PAM.tsx'
 import Listrik from './pages/Listrik.tsx'
 import BPJS from './pages/BPJS.tsx'
 import Inbox from './pages/Inbox.tsx'
+import Settlement from './pages/Settlement.tsx'
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
   {
     path: '/inbox',
     element: <Inbox />
+  },
+  {
+    path: '/settlement',
+    element: <Settlement />
   }
 ])
 

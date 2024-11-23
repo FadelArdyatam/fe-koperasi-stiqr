@@ -9,11 +9,11 @@ import ovo from "@/images/ovo.jpg";
 import dana from "@/images/dana.jpg";
 import { Link } from "react-router-dom";
 
-const paymentHistory = [
+export const paymentHistory = [
     {
         image: linkaja,
         title: "LinkAja",
-        amount: "Rp 100.000",
+        amount: "100000",
         date: "12/08/2021",
         time: "12:00",
         status: "success",
@@ -22,7 +22,7 @@ const paymentHistory = [
     {
         image: gopay,
         title: "GoPay",
-        amount: "Rp 50.000",
+        amount: "50000",
         date: "12/08/2021",
         time: "12:00",
         status: "failed",
@@ -31,7 +31,7 @@ const paymentHistory = [
     {
         image: ovo,
         title: "OVO",
-        amount: "Rp 200.000",
+        amount: "200000",
         date: "12/08/2021",
         time: "12:00",
         status: "success",
@@ -40,7 +40,7 @@ const paymentHistory = [
     {
         image: dana,
         title: "DANA",
-        amount: "Rp 150.000",
+        amount: "150000",
         date: "12/08/2021",
         time: "12:00",
         status: "pending",
@@ -49,7 +49,7 @@ const paymentHistory = [
     {
         image: dana,
         title: "DANA",
-        amount: "Rp 170.000",
+        amount: "170000",
         date: "12/08/2021",
         time: "12:00",
         status: "pending",
@@ -69,7 +69,7 @@ const Dashboard = () => {
     return (
         <div className="w-full">
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
-                <Link to={'/'} className="flex gap-3 text-orange-400 flex-col items-center">
+                <Link to={'/dashboard'} className="flex gap-3 text-orange-400 flex-col items-center">
                     <Home />
 
                     <p className="uppercase">Home</p>
@@ -81,7 +81,7 @@ const Dashboard = () => {
                     <p className="uppercase">Qr Code</p>
                 </Link>
 
-                <Link to={'/'} className="flex relative gap-3 flex-col items-center">
+                <Link to={'/settlement'} className="flex relative gap-3 flex-col items-center">
                     <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
                         <CreditCard />
                     </div>
@@ -230,7 +230,7 @@ const Dashboard = () => {
                                 </div>
 
                                 <div className="flex flex-col items-end">
-                                    <p className="text-md font-semibold">{payment.amount}</p>
+                                    <p className="text-md font-semibold">Rp {new Intl.NumberFormat('id-ID').format(Number(payment.amount))}</p>
 
                                     <div className="flex items-center">
                                         <p className="text-xs">{payment.date}</p>
