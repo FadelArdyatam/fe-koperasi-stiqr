@@ -69,6 +69,7 @@ const Settlement = () => {
                 <Link to="/dashboard" className="bg-transparent hover:bg-transparent">
                     <ChevronLeft className="scale-[1.3] text-white" />
                 </Link>
+
                 <p className="font-semibold m-auto text-xl text-white text-center uppercase">
                     Settlement
                 </p>
