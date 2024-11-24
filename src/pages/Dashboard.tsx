@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { ChevronDown, CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, History, UserRound } from "lucide-react";
 import logo from "@/images/logo.jpg";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
@@ -75,7 +74,7 @@ const Dashboard = () => {
                     <p className="uppercase">Home</p>
                 </Link>
 
-                <Link to={'/'} className="flex gap-3 flex-col items-center">
+                <Link to={'/qr-code'} className="flex gap-3 flex-col items-center">
                     <ScanQrCode />
 
                     <p className="uppercase">Qr Code</p>

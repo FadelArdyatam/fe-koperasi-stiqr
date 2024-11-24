@@ -16,7 +16,7 @@ const Inbox = () => {
                     <p className="uppercase">Home</p>
                 </Link>
 
-                <Link to={'/'} className="flex gap-3 flex-col items-center">
+                <Link to={'/qr-code'} className="flex gap-3 flex-col items-center">
                     <ScanQrCode />
 
                     <p className="uppercase">Qr Code</p>

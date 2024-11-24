@@ -12,6 +12,7 @@ import Listrik from './pages/Listrik.tsx'
 import BPJS from './pages/BPJS.tsx'
 import Inbox from './pages/Inbox.tsx'
 import Settlement from './pages/Settlement.tsx'
+import QRCode from './pages/QRCode.tsx'
 
 const router = createBrowserRouter([
   {
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
   {
     path: '/settlement',
     element: <Settlement />
+  },
+  {
+    path: '/qr-code',
+    element: <QRCode />
   }
 ])
 

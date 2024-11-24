@@ -83,7 +83,7 @@ const BPJS = () => {
                                 <p>Bayar untuk</p>
 
                                 <div className="flex items-center gap-5 border mt-2 text-gray-400 border-black rounded-lg p-2 justify-between">
-                                    <button>{type || "type"}</button>
+                                    <button>{range || "type"}</button>
 
                                     <ChevronDown />
                                 </div>

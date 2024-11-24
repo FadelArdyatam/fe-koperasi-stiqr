@@ -62,7 +62,6 @@ const Pulsa = () => {
             </div>
 
             <div className={`${showBill ? 'hidden' : 'block'}`}>
-
                 <div className="relative mt-[105px] w-full p-8 shadow-lg flex items-center gap-5 justify-center">
                     <p className="absolute left-5">Saldo</p>
 
@@ -82,7 +81,7 @@ const Pulsa = () => {
 
                     <div className="w-full flex flex-wrap">
                         {amounts.map((amount, index) => (
-                            <button onClick={() => selectedAmountHandler(amount, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-2xl font-semibold`}>{amount}<span className="text-xs">000</span></button>
+                            <button key={index} onClick={() => selectedAmountHandler(amount, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-2xl font-semibold`}>{amount}<span className="text-xs">000</span></button>
                         ))}
                     </div>
                 </div>
