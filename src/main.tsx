@@ -13,6 +13,7 @@ import BPJS from './pages/BPJS.tsx'
 import Inbox from './pages/Inbox.tsx'
 import Settlement from './pages/Settlement.tsx'
 import QRCode from './pages/QRCode.tsx'
+import Riwayat from './pages/Riwayat.tsx'
 
 const router = createBrowserRouter([
   {
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
   {
     path: '/qr-code',
     element: <QRCode />
+  },
+  {
+    path: '/history',
+    element: <Riwayat />
   }
 ])
 

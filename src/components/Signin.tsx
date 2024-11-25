@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { Button } from "./ui/button"
-import logo from '../images/logo.jpg'
+import logo from '../images/logo.png'
 
 const Signin = () => {
 	return (

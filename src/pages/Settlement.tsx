@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/form";
 import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, History, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
-import { paymentHistory } from "./Dashboard"; // Assuming paymentHistory is a valid dataset
-import logo from "../images/logo.jpg";
+import { admissionFees } from "./Dashboard"; // Assuming admissionFees is a valid dataset
+import logo from "../images/logo.png";
 import { useState } from "react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import CodePayment from "@/components/CodePayment";
@@ -30,7 +30,7 @@ const FormSchema = z.object({
 const Settlement = () => {
     const [showBill, setShowBill] = useState(false);
     const [showCodePayment, setShowCodePayment] = useState(false);
-    const [selectedItems, setSelectedItems] = useState<typeof paymentHistory>([]);
+    const [selectedItems, setSelectedItems] = useState<typeof admissionFees>([]);
     const [totalSettle, setTotalSettle] = useState(0);
     const [method, setmethod] = useState("");
 
@@ -43,7 +43,7 @@ const Settlement = () => {
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         // Filter data berdasarkan kode item yang dipilih
-        const selected = paymentHistory.filter((item) => data.items.includes(item.code));
+        const selected = admissionFees.filter((item) => data.items.includes(item.code));
         setSelectedItems(selected);
 
         // Hitung total dengan memastikan bahwa nilai amount valid
@@ -81,20 +81,24 @@ const Settlement = () => {
                     <Home />
                     <p className="uppercase">Home</p>
                 </Link>
+
                 <Link to="/qr-code" className="flex gap-3 flex-col items-center">
                     <ScanQrCode />
                     <p className="uppercase">Qr Code</p>
                 </Link>
+
                 <Link to="/settlement" className="flex relative gap-3 flex-col items-center">
                     <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
                         <CreditCard />
                     </div>
                     <p className="uppercase text-orange-400">Penarikan</p>
                 </Link>
-                <Link to="/" className="flex gap-3 flex-col items-center">
+
+                <Link to="/history" className="flex gap-3 flex-col items-center">
                     <History />
                     <p className="uppercase">Riwayat</p>
                 </Link>
+
                 <Link to="/" className="flex gap-3 flex-col items-center">
                     <UserRound />
                     <p className="uppercase">Profile</p>
@@ -112,7 +116,7 @@ const Settlement = () => {
                                 name="items"
                                 render={() => (
                                     <FormItem>
-                                        {paymentHistory.map((item, index) => (
+                                        {admissionFees.map((item, index) => (
                                             <FormField
                                                 key={item.code}
                                                 control={form.control}

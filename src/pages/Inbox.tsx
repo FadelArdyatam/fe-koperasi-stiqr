@@ -1,6 +1,6 @@
 import { Home, ScanQrCode, CreditCard, UserRound, History } from "lucide-react"
 import { Link } from "react-router-dom"
-import { paymentHistory } from "./Dashboard";
+import { admissionFees } from "./Dashboard";
 
 const Inbox = () => {
     return (
@@ -30,7 +30,7 @@ const Inbox = () => {
                     <p className="uppercase">Penarikan</p>
                 </Link>
 
-                <Link to={'/'} className="flex gap-3 flex-col items-center">
+                <Link to={'/history'} className="flex gap-3 flex-col items-center">
                     <History />
 
                     <p className="uppercase">Riwayat</p>
@@ -44,21 +44,21 @@ const Inbox = () => {
             </div>
 
             <div className="mt-10 w-[90%] m-auto mb-32">
-                {paymentHistory.map((payment, index) => (
+                {admissionFees.map((admissionFee, index) => (
                     <div key={index}>
                         <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] my-5 bg-gray-300`}></div>
 
                         <div className="flex items-center gap-5">
-                            <img className="w-10 h-10 rounded-full" src={payment.image} alt="" />
+                            <img className="w-10 h-10 rounded-full" src={admissionFee.image} alt="" />
 
                             <div className="w-full">
                                 <div className="flex items-center gap-5 justify-between">
-                                    <p className="font-semibold text-black">{payment.title}</p>
+                                    <p className="font-semibold text-black">{admissionFee.title}</p>
 
-                                    <p className="text-sm text-gray-500">{payment.date}, {payment.time}</p>
+                                    <p className="text-sm text-gray-500">{admissionFee.date}, {admissionFee.time}</p>
                                 </div>
 
-                                <p className="mt-1 text-sm text-gray-500">YAY! you got Rp {new Intl.NumberFormat('id-ID').format(Number(payment.amount))} from your transaction merchant KOPISUSU.</p>
+                                <p className="mt-1 text-sm text-gray-500">YAY! you got Rp {new Intl.NumberFormat('id-ID').format(Number(admissionFee.amount))} from your transaction merchant KOPISUSU.</p>
                             </div>
                         </div>
                     </div>

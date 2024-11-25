@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronLeft } from 'lucide-react'
-import logo from '../images/logo.jpg'
+import logo from '../images/logo.png'
 import { Link } from 'react-router-dom'
 import { Form, FormField, FormItem, FormControl, FormMessage } from '@/components/ui/form'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@radix-ui/react-dropdown-menu'

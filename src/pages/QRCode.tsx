@@ -1,6 +1,6 @@
 import { ChevronLeft, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import logo from "../images/logo.jpg";
+import logo from "../images/logo.png";
 import { useEffect, useRef, useState } from "react";
 import QRCode from "react-qr-code";
 import visa from "../images/visa.svg";

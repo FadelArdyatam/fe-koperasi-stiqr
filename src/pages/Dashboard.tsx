@@ -1,5 +1,5 @@
 import { ChevronDown, CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, History, UserRound } from "lucide-react";
-import logo from "@/images/logo.jpg";
+import logo from "@/images/logo.png";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { useState } from "react";
 import linkaja from "@/images/linkaja.jpg";
@@ -8,7 +8,7 @@ import ovo from "@/images/ovo.jpg";
 import dana from "@/images/dana.jpg";
 import { Link } from "react-router-dom";
 
-export const paymentHistory = [
+export const admissionFees = [
     {
         image: linkaja,
         title: "LinkAja",
@@ -88,7 +88,7 @@ const Dashboard = () => {
                     <p className="uppercase">Penarikan</p>
                 </Link>
 
-                <Link to={'/'} className="flex gap-3 flex-col items-center">
+                <Link to={'/history'} className="flex gap-3 flex-col items-center">
                     <History />
 
                     <p className="uppercase">Riwayat</p>
@@ -207,36 +207,36 @@ const Dashboard = () => {
                 </div>
 
                 <div className="mt-10 flex flex-col gap-5">
-                    {paymentHistory.map((payment, index) => (
+                    {admissionFees.map((admissionFee, index) => (
                         <div key={index}>
                             <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] mb-5 bg-gray-300 rounded-full`}></div>
 
                             <div className="flex items-center justify-between">
                                 <div className="flex items-start gap-2">
-                                    <img src={payment.image} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="" />
+                                    <img src={admissionFee.image} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="" />
 
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <p className="uppercase text-sm">{payment.title}</p>
+                                            <p className="uppercase text-sm">{admissionFee.title}</p>
 
-                                            <div className={`${payment.status === 'success' ? 'bg-green-400' : payment.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
-                                                <p>{payment.status}</p>
+                                            <div className={`${admissionFee.status === 'success' ? 'bg-green-400' : admissionFee.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
+                                                <p>{admissionFee.status}</p>
                                             </div>
                                         </div>
 
-                                        <p className="text-xs text-gray-400">{payment.code}</p>
+                                        <p className="text-xs text-gray-400">{admissionFee.code}</p>
                                     </div>
                                 </div>
 
                                 <div className="flex flex-col items-end">
-                                    <p className="text-md font-semibold">Rp {new Intl.NumberFormat('id-ID').format(Number(payment.amount))}</p>
+                                    <p className="text-md font-semibold">Rp {new Intl.NumberFormat('id-ID').format(Number(admissionFee.amount))}</p>
 
                                     <div className="flex items-center">
-                                        <p className="text-xs">{payment.date}</p>
+                                        <p className="text-xs">{admissionFee.date}</p>
 
                                         <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
 
-                                        <p className="text-xs">{payment.time}</p>
+                                        <p className="text-xs">{admissionFee.time}</p>
                                     </div>
                                 </div>
                             </div>
