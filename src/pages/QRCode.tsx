@@ -135,6 +135,15 @@ const QRCodePage = () => {
                         </Button>
                     </div>
 
+                    <div className="relative rotate-180">
+                        <div className="w-full h-8 bg-orange-400 relative overflow-hidden">
+                            {/* Pola Gerigi */}
+                            <div className="absolute bottom-0 left-0 w-full h-5 bg-white" style={{
+                                clipPath: 'polygon(0 100%, 5% 0, 10% 100%, 15% 0, 20% 100%, 25% 0, 30% 100%, 35% 0, 40% 100%, 45% 0, 50% 100%, 55% 0, 60% 100%, 65% 0, 70% 100%, 75% 0, 80% 100%, 85% 0, 90% 100%, 95% 0, 100% 100%)'
+                            }}></div>
+                        </div>
+                    </div>
+
                     <Button onClick={() => setShowInputAmount(true)} className="mt-10 w-full bg-green-400 uppercase">
                         Buat Link Pembayaran
                     </Button>
