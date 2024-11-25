@@ -207,6 +207,7 @@ const Riwayat = () => {
                                             <p className="text-xs text-gray-400">{payment.code}</p>
                                         </div>
                                     </div>
+
                                     <div className="flex flex-col items-end">
                                         <p className="text-md font-semibold">
                                             Rp {new Intl.NumberFormat("id-ID").format(Number(payment.amount))}

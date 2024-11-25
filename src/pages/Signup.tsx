@@ -140,6 +140,9 @@ const Signup = () => {
         return true;
     };
 
+    // Values from the form
+    const values = form.getValues()
+
     return (
         <div className="w-full flex flex-col p-10">
             <p className="uppercase text-center font-semibold text-2xl">Data Personal</p>
@@ -467,7 +470,7 @@ const Signup = () => {
                             />
                         </div>
 
-                        <Button onClick={handleNext} className={`${currentSection === 0 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>NEXT</Button>
+                        <Button onClick={handleNext} disabled={values.ownerName.length > 0 && values.gender && values.dateOfBirth.length > 0 && values.email.length > 0 && values.phoneNumber.length > 0 && values.password.length > 0 && values.confirmPassword.length > 0 ? false : true} className={`${currentSection === 0 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>NEXT</Button>
 
                         <Button type="submit" className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>SUBMIT</Button>
                     </form>
