@@ -18,6 +18,7 @@ import {
 import OTP from "@/components/OTP"
 
 const Signup = () => {
+    // const [showTermsandConditions, setShowTermsandConditions] = useState(true)
     const [section, setSection] = useState([true, false, false]);
     const [currentSection, setCurrentSection] = useState(0);
     const [showPassword, setShowPassword] = useState(false)
@@ -55,7 +56,7 @@ const Signup = () => {
             .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
             .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
             .regex(/\d/, { message: 'Password must contain at least one number.' }),
-        typeBusinessEntity: z.enum(["PT", "CV", "Firma", "UD"], {
+        typeBusinessEntity: z.enum(["Perorangan", "CV", "Koperasi", "Firma"], {
             message: "Please select the type of business entity",
         }),
         merchantName: z.string().min(2, {
@@ -64,7 +65,7 @@ const Signup = () => {
         merchantCity: z.enum(["Jakarta", "Bandung", "Surabaya"], {
             message: "Please select the city",
         }),
-        merchantCategory: z.enum(["Fashion", "Food", "Electronics"], {
+        merchantCategory: z.enum(["Makanan & Minuman", "Fashion & Aksesori", "Elektronik & Gadget", "Kesehatan & Kecantikan", "Rumah & Dekorasi", "Otomotif", "Hobi & Hiburan", "Jasa & Layanan", "Bahan Pokok & Grosir", "Teknologi & Digital", "Lainnya"], {
             message: "Please select the category",
         }),
         postalCode: z.string().min(5, {
@@ -332,10 +333,10 @@ const Signup = () => {
                                                 <DropdownMenuContent className="w-full">
                                                     <DropdownMenuLabel>Business Entity</DropdownMenuLabel>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem onSelect={() => field.onChange("PT")} className="w-full">PT</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => field.onChange("Perorangan")} className="w-full">Perorangan</DropdownMenuItem>
                                                     <DropdownMenuItem onSelect={() => field.onChange("CV")} className="w-full">CV</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => field.onChange("Koperasi")} className="w-full">Koperasi</DropdownMenuItem>
                                                     <DropdownMenuItem onSelect={() => field.onChange("Firma")} className="w-full">Firma</DropdownMenuItem>
-                                                    <DropdownMenuItem onSelect={() => field.onChange("UD")} className="w-full">UD</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </FormControl>
@@ -406,9 +407,17 @@ const Signup = () => {
                                                 <DropdownMenuContent className="w-full">
                                                     <DropdownMenuLabel>Category</DropdownMenuLabel>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem onSelect={() => field.onChange("Fashion")} className="w-full">Fashion</DropdownMenuItem>
-                                                    <DropdownMenuItem onSelect={() => field.onChange("Food")} className="w-full">Food</DropdownMenuItem>
-                                                    <DropdownMenuItem onSelect={() => field.onChange("Electronics")} className="w-full">Electronics</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => field.onChange("Makanan & Minuman")} className="w-full">Makanan & Minuman</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => field.onChange("Fashion & Aksesori")} className="w-full">Fashion & Aksesori</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => field.onChange("Elektronik & Gadget")} className="w-full">Elektronik & Gadget</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => field.onChange("Kesehatan & Kecantikan")} className="w-full">Kesehatan & Kecantikan</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => field.onChange("Rumah & Dekorasi")} className="w-full">Rumah & Dekorasi</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => field.onChange("Otomotif")} className="w-full">Otomotif</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => field.onChange("Hobi & Hiburan")} className="w-full">Hobi & Hiburan</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => field.onChange("Jasa & Layanan")} className="w-full">Jasa & Layanan</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => field.onChange("Bahan Pokok & Grosir")} className="w-full">Bahan Pokok & Grosir</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => field.onChange("Teknologi & Digital")} className="w-full">Teknologi & Digital</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => field.onChange("Lainnya")} className="w-full">Lainnya</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </FormControl>

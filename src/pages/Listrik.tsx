@@ -93,10 +93,10 @@ const Listrik = () => {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <div className="mt-10">
-                                <p>Wilayah</p>
+                                <p>Nominal</p>
 
                                 <div className="flex items-center gap-5 border mt-2 text-gray-400 border-black rounded-lg p-2 justify-between">
-                                    <button>{nominal || "Wilayah"}</button>
+                                    <button>{nominal || "Nominal"}</button>
 
                                     <ChevronDown />
                                 </div>
@@ -104,8 +104,8 @@ const Listrik = () => {
                         </DropdownMenuTrigger>
 
                         <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg w-[300px] flex flex-col gap-3">
-                            <DropdownMenuItem onClick={() => handleDropdownChange("20.000")}>
-                                20.000
+                            <DropdownMenuItem onClick={() => handleDropdownChange("22.000")}>
+                                22.000
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleDropdownChange("50.000")}>
                                 50.000
@@ -113,11 +113,23 @@ const Listrik = () => {
                             <DropdownMenuItem onClick={() => handleDropdownChange("100.000")}>
                                 100.000
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDropdownChange("150.000")}>
-                                150.000
-                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleDropdownChange("200.000")}>
                                 200.000
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDropdownChange("500.000")}>
+                                500.000
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDropdownChange("1.000.000")}>
+                                1.000.000
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDropdownChange("5.000.000")}>
+                                5.000.000
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDropdownChange("10.000.000")}>
+                                10.000.000
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDropdownChange("50.000.000")}>
+                                50.000.000
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

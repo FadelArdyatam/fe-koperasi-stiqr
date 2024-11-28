@@ -1,12 +1,15 @@
-import { ChevronDown, CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, History, UserRound } from "lucide-react";
+import { ChevronDown, CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, History, UserRound, ChevronUp } from "lucide-react";
 import logo from "@/images/logo.png";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import linkaja from "@/images/linkaja.jpg";
 import gopay from "@/images/gopay.png";
 import ovo from "@/images/ovo.jpg";
 import dana from "@/images/dana.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import axiosInstance from "@/hooks/axiosInstance";
+import axios from "axios";
 
 export const admissionFees = [
     {
@@ -56,12 +59,64 @@ export const admissionFees = [
     }
 ]
 
+type TokenPayload = {
+    exp: number; // Expiration time in seconds
+    [key: string]: any; // Other possible fields
+};
+
 const Dashboard = () => {
     const [field, setField] = useState({ value: "" });
+    const navigate = useNavigate();
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to track dropdown open status
+
+    const toggleDropdown = () => {
+        setIsDropdownOpen((prev) => !prev); // Toggle the dropdown state
+    };
 
     const handleDropdownChange = (value: string) => {
         setField({ value }); // Update the field state with the selected value
     };
+
+    useEffect(() => {
+        // const checkTokenValidity = async () => {
+        //     const token = localStorage.getItem("token");
+
+        //     if (!token) {
+        //         console.warn("Token tidak ditemukan.");
+        //         navigate("/"); // Redirect jika token tidak ada
+        //         return;
+        //     }
+
+        //     try {
+        //         const decoded: TokenPayload = jwtDecode(token);
+        //         const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+
+        //         if (decoded.exp < currentTime) {
+        //             console.warn("Token telah kedaluwarsa.");
+        //             localStorage.removeItem("token"); // Hapus token dari storage
+        //             navigate("/"); // Redirect ke halaman login
+        //         }
+        //     } catch (err) {
+        //         console.error("Error saat memeriksa token:", err);
+        //         navigate("/"); // Redirect jika token tidak valid
+        //     }
+        // };
+
+        // const checkProfile = async () => {
+        //     try {
+        //         const profile = await axios.get('https://cf2b-103-136-57-145.ngrok-free.app/api/auth/profile',
+        //             { headers: { Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkaXRAZXhhbXBsZS5jb20iLCJzdWIiOjIsImlhdCI6MTczMjYzNDkwMywiZXhwIjoxNzMyNjM4NTAzfQ.JjbnKSd7PsDmQzUrw7PiVOWPRdeFos-HsGEbhKvYbKo' } }
+        //         );
+
+        //         console.log(profile)
+        //     } catch (err) {
+        //         console.log(err)
+        //     }
+        // }
+
+        // checkTokenValidity();
+        // checkProfile();
+    }, [navigate]);
 
     console.log(field.value);
 
@@ -189,12 +244,16 @@ const Dashboard = () => {
                 <div className="flex items-center gap-5 justify-between">
                     <p className="text-base font-semibold">Transaksi Terbaru</p>
 
-                    <DropdownMenu>
+                    <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                         <DropdownMenuTrigger asChild>
-                            <div className="flex items-center gap-5 border border-black rounded-lg p-2 justify-between">
+                            <div
+                                className="flex items-center gap-5 border border-black rounded-lg p-2 justify-between cursor-pointer"
+                                onClick={toggleDropdown}
+                            >
                                 <button>{field.value || "- Pilih -"}</button>
 
-                                <ChevronDown />
+                                {/* Change icon based on dropdown state */}
+                                {isDropdownOpen ? <ChevronUp /> : <ChevronDown />}
                             </div>
                         </DropdownMenuTrigger>
 
