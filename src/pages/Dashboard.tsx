@@ -1,4 +1,4 @@
-import { ChevronDown, CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, History, UserRound, ChevronUp } from "lucide-react";
+import { ChevronDown, CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, History, UserRound, ChevronUp, X } from "lucide-react";
 import logo from "@/images/logo.png";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useState } from "react";
@@ -68,6 +68,7 @@ const Dashboard = () => {
     const [field, setField] = useState({ value: "" });
     const navigate = useNavigate();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to track dropdown open status
+    const [showNotification, setShowNotification] = useState(true);
 
     const toggleDropdown = () => {
         setIsDropdownOpen((prev) => !prev); // Toggle the dropdown state
@@ -154,6 +155,26 @@ const Dashboard = () => {
 
                     <p className="uppercase">Profile</p>
                 </Link>
+            </div>
+
+            {/* Notification */}
+            <div className={`${showNotification ? 'fixed' : 'hidden'} top-0 bottom-0 bg-black bg-opacity-50 w-full left-[50%] -translate-x-[50%] shadow-lg z-20 flex items-end justify-center`}>
+                <div
+                    className={`${showNotification ? "block" : "hidden"
+                        } relative w-[90%] mb-32 rounded-lg p-5 bg-orange-400`}
+                >
+                    <div className="flex items-center gap-5 justify-center relative">
+                        <p className="text-white font-semibold text-center">Lengkapi Data Anda</p>
+
+                        <button onClick={() => setShowNotification(false)}><X className="text-white absolute right-5 -mt-3" /></button>
+                    </div>
+                    <p className="mt-5 text-sm text-center text-white">Silahkan untuk melengkapi data profile Anda.</p>
+
+                    {/* Triangle */}
+                    <div
+                        className="absolute -bottom-4 right-4 w-0 h-0 border-l-[20px] border-l-transparent border-t-[20px] border-t-orange-400 border-r-[20px] border-r-transparent"
+                    ></div>
+                </div>
             </div>
 
             <div className="w-full relative px-10 pt-10 pb-32 bg-orange-400">
