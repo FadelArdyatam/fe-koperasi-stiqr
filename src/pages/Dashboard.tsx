@@ -9,7 +9,6 @@ import dana from "@/images/dana.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axiosInstance from "@/hooks/axiosInstance";
-import axios from "axios";
 
 export const admissionFees = [
     {
@@ -105,9 +104,7 @@ const Dashboard = () => {
 
         // const checkProfile = async () => {
         //     try {
-        //         const profile = await axios.get('https://cf2b-103-136-57-145.ngrok-free.app/api/auth/profile',
-        //             { headers: { Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkaXRAZXhhbXBsZS5jb20iLCJzdWIiOjIsImlhdCI6MTczMjYzNDkwMywiZXhwIjoxNzMyNjM4NTAzfQ.JjbnKSd7PsDmQzUrw7PiVOWPRdeFos-HsGEbhKvYbKo' } }
-        //         );
+        //         const profile = await axiosInstance.get('auth/profile');
 
         //         console.log(profile)
         //     } catch (err) {

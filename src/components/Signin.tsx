@@ -26,7 +26,7 @@ const Signin = () => {
 		try {
 			// Menggunakan axios untuk permintaan POST
 			const response = await axios.post(
-				"https://cf2b-103-136-57-145.ngrok-free.app/api/auth/login",
+				"https://be-stiqr.dnstech.co.id/api/auth/login",
 				{ email, password }, // Data yang dikirimkan
 				{
 					headers: {

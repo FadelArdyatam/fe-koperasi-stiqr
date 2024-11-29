@@ -1,7 +1,7 @@
 import axios from "axios";
  
 const axiosInstance = axios.create({
-  baseURL: 'https://cf2b-103-136-57-145.ngrok-free.app/api',
+  baseURL: 'https://be-stiqr.dnstech.co.id/api/',
 });
  
 axiosInstance.interceptors.request.use(
