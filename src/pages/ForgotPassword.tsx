@@ -176,7 +176,7 @@ const ForgotPassword = () => {
 
                         <div className={`${Notification.status ? 'flex' : 'hidden'} items-center justify-center fixed bg-black bg-opacity-50 left-0 right-0 top-0 bottom-0`}>
                             {Notification.status && (
-                                <div className="w-[90%] bg-white p-3 mt-5 rounded-lg flex items-center flex-col gap-5">
+                                <div className="w-[90%] bg-white p-5 mt-5 rounded-lg flex items-center flex-col gap-5">
                                     <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-green-400'>
                                         <Phone className='scale-[1.5]' />
                                     </div>
@@ -191,7 +191,7 @@ const ForgotPassword = () => {
                         </div>
 
                         <div className={`${Notification.notificationSuccess ? 'flex' : 'hidden'} items-center justify-center fixed bg-black bg-opacity-50 left-0 right-0 top-0 bottom-0`}>
-                            <div className="w-[90%] bg-white p-3 mt-5 rounded-lg flex items-center flex-col gap-5">
+                            <div className="w-[90%] bg-white p-5 mt-5 rounded-lg flex items-center flex-col gap-5">
                                 <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-green-400'>
                                     <Check className='scale-[1.5]' />
                                 </div>

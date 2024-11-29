@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import OTP from "@/components/OTP"
 import TermsandCondition from "@/components/TermsandCondition"
+import PinInput from "@/components/PinInput"
 
 const Signup = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(true)
@@ -24,6 +25,7 @@ const Signup = () => {
     const [currentSection, setCurrentSection] = useState(0);
     const [showPassword, setShowPassword] = useState(false)
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
+    const [createPin, setCreatePin] = useState(true)
 
     const FormSchema = z.object({
         ownerName: z.string().min(2, {
@@ -112,6 +114,8 @@ const Signup = () => {
     function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log(data)
 
+        setCreatePin(true)
+
         handleNext()
     }
 
@@ -148,349 +152,353 @@ const Signup = () => {
     return (
         <>
             {showTermsandConditions ? <TermsandCondition setShowTermsandConditions={setShowTermsandConditions} /> : (
-                <div className="w-full flex flex-col p-10">
-                    <p className="uppercase text-center font-semibold text-2xl">Data Personal</p>
+                <>
+                    <div className={`${createPin ? 'hidden' : 'flex'} w-full flex-col p-10`}>
+                        <p className="uppercase text-center font-semibold text-2xl">Data Personal</p>
 
-                    <div className="mt-10 w-full flex items-center">
-                        <div className={`${section[0] ? 'bg-orange-500' : 'bg-gray-500'} transition-all w-12 h-12 rounded-full flex items-center justify-center`}>
-                            <UserRound className="text-white" />
+                        <div className="mt-10 w-full flex items-center">
+                            <div className={`${section[0] ? 'bg-orange-500' : 'bg-gray-500'} transition-all w-12 h-12 rounded-full flex items-center justify-center`}>
+                                <UserRound className="text-white" />
+                            </div>
+
+                            <div className="w-20 h-[2px] bg-black"></div>
+
+                            <div className={`${section[1] ? 'bg-blue-500' : 'bg-gray-500'} transition-all w-12 h-12 rounded-full flex items-center justify-center`}>
+                                <Store className="text-white" />
+                            </div>
+
+                            <div className="w-20 h-[2px] bg-black"></div>
+
+                            <div className={`${section[2] ? 'bg-green-500' : 'bg-gray-500'} transition-all w-12 h-12 rounded-full flex items-center justify-center`}>
+                                <Smartphone className="text-white" />
+                            </div>
                         </div>
 
-                        <div className="w-20 h-[2px] bg-black"></div>
+                        <div className="w-full mt-10">
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(onSubmit)}>
+                                    <div className={`${currentSection === 0 ? 'block' : 'hidden'} flex flex-col items-end w-full md:w-2/3 space-y-7`}>
+                                        <FormField
+                                            control={form.control}
+                                            name="ownerName"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Pemilik" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
 
-                        <div className={`${section[1] ? 'bg-blue-500' : 'bg-gray-500'} transition-all w-12 h-12 rounded-full flex items-center justify-center`}>
-                            <Store className="text-white" />
+                                        <FormField
+                                            control={form.control}
+                                            name="gender"
+                                            render={({ field }) => (
+                                                <FormItem className="space-y-3 m-auto">
+                                                    <FormControl>
+                                                        <RadioGroup
+                                                            onValueChange={field.onChange}
+                                                            defaultValue={field.value}
+                                                            className="flex w-full space-x-7"
+                                                        >
+                                                            <FormItem className="flex items-center space-x-2 space-y-0">
+                                                                <FormControl>
+                                                                    <RadioGroupItem value="Laki - Laki" />
+                                                                </FormControl>
+                                                                <FormLabel className="font-normal">
+                                                                    Laki - Laki
+                                                                </FormLabel>
+                                                            </FormItem>
+
+                                                            <FormItem className="flex items-center space-x-2 space-y-0">
+                                                                <FormControl>
+                                                                    <RadioGroupItem value="Perempuan" />
+                                                                </FormControl>
+                                                                <FormLabel className="font-normal">
+                                                                    Perempuan
+                                                                </FormLabel>
+                                                            </FormItem>
+                                                        </RadioGroup>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="dateOfBirth"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="date" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="email"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <div>
+                                                        <FormControl>
+                                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Email" {...field} />
+                                                        </FormControl>
+
+                                                        <p className="text-gray-500 text-xs mt-2 italic">Mohon pastikan email Anda aktif.</p>
+                                                    </div>
+
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="phoneNumber"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <div>
+                                                        <FormControl>
+                                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp" {...field} />
+                                                        </FormControl>
+
+                                                        <p className="text-xs italic text-gray-500 mt-2">Pastikan nomer Anda aktif.</p>
+                                                    </div>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name='password'
+                                            render={({ field }) => (
+                                                <FormItem className='w-full'>
+                                                    <div className='flex items-center relative'>
+                                                        <FormControl>
+                                                            <Input
+                                                                className='w-full font-sans font-semibold p-3 border bg-[#F4F4F4] border-gray-300 rounded-md'
+                                                                placeholder='Password'
+                                                                type={showPassword ? 'text' : 'password'}
+                                                                {...field}
+                                                            />
+                                                        </FormControl>
+
+                                                        <button onClick={() => setShowPassword(!showPassword)} className='absolute right-5'>{showPassword ? <EyeOff /> : <Eye />}</button>
+                                                    </div>
+
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name='confirmPassword'
+                                            render={({ field }) => (
+                                                <FormItem className='w-full'>
+                                                    <div className='flex items-center relative'>
+                                                        <FormControl>
+                                                            <Input
+                                                                className='w-full font-sans font-semibold p-3 border bg-[#F4F4F4] border-gray-300 rounded-md'
+                                                                placeholder='Retype Password'
+                                                                type={showPasswordConfirm ? 'text' : 'password'}
+                                                                {...field}
+                                                            />
+                                                        </FormControl>
+
+                                                        <button onClick={() => setShowPasswordConfirm(!showPasswordConfirm)} className='absolute right-5'>{showPasswordConfirm ? <EyeOff /> : <Eye />}</button>
+                                                    </div>
+
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+
+                                    <div className={`${currentSection === 1 ? 'block' : 'hidden'} flex flex-col items-end w-full md:w-2/3 space-y-7`}>
+                                        <FormField
+                                            control={form.control}
+                                            name="typeBusinessEntity"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                                    <button className="">
+                                                                        {field.value || "Select Type of Business"} {/* Display selected value */}
+                                                                    </button>
+
+                                                                    <ChevronDown />
+                                                                </div>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent className="w-full">
+                                                                <DropdownMenuLabel>Business Entity</DropdownMenuLabel>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Perorangan")} className="w-full">Perorangan</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("CV")} className="w-full">CV</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Koperasi")} className="w-full">Koperasi</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Firma")} className="w-full">Firma</DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="merchantName"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Merchant" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="merchantCity"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                                    <button className="">
+                                                                        {field.value || "Select City"} {/* Display selected value */}
+                                                                    </button>
+
+                                                                    <ChevronDown />
+                                                                </div>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent className="w-full">
+                                                                <DropdownMenuLabel>City</DropdownMenuLabel>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Jakarta")} className="w-full">Jakarta</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Bandung")} className="w-full">Bandung</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Surabaya")} className="w-full">Surabaya</DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="merchantCategory"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                                    <button className="">
+                                                                        {field.value || "Select Category"} {/* Display selected value */}
+                                                                    </button>
+
+                                                                    <ChevronDown />
+                                                                </div>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent className="w-full">
+                                                                <DropdownMenuLabel>Category</DropdownMenuLabel>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Makanan & Minuman")} className="w-full">Makanan & Minuman</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Fashion & Aksesori")} className="w-full">Fashion & Aksesori</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Elektronik & Gadget")} className="w-full">Elektronik & Gadget</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Kesehatan & Kecantikan")} className="w-full">Kesehatan & Kecantikan</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Rumah & Dekorasi")} className="w-full">Rumah & Dekorasi</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Otomotif")} className="w-full">Otomotif</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Hobi & Hiburan")} className="w-full">Hobi & Hiburan</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Jasa & Layanan")} className="w-full">Jasa & Layanan</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Bahan Pokok & Grosir")} className="w-full">Bahan Pokok & Grosir</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Teknologi & Digital")} className="w-full">Teknologi & Digital</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Lainnya")} className="w-full">Lainnya</DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="postalCode"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="Postal Code" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="merchantAddress"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Merchant Address" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="phoneNumberMerchant"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp Merchant" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="merchantEmail"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Email Merchant" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+
+                                    <Button onClick={handleNext} disabled={values.ownerName.length > 0 && values.gender && values.dateOfBirth.length > 0 && values.email.length > 0 && values.phoneNumber.length > 0 && values.password.length > 0 && values.confirmPassword.length > 0 ? false : true} className={`${currentSection === 0 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>NEXT</Button>
+
+                                    <Button type="submit" className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>SUBMIT</Button>
+                                </form>
+                            </Form>
                         </div>
 
-                        <div className="w-20 h-[2px] bg-black"></div>
-
-                        <div className={`${section[2] ? 'bg-green-500' : 'bg-gray-500'} transition-all w-12 h-12 rounded-full flex items-center justify-center`}>
-                            <Smartphone className="text-white" />
-                        </div>
+                        <OTP currentSection={currentSection} />
                     </div>
 
-                    <div className="w-full mt-10">
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)}>
-                                <div className={`${currentSection === 0 ? 'block' : 'hidden'} flex flex-col items-end w-full md:w-2/3 space-y-7`}>
-                                    <FormField
-                                        control={form.control}
-                                        name="ownerName"
-                                        render={({ field }) => (
-                                            <FormItem className="w-full">
-                                                <FormControl>
-                                                    <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Pemilik" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="gender"
-                                        render={({ field }) => (
-                                            <FormItem className="space-y-3 m-auto">
-                                                <FormControl>
-                                                    <RadioGroup
-                                                        onValueChange={field.onChange}
-                                                        defaultValue={field.value}
-                                                        className="flex w-full space-x-7"
-                                                    >
-                                                        <FormItem className="flex items-center space-x-2 space-y-0">
-                                                            <FormControl>
-                                                                <RadioGroupItem value="Laki - Laki" />
-                                                            </FormControl>
-                                                            <FormLabel className="font-normal">
-                                                                Laki - Laki
-                                                            </FormLabel>
-                                                        </FormItem>
-
-                                                        <FormItem className="flex items-center space-x-2 space-y-0">
-                                                            <FormControl>
-                                                                <RadioGroupItem value="Perempuan" />
-                                                            </FormControl>
-                                                            <FormLabel className="font-normal">
-                                                                Perempuan
-                                                            </FormLabel>
-                                                        </FormItem>
-                                                    </RadioGroup>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="dateOfBirth"
-                                        render={({ field }) => (
-                                            <FormItem className="w-full">
-                                                <FormControl>
-                                                    <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="date" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="email"
-                                        render={({ field }) => (
-                                            <FormItem className="w-full">
-                                                <div>
-                                                    <FormControl>
-                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Email" {...field} />
-                                                    </FormControl>
-
-                                                    <p className="text-gray-500 text-xs mt-2 italic">Mohon pastikan email Anda aktif.</p>
-                                                </div>
-
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="phoneNumber"
-                                        render={({ field }) => (
-                                            <FormItem className="w-full">
-                                                <div>
-                                                    <FormControl>
-                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp" {...field} />
-                                                    </FormControl>
-
-                                                    <p className="text-xs italic text-gray-500 mt-2">Pastikan nomer Anda aktif.</p>
-                                                </div>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name='password'
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <div className='flex items-center relative'>
-                                                    <FormControl>
-                                                        <Input
-                                                            className='w-full font-sans font-semibold p-3 border bg-[#F4F4F4] border-gray-300 rounded-md'
-                                                            placeholder='Password'
-                                                            type={showPassword ? 'text' : 'password'}
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-
-                                                    <button onClick={() => setShowPassword(!showPassword)} className='absolute right-5'>{showPassword ? <EyeOff /> : <Eye />}</button>
-                                                </div>
-
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name='confirmPassword'
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <div className='flex items-center relative'>
-                                                    <FormControl>
-                                                        <Input
-                                                            className='w-full font-sans font-semibold p-3 border bg-[#F4F4F4] border-gray-300 rounded-md'
-                                                            placeholder='Retype Password'
-                                                            type={showPasswordConfirm ? 'text' : 'password'}
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-
-                                                    <button onClick={() => setShowPasswordConfirm(!showPasswordConfirm)} className='absolute right-5'>{showPasswordConfirm ? <EyeOff /> : <Eye />}</button>
-                                                </div>
-
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-
-                                <div className={`${currentSection === 1 ? 'block' : 'hidden'} flex flex-col items-end w-full md:w-2/3 space-y-7`}>
-                                    <FormField
-                                        control={form.control}
-                                        name="typeBusinessEntity"
-                                        render={({ field }) => (
-                                            <FormItem className="w-full">
-                                                <FormControl>
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                <button className="">
-                                                                    {field.value || "Select Type of Business"} {/* Display selected value */}
-                                                                </button>
-
-                                                                <ChevronDown />
-                                                            </div>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent className="w-full">
-                                                            <DropdownMenuLabel>Business Entity</DropdownMenuLabel>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Perorangan")} className="w-full">Perorangan</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("CV")} className="w-full">CV</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Koperasi")} className="w-full">Koperasi</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Firma")} className="w-full">Firma</DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="merchantName"
-                                        render={({ field }) => (
-                                            <FormItem className="w-full">
-                                                <FormControl>
-                                                    <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Merchant" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="merchantCity"
-                                        render={({ field }) => (
-                                            <FormItem className="w-full">
-                                                <FormControl>
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                <button className="">
-                                                                    {field.value || "Select City"} {/* Display selected value */}
-                                                                </button>
-
-                                                                <ChevronDown />
-                                                            </div>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent className="w-full">
-                                                            <DropdownMenuLabel>City</DropdownMenuLabel>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Jakarta")} className="w-full">Jakarta</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Bandung")} className="w-full">Bandung</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Surabaya")} className="w-full">Surabaya</DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="merchantCategory"
-                                        render={({ field }) => (
-                                            <FormItem className="w-full">
-                                                <FormControl>
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                <button className="">
-                                                                    {field.value || "Select Category"} {/* Display selected value */}
-                                                                </button>
-
-                                                                <ChevronDown />
-                                                            </div>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent className="w-full">
-                                                            <DropdownMenuLabel>Category</DropdownMenuLabel>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Makanan & Minuman")} className="w-full">Makanan & Minuman</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Fashion & Aksesori")} className="w-full">Fashion & Aksesori</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Elektronik & Gadget")} className="w-full">Elektronik & Gadget</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Kesehatan & Kecantikan")} className="w-full">Kesehatan & Kecantikan</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Rumah & Dekorasi")} className="w-full">Rumah & Dekorasi</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Otomotif")} className="w-full">Otomotif</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Hobi & Hiburan")} className="w-full">Hobi & Hiburan</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Jasa & Layanan")} className="w-full">Jasa & Layanan</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Bahan Pokok & Grosir")} className="w-full">Bahan Pokok & Grosir</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Teknologi & Digital")} className="w-full">Teknologi & Digital</DropdownMenuItem>
-                                                            <DropdownMenuItem onSelect={() => field.onChange("Lainnya")} className="w-full">Lainnya</DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="postalCode"
-                                        render={({ field }) => (
-                                            <FormItem className="w-full">
-                                                <FormControl>
-                                                    <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="Postal Code" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="merchantAddress"
-                                        render={({ field }) => (
-                                            <FormItem className="w-full">
-                                                <FormControl>
-                                                    <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Merchant Address" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="phoneNumberMerchant"
-                                        render={({ field }) => (
-                                            <FormItem className="w-full">
-                                                <FormControl>
-                                                    <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp Merchant" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="merchantEmail"
-                                        render={({ field }) => (
-                                            <FormItem className="w-full">
-                                                <FormControl>
-                                                    <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Email Merchant" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-
-                                <Button onClick={handleNext} disabled={values.ownerName.length > 0 && values.gender && values.dateOfBirth.length > 0 && values.email.length > 0 && values.phoneNumber.length > 0 && values.password.length > 0 && values.confirmPassword.length > 0 ? false : true} className={`${currentSection === 0 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>NEXT</Button>
-
-                                <Button type="submit" className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>SUBMIT</Button>
-                            </form>
-                        </Form>
-                    </div>
-
-                    <OTP currentSection={currentSection} />
-                </div>
+                    {createPin && <PinInput />}
+                </>
             )}
         </>
     )
