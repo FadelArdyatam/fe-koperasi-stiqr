@@ -15,7 +15,7 @@ export const admissionFees = [
         image: linkaja,
         title: "LinkAja",
         amount: "100000",
-        date: "12/08/2021",
+        date: "12/11/2024",
         time: "12:00",
         status: "success",
         code: "INV-1321214"
@@ -24,7 +24,7 @@ export const admissionFees = [
         image: gopay,
         title: "GoPay",
         amount: "50000",
-        date: "12/08/2021",
+        date: "14/11/2024",
         time: "12:00",
         status: "failed",
         code: "INV-323023"
@@ -33,7 +33,7 @@ export const admissionFees = [
         image: ovo,
         title: "OVO",
         amount: "200000",
-        date: "12/08/2021",
+        date: "23/11/2024",
         time: "12:00",
         status: "success",
         code: "INV-124958"
@@ -42,7 +42,7 @@ export const admissionFees = [
         image: dana,
         title: "DANA",
         amount: "150000",
-        date: "12/08/2021",
+        date: "29/11/2024",
         time: "12:00",
         status: "pending",
         code: "INV-439230"
@@ -51,7 +51,7 @@ export const admissionFees = [
         image: dana,
         title: "DANA",
         amount: "170000",
-        date: "12/08/2021",
+        date: "11/11/2024",
         time: "12:00",
         status: "pending",
         code: "INV-123456"

@@ -13,7 +13,7 @@ const payments = [
         title: "PLN",
         code: "INV-0001",
         amount: "100000",
-        date: "12/10/2021",
+        date: "23/11/2024",
         time: "10:00",
         image: pln,
         status: 'success'
@@ -22,7 +22,7 @@ const payments = [
         title: "BPJS",
         code: "INV-0002",
         amount: "150000",
-        date: "12/10/2021",
+        date: "24/11/2024",
         time: "10:00",
         image: bpjs,
         status: 'pending'
@@ -31,7 +31,7 @@ const payments = [
         title: "PLN",
         code: "INV-0003",
         amount: "200000",
-        date: "12/10/2021",
+        date: "29/11/2024",
         time: "10:00",
         image: pln,
         status: 'success'
@@ -40,7 +40,7 @@ const payments = [
         title: "Telkomsel",
         code: "INV-0004",
         amount: "300000",
-        date: "12/10/2021",
+        date: "12/11/2024",
         time: "10:00",
         image: telkomsel,
         status: 'failed'
@@ -54,6 +54,9 @@ const Riwayat = () => {
     const [typeSorting, setTypeSorting] = useState({ show: false, type: 'asc' });
     const [sortingPayments, setSortingPayments] = useState<typeof payments>([]);
     const [sortingAdmissionFees, setSortingAdmissionFees] = useState<typeof admissionFees>([]);
+    const [typeFilter, setTypeFilter] = useState({ show: false, type: 'all' });
+    const [filterPayments, setFilterPayments] = useState<typeof payments>([]);
+    const [filterAdmissionFees, setFilterAdmissionFees] = useState<typeof admissionFees>([]);
 
     const downloadImage = async () => {
         if (contentRef.current) {
@@ -74,27 +77,68 @@ const Riwayat = () => {
     };
 
     const sortingHandler = () => {
+        // Sorting Payments by Date
         const sortedPayments = [...payments].sort((a, b) => {
+            const dateA = new Date(a.date.split('/').reverse().join('/')); // Convert DD/MM/YYYY to YYYY/MM/DD
+            const dateB = new Date(b.date.split('/').reverse().join('/')); // Convert DD/MM/YYYY to YYYY/MM/DD
+
             if (typeSorting.type === 'asc') {
-                return a.title.localeCompare(b.title);
+                return dateA.getTime() - dateB.getTime();
             } else {
-                return b.title.localeCompare(a.title);
+                return dateB.getTime() - dateA.getTime();
             }
         });
 
+        // Sorting Admission Fees by Date
         const sortedAdmissionFees = [...admissionFees].sort((a, b) => {
+            const dateA = new Date(a.date.split('/').reverse().join('/')); // Convert DD/MM/YYYY to YYYY/MM/DD
+            const dateB = new Date(b.date.split('/').reverse().join('/')); // Convert DD/MM/YYYY to YYYY/MM/DD
+
             if (typeSorting.type === 'asc') {
-                return a.title.localeCompare(b.title);
+                return dateA.getTime() - dateB.getTime();
             } else {
-                return b.title.localeCompare(a.title);
+                return dateB.getTime() - dateA.getTime();
             }
         });
 
+        // Update State
         setSortingPayments(sortedPayments);
         setSortingAdmissionFees(sortedAdmissionFees);
-        setTypeSorting({ show: true, type: typeSorting.type === 'asc' ? 'desc' : 'asc' }); // Toggle sorting order
+
+        // Toggle Sorting Order
+        setTypeSorting({ show: true, type: typeSorting.type === 'asc' ? 'desc' : 'asc' });
     };
 
+    const filterHandler = (filterType: string) => {
+        setTypeSorting({ show: false, type: typeSorting.type === 'asc' ? 'desc' : 'asc' });
+
+        // Update Filter Type
+        setTypeFilter({ show: true, type: filterType });
+
+        // Filter Payments by Status
+        const filteredPayments = payments.filter(payment => {
+            if (filterType === 'all') {
+                return true; // Include all payments
+            } else {
+                return payment.status === filterType;
+            }
+        });
+
+        // Filter Admission Fees by Status
+        const filteredAdmissionFees = admissionFees.filter(admissionFee => {
+            if (filterType === 'all') {
+                return true; // Include all admission fees
+            } else {
+                return admissionFee.status === filterType;
+            }
+        });
+
+        // Update State
+        setFilterPayments(filteredPayments);
+        setFilterAdmissionFees(filteredAdmissionFees);
+    };
+
+    console.log(typeSorting.show)
 
     return (
         <div className="relative h-screen">
@@ -167,6 +211,43 @@ const Riwayat = () => {
                 >
                     <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg">
                         {typeSorting.show ? sortingAdmissionFees.map((admissionFee, index) => ( // Tampilkan data yang sudah diurutkan
+                            <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
+                                <div
+                                    className={`${index === 0 ? "hidden" : "block"
+                                        } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
+                                ></div>
+
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <img
+                                            src={admissionFee.image}
+                                            className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
+                                            alt=""
+                                        />
+
+                                        <div className="flex flex-col items-start">
+                                            <p className="uppercase text-sm">{admissionFee.title}</p>
+
+                                            <p className="text-xs text-gray-400">{admissionFee.code}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col items-end">
+                                        <p className="text-md font-semibold">
+                                            Rp {new Intl.NumberFormat("id-ID").format(Number(admissionFee.amount))}
+                                        </p>
+
+                                        <div className="flex items-center">
+                                            <p className="text-xs">{admissionFee.date}</p>
+
+                                            <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                            <p className="text-xs">{admissionFee.time}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </button>
+                        )) : typeFilter.show ? filterAdmissionFees.map((admissionFee, index) => ( // Tampilkan data yang belum diurutkan
                             <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
                                 <div
                                     className={`${index === 0 ? "hidden" : "block"
@@ -286,6 +367,43 @@ const Riwayat = () => {
                                     </div>
                                 </div>
                             </button>
+                        )) : typeFilter.show ? filterPayments.map((payment, index) => ( // Tampilkan data yang belum diurutkan
+                            <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
+                                <div
+                                    className={`${index === 0 ? "hidden" : "block"
+                                        } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
+                                ></div>
+
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-start gap-2">
+                                        <img
+                                            src={payment.image}
+                                            className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
+                                            alt=""
+                                        />
+
+                                        <div className="flex flex-col items-start">
+                                            <p className="uppercase text-sm">{payment.title}</p>
+
+                                            <p className="text-xs text-gray-400">{payment.code}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col items-end">
+                                        <p className="text-md font-semibold">
+                                            Rp {new Intl.NumberFormat("id-ID").format(Number(payment.amount))}
+                                        </p>
+
+                                        <div className="flex items-center">
+                                            <p className="text-xs">{payment.date}</p>
+
+                                            <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                            <p className="text-xs">{payment.time}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </button>
                         )) : payments.map((payment, index) => ( // Tampilkan data yang belum diurutkan
                             <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
                                 <div
@@ -329,16 +447,38 @@ const Riwayat = () => {
             </div>
 
             <div className="fixed bottom-32 w-full m-auto flex items-center justify-center">
-                <div className="flex items-center py-3 px-5 rounded-full bg-white shadow-lg gap-5">
-                    <button className="flex items-center gap-2 text-gray-500">
-                        <ArrowDownAZ />
+                <div className="flex relative items-center justify-center py-3 px-5 rounded-full bg-white shadow-lg gap-5">
+                    {/* Tombol Filter */}
+                    <button onClick={() => setTypeFilter(prev => ({ ...prev, show: !prev.show }))} className="flex items-center gap-2 text-gray-500">
+                        <Filter />
 
                         <p>Filter</p>
                     </button>
 
-                    <button onClick={sortingHandler} className="flex items-center gap-2 text-gray-500">
-                        <Filter />
+                    {/* Dropdown Filter */}
+                    {typeFilter.show && (
+                        <div className="absolute flex bg-gray-200 p-2 rounded-lg items-center gap-3 -top-12">
+                            <button onClick={() => filterHandler('all')} className="text-sm font-medium text-gray-600 hover:text-gray-800">
+                                All
+                            </button>
 
+                            <button onClick={() => filterHandler('success')} className="text-sm font-medium text-gray-600 hover:text-gray-800">
+                                Success
+                            </button>
+
+                            <button onClick={() => filterHandler('pending')} className="text-sm font-medium text-gray-600 hover:text-gray-800">
+                                Pending
+                            </button>
+
+                            <button onClick={() => filterHandler('failed')} className="text-sm font-medium text-gray-600 hover:text-gray-800">
+                                Failed
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Tombol Sorting */}
+                    <button onClick={sortingHandler} className="flex items-center gap-2 text-gray-500">
+                        <ArrowDownAZ />
                         <p>Sorting</p>
                     </button>
                 </div>
