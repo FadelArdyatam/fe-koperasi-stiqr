@@ -14,6 +14,9 @@ import Inbox from './pages/Inbox.tsx'
 import Settlement from './pages/Settlement.tsx'
 import QRCode from './pages/QRCode.tsx'
 import Riwayat from './pages/Riwayat.tsx'
+import Profile from './pages/Profile/Profile.tsx'
+import Keamanan from './pages/Profile/Keamanan.tsx'
+import DataPemilik from './pages/Profile/DataPemilik.tsx'
 
 const router = createBrowserRouter([
   {
@@ -63,6 +66,18 @@ const router = createBrowserRouter([
   {
     path: '/history',
     element: <Riwayat />
+  },
+  {
+    path: '/profile',
+    element: <Profile />
+  },
+  {
+    path: '/profile/security',
+    element: <Keamanan />
+  },
+  {
+    path: '/profile/owner-data',
+    element: <DataPemilik />
   }
 ], {
   future: {

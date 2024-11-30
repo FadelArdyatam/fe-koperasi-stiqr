@@ -99,7 +99,7 @@ const Settlement = () => {
                     <p className="uppercase">Riwayat</p>
                 </Link>
 
-                <Link to="/" className="flex gap-3 flex-col items-center">
+                <Link to="/profile" className="flex gap-3 flex-col items-center">
                     <UserRound />
                     <p className="uppercase">Profile</p>
                 </Link>

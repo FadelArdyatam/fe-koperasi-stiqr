@@ -25,7 +25,7 @@ const Signup = () => {
     const [currentSection, setCurrentSection] = useState(0);
     const [showPassword, setShowPassword] = useState(false)
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
-    const [createPin, setCreatePin] = useState(true)
+    const [createPin, setCreatePin] = useState(false)
 
     const FormSchema = z.object({
         ownerName: z.string().min(2, {
