@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, History } from "lucide-react";
+import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, History, Filter, ArrowDownAZ } from "lucide-react";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { admissionFees } from "./Dashboard";
@@ -51,6 +51,9 @@ const Riwayat = () => {
     const [type, setType] = useState("Uang Masuk");
     const [showDescription, setShowDescription] = useState({ status: false, index: -1 });
     const contentRef = useRef(null); // Untuk mereferensikan elemen yang akan dirender menjadi gambar
+    const [typeSorting, setTypeSorting] = useState({ show: false, type: 'asc' });
+    const [sortingPayments, setSortingPayments] = useState<typeof payments>([]);
+    const [sortingAdmissionFees, setSortingAdmissionFees] = useState<typeof admissionFees>([]);
 
     const downloadImage = async () => {
         if (contentRef.current) {
@@ -69,6 +72,29 @@ const Riwayat = () => {
             }
         }
     };
+
+    const sortingHandler = () => {
+        const sortedPayments = [...payments].sort((a, b) => {
+            if (typeSorting.type === 'asc') {
+                return a.title.localeCompare(b.title);
+            } else {
+                return b.title.localeCompare(a.title);
+            }
+        });
+
+        const sortedAdmissionFees = [...admissionFees].sort((a, b) => {
+            if (typeSorting.type === 'asc') {
+                return a.title.localeCompare(b.title);
+            } else {
+                return b.title.localeCompare(a.title);
+            }
+        });
+
+        setSortingPayments(sortedPayments);
+        setSortingAdmissionFees(sortedAdmissionFees);
+        setTypeSorting({ show: true, type: typeSorting.type === 'asc' ? 'desc' : 'asc' }); // Toggle sorting order
+    };
+
 
     return (
         <div className="relative h-screen">
@@ -140,7 +166,44 @@ const Riwayat = () => {
                     className={`absolute inset-0 ${type === "Uang Masuk" ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-full"} transition-all duration-500 ease-in-out`}
                 >
                     <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg">
-                        {admissionFees.map((admissionFee, index) => (
+                        {typeSorting.show ? sortingAdmissionFees.map((admissionFee, index) => ( // Tampilkan data yang sudah diurutkan
+                            <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
+                                <div
+                                    className={`${index === 0 ? "hidden" : "block"
+                                        } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
+                                ></div>
+
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <img
+                                            src={admissionFee.image}
+                                            className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
+                                            alt=""
+                                        />
+
+                                        <div className="flex flex-col items-start">
+                                            <p className="uppercase text-sm">{admissionFee.title}</p>
+
+                                            <p className="text-xs text-gray-400">{admissionFee.code}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col items-end">
+                                        <p className="text-md font-semibold">
+                                            Rp {new Intl.NumberFormat("id-ID").format(Number(admissionFee.amount))}
+                                        </p>
+
+                                        <div className="flex items-center">
+                                            <p className="text-xs">{admissionFee.date}</p>
+
+                                            <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                            <p className="text-xs">{admissionFee.time}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </button>
+                        )) : admissionFees.map((admissionFee, index) => ( // Tampilkan data yang belum diurutkan
                             <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
                                 <div
                                     className={`${index === 0 ? "hidden" : "block"
@@ -186,7 +249,44 @@ const Riwayat = () => {
                     className={`absolute inset-0 ${type === "Pembelian" ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"} transition-all duration-500 ease-in-out`}
                 >
                     <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg">
-                        {payments.map((payment, index) => (
+                        {typeSorting.show ? sortingPayments.map((payment, index) => ( // Tampilkan data yang sudah diurutkan
+                            <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
+                                <div
+                                    className={`${index === 0 ? "hidden" : "block"
+                                        } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
+                                ></div>
+
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-start gap-2">
+                                        <img
+                                            src={payment.image}
+                                            className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
+                                            alt=""
+                                        />
+
+                                        <div className="flex flex-col items-start">
+                                            <p className="uppercase text-sm">{payment.title}</p>
+
+                                            <p className="text-xs text-gray-400">{payment.code}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col items-end">
+                                        <p className="text-md font-semibold">
+                                            Rp {new Intl.NumberFormat("id-ID").format(Number(payment.amount))}
+                                        </p>
+
+                                        <div className="flex items-center">
+                                            <p className="text-xs">{payment.date}</p>
+
+                                            <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                            <p className="text-xs">{payment.time}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </button>
+                        )) : payments.map((payment, index) => ( // Tampilkan data yang belum diurutkan
                             <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
                                 <div
                                     className={`${index === 0 ? "hidden" : "block"
@@ -225,6 +325,22 @@ const Riwayat = () => {
                             </button>
                         ))}
                     </div>
+                </div>
+            </div>
+
+            <div className="fixed bottom-32 w-full m-auto flex items-center justify-center">
+                <div className="flex items-center py-3 px-5 rounded-full bg-white shadow-lg gap-5">
+                    <button className="flex items-center gap-2 text-gray-500">
+                        <ArrowDownAZ />
+
+                        <p>Filter</p>
+                    </button>
+
+                    <button onClick={sortingHandler} className="flex items-center gap-2 text-gray-500">
+                        <Filter />
+
+                        <p>Sorting</p>
+                    </button>
                 </div>
             </div>
 
