@@ -2,6 +2,7 @@ import { Check, RotateCw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
+import bcrypt from "bcryptjs";
 
 const PinInput = () => {
     const [step, setStep] = useState(1); // Step 1: Input PIN pertama, Step 2: Konfirmasi PIN
@@ -37,10 +38,13 @@ const PinInput = () => {
 
     const handleSubmit = () => {
         if (pin.join("") === confirmPin.join("")) {
+            // Hash PIN sebelum menyimpannya
+            const hashedPin = bcrypt.hashSync(pin.join(""), 10);
+            localStorage.setItem("userPin", hashedPin);
             setNotification({ showRetype: false, showSuccess: true });
         } else {
             alert("PINs do not match. Please try again.");
-            setStep(1); // Reset ke langkah 1
+            setStep(1);
             setPin([]);
             setConfirmPin([]);
         }
