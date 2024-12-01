@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Check, ChevronLeft, ChevronRight } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, UserRound, History } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
@@ -67,6 +67,40 @@ const Keamanan = () => {
                 </Link>
 
                 <p className='font-semibold m-auto text-xl text-white text-center'>{showContent === 'Password' ? 'Edit Password' : showContent === 'PIN' ? 'Edit PIN' : 'Keamanan'}</p>
+            </div>
+
+            <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
+                <Link to={'/dashboard'} className="flex gap-3 flex-col items-center">
+                    <Home />
+
+                    <p className="uppercase">Home</p>
+                </Link>
+
+                <Link to={'/qr-code'} className="flex gap-3 flex-col items-center">
+                    <ScanQrCode />
+
+                    <p className="uppercase">Qr Code</p>
+                </Link>
+
+                <Link to={'/settlement'} className="flex relative gap-3 flex-col items-center">
+                    <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
+                        <CreditCard />
+                    </div>
+
+                    <p className="uppercase">Penarikan</p>
+                </Link>
+
+                <Link to={'/history'} className="flex gap-3 flex-col items-center">
+                    <History />
+
+                    <p className="uppercase">Riwayat</p>
+                </Link>
+
+                <Link to={'/profile'} className="flex gap-3 flex-col text-orange-400 items-center">
+                    <UserRound />
+
+                    <p className="uppercase">Profile</p>
+                </Link>
             </div>
 
             <div className={`${showContent === '' ? 'block' : 'hidden'} bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20`}>

@@ -59,7 +59,7 @@ const PinInput = () => {
     };
 
     return (
-        <div className="w-full h-screen flex flex-col items-center justify-center bg-orange-400">
+        <div className="w-full h-screen flex flex-col items-center p-5 justify-center bg-orange-400">
             {/* Header */}
             <h1 className="text-white text-xl font-semibold mb-2">
                 {step === 1 ? "Enter 6 Digit PIN" : "Confirm Your PIN"}

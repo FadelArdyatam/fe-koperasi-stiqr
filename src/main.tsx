@@ -17,6 +17,7 @@ import Riwayat from './pages/Riwayat.tsx'
 import Profile from './pages/Profile/Profile.tsx'
 import Keamanan from './pages/Profile/Keamanan.tsx'
 import DataPemilik from './pages/Profile/DataPemilik.tsx'
+import DataMerchant from './pages/Profile/DataMerchant.tsx'
 
 const router = createBrowserRouter([
   {
@@ -78,6 +79,10 @@ const router = createBrowserRouter([
   {
     path: '/profile/owner-data',
     element: <DataPemilik />
+  },
+  {
+    path: '/profile/merchant-data',
+    element: <DataMerchant />
   }
 ], {
   future: {

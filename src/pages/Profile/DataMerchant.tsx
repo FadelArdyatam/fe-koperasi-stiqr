@@ -1,52 +1,50 @@
 import { Button } from "@/components/ui/button"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Check, ChevronLeft, CreditCard, Home, Image, ScanQrCode, UserRound, History } from "lucide-react"
+import { Check, ChevronDown, ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, History } from "lucide-react"
 import { useState } from "react"
-import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import { z } from "zod"
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
+import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
 
-const DataPemilik = () => {
+const DataMerchant = () => {
     const [showEdit, setShowEdit] = useState(false)
     const [showNotification, setShowNotification] = useState(false)
 
     const FormSchema = z.object({
-        NIK: z.string().min(2, {
-            message: "NIK must be at least 2 characters.",
+        merchantName: z.string().min(2, {
+            message: "Merchant name must be at least 2 characters.",
         }),
-        ownerName: z.string().min(2, {
-            message: "ownerName must be at least 2 characters.",
+        merchantCategory: z.enum(["Makanan & Minuman", "Fashion & Aksesori", "Elektronik & Gadget", "Kesehatan & Kecantikan", "Rumah & Dekorasi", "Otomotif", "Hobi & Hiburan", "Jasa & Layanan", "Bahan Pokok & Grosir", "Teknologi & Digital", "Lainnya"], {
+            message: "Please select the category",
         }),
-        email: z.string().email({
-            message: "Invalid email address.",
+        merchantCity: z.enum(["Jakarta", "Bandung", "Surabaya"], {
+            message: "Please select the city",
         }),
-        phoneNumber: z.string().min(10, {
+        phoneNumberMerchant: z.string().min(10, {
             message: "Phone number must be at least 10 characters.",
         }).max(15, {
             message: "Phone number must be at most 15 characters.",
         }),
-        dateOfBirth: z.string().refine((value) => {
-            const date = new Date(value);
-            return date instanceof Date && !isNaN(date.getTime());
-        }, {
-            message: "Invalid date.",
+        merchantAddress: z.string().min(5, {
+            message: "Merchant address must be at least 5 characters.",
         }),
-        photo: z.instanceof(File, {
-            message: "Photo must be a valid file.",
+        postalCode: z.string().min(5, {
+            message: "Postal code must be at least 5 characters.",
         }),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            NIK: "",
-            ownerName: "",
-            email: "",
-            phoneNumber: "",
-            dateOfBirth: "",
-            photo: undefined,
+            merchantName: '',
+            merchantCategory: undefined,
+            merchantCity: undefined,
+            phoneNumberMerchant: '',
+            merchantAddress: '',
+            postalCode: '',
         },
     })
 
@@ -64,7 +62,7 @@ const DataPemilik = () => {
                         <ChevronLeft className='scale-[1.3] text-white' />
                     </Link>
 
-                    <p className='font-semibold m-auto text-xl text-white text-center'>Data Pemilik</p>
+                    <p className='font-semibold m-auto text-xl text-white text-center'>Data Merchant</p>
                 </div>
 
                 <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -103,25 +101,25 @@ const DataPemilik = () => {
 
                 <div className="bg-white w-[90%] -translate-y-20 p-5 flex flex-col items-center gap-5 rounded-lg shadow-lg z-20">
                     <div className="flex w-full items-center justify-between">
-                        <p className="text-sm text-gray-500">NIK</p>
+                        <p className="text-sm text-gray-500">Nama Merchant</p>
 
-                        <p className="text-sm font-semibold">123203091821833</p>
+                        <p className="text-sm font-semibold">Kopi</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
                     <div className="flex w-full items-center gap-5 justify-between">
-                        <p className="text-sm text-gray-500">Nama</p>
+                        <p className="text-sm text-gray-500">Kategori Merchant</p>
 
-                        <p className="text-sm font-semibold">Rani Destrian</p>
+                        <p className="text-sm font-semibold">Restaurant</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
                     <div className="flex w-full items-center gap-5 justify-between">
-                        <p className="text-sm text-gray-500">Email</p>
+                        <p className="text-sm text-gray-500">Kota Merchant</p>
 
-                        <p className="text-sm font-semibold">Rani.destrian@gmail.com</p>
+                        <p className="text-sm font-semibold">DKI Jakarta</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
@@ -135,21 +133,21 @@ const DataPemilik = () => {
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
                     <div className="flex w-full items-center gap-5 justify-between">
-                        <p className="text-sm text-gray-500">Tanggal Lahir</p>
+                        <p className="text-sm text-gray-500">Alamat</p>
 
-                        <p className="text-sm font-semibold">23/09/2004</p>
+                        <p className="text-sm font-semibold">Karet Semanggi</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
                     <div className="flex w-full items-center gap-5 justify-between">
-                        <p className="text-sm text-gray-500">Photo</p>
+                        <p className="text-sm text-gray-500">Kode Pos</p>
 
-                        <Image />
+                        <p className="text-sm font-semibold">17132</p>
                     </div>
                 </div>
 
-                <Button onClick={() => setShowEdit(true)} className="w-[90%] bg-green-400">Edit</Button>
+                <Button onClick={() => setShowEdit(true)} className="w-[90%] block bg-green-400">Edit</Button>
             </div>
 
             <div className={`${showEdit ? 'flex' : 'hidden'} w-full flex-col min-h-screen items-center`}>
@@ -158,7 +156,7 @@ const DataPemilik = () => {
                         <ChevronLeft className='scale-[1.3] text-white' />
                     </button>
 
-                    <p className='font-semibold m-auto text-xl text-white text-center'>Edit Data Pemilik</p>
+                    <p className='font-semibold m-auto text-xl text-white text-center'>Edit Data Merchant</p>
                 </div>
 
                 <div className="w-[90%] bg-white shadow-lg rounded-lg p-5 -translate-y-20">
@@ -167,13 +165,11 @@ const DataPemilik = () => {
                             <div className={'flex flex-col items-end w-full md:w-2/3 space-y-7'}>
                                 <FormField
                                     control={form.control}
-                                    name="NIK"
+                                    name="merchantName"
                                     render={({ field }) => (
                                         <FormItem className="w-full">
-                                            <FormLabel className="text-gray-500">NIK</FormLabel>
-
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Merchant" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -182,13 +178,36 @@ const DataPemilik = () => {
 
                                 <FormField
                                     control={form.control}
-                                    name="ownerName"
+                                    name="merchantCategory"
                                     render={({ field }) => (
                                         <FormItem className="w-full">
-                                            <FormLabel className="text-gray-500">Name</FormLabel>
-
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                            <button className="">
+                                                                {field.value || "Select Category"} {/* Display selected value */}
+                                                            </button>
+
+                                                            <ChevronDown />
+                                                        </div>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent className="w-full bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4">
+                                                        <DropdownMenuLabel>Category</DropdownMenuLabel>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Makanan & Minuman")} className="w-full">Makanan & Minuman</DropdownMenuItem>
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Fashion & Aksesori")} className="w-full">Fashion & Aksesori</DropdownMenuItem>
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Elektronik & Gadget")} className="w-full">Elektronik & Gadget</DropdownMenuItem>
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Kesehatan & Kecantikan")} className="w-full">Kesehatan & Kecantikan</DropdownMenuItem>
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Rumah & Dekorasi")} className="w-full">Rumah & Dekorasi</DropdownMenuItem>
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Otomotif")} className="w-full">Otomotif</DropdownMenuItem>
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Hobi & Hiburan")} className="w-full">Hobi & Hiburan</DropdownMenuItem>
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Jasa & Layanan")} className="w-full">Jasa & Layanan</DropdownMenuItem>
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Bahan Pokok & Grosir")} className="w-full">Bahan Pokok & Grosir</DropdownMenuItem>
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Teknologi & Digital")} className="w-full">Teknologi & Digital</DropdownMenuItem>
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Lainnya")} className="w-full">Lainnya</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -197,13 +216,28 @@ const DataPemilik = () => {
 
                                 <FormField
                                     control={form.control}
-                                    name="email"
+                                    name="merchantCity"
                                     render={({ field }) => (
                                         <FormItem className="w-full">
-                                            <FormLabel className="text-gray-500">Email</FormLabel>
-
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                            <button className="">
+                                                                {field.value || "Select City"} {/* Display selected value */}
+                                                            </button>
+
+                                                            <ChevronDown />
+                                                        </div>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent className="w-full bg-white p-5 flex flex-col gap-4 rounded-lg shadow-lg">
+                                                        <DropdownMenuLabel>City</DropdownMenuLabel>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Jakarta")} className="w-full">Jakarta</DropdownMenuItem>
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Bandung")} className="w-full">Bandung</DropdownMenuItem>
+                                                        <DropdownMenuItem onSelect={() => field.onChange("Surabaya")} className="w-full">Surabaya</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -212,13 +246,11 @@ const DataPemilik = () => {
 
                                 <FormField
                                     control={form.control}
-                                    name="phoneNumber"
+                                    name="phoneNumberMerchant"
                                     render={({ field }) => (
                                         <FormItem className="w-full">
-                                            <FormLabel className="text-gray-500">Phone</FormLabel>
-
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field} />
+                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp Merchant" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -227,16 +259,11 @@ const DataPemilik = () => {
 
                                 <FormField
                                     control={form.control}
-                                    name="dateOfBirth"
+                                    name="merchantAddress"
                                     render={({ field }) => (
                                         <FormItem className="w-full">
-                                            <FormLabel className="text-gray-500">Date of Birth</FormLabel>
                                             <FormControl>
-                                                <Input
-                                                    type="date"
-                                                    className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                    {...field}
-                                                />
+                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Merchant Address" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -245,22 +272,11 @@ const DataPemilik = () => {
 
                                 <FormField
                                     control={form.control}
-                                    name="photo"
+                                    name="postalCode"
                                     render={({ field }) => (
                                         <FormItem className="w-full">
-                                            <FormLabel className="text-gray-500">Photo</FormLabel>
                                             <FormControl>
-                                                <Input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                    onChange={(e) => {
-                                                        const file = e.target.files?.[0];
-                                                        if (file) {
-                                                            field.onChange(file); // Update field value with the selected file
-                                                        }
-                                                    }}
-                                                />
+                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="Postal Code" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -291,4 +307,4 @@ const DataPemilik = () => {
     )
 }
 
-export default DataPemilik
+export default DataMerchant
