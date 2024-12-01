@@ -6,9 +6,10 @@ import { Button } from "./ui/button";
 
 interface TermsandConditionProps {
     setShowTermsandConditions: (show: boolean) => void;
+    backToPageProfile: boolean;
 }
 
-const TermsandCondition = ({ setShowTermsandConditions }: TermsandConditionProps) => {
+const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: TermsandConditionProps) => {
     const [openItem, setOpenItem] = useState<string | null>(null);
 
     const handleAccordionChange = (value: string) => {
@@ -18,9 +19,15 @@ const TermsandCondition = ({ setShowTermsandConditions }: TermsandConditionProps
     return (
         <div className="w-full flex flex-col min-h-screen items-center">
             <div className="w-full px-5 pt-5 pb-32 flex items-center justify-center bg-orange-400">
-                <Link to={"/"} className="absolute left-5 bg-transparent hover:bg-transparent">
-                    <ChevronLeft className="scale-[1.3] text-white" />
-                </Link>
+                {backToPageProfile ? (
+                    <button onClick={() => setShowTermsandConditions(false)} className="absolute left-5 bg-transparent hover:bg-transparent">
+                        <ChevronLeft className="scale-[1.3] text-white" />
+                    </button>
+                ) : (
+                    <Link to={"/"} className="absolute left-5 bg-transparent hover:bg-transparent">
+                        <ChevronLeft className="scale-[1.3] text-white" />
+                    </Link>
+                )}
 
                 <p className="font-semibold m-auto text-xl text-white text-center">Syarat dan Ketentuan</p>
             </div>

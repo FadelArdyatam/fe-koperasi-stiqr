@@ -151,7 +151,7 @@ const Signup = () => {
 
     return (
         <>
-            {showTermsandConditions ? <TermsandCondition setShowTermsandConditions={setShowTermsandConditions} /> : (
+            {showTermsandConditions ? <TermsandCondition setShowTermsandConditions={setShowTermsandConditions} backToPageProfile={false} /> : (
                 <>
                     <div className={`${createPin ? 'hidden' : 'flex'} w-full flex-col p-10`}>
                         <p className="uppercase text-center font-semibold text-2xl">Data Personal</p>
