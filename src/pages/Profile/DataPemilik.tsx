@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 
 const DataPemilik = () => {
     const [showEdit, setShowEdit] = useState(false)
-    const [showNotification, setShowNotification] = useState(true)
+    const [showNotification, setShowNotification] = useState(false)
 
     const FormSchema = z.object({
         NIK: z.string().min(2, {

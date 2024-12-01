@@ -145,9 +145,15 @@ const Riwayat = () => {
             {/* Header */}
             <div className={`${showDescription.status ? 'pb-32' : 'pb-0'} fixed w-full top-0 z-10 pt-5 flex flex-col items-center justify-center bg-orange-400`}>
                 <div className="flex items-center px-5 justify-center w-full">
-                    <Link to="/dashboard" className="bg-transparent hover:bg-transparent">
-                        <ChevronLeft className="scale-[1.3] text-white" />
-                    </Link>
+                    {showDescription.status ? (
+                        <button>
+                            <ChevronLeft className="scale-[1.3] text-white" onClick={() => setShowDescription({ status: false, index: -1 })} />
+                        </button>
+                    ) : (
+                        <Link to="/dashboard" className="bg-transparent hover:bg-transparent">
+                            <ChevronLeft className="scale-[1.3] text-white" />
+                        </Link>
+                    )}
 
                     <p className="font-semibold m-auto text-xl text-white text-center uppercase">Riwayat</p>
                 </div>
@@ -226,7 +232,13 @@ const Riwayat = () => {
                                         />
 
                                         <div className="flex flex-col items-start">
-                                            <p className="uppercase text-sm">{admissionFee.title}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="uppercase text-sm">{admissionFee.title}</p>
+
+                                                <div className={`${admissionFee.status === 'success' ? 'bg-green-400' : admissionFee.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
+                                                    <p>{admissionFee.status}</p>
+                                                </div>
+                                            </div>
 
                                             <p className="text-xs text-gray-400">{admissionFee.code}</p>
                                         </div>
@@ -263,7 +275,13 @@ const Riwayat = () => {
                                         />
 
                                         <div className="flex flex-col items-start">
-                                            <p className="uppercase text-sm">{admissionFee.title}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="uppercase text-sm">{admissionFee.title}</p>
+
+                                                <div className={`${admissionFee.status === 'success' ? 'bg-green-400' : admissionFee.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
+                                                    <p>{admissionFee.status}</p>
+                                                </div>
+                                            </div>
 
                                             <p className="text-xs text-gray-400">{admissionFee.code}</p>
                                         </div>
@@ -300,7 +318,13 @@ const Riwayat = () => {
                                         />
 
                                         <div className="flex flex-col items-start">
-                                            <p className="uppercase text-sm">{admissionFee.title}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="uppercase text-sm">{admissionFee.title}</p>
+
+                                                <div className={`${admissionFee.status === 'success' ? 'bg-green-400' : admissionFee.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
+                                                    <p>{admissionFee.status}</p>
+                                                </div>
+                                            </div>
 
                                             <p className="text-xs text-gray-400">{admissionFee.code}</p>
                                         </div>
@@ -346,7 +370,13 @@ const Riwayat = () => {
                                         />
 
                                         <div className="flex flex-col items-start">
-                                            <p className="uppercase text-sm">{payment.title}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="uppercase text-sm">{payment.title}</p>
+
+                                                <div className={`${payment.status === 'success' ? 'bg-green-400' : payment.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
+                                                    <p>{payment.status}</p>
+                                                </div>
+                                            </div>
 
                                             <p className="text-xs text-gray-400">{payment.code}</p>
                                         </div>
@@ -383,7 +413,13 @@ const Riwayat = () => {
                                         />
 
                                         <div className="flex flex-col items-start">
-                                            <p className="uppercase text-sm">{payment.title}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="uppercase text-sm">{payment.title}</p>
+
+                                                <div className={`${payment.status === 'success' ? 'bg-green-400' : payment.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
+                                                    <p>{payment.status}</p>
+                                                </div>
+                                            </div>
 
                                             <p className="text-xs text-gray-400">{payment.code}</p>
                                         </div>
@@ -420,7 +456,13 @@ const Riwayat = () => {
                                         />
 
                                         <div className="flex flex-col items-start">
-                                            <p className="uppercase text-sm">{payment.title}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="uppercase text-sm">{payment.title}</p>
+
+                                                <div className={`${payment.status === 'success' ? 'bg-green-400' : payment.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
+                                                    <p>{payment.status}</p>
+                                                </div>
+                                            </div>
 
                                             <p className="text-xs text-gray-400">{payment.code}</p>
                                         </div>
