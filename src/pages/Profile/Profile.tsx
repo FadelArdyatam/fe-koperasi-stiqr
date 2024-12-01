@@ -95,7 +95,7 @@ const Profile = () => {
 
                 <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                <Link to={"/"} className="flex items-center gap-5 justify-between">
+                <Link to={"/profile/payment-data"} className="flex items-center gap-5 justify-between">
                     <div>
                         <p>Data Pembayaran</p>
 

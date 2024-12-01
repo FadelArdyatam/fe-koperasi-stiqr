@@ -18,6 +18,7 @@ import Profile from './pages/Profile/Profile.tsx'
 import Keamanan from './pages/Profile/Keamanan.tsx'
 import DataPemilik from './pages/Profile/DataPemilik.tsx'
 import DataMerchant from './pages/Profile/DataMerchant.tsx'
+import DataPembayaran from './pages/Profile/DataPembayaran.tsx'
 
 const router = createBrowserRouter([
   {
@@ -83,6 +84,10 @@ const router = createBrowserRouter([
   {
     path: '/profile/merchant-data',
     element: <DataMerchant />
+  },
+  {
+    path: '/profile/payment-data',
+    element: <DataPembayaran />
   }
 ], {
   future: {
