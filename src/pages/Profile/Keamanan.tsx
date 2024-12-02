@@ -187,7 +187,7 @@ const Keamanan = () => {
                                             <FormLabel className="text-gray-500">PIN Saat Ini</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -202,7 +202,7 @@ const Keamanan = () => {
                                             <FormLabel className="text-gray-500">PIN Baru</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
