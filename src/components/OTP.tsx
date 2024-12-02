@@ -8,16 +8,17 @@ import { Button } from "./ui/button";
 
 interface OTPProps {
 	currentSection: number;
+	setCreatePin: (createPin: boolean) => void;
 }
 
-const OTP = ({ currentSection }: OTPProps) => {
+const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 	const [value, setValue] = useState("");
 	const [phoneNumber, setPhoneNumber] = useState("");
 	const [codeSent, setCodeSent] = useState(false);
 	// const [code, setCode] = useState("");
 	const [timeLeft, setTimeLeft] = useState(0); // State for the countdown timer
 
-	console.log(phoneNumber);
+	// console.log(phoneNumber);
 
 	const sendCode = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
@@ -27,32 +28,36 @@ const OTP = ({ currentSection }: OTPProps) => {
 			return;
 		}
 
-		try {
-			const response = await fetch("http://localhost:3000/api/send-code", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ phoneNumber }),
-			});
+		setCreatePin(true)
 
-			console.log("Response:", response);
+		console.log(phoneNumber)
 
-			if (response.ok) {
-				const responseData = await response.json();
-				console.log("Response Data:", responseData);
-				alert("Verification code sent successfully");
-				setCodeSent(true);
-				setTimeLeft(120); // Start the countdown (120 seconds)
-			} else {
-				const errorData = await response.json();
-				console.error("Error Response Data:", errorData);
-				alert("Failed to send verification code. Please try again.");
-			}
-		} catch (error) {
-			console.error("Network or Unexpected Error:", error);
-			alert("An unexpected error occurred. Please check your connection and try again.");
-		}
+		// try {
+		// 	const response = await fetch("http://localhost:3000/api/send-code", {
+		// 		method: "POST",
+		// 		headers: {
+		// 			"Content-Type": "application/json",
+		// 		},
+		// 		body: JSON.stringify({ phoneNumber }),
+		// 	});
+
+		// 	console.log("Response:", response);
+
+		// 	if (response.ok) {
+		// 		const responseData = await response.json();
+		// 		console.log("Response Data:", responseData);
+		// 		alert("Verification code sent successfully");
+		// 		setCodeSent(true);
+		// 		setTimeLeft(120); // Start the countdown (120 seconds)
+		// 	} else {
+		// 		const errorData = await response.json();
+		// 		console.error("Error Response Data:", errorData);
+		// 		alert("Failed to send verification code. Please try again.");
+		// 	}
+		// } catch (error) {
+		// 	console.error("Network or Unexpected Error:", error);
+		// 	alert("An unexpected error occurred. Please check your connection and try again.");
+		// }
 	};
 
 	// Countdown timer logic
@@ -99,7 +104,7 @@ const OTP = ({ currentSection }: OTPProps) => {
 					</div>
 
 					<Button
-						onClick={async (e) => await sendCode(e)}
+						onClick={sendCode}
 						className="bg-[#7ED321] px-5 py-3 w-full text-white rounded-lg"
 					>
 						Kirim

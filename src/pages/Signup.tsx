@@ -114,8 +114,6 @@ const Signup = () => {
     function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log(data)
 
-        setCreatePin(true)
-
         handleNext()
     }
 
@@ -494,7 +492,7 @@ const Signup = () => {
                             </Form>
                         </div>
 
-                        <OTP currentSection={currentSection} />
+                        <OTP currentSection={currentSection} setCreatePin={setCreatePin} />
                     </div>
 
                     {createPin && <PinInput />}
