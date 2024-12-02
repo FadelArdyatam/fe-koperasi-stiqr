@@ -173,7 +173,7 @@ const DataPemilik = () => {
                                             <FormLabel className="text-gray-500">NIK</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" disabled={true} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
