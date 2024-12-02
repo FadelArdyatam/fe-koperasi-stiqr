@@ -8,14 +8,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useState } from 'react'
+import { Input } from '@/components/ui/input'
 
 const ForgotPassword = () => {
     const [showInputEmail, setShowInputEmail] = useState(false)
     const [showInputPhone, setShowInputPhone] = useState(false)
     const [showTypeConfirmation, setShowTypeConfirmation] = useState(true)
-    const [valueEmail, setValueEmail] = useState('')
-    const [valuePhone, setValuePhone] = useState('')
     const [Notification, setNotification] = useState({ status: false, address: '', notificationSuccess: false })
+    const [showAddNewPassword, setShowAddNewPassword] = useState(false)
 
     const navigate = useNavigate();
 
@@ -63,7 +63,7 @@ const ForgotPassword = () => {
     })
 
     function onSubmitEmail(data: z.infer<typeof FormEmailSchema>) {
-        showNotificationHandler()
+        setNotification({ status: true, address: data.email, notificationSuccess: false })
     }
     // 
 
@@ -82,17 +82,51 @@ const ForgotPassword = () => {
     })
 
     function onSubmitPhone(data: z.infer<typeof FormPhoneSchema>) {
-        showNotificationHandler()
+        setNotification({ status: true, address: data.phone, notificationSuccess: false })
     }
     //
 
-    const showNotificationHandler = () => {
-        setNotification({ status: true, address: valueEmail || valuePhone, notificationSuccess: false })
-    }
+    // Form for set new password
+    const FormNewPasswordSchema = z.object({
+        password: z
+            .string()
+            .min(8, { message: 'Password must be at least 8 characters long.' })
+            .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
+            .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
+            .regex(/\d/, { message: 'Password must contain at least one number.' }),
+        confirmPassword: z
+            .string()
+            .min(8, { message: 'Password must be at least 8 characters long.' })
+            .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
+            .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
+            .regex(/\d/, { message: 'Password must contain at least one number.' }),
+    }).refine((data) => data.password === data.confirmPassword, {
+        message: 'Passwords do not match.',
+        path: ['confirmPassword'], // Fokuskan error pada confirmPassword
+    })
 
-    const closeNotificationHandler = () => {
+    const formNewPassword = useForm<z.infer<typeof FormNewPasswordSchema>>({
+        resolver: zodResolver(FormNewPasswordSchema),
+        defaultValues: {
+            password: "",
+            confirmPassword: "",
+        },
+    })
+
+    function onSubmitNewPassword(data: z.infer<typeof FormNewPasswordSchema>) {
+        console.log(data)
+
         setNotification({ status: false, address: '', notificationSuccess: true })
     }
+    //
+
+    const closeNotificationHandler = () => {
+        setNotification({ status: false, address: '', notificationSuccess: false })
+
+        setShowAddNewPassword(true)
+    }
+
+    console.log(Notification.notificationSuccess)
 
     return (
         <div className='w-full flex flex-col min-h-screen items-center justify-center'>
@@ -146,7 +180,7 @@ const ForgotPassword = () => {
                     </Form>
                 </div>
 
-                {showInputEmail && (
+                {showInputEmail && !showAddNewPassword && (
                     <>
                         <Form {...formEmail}>
                             <form onSubmit={formEmail.handleSubmit(onSubmitEmail)} className={`${Notification.status ? 'hidden' : 'block'}`}>
@@ -156,7 +190,7 @@ const ForgotPassword = () => {
                                     render={({ field }) => (
                                         <FormItem className="w-full mt-10">
                                             <FormControl>
-                                                <input
+                                                <Input
                                                     type="email"
                                                     placeholder="Masukkan Email Anda"
                                                     className="rounded-sm border border-black px-4 w-full py-3"
@@ -189,22 +223,10 @@ const ForgotPassword = () => {
                                 </div>
                             )}
                         </div>
-
-                        <div className={`${Notification.notificationSuccess ? 'flex' : 'hidden'} items-center justify-center fixed bg-black bg-opacity-50 left-0 right-0 top-0 bottom-0`}>
-                            <div className="w-[90%] bg-white p-3 mt-5 rounded-lg flex items-center flex-col gap-5">
-                                <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-green-400'>
-                                    <Check className='scale-[1.5]' />
-                                </div>
-
-                                <p className='text-xl text-orange-400'>Password berhasil di ganti.</p>
-
-                                <Button onClick={() => navigate('/')} className='bg-green-400 text-white'>Login</Button>
-                            </div>
-                        </div>
                     </>
                 )}
 
-                {showInputPhone && (
+                {showInputPhone && !showAddNewPassword && (
                     <>
                         <Form {...formPhone}>
                             <form onSubmit={formPhone.handleSubmit(onSubmitPhone)} className={`${Notification.status ? 'hidden' : 'block'}`}>
@@ -214,7 +236,7 @@ const ForgotPassword = () => {
                                     render={({ field }) => (
                                         <FormItem className="w-full mt-10">
                                             <FormControl>
-                                                <input
+                                                <Input
                                                     type="number"
                                                     placeholder="Masukkan No Hp Anda"
                                                     className="rounded-sm border border-black px-4 w-full py-3"
@@ -247,20 +269,66 @@ const ForgotPassword = () => {
                                 </div>
                             )}
                         </div>
-
-                        <div className={`${Notification.notificationSuccess ? 'flex' : 'hidden'} items-center justify-center fixed bg-black bg-opacity-50 left-0 right-0 top-0 bottom-0`}>
-                            <div className="w-[90%] bg-white p-5 mt-5 rounded-lg flex items-center flex-col gap-5">
-                                <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-green-400'>
-                                    <Check className='scale-[1.5]' />
-                                </div>
-
-                                <p className='text-xl text-orange-400'>Password berhasil di ganti.</p>
-
-                                <Button onClick={() => navigate('/')} className='bg-green-400 text-white'>Login</Button>
-                            </div>
-                        </div>
                     </>
                 )}
+
+                {showAddNewPassword && (
+                    <Form {...formNewPassword}>
+                        <form onSubmit={formNewPassword.handleSubmit(onSubmitNewPassword)} className={`${Notification.status ? 'hidden' : 'block'}`}>
+                            <FormField
+                                control={formNewPassword.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem className="w-full mt-10">
+                                        <FormControl>
+                                            <input
+                                                type="password"
+                                                placeholder="Password Baru"
+                                                className="rounded-sm border border-black px-4 w-full py-3"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={formNewPassword.control}
+                                name="confirmPassword"
+                                render={({ field }) => (
+                                    <FormItem className="w-full mt-10">
+                                        <FormControl>
+                                            <input
+                                                type="password"
+                                                placeholder="Konfirmasi Password Baru"
+                                                className="rounded-sm border border-black px-4 w-full py-3"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <Button type="submit" className="bg-[#7ED321] px-5 py-3 mt-10 w-full text-white rounded-lg">
+                                Kirim
+                            </Button>
+                        </form>
+                    </Form>
+                )}
+
+                <div className={`${Notification.notificationSuccess ? 'flex' : 'hidden'} items-center justify-center fixed bg-black bg-opacity-50 left-0 right-0 top-0 bottom-0`}>
+                    <div className="w-[90%] bg-white p-3 mt-5 rounded-lg flex items-center flex-col gap-5">
+                        <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-green-400'>
+                            <Check className='scale-[1.5]' />
+                        </div>
+
+                        <p className='text-xl text-orange-400'>Password berhasil di ganti.</p>
+
+                        <Button onClick={() => navigate('/')} className='bg-green-400 text-white'>Login</Button>
+                    </div>
+                </div>
             </div>
         </div>
     )
