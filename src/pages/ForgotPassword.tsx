@@ -19,6 +19,7 @@ const ForgotPassword = () => {
 
     const navigate = useNavigate();
 
+    // For form dropDown
     const FormSchema = z.object({
         typeConfirmation: z.enum(["Email", "No Hp"], {
             message: "Please select the type for the confirmation.",
@@ -45,10 +46,47 @@ const ForgotPassword = () => {
 
         setShowTypeConfirmation(false)
     }
+    // 
 
-    const showNotificationHandler = (e: { preventDefault: () => void }) => {
-        e.preventDefault()
+    // For form email
+    const FormEmailSchema = z.object({
+        email: z.string().email({
+            message: "Please enter a valid email address.",
+        }),
+    })
 
+    const formEmail = useForm<z.infer<typeof FormEmailSchema>>({
+        resolver: zodResolver(FormEmailSchema),
+        defaultValues: {
+            email: "",
+        },
+    })
+
+    function onSubmitEmail(data: z.infer<typeof FormEmailSchema>) {
+        showNotificationHandler()
+    }
+    // 
+
+    // For form phone
+    const FormPhoneSchema = z.object({
+        phone: z.string().min(10, {
+            message: "Please enter a valid phone number.",
+        }),
+    })
+
+    const formPhone = useForm<z.infer<typeof FormPhoneSchema>>({
+        resolver: zodResolver(FormPhoneSchema),
+        defaultValues: {
+            phone: "",
+        },
+    })
+
+    function onSubmitPhone(data: z.infer<typeof FormPhoneSchema>) {
+        showNotificationHandler()
+    }
+    //
+
+    const showNotificationHandler = () => {
         setNotification({ status: true, address: valueEmail || valuePhone, notificationSuccess: false })
     }
 
@@ -110,18 +148,31 @@ const ForgotPassword = () => {
 
                 {showInputEmail && (
                     <>
-                        <form className={`${Notification.status ? 'hidden' : 'block'}`}>
-                            <input
-                                type="email"
-                                placeholder="Masukkan Email Anda"
-                                className="rounded-sm border border-black px-4 w-full py-3 mt-5"
-                                onChange={(e) => setValueEmail(e.target.value)}
-                            />
+                        <Form {...formEmail}>
+                            <form onSubmit={formEmail.handleSubmit(onSubmitEmail)} className={`${Notification.status ? 'hidden' : 'block'}`}>
+                                <FormField
+                                    control={formEmail.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem className="w-full mt-10">
+                                            <FormControl>
+                                                <input
+                                                    type="email"
+                                                    placeholder="Masukkan Email Anda"
+                                                    className="rounded-sm border border-black px-4 w-full py-3"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                            <Button onClick={showNotificationHandler} className="bg-[#7ED321] px-5 py-3 mt-5 w-full text-white rounded-lg">
-                                Kirim
-                            </Button>
-                        </form>
+                                <Button type="submit" className="bg-[#7ED321] px-5 py-3 mt-10 w-full text-white rounded-lg">
+                                    Kirim
+                                </Button>
+                            </form>
+                        </Form>
 
                         <div className={`${Notification.status ? 'flex' : 'hidden'} items-center justify-center fixed bg-black bg-opacity-50 left-0 right-0 top-0 bottom-0`}>
                             {Notification.status && (
@@ -155,24 +206,31 @@ const ForgotPassword = () => {
 
                 {showInputPhone && (
                     <>
-                        <form>
-                            <div className="flex items-center gap-5 mt-5">
-                                <div className="w-12 min-w-12 h-12 rounded-sm border border-black flex items-center justify-center">
-                                    +62
-                                </div>
-
-                                <input
-                                    type="text"
-                                    placeholder="Masukkan No Hp Anda"
-                                    className="rounded-sm border border-black px-4 w-full py-3"
-                                    onChange={(e) => setValuePhone(e.target.value)}
+                        <Form {...formPhone}>
+                            <form onSubmit={formPhone.handleSubmit(onSubmitPhone)} className={`${Notification.status ? 'hidden' : 'block'}`}>
+                                <FormField
+                                    control={formPhone.control}
+                                    name="phone"
+                                    render={({ field }) => (
+                                        <FormItem className="w-full mt-10">
+                                            <FormControl>
+                                                <input
+                                                    type="number"
+                                                    placeholder="Masukkan No Hp Anda"
+                                                    className="rounded-sm border border-black px-4 w-full py-3"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
 
-                            <Button onClick={showNotificationHandler} className="bg-[#7ED321] px-5 py-3 mt-5 w-full text-white rounded-lg">
-                                Kirim
-                            </Button>
-                        </form>
+                                <Button type="submit" className="bg-[#7ED321] px-5 py-3 mt-10 w-full text-white rounded-lg">
+                                    Kirim
+                                </Button>
+                            </form>
+                        </Form>
 
                         <div className={`${Notification.status ? 'flex' : 'hidden'} items-center justify-center fixed bg-black bg-opacity-50 left-0 right-0 top-0 bottom-0`}>
                             {Notification.status && (
