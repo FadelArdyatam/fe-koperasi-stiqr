@@ -1,6 +1,6 @@
 import { Check, ChevronDown, ChevronLeft, MailCheck, Phone } from 'lucide-react'
 import logo from '../images/logo.png'
-import { Link, redirect, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Form, FormField, FormItem, FormControl, FormMessage } from '@/components/ui/form'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@radix-ui/react-dropdown-menu'
 import { Button } from '@/components/ui/button'

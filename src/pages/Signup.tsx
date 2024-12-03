@@ -26,8 +26,10 @@ const Signup = () => {
     const [showPassword, setShowPassword] = useState(false)
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
     const [createPin, setCreatePin] = useState(false)
+    const [allData, setAllData] = useState<(z.infer<typeof FormSchemaUser> | z.infer<typeof FormSchemaMerchant>)[]>([])
 
-    const FormSchema = z.object({
+    // FormUser
+    const FormSchemaUser = z.object({
         ownerName: z.string().min(2, {
             message: "ownerName must be at least 2 characters.",
         }),
@@ -59,6 +61,39 @@ const Signup = () => {
             .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
             .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
             .regex(/\d/, { message: 'Password must contain at least one number.' }),
+
+    }).refine((data) => data.password === data.confirmPassword, {
+        message: 'Passwords do not match.',
+        path: ['confirmPassword'], // Fokuskan error pada confirmPassword
+    })
+
+    const formUser = useForm<z.infer<typeof FormSchemaUser>>({
+        resolver: zodResolver(FormSchemaUser),
+        defaultValues: {
+            ownerName: "",
+            gender: undefined,
+            dateOfBirth: "",
+            email: "",
+            phoneNumber: "",
+            password: "",
+            confirmPassword: "",
+        },
+    })
+
+    function onSubmitUser(data: z.infer<typeof FormSchemaUser>) {
+        console.log(data)
+
+        console.log(formUser.formState.errors)
+
+        // Simpan data yang telah diisi
+        setAllData([...allData, data]);
+
+        handleNext()
+    }
+    //
+
+    // Form Merchant
+    const FormSchemaMerchant = z.object({
         typeBusinessEntity: z.enum(["Perorangan", "CV", "Koperasi", "Firma"], {
             message: "Please select the type of business entity",
         }),
@@ -85,21 +120,11 @@ const Signup = () => {
         merchantEmail: z.string().email({
             message: "Invalid email address.",
         }),
-    }).refine((data) => data.password === data.confirmPassword, {
-        message: 'Passwords do not match.',
-        path: ['confirmPassword'], // Fokuskan error pada confirmPassword
     })
 
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
+    const formMerchant = useForm<z.infer<typeof FormSchemaMerchant>>({
+        resolver: zodResolver(FormSchemaMerchant),
         defaultValues: {
-            ownerName: "",
-            gender: undefined,
-            dateOfBirth: "",
-            email: "",
-            phoneNumber: "",
-            password: "",
-            confirmPassword: "",
             typeBusinessEntity: undefined,
             merchantName: "",
             merchantCity: undefined,
@@ -111,8 +136,11 @@ const Signup = () => {
         },
     })
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
+    function onSubmitMerchant(data: z.infer<typeof FormSchemaMerchant>) {
         console.log(data)
+
+        // Simpan data yang telah diisi
+        setAllData([...allData, data]);
 
         handleNext()
     }
@@ -141,16 +169,19 @@ const Signup = () => {
     const validateSection = (sectionIndex: number) => {
         // Contoh logika validasi: Pastikan section ini memiliki input yang lengkap
         // (Untuk simulasi, ini hanya mengembalikan true)
+        console.log(sectionIndex)
         return true;
     };
 
-    // Values from the form
-    const values = form.getValues()
+    // Values from the formUser
+    const values = formUser.getValues()
+
+    console.log(allData)
 
     return (
-        <>
+        <div>
             {showTermsandConditions ? <TermsandCondition setShowTermsandConditions={setShowTermsandConditions} backToPageProfile={false} /> : (
-                <>
+                <div>
                     <div className={`${createPin ? 'hidden' : 'flex'} w-full flex-col p-10`}>
                         <p className="uppercase text-center font-semibold text-2xl">Data Personal</p>
 
@@ -173,11 +204,11 @@ const Signup = () => {
                         </div>
 
                         <div className="w-full mt-10">
-                            <Form {...form}>
-                                <form onSubmit={form.handleSubmit(onSubmit)}>
+                            <Form {...formUser}>
+                                <form onSubmit={formUser.handleSubmit(onSubmitUser)}>
                                     <div className={`${currentSection === 0 ? 'block' : 'hidden'} flex flex-col items-end w-full md:w-2/3 space-y-7`}>
                                         <FormField
-                                            control={form.control}
+                                            control={formUser.control}
                                             name="ownerName"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -190,7 +221,7 @@ const Signup = () => {
                                         />
 
                                         <FormField
-                                            control={form.control}
+                                            control={formUser.control}
                                             name="gender"
                                             render={({ field }) => (
                                                 <FormItem className="space-y-3 m-auto">
@@ -225,7 +256,7 @@ const Signup = () => {
                                         />
 
                                         <FormField
-                                            control={form.control}
+                                            control={formUser.control}
                                             name="dateOfBirth"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -238,7 +269,7 @@ const Signup = () => {
                                         />
 
                                         <FormField
-                                            control={form.control}
+                                            control={formUser.control}
                                             name="email"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -256,7 +287,7 @@ const Signup = () => {
                                         />
 
                                         <FormField
-                                            control={form.control}
+                                            control={formUser.control}
                                             name="phoneNumber"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -273,7 +304,7 @@ const Signup = () => {
                                         />
 
                                         <FormField
-                                            control={form.control}
+                                            control={formUser.control}
                                             name='password'
                                             render={({ field }) => (
                                                 <FormItem className='w-full'>
@@ -296,7 +327,7 @@ const Signup = () => {
                                         />
 
                                         <FormField
-                                            control={form.control}
+                                            control={formUser.control}
                                             name='confirmPassword'
                                             render={({ field }) => (
                                                 <FormItem className='w-full'>
@@ -319,9 +350,15 @@ const Signup = () => {
                                         />
                                     </div>
 
+                                    <Button className={`${currentSection === 0 ? 'block' : 'hidden'} w-full md:w-max mt-10 font-sans font-semibold bg-[#7ED321] rounded-lg`}>NEXT</Button>
+                                </form>
+                            </Form>
+
+                            <Form {...formMerchant}>
+                                <form onSubmit={formMerchant.handleSubmit(onSubmitMerchant)}>
                                     <div className={`${currentSection === 1 ? 'block' : 'hidden'} flex flex-col items-end w-full md:w-2/3 space-y-7`}>
                                         <FormField
-                                            control={form.control}
+                                            control={formMerchant.control}
                                             name="typeBusinessEntity"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -352,7 +389,7 @@ const Signup = () => {
                                         />
 
                                         <FormField
-                                            control={form.control}
+                                            control={formMerchant.control}
                                             name="merchantName"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -365,7 +402,7 @@ const Signup = () => {
                                         />
 
                                         <FormField
-                                            control={form.control}
+                                            control={formMerchant.control}
                                             name="merchantCity"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -395,7 +432,7 @@ const Signup = () => {
                                         />
 
                                         <FormField
-                                            control={form.control}
+                                            control={formMerchant.control}
                                             name="merchantCategory"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -433,7 +470,7 @@ const Signup = () => {
                                         />
 
                                         <FormField
-                                            control={form.control}
+                                            control={formMerchant.control}
                                             name="postalCode"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -446,7 +483,7 @@ const Signup = () => {
                                         />
 
                                         <FormField
-                                            control={form.control}
+                                            control={formMerchant.control}
                                             name="merchantAddress"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -459,7 +496,7 @@ const Signup = () => {
                                         />
 
                                         <FormField
-                                            control={form.control}
+                                            control={formMerchant.control}
                                             name="phoneNumberMerchant"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -472,7 +509,7 @@ const Signup = () => {
                                         />
 
                                         <FormField
-                                            control={form.control}
+                                            control={formMerchant.control}
                                             name="merchantEmail"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -485,8 +522,6 @@ const Signup = () => {
                                         />
                                     </div>
 
-                                    <Button onClick={handleNext} disabled={values.ownerName.length > 0 && values.gender && values.dateOfBirth.length > 0 && values.email.length > 0 && values.phoneNumber.length > 0 && values.password.length > 0 && values.confirmPassword.length > 0 ? false : true} className={`${currentSection === 0 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>NEXT</Button>
-
                                     <Button type="submit" className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>SUBMIT</Button>
                                 </form>
                             </Form>
@@ -496,9 +531,9 @@ const Signup = () => {
                     </div>
 
                     {createPin && <PinInput />}
-                </>
+                </div>
             )}
-        </>
+        </div>
     )
 }
 
