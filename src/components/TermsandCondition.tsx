@@ -11,10 +11,22 @@ interface TermsandConditionProps {
 
 const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: TermsandConditionProps) => {
     const [openItem, setOpenItem] = useState<string | null>(null);
+    const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
 
     const handleAccordionChange = (value: string) => {
         setOpenItem((prev) => (prev === value ? null : value));
     };
+
+    const handleCheckboxChange = (item: string) => {
+        setCheckedItems((prev) => ({
+            ...prev,
+            [item]: !prev[item],
+        }));
+    };
+
+    const allChecked = Object.values(checkedItems).every((checked) => checked);
+
+    console.log(allChecked);
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center">
@@ -42,7 +54,17 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                 >
                     <AccordionItem value="item-1" className="w-full border-b pb-2">
                         <AccordionTrigger className="flex items-center text-start justify-between w-full py-2 px-4 gap-5">
-                            <span>Ketentuan Umum</span>
+                            <div className="flex items-center gap-5">
+                                <input
+                                    type="checkbox"
+                                    id="item-1-checkbox"
+                                    checked={checkedItems["item-1"] || false}
+                                    onChange={() => handleCheckboxChange("item-1")}
+                                    className="mt-1"
+                                />
+                                <span>Ketentuan Umum</span>
+                            </div>
+
                             <ChevronDown
                                 className={`transform transition-transform duration-200 ${openItem === "item-1" ? "rotate-180" : "rotate-0"
                                     }`}
@@ -74,7 +96,16 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
 
                     <AccordionItem value="item-2" className="w-full border-b pb-2">
                         <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                            <span>Ketentuan Akun Stiqr</span>
+                            <div className="flex items-center gap-5">
+                                <input
+                                    type="checkbox"
+                                    id="item-2-checkbox"
+                                    checked={checkedItems["item-2"] || false}
+                                    onChange={() => handleCheckboxChange("item-2")}
+                                    className="mt-1"
+                                />
+                                <span>Ketentuan Akun Stiqr</span>
+                            </div>
                             <ChevronDown
                                 className={`transform transition-transform duration-200 ${openItem === "item-2" ? "rotate-180" : "rotate-0"
                                     }`}
@@ -112,7 +143,16 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
 
                     <AccordionItem value="item-3" className="w-full border-b pb-2">
                         <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                            <span>Perangkat Lunak Aplikasi Stiqr</span>
+                            <div className="flex items-center gap-5">
+                                <input
+                                    type="checkbox"
+                                    id="item-3-checkbox"
+                                    checked={checkedItems["item-3"] || false}
+                                    onChange={() => handleCheckboxChange("item-3")}
+                                    className="mt-1"
+                                />
+                                <span>Perangkat Lunak Aplikasi Stiqr</span>
+                            </div>
                             <ChevronDown
                                 className={`transform transition-transform duration-200 ${openItem === "item-3" ? "rotate-180" : "rotate-0"
                                     }`}
@@ -135,7 +175,16 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
 
                     <AccordionItem value="item-4" className="w-full border-b pb-2">
                         <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                            <span>Perangkat Stiqr</span>
+                            <div className="flex items-center gap-5">
+                                <input
+                                    type="checkbox"
+                                    id="item-4-checkbox"
+                                    checked={checkedItems["item-4"] || false}
+                                    onChange={() => handleCheckboxChange("item-4")}
+                                    className="mt-1"
+                                />
+                                <span>Perangkat Stiqr</span>
+                            </div>
                             <ChevronDown
                                 className={`transform transition-transform duration-200 ${openItem === "item-4" ? "rotate-180" : "rotate-0"
                                     }`}
@@ -186,7 +235,16 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
 
                     <AccordionItem value="item-5" className="w-full border-b pb-2">
                         <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                            <span>Tindakan Kecurangan</span>
+                            <div className="flex items-center gap-5">
+                                <input
+                                    type="checkbox"
+                                    id="item-5-checkbox"
+                                    checked={checkedItems["item-5"] || false}
+                                    onChange={() => handleCheckboxChange("item-5")}
+                                    className="mt-1"
+                                />
+                                <span>Tindakan Kecurangan</span>
+                            </div>
                             <ChevronDown
                                 className={`transform transition-transform duration-200 ${openItem === "item-5" ? "rotate-180" : "rotate-0"
                                     }`}
@@ -243,7 +301,16 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
 
                     <AccordionItem value="item-6" className="w-full border-b pb-2">
                         <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                            <span>Kerahasiaan</span>
+                            <div className="flex items-center gap-5">
+                                <input
+                                    type="checkbox"
+                                    id="item-6-checkbox"
+                                    checked={checkedItems["item-6"] || false}
+                                    onChange={() => handleCheckboxChange("item-6")}
+                                    className="mt-1"
+                                />
+                                <span>Kerahasiaan</span>
+                            </div>
                             <ChevronDown
                                 className={`transform transition-transform duration-200 ${openItem === "item-6" ? "rotate-180" : "rotate-0"
                                     }`}
@@ -284,7 +351,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
             </div>
 
             <div className="fixed bottom-10 w-[90%] m-auto">
-                <Button onClick={() => setShowTermsandConditions(false)} className="w-full bg-green-400">Lanjutkan</Button>
+                <Button disabled={allChecked ? false : true} onClick={() => setShowTermsandConditions(false)} className="w-full bg-green-400">Lanjutkan</Button>
             </div>
         </div>
     );
