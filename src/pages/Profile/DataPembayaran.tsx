@@ -1,4 +1,4 @@
-import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, History, Image, ChevronRight, Check } from "lucide-react"
+import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, Image, ChevronRight, Check, FileText } from "lucide-react"
 import { useState } from "react";
 import { Link } from "react-router-dom"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
@@ -110,10 +110,10 @@ const DataPembayaran = () => {
                     <p className="uppercase">Penarikan</p>
                 </Link>
 
-                <Link to={'/history'} className="flex gap-3 flex-col items-center">
-                    <History />
+                <Link to={'/catalog'} className="flex gap-3 flex-col items-center">
+                    <FileText />
 
-                    <p className="uppercase">Riwayat</p>
+                    <p className="uppercase">Catalog</p>
                 </Link>
 
                 <Link to={'/profile'} className="flex gap-3 flex-col text-orange-400 items-center">

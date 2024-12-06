@@ -13,12 +13,13 @@ import BPJS from './pages/BPJS.tsx'
 import Inbox from './pages/Inbox.tsx'
 import Settlement from './pages/Settlement.tsx'
 import QRCode from './pages/QRCode.tsx'
-import Riwayat from './pages/Riwayat.tsx'
+import Riwayat from './pages/Profile/Riwayat.tsx'
 import Profile from './pages/Profile/Profile.tsx'
 import Keamanan from './pages/Profile/Keamanan.tsx'
 import DataPemilik from './pages/Profile/DataPemilik.tsx'
 import DataMerchant from './pages/Profile/DataMerchant.tsx'
 import DataPembayaran from './pages/Profile/DataPembayaran.tsx'
+import Catalog from './pages/Catalog/Catalog.tsx'
 
 const router = createBrowserRouter([
   {
@@ -66,10 +67,6 @@ const router = createBrowserRouter([
     element: <QRCode />
   },
   {
-    path: '/history',
-    element: <Riwayat />
-  },
-  {
     path: '/profile',
     element: <Profile />
   },
@@ -88,6 +85,14 @@ const router = createBrowserRouter([
   {
     path: '/profile/payment-data',
     element: <DataPembayaran />
+  },
+  {
+    path: '/profile/history',
+    element: <Riwayat />
+  },
+  {
+    path: '/catalog',
+    element: <Catalog />
   }
 ], {
   future: {

@@ -1,4 +1,4 @@
-import { ChevronDown, CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, History, UserRound, ChevronUp, X } from "lucide-react";
+import { ChevronDown, CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, UserRound, ChevronUp, X, FileText } from "lucide-react";
 import logo from "@/images/logo.png";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useState } from "react";
@@ -141,10 +141,10 @@ const Dashboard = () => {
                     <p className="uppercase">Penarikan</p>
                 </Link>
 
-                <Link to={'/history'} className="flex gap-3 flex-col items-center">
-                    <History />
+                <Link to={'/catalog'} className="flex gap-3 flex-col items-center">
+                    <FileText />
 
-                    <p className="uppercase">Riwayat</p>
+                    <p className="uppercase">Catalog</p>
                 </Link>
 
                 <Link to={'/profile'} className="flex gap-3 flex-col items-center">

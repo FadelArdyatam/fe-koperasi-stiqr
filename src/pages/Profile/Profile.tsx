@@ -1,5 +1,5 @@
 import TermsandCondition from "@/components/TermsandCondition"
-import { ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, User, UserRound, History } from "lucide-react"
+import { ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, User, UserRound, FileText } from "lucide-react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 
@@ -38,10 +38,10 @@ const Profile = () => {
                         <p className="uppercase">Penarikan</p>
                     </Link>
 
-                    <Link to={'/history'} className="flex gap-3 flex-col items-center">
-                        <History />
+                    <Link to={'/catalog'} className="flex gap-3 flex-col items-center">
+                        <FileText />
 
-                        <p className="uppercase">Riwayat</p>
+                        <p className="uppercase">Catalog</p>
                     </Link>
 
                     <Link to={'/profile'} className="flex gap-3 flex-col text-orange-400 items-center">
@@ -121,6 +121,18 @@ const Profile = () => {
 
                         <ChevronRight />
                     </button>
+
+                    <div className="w-full h-[2px] my-5 bg-gray-200"></div>
+
+                    <Link to={"/profile/history"} className="flex items-center gap-5 justify-between">
+                        <div>
+                            <p>Riwayat</p>
+
+                            <p className="text-sm text-gray-500">Uang Masuk, Pembelian</p>
+                        </div>
+
+                        <ChevronRight />
+                    </Link>
                 </div>
             </div>
 

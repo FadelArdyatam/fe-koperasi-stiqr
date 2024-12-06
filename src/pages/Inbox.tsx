@@ -1,4 +1,4 @@
-import { Home, ScanQrCode, CreditCard, UserRound, History } from "lucide-react"
+import { Home, ScanQrCode, CreditCard, UserRound, FileText } from "lucide-react"
 import { Link } from "react-router-dom"
 import { admissionFees } from "./Dashboard";
 
@@ -30,10 +30,10 @@ const Inbox = () => {
                     <p className="uppercase">Penarikan</p>
                 </Link>
 
-                <Link to={'/history'} className="flex gap-3 flex-col items-center">
-                    <History />
+                <Link to={'/catalog'} className="flex gap-3 flex-col items-center">
+                    <FileText />
 
-                    <p className="uppercase">Riwayat</p>
+                    <p className="uppercase">Catalog</p>
                 </Link>
 
                 <Link to={'/profile'} className="flex gap-3 flex-col items-center">

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Check, ChevronLeft, CreditCard, Home, Image, ScanQrCode, UserRound, History } from "lucide-react"
+import { Check, ChevronLeft, CreditCard, Home, Image, ScanQrCode, UserRound, FileText } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
@@ -88,10 +88,10 @@ const DataPemilik = () => {
                         <p className="uppercase">Penarikan</p>
                     </Link>
 
-                    <Link to={'/history'} className="flex gap-3 flex-col items-center">
-                        <History />
+                    <Link to={'/catalog'} className="flex gap-3 flex-col items-center">
+                        <FileText />
 
-                        <p className="uppercase">Riwayat</p>
+                        <p className="uppercase">Catalog</p>
                     </Link>
 
                     <Link to={'/profile'} className="flex gap-3 flex-col text-orange-400 items-center">

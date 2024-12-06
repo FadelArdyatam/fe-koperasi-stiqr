@@ -12,7 +12,7 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, History, ChevronDown } from "lucide-react";
+import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, ChevronDown, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { admissionFees } from "./Dashboard"; // Assuming admissionFees is a valid dataset
 import logo from "../images/logo.png";
@@ -94,9 +94,9 @@ const Settlement = () => {
                     <p className="uppercase text-orange-400">Penarikan</p>
                 </Link>
 
-                <Link to="/history" className="flex gap-3 flex-col items-center">
-                    <History />
-                    <p className="uppercase">Riwayat</p>
+                <Link to="/catalog" className="flex gap-3 flex-col items-center">
+                    <FileText />
+                    <p className="uppercase">Catalog</p>
                 </Link>
 
                 <Link to="/profile" className="flex gap-3 flex-col items-center">

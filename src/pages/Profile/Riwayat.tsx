@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, History, Filter, ArrowDownAZ } from "lucide-react";
+import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, Filter, ArrowDownAZ, FileText } from "lucide-react";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { admissionFees } from "./Dashboard";
-import telkomsel from "../images/telkomsel.png";
-import pln from "../images/pln.png";
-import bpjs from "../images/bpjs.png";
+import { admissionFees } from "../Dashboard";
+import telkomsel from "../../images/telkomsel.png";
+import pln from "../../images/pln.png";
+import bpjs from "../../images/bpjs.png";
 import html2canvas from "html2canvas";
 
 const payments = [
@@ -150,7 +150,7 @@ const Riwayat = () => {
                             <ChevronLeft className="scale-[1.3] text-white" onClick={() => setShowDescription({ status: false, index: -1 })} />
                         </button>
                     ) : (
-                        <Link to="/dashboard" className="bg-transparent hover:bg-transparent">
+                        <Link to="/profile" className="bg-transparent hover:bg-transparent">
                             <ChevronLeft className="scale-[1.3] text-white" />
                         </Link>
                     )}
@@ -198,12 +198,12 @@ const Riwayat = () => {
                     <p className="uppercase">Penarikan</p>
                 </Link>
 
-                <Link to="/history" className="flex gap-3 text-orange-400 flex-col items-center">
-                    <History />
-                    <p className="uppercase">Riwayat</p>
+                <Link to="/catalog" className="flex gap-3 flex-col items-center">
+                    <FileText />
+                    <p className="uppercase">Catalog</p>
                 </Link>
 
-                <Link to="/profile" className="flex gap-3 flex-col items-center">
+                <Link to="/profile" className="flex gap-3 text-orange-400 flex-col items-center">
                     <UserRound />
                     <p className="uppercase">Profile</p>
                 </Link>

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { Check, ChevronDown, ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, History } from "lucide-react"
+import { Check, ChevronDown, ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, FileText } from "lucide-react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { z } from "zod"
@@ -86,10 +86,10 @@ const DataMerchant = () => {
                         <p className="uppercase">Penarikan</p>
                     </Link>
 
-                    <Link to={'/history'} className="flex gap-3 flex-col items-center">
-                        <History />
+                    <Link to={'/catalog'} className="flex gap-3 flex-col items-center">
+                        <FileText />
 
-                        <p className="uppercase">Riwayat</p>
+                        <p className="uppercase">Catalog</p>
                     </Link>
 
                     <Link to={'/profile'} className="flex gap-3 flex-col text-orange-400 items-center">
