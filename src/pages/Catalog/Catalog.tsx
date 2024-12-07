@@ -13,20 +13,28 @@ const initialProducts = [
     { id: 3, photo: '', name: 'Kentang', SKU: 'GAG10731', price: '21000', weight: '6g', variants: [''], description: '', outlet: 'Jl. Palmerah', etalase: 'makanan', showProduct: false },
 ];
 
+const initialVariants = [
+    { id: 1, name: 'Topping', choises: [] as Array<{ name: string; price: number, show: boolean }>, mustBeSelected: false, methods: 'single', products: [] as number[], showVariant: false },
+    { id: 2, name: 'Size', choises: [{ name: 'small', price: 12000, show: true }, { name: 'medium', price: 20000, show: false }], mustBeSelected: true, methods: 'single', products: [] as number[], showVariant: false },
+    { id: 3, name: 'Rasa', choises: [{ name: 'manis', price: 12000, show: false }, { name: 'asin', price: 20000, show: true }], mustBeSelected: true, methods: 'single', products: [] as number[], showVariant: false },
+];
+
 const Catalog = () => {
     const [show, setShow] = useState('Produk');
     const [products, setProducts] = useState(initialProducts); // State untuk data produk
+    const [variants, setVariants] = useState(initialVariants); // State untuk data varian
     const [addProduct, setAddProduct] = useState(false);
+    const [addVariant, setAddVariant] = useState(false);
     const [open, setOpen] = useState({
         id: -1,
         status: false,
     });
 
-    console.log(products)
+    console.log(variants)
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center">
-            <div className={`${addProduct || open.status ? 'hidden' : 'block'} p-5 w-full`}>
+            <div className={`${addProduct || addVariant || open.status ? 'hidden' : 'block'} p-5 w-full`}>
                 <div className="w-full flex items-center gap-5 justify-between">
                     <p className="font-semibold text-2xl">Katalog</p>
 
@@ -98,7 +106,9 @@ const Catalog = () => {
                 {show === 'Produk' && <Product products={products} setProducts={setProducts} addProduct={addProduct} setAddProduct={setAddProduct} setOpen={setOpen} open={open} />}
             </div>
 
-            {show === 'Varian' && <Variant />}
+            <div className="w-full">
+                {show === 'Varian' && <Variant variants={variants} setVariants={setVariants} addVariant={addVariant} setAddVariant={setAddVariant} setOpen={setOpen} open={open} />}
+            </div>
 
             {show === 'Etalase' && <Etalase />}
         </div>
