@@ -11,7 +11,8 @@ interface TermsandConditionProps {
 
 const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: TermsandConditionProps) => {
     const [openItem, setOpenItem] = useState<string | null>(null);
-    const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
+    const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({ "item-1": false, "item-2": false, "item-3": false, "item-4": false, "item-5": false, "item-6": false });
+    const [showNotification, setShowNotification] = useState(false);
 
     const handleAccordionChange = (value: string) => {
         setOpenItem((prev) => (prev === value ? null : value));
@@ -25,6 +26,14 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
     };
 
     const allChecked = Object.values(checkedItems).every((checked) => checked);
+
+    const termsandConditionHandler = () => {
+        if (allChecked) {
+            setShowTermsandConditions(false);
+        } else {
+            setShowNotification(true);
+        }
+    }
 
     console.log(allChecked);
 
@@ -54,16 +63,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                 >
                     <AccordionItem value="item-1" className="w-full border-b pb-2">
                         <AccordionTrigger className="flex items-center text-start justify-between w-full py-2 px-4 gap-5">
-                            <div className="flex items-center gap-5">
-                                <input
-                                    type="checkbox"
-                                    id="item-1-checkbox"
-                                    checked={checkedItems["item-1"] || false}
-                                    onChange={() => handleCheckboxChange("item-1")}
-                                    className="mt-1"
-                                />
-                                <span>Ketentuan Umum</span>
-                            </div>
+                            <span>Ketentuan Umum</span>
 
                             <ChevronDown
                                 className={`transform transition-transform duration-200 ${openItem === "item-1" ? "rotate-180" : "rotate-0"
@@ -91,21 +91,25 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     Dengan memperhatikan seluruh ketentuan dalam Ketentuan Pemakaian STIQR, Para Pihak sepakat pada Ketentuan Pemakaian STIQR ini.
                                 </li>
                             </ol>
+
+                            <div className="flex items-center gap-5 mt-5">
+                                <input
+                                    type="checkbox"
+                                    id="item-1-checkbox"
+                                    checked={checkedItems["item-1"] || false}
+                                    onChange={() => handleCheckboxChange("item-1")}
+                                    className="mt-1"
+                                />
+
+                                <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
+                            </div>
                         </AccordionContent>
                     </AccordionItem>
 
                     <AccordionItem value="item-2" className="w-full border-b pb-2">
                         <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                            <div className="flex items-center gap-5">
-                                <input
-                                    type="checkbox"
-                                    id="item-2-checkbox"
-                                    checked={checkedItems["item-2"] || false}
-                                    onChange={() => handleCheckboxChange("item-2")}
-                                    className="mt-1"
-                                />
-                                <span>Ketentuan Akun Stiqr</span>
-                            </div>
+                            <span>Ketentuan Akun Stiqr</span>
+
                             <ChevronDown
                                 className={`transform transition-transform duration-200 ${openItem === "item-2" ? "rotate-180" : "rotate-0"
                                     }`}
@@ -138,21 +142,25 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     Pemilik Merchant juga memahami dan menyetujui peran yang melekat pada setiap Akun STIQR serta tunduk pada Syarat dan Ketentuan Penunjukan Peran Akun STIQR yang merupakan bagian dari Ketentuan Pemakaian ini.
                                 </li>
                             </ol>
+
+                            <div className="flex items-center gap-5 mt-5">
+                                <input
+                                    type="checkbox"
+                                    id="item-2-checkbox"
+                                    checked={checkedItems["item-2"] || false}
+                                    onChange={() => handleCheckboxChange("item-2")}
+                                    className="mt-1"
+                                />
+
+                                <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
+                            </div>
                         </AccordionContent>
                     </AccordionItem>
 
                     <AccordionItem value="item-3" className="w-full border-b pb-2">
                         <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                            <div className="flex items-center gap-5">
-                                <input
-                                    type="checkbox"
-                                    id="item-3-checkbox"
-                                    checked={checkedItems["item-3"] || false}
-                                    onChange={() => handleCheckboxChange("item-3")}
-                                    className="mt-1"
-                                />
-                                <span>Perangkat Lunak Aplikasi Stiqr</span>
-                            </div>
+                            <span>Perangkat Lunak Aplikasi Stiqr</span>
+
                             <ChevronDown
                                 className={`transform transition-transform duration-200 ${openItem === "item-3" ? "rotate-180" : "rotate-0"
                                     }`}
@@ -170,21 +178,25 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     Pemakaian web STIQR dari sumber selain browser resmi dan/atau pada perangkat yang tidak sesuai (selain perangkat telepon genggam, tablet, laptop, atau komputer.) dianggap sebagai pelanggaran terhadap Ketentuan Pemakaian STIQR dan hak kekayaan intelektual DNS.
                                 </li>
                             </ol>
+
+                            <div className="flex items-center gap-5 mt-5">
+                                <input
+                                    type="checkbox"
+                                    id="item-3-checkbox"
+                                    checked={checkedItems["item-3"] || false}
+                                    onChange={() => handleCheckboxChange("item-3")}
+                                    className="mt-1"
+                                />
+
+                                <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
+                            </div>
                         </AccordionContent>
                     </AccordionItem>
 
                     <AccordionItem value="item-4" className="w-full border-b pb-2">
                         <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                            <div className="flex items-center gap-5">
-                                <input
-                                    type="checkbox"
-                                    id="item-4-checkbox"
-                                    checked={checkedItems["item-4"] || false}
-                                    onChange={() => handleCheckboxChange("item-4")}
-                                    className="mt-1"
-                                />
-                                <span>Perangkat Stiqr</span>
-                            </div>
+                            <span>Perangkat Stiqr</span>
+
                             <ChevronDown
                                 className={`transform transition-transform duration-200 ${openItem === "item-4" ? "rotate-180" : "rotate-0"
                                     }`}
@@ -230,21 +242,25 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     Pemilik Merchant wajib memberi tahu DNS dan/atau Afiliasinya tentang kehilangan atau kerusakan dan bertanggung jawab atas biaya yang ditetapkan.
                                 </li>
                             </ol>
+
+                            <div className="flex items-center gap-5 mt-5">
+                                <input
+                                    type="checkbox"
+                                    id="item-4-checkbox"
+                                    checked={checkedItems["item-4"] || false}
+                                    onChange={() => handleCheckboxChange("item-4")}
+                                    className="mt-1"
+                                />
+
+                                <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
+                            </div>
                         </AccordionContent>
                     </AccordionItem>
 
                     <AccordionItem value="item-5" className="w-full border-b pb-2">
                         <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                            <div className="flex items-center gap-5">
-                                <input
-                                    type="checkbox"
-                                    id="item-5-checkbox"
-                                    checked={checkedItems["item-5"] || false}
-                                    onChange={() => handleCheckboxChange("item-5")}
-                                    className="mt-1"
-                                />
-                                <span>Tindakan Kecurangan</span>
-                            </div>
+                            <span>Tindakan Kecurangan</span>
+
                             <ChevronDown
                                 className={`transform transition-transform duration-200 ${openItem === "item-5" ? "rotate-180" : "rotate-0"
                                     }`}
@@ -296,21 +312,25 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     DNS berhak meminta Pemilik Merchant untuk menyerahkan bukti pendukung sebagai bagian dari proses banding terkait tindakan yang diambil. Bukti pendukung tersebut harus diserahkan dalam waktu 7 (tujuh) hari kerja kalender setelah permintaan dari DNS. Setelah menerima bukti tersebut, DNS akan melakukan penilaian dan, berdasarkan kebijakannya sendiri, akan memutuskan apakah akan melanjutkan proses penyelesaian atau tetap menggunakan hak-haknya yang telah ditetapkan.
                                 </li>
                             </ol>
+
+                            <div className="flex items-center gap-5 mt-5">
+                                <input
+                                    type="checkbox"
+                                    id="item-5-checkbox"
+                                    checked={checkedItems["item-5"] || false}
+                                    onChange={() => handleCheckboxChange("item-5")}
+                                    className="mt-1"
+                                />
+
+                                <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
+                            </div>
                         </AccordionContent>
                     </AccordionItem>
 
                     <AccordionItem value="item-6" className="w-full border-b pb-2">
                         <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                            <div className="flex items-center gap-5">
-                                <input
-                                    type="checkbox"
-                                    id="item-6-checkbox"
-                                    checked={checkedItems["item-6"] || false}
-                                    onChange={() => handleCheckboxChange("item-6")}
-                                    className="mt-1"
-                                />
-                                <span>Kerahasiaan</span>
-                            </div>
+                            <span>Kerahasiaan</span>
+
                             <ChevronDown
                                 className={`transform transition-transform duration-200 ${openItem === "item-6" ? "rotate-180" : "rotate-0"
                                     }`}
@@ -345,13 +365,37 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     Pemilik Merchant setuju bahwa DNS memiliki hak untuk: (1) menginformasikan semua data dan Informasi Rahasia kepada vendor, subkontraktor, agen, atau konsultan hanya untuk tujuan pelaksanaan Ketentuan Pemakaian STIQR ini; dan/atau (2) mengolah serta memanfaatkan data Pemilik Merchant untuk (a) meningkatkan layanan yang diberikan oleh DNS, Afiliasinya, atau Penyedia Layanan kepada Pemilik Merchant (termasuk untuk sistem deteksi penipuan, aturan penipuan, dan kebutuhan audit korporasi); serta (b) untuk menawarkan produk dan/atau layanan DNS, Afiliasinya, atau Penyedia Layanan lainnya kepada Pemilik Merchant.
                                 </li>
                             </ol>
+
+                            <div className="flex items-center gap-5 mt-5">
+                                <input
+                                    type="checkbox"
+                                    id="item-6-checkbox"
+                                    checked={checkedItems["item-6"] || false}
+                                    onChange={() => handleCheckboxChange("item-6")}
+                                    className="mt-1"
+                                />
+
+                                <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
+                            </div>
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
             </div>
 
+            {showNotification && (
+                <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 z-20 flex items-center justify-center">
+                    <div className="bg-white w-[90%] rounded-lg m-auto p-5">
+                        <p className="text-red-500 text-sm">Anda harus menyetujui semua syarat dan ketentuan untuk melanjutkan.</p>
+
+                        <div className="flex items-center gap-5 mt-5">
+                            <Button onClick={() => setShowNotification(false)} className="w-full bg-red-400">Tutup</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="fixed bottom-10 w-[90%] m-auto">
-                <Button disabled={allChecked ? false : true} onClick={() => setShowTermsandConditions(false)} className="w-full bg-green-400">Lanjutkan</Button>
+                <Button onClick={termsandConditionHandler} className="w-full bg-green-400">Lanjutkan</Button>
             </div>
         </div>
     );
