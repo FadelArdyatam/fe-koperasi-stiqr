@@ -29,6 +29,17 @@ const Catalog = () => {
         id: -1,
         status: false,
     });
+    const [searchTerm, setSearchTerm] = useState(''); // State untuk input pencarian
+
+    // Filter produk berdasarkan input pencarian
+    const filteredProducts = products.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.SKU.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const filteredVariants = variants.filter(variant =>
+        variant.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     console.log(variants)
 
@@ -50,6 +61,8 @@ const Catalog = () => {
                     {/* Input */}
                     <Input
                         placeholder="Cari produk"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10 pr-12 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-orange-500"
                     />
 
@@ -103,11 +116,11 @@ const Catalog = () => {
             </div>
 
             <div className="w-full">
-                {show === 'Produk' && <Product products={products} setProducts={setProducts} addProduct={addProduct} setAddProduct={setAddProduct} setOpen={setOpen} open={open} />}
+                {show === 'Produk' && <Product products={searchTerm !== '' ? filteredProducts : products} setProducts={setProducts} addProduct={addProduct} setAddProduct={setAddProduct} setOpen={setOpen} open={open} />}
             </div>
 
             <div className="w-full">
-                {show === 'Varian' && <Variant variants={variants} setVariants={setVariants} addVariant={addVariant} setAddVariant={setAddVariant} setOpen={setOpen} open={open} />}
+                {show === 'Varian' && <Variant variants={searchTerm !== '' ? filteredVariants : variants} setVariants={setVariants} addVariant={addVariant} setAddVariant={setAddVariant} setOpen={setOpen} open={open} />}
             </div>
 
             {show === 'Etalase' && <Etalase />}
