@@ -15,7 +15,7 @@ interface ProductProps {
         outlet: string;
         etalase: string;
         photo: string;
-        variants: string[];
+        variants: number[];
     }>;
     setProducts: (products: Array<{
         id: number;
@@ -28,15 +28,20 @@ interface ProductProps {
         outlet: string;
         etalase: string;
         photo: string;
-        variants: string[];
+        variants: number[];
     }>) => void;
     addProduct: boolean;
     setAddProduct: (addProduct: boolean) => void;
     setOpen: (open: { id: number; status: boolean }) => void;
     open: { id: number; status: boolean };
+    etalases: Array<{
+        id: number;
+        name: string;
+        products: number[];
+    }>;
 }
 
-const Product: React.FC<ProductProps> = ({ products, setProducts, addProduct, setAddProduct, setOpen, open }) => {
+const Product: React.FC<ProductProps> = ({ products, setProducts, addProduct, setAddProduct, setOpen, open, etalases }) => {
     // Menangani perubahan status untuk masing-masing produk
     const handleSwitchChange = (id: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.stopPropagation();
@@ -102,9 +107,9 @@ const Product: React.FC<ProductProps> = ({ products, setProducts, addProduct, se
                 </Button>
             </div>
 
-            {addProduct && <AddProduct setAddProduct={setAddProduct} products={products} setProducts={setProducts} />}
+            {addProduct && <AddProduct setAddProduct={setAddProduct} products={products} setProducts={setProducts} etalases={etalases} />}
 
-            {open.status && <EditProduct setOpen={setOpen} products={products} setProducts={setProducts} editIndex={open.id} open={open} />}
+            {open.status && <EditProduct setOpen={setOpen} products={products} setProducts={setProducts} editIndex={open.id} open={open} etalases={etalases} />}
         </div>
     );
 };

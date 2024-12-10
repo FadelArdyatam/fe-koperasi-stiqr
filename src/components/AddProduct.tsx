@@ -27,7 +27,7 @@ interface AddProductProps {
         outlet: string;
         etalase: string;
         photo: string;
-        variants: string[];
+        variants: number[];
     }>;
     setProducts: (products: Array<{
         id: number;
@@ -40,11 +40,16 @@ interface AddProductProps {
         outlet: string;
         etalase: string;
         photo: string;
-        variants: string[];
+        variants: number[];
     }>) => void;
+    etalases: Array<{
+        id: number;
+        name: string;
+        products: number[];
+    }>;
 }
 
-const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setProducts }) => {
+const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setProducts, etalases }) => {
     const [quantity, setQuantity] = useState('g');
     const [showNotification, setShowNotification] = useState(false);
 
@@ -92,6 +97,13 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
         };
 
         setProducts([...products, newProduct]);
+
+        // To update the products field in etalase
+        etalases.map((etalase) => {
+            if (etalase.name === data.etalase) {
+                etalase.products.push(newProduct.id);
+            }
+        })
 
         console.log("New product:", newProduct);
 
@@ -280,7 +292,21 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
                                 <FormItem>
                                     <FormLabel>Etalase</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter etalase name" {...field} />
+                                        <select
+                                            className="p-2 border h-10 border-gray-300 w-full rounded-md"
+                                            {...field}
+                                            value={field.value}
+                                            onChange={(e) => field.onChange(e.target.value)}
+                                        >
+                                            <option value="" disabled>
+                                                Pilih etalase
+                                            </option>
+                                            {etalases.map((etalase) => (
+                                                <option key={etalase.id} value={etalase.name}>
+                                                    {etalase.name}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

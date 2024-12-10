@@ -35,9 +35,22 @@ interface EditVariantProps {
         showVariant: boolean;
     }>) => void;
     editIndex: number; // Tambahkan properti ini untuk mengetahui indeks produk yang diedit
+    products: Array<{
+        id: number;
+        name: string;
+        price: string;
+        showProduct: boolean;
+        SKU: string;
+        weight: string;
+        description: string;
+        outlet: string;
+        etalase: string;
+        photo: string;
+        variants: number[];
+    }>;
 }
 
-const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariants, editIndex }) => {
+const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariants, editIndex, products }) => {
     const [showChoisesInput, setShowChoisesInput] = useState(false);
     const [newChoiceName, setNewChoiceName] = useState("");
     const [newChoicePrice, setNewChoicePrice] = useState<number | "">("");
@@ -93,6 +106,14 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariant
 
         console.log("Updated variants:", updatedVariants);
 
+        // To update the variants field in products
+        products.map((product) => {
+            if (data.products.includes(product.id)) {
+                const updatedVariants = [...product.variants, updatedVariant.id];
+                product.variants = updatedVariants;
+            }
+        })
+
         setOpen({ id: -1, status: false }); // Tutup form edit
     };
 
@@ -137,7 +158,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariant
                 <button onClick={() => setOpen({ id: -1, status: false })}>
                     <ChevronLeft />
                 </button>
-                <p className="font-semibold text-xl text-center uppercase">Edit Product</p>
+                <p className="font-semibold text-xl text-center uppercase">Edit Varian</p>
             </div>
 
             <Form {...form}>
@@ -315,6 +336,40 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariant
                                             />
                                             <span>Boleh lebih dari 1</span>
                                         </label>
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* Products */}
+                    <FormField
+                        control={form.control}
+                        name="products"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Produk</FormLabel>
+                                <FormControl>
+                                    <div>
+                                        {products.map((product) => (
+                                            <label key={product.id} className="flex items-center mb-2">
+                                                <input
+                                                    type="checkbox"
+                                                    value={product.id}
+                                                    checked={field.value.includes(product.id)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            field.onChange([...field.value, product.id]);
+                                                        } else {
+                                                            field.onChange(field.value.filter((id) => id !== product.id));
+                                                        }
+                                                    }}
+                                                    className="mr-2"
+                                                />
+                                                <span>{product.name}</span>
+                                            </label>
+                                        ))}
                                     </div>
                                 </FormControl>
                                 <FormMessage />

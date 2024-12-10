@@ -40,9 +40,22 @@ interface AddVariantProps {
         products: number[];
         showVariant: boolean;
     }>) => void;
+    products: Array<{
+        id: number;
+        name: string;
+        price: string;
+        showProduct: boolean;
+        SKU: string;
+        weight: string;
+        description: string;
+        outlet: string;
+        etalase: string;
+        photo: string;
+        variants: number[];
+    }>;
 }
 
-const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVariants }) => {
+const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVariants, products }) => {
     const [showChoisesInput, setShowChoisesInput] = useState(false);
     const [newChoiceName, setNewChoiceName] = useState("");
     const [newChoicePrice, setNewChoicePrice] = useState<number | "">("");
@@ -89,6 +102,14 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
         };
 
         setVariants([...variants, newVariant]);
+
+        // To update the variants field in products
+        products.map((product) => {
+            if (data.products.includes(product.id)) {
+                const updatedVariants = [...product.variants, newVariant.id];
+                product.variants = updatedVariants;
+            }
+        })
 
         console.log("New variant:", newVariant);
 
@@ -308,6 +329,40 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
                                                 />
                                                 <span>Boleh lebih dari 1</span>
                                             </label>
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Products */}
+                        <FormField
+                            control={form.control}
+                            name="products"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Produk</FormLabel>
+                                    <FormControl>
+                                        <div>
+                                            {products.map((product) => (
+                                                <label key={product.id} className="flex items-center mb-2">
+                                                    <input
+                                                        type="checkbox"
+                                                        value={product.id}
+                                                        checked={field.value.includes(product.id)}
+                                                        onChange={(e) => {
+                                                            if (e.target.checked) {
+                                                                field.onChange([...field.value, product.id]);
+                                                            } else {
+                                                                field.onChange(field.value.filter((id) => id !== product.id));
+                                                            }
+                                                        }}
+                                                        className="mr-2"
+                                                    />
+                                                    <span>{product.name}</span>
+                                                </label>
+                                            ))}
                                         </div>
                                     </FormControl>
                                     <FormMessage />

@@ -8,9 +8,9 @@ import Etalase from "./Etalase";
 import { Link } from "react-router-dom";
 
 const initialProducts = [
-    { id: 1, photo: '', name: 'Ayam', SKU: 'GAG10131', price: '15000', weight: '6g', variants: [''], description: '', outlet: 'Jl. Palmerah', etalase: 'makanan', showProduct: false },
-    { id: 2, photo: '', name: 'Soda', SKU: 'GAG10121', price: '10000', weight: '6g', variants: [''], description: '', outlet: 'Jl. Palmerah', etalase: 'minuman', showProduct: false },
-    { id: 3, photo: '', name: 'Kentang', SKU: 'GAG10731', price: '21000', weight: '6g', variants: [''], description: '', outlet: 'Jl. Palmerah', etalase: 'makanan', showProduct: false },
+    { id: 1, photo: '', name: 'Ayam', SKU: 'GAG10131', price: '15000', weight: '6g', variants: [] as number[], description: '', outlet: 'Jl. Palmerah', etalase: '', showProduct: false },
+    { id: 2, photo: '', name: 'Soda', SKU: 'GAG10121', price: '10000', weight: '6g', variants: [] as number[], description: '', outlet: 'Jl. Palmerah', etalase: '', showProduct: false },
+    { id: 3, photo: '', name: 'Kentang', SKU: 'GAG10731', price: '21000', weight: '6g', variants: [] as number[], description: '', outlet: 'Jl. Palmerah', etalase: '', showProduct: false },
 ];
 
 const initialVariants = [
@@ -19,12 +19,19 @@ const initialVariants = [
     { id: 3, name: 'Rasa', choises: [{ name: 'manis', price: 12000, show: false }, { name: 'asin', price: 20000, show: true }], mustBeSelected: true, methods: 'single', products: [] as number[], showVariant: false },
 ];
 
+const initialEtalases = [
+    { id: 1, name: 'makanan', products: [] as number[] },
+    { id: 2, name: 'minuman', products: [] as number[] },
+];
+
 const Catalog = () => {
     const [show, setShow] = useState('Produk');
     const [products, setProducts] = useState(initialProducts); // State untuk data produk
     const [variants, setVariants] = useState(initialVariants); // State untuk data varian
+    const [etalases, setEtalases] = useState(initialEtalases); // State untuk data etalase
     const [addProduct, setAddProduct] = useState(false);
     const [addVariant, setAddVariant] = useState(false);
+    const [addEtalase, setAddEtalase] = useState(false);
     const [open, setOpen] = useState({
         id: -1,
         status: false,
@@ -41,11 +48,15 @@ const Catalog = () => {
         variant.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    console.log(variants)
+    const filteredEtalases = etalases.filter(etalase =>
+        etalase.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    console.log(products, variants, etalases);
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center">
-            <div className={`${addProduct || addVariant || open.status ? 'hidden' : 'block'} p-5 w-full`}>
+            <div className={`${addProduct || addVariant || addEtalase || open.status ? 'hidden' : 'block'} p-5 w-full`}>
                 <div className="w-full flex items-center gap-5 justify-between">
                     <p className="font-semibold text-2xl">Katalog</p>
 
@@ -60,7 +71,7 @@ const Catalog = () => {
 
                     {/* Input */}
                     <Input
-                        placeholder="Cari produk"
+                        placeholder={show === 'Produk' ? 'Cari produk' : show === 'Varian' ? 'Cari varian' : 'Cari etalase'}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10 pr-12 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-orange-500"
@@ -116,14 +127,14 @@ const Catalog = () => {
             </div>
 
             <div className="w-full">
-                {show === 'Produk' && <Product products={searchTerm !== '' ? filteredProducts : products} setProducts={setProducts} addProduct={addProduct} setAddProduct={setAddProduct} setOpen={setOpen} open={open} />}
+                {show === 'Produk' && <Product products={searchTerm !== '' ? filteredProducts : products} setProducts={setProducts} addProduct={addProduct} setAddProduct={setAddProduct} setOpen={setOpen} open={open} etalases={etalases} />}
             </div>
 
             <div className="w-full">
-                {show === 'Varian' && <Variant variants={searchTerm !== '' ? filteredVariants : variants} setVariants={setVariants} addVariant={addVariant} setAddVariant={setAddVariant} setOpen={setOpen} open={open} />}
+                {show === 'Varian' && <Variant variants={searchTerm !== '' ? filteredVariants : variants} setVariants={setVariants} addVariant={addVariant} setAddVariant={setAddVariant} setOpen={setOpen} open={open} products={products} />}
             </div>
 
-            {show === 'Etalase' && <Etalase />}
+            {show === 'Etalase' && <Etalase etalases={searchTerm !== '' ? filteredEtalases : etalases} setEtalases={setEtalases} addEtalase={addEtalase} setAddEtalase={setAddEtalase} setOpen={setOpen} open={open} products={products} />}
         </div>
     );
 };

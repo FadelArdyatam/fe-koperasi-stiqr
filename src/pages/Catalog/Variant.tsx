@@ -26,11 +26,25 @@ interface VariantProps {
     setAddVariant: (addVariant: boolean) => void;
     setOpen: (open: { id: number; status: boolean }) => void;
     open: { id: number; status: boolean };
+    products: Array<{
+        id: number;
+        name: string;
+        price: string;
+        showProduct: boolean;
+        SKU: string;
+        weight: string;
+        description: string;
+        outlet: string;
+        etalase: string;
+        photo: string;
+        variants: number[];
+    }>;
 }
 
-const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, setAddVariant, setOpen, open }) => {
+const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, setAddVariant, setOpen, open, products }) => {
     const handleSwitchChange = (id: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.stopPropagation();
+
 
         // Perbarui status showProduct pada produk tertentu
         const updatedVariants = variants.map((variant) => {
@@ -93,9 +107,9 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                 </Button>
             </div>
 
-            {addVariant && <AddVariant setAddVariant={setAddVariant} variants={variants} setVariants={setVariants} />}
+            {addVariant && <AddVariant setAddVariant={setAddVariant} variants={variants} setVariants={setVariants} products={products} />}
 
-            {open.status && <EditVariant setOpen={setOpen} variants={variants} setVariants={setVariants} editIndex={open.id} open={open} />}
+            {open.status && <EditVariant setOpen={setOpen} variants={variants} setVariants={setVariants} editIndex={open.id} open={open} products={products} />}
         </div>
     )
 }
