@@ -190,6 +190,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                             onChange={(e) => {
                                                 field.onChange(e);
                                             }}
+                                            disabled={true}
                                         />
                                         <p className="absolute right-2 -bottom-5 text-sm text-gray-500">
                                             {field.value.length}/20

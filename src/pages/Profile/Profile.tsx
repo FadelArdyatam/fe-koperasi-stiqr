@@ -133,6 +133,18 @@ const Profile = () => {
 
                         <ChevronRight />
                     </Link>
+
+                    <div className="w-full h-[2px] my-5 bg-gray-200"></div>
+
+                    <Link to={"/profile/employee"} className="flex items-center gap-5 justify-between">
+                        <div>
+                            <p>Pegawai</p>
+
+                            <p className="text-sm text-gray-500">Pengaturan Seputar Pegawaimu</p>
+                        </div>
+
+                        <ChevronRight />
+                    </Link>
                 </div>
             </div>
 
