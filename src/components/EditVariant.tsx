@@ -51,6 +51,7 @@ interface EditVariantProps {
 
 const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariants, editIndex, products }) => {
     const [showChoisesInput, setShowChoisesInput] = useState(false);
+    const [showEditChoisesInput, setShowEditChoisesInput] = useState({ editName: false, editPrice: false, status: false, index: -1 });
     const [newChoiceName, setNewChoiceName] = useState("");
     const [newChoicePrice, setNewChoicePrice] = useState<number | "">("");
     const [showChoice, setShowChoice] = useState(false);
@@ -152,7 +153,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariant
     // console.log("This temporary: ", temporaryChoiceValue)
 
     return (
-        <div className="p-5 w-full mb-32">
+        <div className="pt-5 w-full mb-32">
             <div className="flex items-center gap-5 text-black">
                 <button onClick={() => setOpen({ id: -1, status: false })}>
                     <ChevronLeft />
@@ -161,7 +162,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariant
             </div>
 
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-6">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-6 bg-white p-5 rounded-lg">
                     {/* Name */}
                     <FormField
                         control={form.control}
@@ -192,7 +193,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariant
                                     <div className="flex items-center gap-5 justify-between">
                                         <p>{choise.name}</p>
 
-                                        <p className="text-orange-400">Ubah</p>
+                                        <button type="button" onClick={() => setShowEditChoisesInput({ ...showEditChoisesInput, status: true, index: index })} className="text-orange-400">Ubah</button>
                                     </div>
 
                                     <div className="mt-3 flex items-center gap-5 justify-between">
@@ -267,6 +268,89 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariant
                                     <Button
                                         type="button"
                                         onClick={() => setShowChoisesInput(false)}
+                                        className="bg-gray-300 w-full"
+                                    >
+                                        Tutup
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Popup untuk Edit Harga dan Nama */}
+                    {showEditChoisesInput.status && (
+                        <div className="fixed bg-black bg-opacity-50 inset-0 z-20">
+                            <div className="bg-white p-4 rounded-lg mt-10 absolute bottom-0 w-full">
+                                <p className="text-center mb-10 text-lg font-semibold">Ubah Pilihan</p>
+
+                                {/* Input Nama Pilihan */}
+                                <div>
+                                    <p>Nama Pilihan</p>
+                                    <Input
+                                        className="mt-3"
+                                        placeholder="Nama Pilihan"
+                                        onChange={(e) => {
+                                            const updatedChoises = form.getValues("choises").map((choice, index) =>
+                                                index === showEditChoisesInput.index
+                                                    ? { ...choice, name: e.target.value }
+                                                    : choice
+                                            );
+                                            form.setValue("choises", updatedChoises);
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Input Harga */}
+                                <div className="mt-5">
+                                    <p>Harga</p>
+                                    <Input
+                                        className="mt-3"
+                                        type="number"
+                                        placeholder="Harga"
+                                        onChange={(e) => {
+                                            const updatedChoises = form.getValues("choises").map((choice, index) =>
+                                                index === showEditChoisesInput.index
+                                                    ? { ...choice, price: Number(e.target.value) }
+                                                    : choice
+                                            );
+                                            form.setValue("choises", updatedChoises);
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Toggle Pilihan */}
+                                <div className="mt-5">
+                                    <p>Tampilkan</p>
+                                    <div
+                                        onClick={() => setShowChoice(!showChoice)}
+                                        className={`w-14 h-8 mt-3 flex items-center rounded-full p-1 cursor-pointer ${showChoice ? "bg-orange-400" : "bg-gray-300"
+                                            }`}
+                                    >
+                                        <div
+                                            className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${showChoice ? "translate-x-6" : "translate-x-0"
+                                                }`}
+                                        ></div>
+                                    </div>
+                                </div>
+
+                                {/* Tombol Simpan dan Tutup */}
+                                <div className="flex items-center gap-5 mt-5">
+                                    <Button
+                                        onClick={() => {
+                                            // Tutup modal setelah menyimpan perubahan
+                                            setShowEditChoisesInput({ editName: false, editPrice: false, status: false, index: -1 });
+                                        }}
+                                        className="bg-green-500 w-full"
+                                    >
+                                        Simpan
+                                    </Button>
+
+                                    <Button
+                                        type="button"
+                                        onClick={() => {
+                                            // Batalkan perubahan dan tutup modal
+                                            setShowEditChoisesInput({ editName: false, editPrice: false, status: false, index: -1 });
+                                        }}
                                         className="bg-gray-300 w-full"
                                     >
                                         Tutup

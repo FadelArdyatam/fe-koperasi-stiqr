@@ -121,7 +121,7 @@ const EditProduct: React.FC<EditProductProps> = ({
     }
 
     return (
-        <div className="p-5 w-full mb-32">
+        <div className="pt-5 w-full mb-32">
             <div className="flex items-center gap-5 text-black">
                 <button onClick={() => setOpen({ id: -1, status: false })}>
                     <ChevronLeft />
@@ -130,7 +130,7 @@ const EditProduct: React.FC<EditProductProps> = ({
             </div>
 
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-10">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-10 bg-white p-5 rounded-lg">
                     {/* Form fields tetap sama */}
                     {/* Photo */}
                     <FormField

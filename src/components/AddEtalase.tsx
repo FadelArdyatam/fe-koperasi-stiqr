@@ -76,7 +76,7 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase, etalases, setEta
     return (
         <>
             {/* Form Nama Etalase */}
-            <div className={`${showSetProductInput || showNotification ? "hidden" : "block"}`}>
+            <div className={`${showSetProductInput || showNotification ? "hidden" : "block"} pt-5`}>
                 <div className="flex items-center gap-5 text-black">
                     <button onClick={() => setAddEtalase(false)}>
                         <ChevronLeft />
@@ -85,7 +85,7 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase, etalases, setEta
                 </div>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-10">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-10 p-5 bg-white rounded-lg">
                         {/* Name */}
                         <FormField
                             control={form.control}

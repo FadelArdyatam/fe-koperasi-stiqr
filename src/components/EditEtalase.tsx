@@ -88,7 +88,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalase
 
     return (
         <>
-            <div className={`${showSetProductInput ? 'hidden' : 'block'}`}>
+            <div className={`${showSetProductInput ? 'hidden' : 'block'} pt-5`}>
                 <div className="flex items-center gap-5 text-black">
                     <button onClick={() => setOpen({ id: -1, status: false })}>
                         <ChevronLeft />
@@ -97,7 +97,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalase
                 </div>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-10">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-10 p-5 bg-white rounded-lg">
                         {/* Form fields tetap sama */}
                         {/* Name */}
                         <FormField
@@ -180,7 +180,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalase
             </div>
 
             {/* Form Atur Produk */}
-            <div className={`${showSetProductInput ? "block" : "hidden"}`}>
+            <div className={`${showSetProductInput ? "block" : "hidden"} pt-5`}>
                 <div className="flex items-center gap-5 text-black">
                     <button onClick={() => setShowSetProductInput(false)}>
                         <ChevronLeft />
@@ -189,14 +189,14 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalase
                         <p className="font-semibold text-xl uppercase">Atur Produk</p>
                         <Button
                             onClick={() => setShowSetProductInput(false)}
-                            className="bg-orange-50 rounded-full text-orange-500"
+                            className="bg-orange-100 rounded-full text-orange-500"
                         >
                             Simpan
                         </Button>
                     </div>
                 </div>
 
-                <div className="mt-5">
+                <div className="mt-5 p-5 bg-white rounded-lg">
                     <p className="font-medium text-lg">Tambah Produk</p>
 
                     <p className="text-sm text-gray-400">Pilih produk yang akan dimasukkan ke etalase.</p>
@@ -218,7 +218,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalase
 
                         {products.map((product) => (
                             <label key={product.id} className="flex items-center gap-3 w-full">
-                                <div className="w-20 h-20 min-w-20 min-h-20 rounded-lg bg-orange-50 flex items-center justify-center">
+                                <div className="w-20 h-20 min-w-20 min-h-20 rounded-lg bg-orange-100 flex items-center justify-center">
                                     <Package className="scale-[2] text-gray-500" />
                                 </div>
 

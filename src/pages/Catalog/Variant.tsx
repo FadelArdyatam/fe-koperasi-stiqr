@@ -69,7 +69,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
     console.log(open)
 
     return (
-        <div className="mb-32">
+        <div className="mb-32 px-5">
             <div className={`${addVariant || open.status ? 'hidden' : 'block'}`}>
                 <div>
                     {variants.map((variant) => (
@@ -92,7 +92,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                                 </button>
                             </div>
 
-                            <div onClick={() => handleOpen(variant.id)} className="w-full flex p-4 items-center gap-5 justify-between">
+                            <div onClick={() => handleOpen(variant.id)} className="w-full flex p-4 bg-white rounded-md items-center gap-5 justify-between">
                                 <p>1 Pilihan Aktif</p>
 
                                 <ChevronRight />

@@ -8,9 +8,9 @@ import Etalase from "./Etalase";
 import { Link } from "react-router-dom";
 
 const initialProducts = [
-    { id: 1, photo: '', name: 'Ayam', SKU: 'GAG10131', price: '15000', weight: '6g', variants: [] as number[], description: '', etalase: [] as string[], showProduct: false },
-    { id: 2, photo: '', name: 'Soda', SKU: 'GAG10121', price: '10000', weight: '6g', variants: [] as number[], description: '', etalase: [] as string[], showProduct: false },
-    { id: 3, photo: '', name: 'Kentang', SKU: 'GAG10731', price: '21000', weight: '6g', variants: [] as number[], description: '', etalase: [] as string[], showProduct: false },
+    { id: 1, photo: '', name: 'Ayam', SKU: 'GAG10131', price: '15000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
+    { id: 2, photo: '', name: 'Soda', SKU: 'GAG10121', price: '10000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
+    { id: 3, photo: '', name: 'Kentang', SKU: 'GAG10731', price: '21000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
 ];
 
 const initialVariants = [
@@ -20,8 +20,9 @@ const initialVariants = [
 ];
 
 const initialEtalases = [
-    { id: 1, name: 'makanan', products: [] as number[] },
-    { id: 2, name: 'minuman', products: [] as number[] },
+    { id: 1, name: 'semua produk', products: [1, 2, 3] },
+    { id: 2, name: 'makanan', products: [] as number[] },
+    { id: 3, name: 'minuman', products: [] as number[] },
 ];
 
 const Catalog = () => {
@@ -55,7 +56,7 @@ const Catalog = () => {
     console.log(products, variants, etalases);
 
     return (
-        <div className="w-full flex flex-col min-h-screen items-center">
+        <div className="w-full flex flex-col min-h-screen items-center bg-orange-50">
             <div className={`${addProduct || addVariant || addEtalase || open.status ? 'hidden' : 'block'} p-5 w-full`}>
                 <div className="w-full flex items-center gap-5 justify-between">
                     <p className="font-semibold text-2xl">Katalog</p>
@@ -84,11 +85,11 @@ const Catalog = () => {
                 </div>
 
                 <div className="mt-5 flex items-center gap-5 justify-between">
-                    <Button onClick={() => setShow('Produk')} className={`${show === 'Produk' ? 'bg-orange-50' : 'bg-transparent'} transition-all text-orange-500 rounded-full w-full`}>Produk</Button>
+                    <Button onClick={() => setShow('Produk')} className={`${show === 'Produk' ? 'bg-orange-100' : 'bg-transparent'} transition-all text-orange-500 rounded-full w-full`}>Produk</Button>
 
-                    <Button onClick={() => setShow('Varian')} className={`${show === 'Varian' ? 'bg-orange-50' : 'bg-transparent'} transition-all text-orange-500 rounded-full w-full`}>Varian</Button>
+                    <Button onClick={() => setShow('Varian')} className={`${show === 'Varian' ? 'bg-orange-100' : 'bg-transparent'} transition-all text-orange-500 rounded-full w-full`}>Varian</Button>
 
-                    <Button onClick={() => setShow('Etalase')} className={`${show === 'Etalase' ? 'bg-orange-50' : 'bg-transparent'} transition-all text-orange-500 rounded-full w-full`}>Etalase</Button>
+                    <Button onClick={() => setShow('Etalase')} className={`${show === 'Etalase' ? 'bg-orange-100' : 'bg-transparent'} transition-all text-orange-500 rounded-full w-full`}>Etalase</Button>
                 </div>
             </div>
 

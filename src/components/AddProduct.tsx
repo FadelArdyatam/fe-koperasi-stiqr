@@ -72,12 +72,16 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
             SKU: "",
             price: '',
             weight: "",
-            etalase: [],
+            etalase: ['semua produk'],
             description: "",
         },
     });
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
+        const updatedEtalase = data.etalase.includes("semua produk")
+            ? data.etalase
+            : [...data.etalase, "semua produk"];
+
         const newProduct = {
             id: products.length + 1,
             photo: data.photo ? URL.createObjectURL(data.photo) : "",
@@ -87,7 +91,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
             weight: data.weight + quantity,
             variants: [],
             description: data.description || "",
-            etalase: data.etalase,  // Sekarang array
+            etalase: updatedEtalase, // Etalase yang sudah diperbarui
             showProduct: true,
         };
 
@@ -96,7 +100,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
         // Mengupdate setiap etalase yang dipilih
         data.etalase.forEach((selectedEtalase) => {
             etalases.forEach((etalase) => {
-                if (etalase.name === selectedEtalase) {
+                if (etalase.name === selectedEtalase || etalase.name === 'semua produk') {
                     etalase.products.push(newProduct.id);
                 }
             });
@@ -107,10 +111,9 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
         setShowNotification(true);
     }
 
-
     return (
         <>
-            <div className={`${showNotification ? 'hidden' : 'block'} p-5 w-full mb-32`}>
+            <div className={`${showNotification ? 'hidden' : 'block'} pt-5 w-full mb-32`}>
                 <div className="flex items-center gap-5 text-black">
                     <button onClick={() => setAddProduct(false)}>
                         <ChevronLeft />
@@ -119,7 +122,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
                 </div>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-10">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-10 bg-white p-5 rounded-lg">
                         {/* Photo */}
                         <FormField
                             control={form.control}
@@ -275,7 +278,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
                                 <FormItem>
                                     <FormLabel>Etalase</FormLabel>
                                     {etalases.map(etalase => (
-                                        <label key={etalase.id} className="flex items-center mt-2">
+                                        <label key={etalase.id} className="flex items-center mt-2 gap-2">
                                             <input
                                                 type="checkbox"
                                                 value={etalase.name}

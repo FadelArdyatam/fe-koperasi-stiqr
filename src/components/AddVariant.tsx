@@ -56,6 +56,7 @@ interface AddVariantProps {
 
 const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVariants, products }) => {
     const [showChoisesInput, setShowChoisesInput] = useState(false);
+    const [showEditChoisesInput, setShowEditChoisesInput] = useState({ status: false, index: -1 });
     const [newChoiceName, setNewChoiceName] = useState("");
     const [newChoicePrice, setNewChoicePrice] = useState<number | "">("");
     const [showChoice, setShowChoice] = useState(false);
@@ -145,7 +146,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
 
     return (
         <>
-            <div className={`${showNotification ? 'hidden' : 'block'} p-5 w-full`}>
+            <div className={`${showNotification ? 'hidden' : 'block'} pt-5 w-full`}>
                 <div className="flex items-center gap-5 text-black">
                     <button onClick={() => setAddVariant(false)}>
                         <ChevronLeft />
@@ -154,7 +155,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
                 </div>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-6">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-6 bg-white p-5 rounded-lg">
                         {/* Name */}
                         <FormField
                             control={form.control}
@@ -185,7 +186,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
                                         <div className="flex items-center gap-5 justify-between">
                                             <p>{choise.name}</p>
 
-                                            <p className="text-orange-400">Ubah</p>
+                                            <button type="button" onClick={() => setShowEditChoisesInput({ status: true, index: index })} className="text-orange-400">Ubah</button>
                                         </div>
 
                                         <div className="mt-3 flex items-center gap-5 justify-between">
@@ -260,6 +261,89 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
                                         <Button
                                             type="button"
                                             onClick={() => setShowChoisesInput(false)}
+                                            className="bg-gray-300 w-full"
+                                        >
+                                            Tutup
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Popup untuk Edit Harga dan Nama */}
+                        {showEditChoisesInput.status && (
+                            <div className="fixed bg-black bg-opacity-50 inset-0 z-20 -translate-y-10">
+                                <div className="bg-white p-4 rounded-lg mt-10 translate-y-10 absolute bottom-0 w-full">
+                                    <p className="text-center mb-10 text-lg font-semibold">Ubah Pilihan</p>
+
+                                    <div>
+                                        <p>Nama Pilihan</p>
+
+                                        <Input
+                                            className="mt-3"
+                                            placeholder="Nama Pilihan"
+                                            value={displayChoises[showEditChoisesInput.index].name}
+                                            onChange={(e) => {
+                                                const updatedChoises = displayChoises.map((choise, index) =>
+                                                    index === showEditChoisesInput.index ? { ...choise, name: e.target.value } : choise
+                                                );
+
+                                                form.setValue("choises", updatedChoises);
+                                                setDisplayChoises(updatedChoises);
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div className="mt-5">
+                                        <p>Harga</p>
+
+                                        <Input
+                                            className="mt-3"
+                                            type="number"
+                                            placeholder="Harga"
+                                            value={displayChoises[showEditChoisesInput.index].price}
+                                            onChange={(e) => {
+                                                const updatedChoises = displayChoises.map((choise, index) =>
+                                                    index === showEditChoisesInput.index ? { ...choise, price: Number(e.target.value) } : choise
+                                                );
+
+                                                form.setValue("choises", updatedChoises);
+                                                setDisplayChoises(updatedChoises);
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div className="mt-5">
+                                        <p>Tampilkan</p>
+
+                                        <div
+                                            onClick={() => {
+                                                const updatedChoises = displayChoises.map((choise, index) =>
+                                                    index === showEditChoisesInput.index ? { ...choise, show: !choise.show } : choise
+                                                );
+
+                                                form.setValue("choises", updatedChoises);
+                                                setDisplayChoises(updatedChoises);
+                                            }}
+                                            className={`w-14 h-8 mt-3 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${displayChoises[showEditChoisesInput.index].show ? "bg-orange-400" : "bg-gray-300"
+                                                }`}
+                                        >
+                                            <div className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${displayChoises[showEditChoisesInput.index].show ? "translate-x-6" : "translate-x-0"
+                                                }`}></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-5 mt-5">
+                                        <Button
+                                            onClick={() => setShowEditChoisesInput({ status: false, index: -1 })}
+                                            className="bg-green-500 w-full"
+                                        >
+                                            Simpan
+                                        </Button>
+
+                                        <Button
+                                            type="button"
+                                            onClick={() => setShowEditChoisesInput({ status: false, index: -1 })}
                                             className="bg-gray-300 w-full"
                                         >
                                             Tutup

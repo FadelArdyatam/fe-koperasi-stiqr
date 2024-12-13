@@ -42,11 +42,11 @@ const Etalase: React.FC<EtalaseProps> = ({ etalases, setEtalases, addEtalase, se
     console.log(open)
 
     return (
-        <div className="w-full p-5">
+        <div className="w-full px-5">
             <div className={`${addEtalase || open.status ? 'hidden' : 'block'} w-full`}>
                 <div>
                     {etalases.map((etalase) => (
-                        <div key={etalase.id} onClick={() => handleOpen(etalase.id)} className="shadow-sm w- mt-5">
+                        <div key={etalase.id} onClick={() => handleOpen(etalase.id)} className="shadow-sm mt-5 bg-white p-5 rounded-lg">
                             <h3 className="text-lg font-semibold text-start">{etalase.name}</h3>
 
                             <p className="text-sm text-gray-400">{etalase.products.length} Produk</p>

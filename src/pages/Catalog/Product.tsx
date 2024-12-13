@@ -68,7 +68,7 @@ const Product: React.FC<ProductProps> = ({ products, setProducts, addProduct, se
     console.log(open);
 
     return (
-        <div className='mb-32'>
+        <div className='mb-32 px-5'>
             <div className={`${addProduct || open.status ? 'hidden' : 'block'}`}>
                 <div>
                     {products.map((product) => (
