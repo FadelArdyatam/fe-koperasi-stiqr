@@ -16,7 +16,6 @@ interface AddEmployeeProps {
         phone: string;
         email: string;
         position: string;
-        outlet: string;
     }>;
     setEmployees: (employees: Array<{
         id: number;
@@ -24,7 +23,6 @@ interface AddEmployeeProps {
         phone: string;
         email: string;
         position: string;
-        outlet: string;
     }>) => void;
     accordionDatas: Array<{
         title: string;
@@ -42,7 +40,6 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
         phone: z.string().min(10).max(13),
         email: z.string().email(),
         position: z.enum(["Manager", "Kasir"], { required_error: "Please select a position." }),
-        outlet: z.string().min(3).max(255),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -52,7 +49,6 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
             phone: "",
             email: "",
             position: undefined,
-            outlet: "",
         },
     });
 
@@ -63,7 +59,6 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
             phone: data.phone,
             email: data.email,
             position: data.position,
-            outlet: data.outlet,
         };
 
         setEmployees([...employees, newEmployee]);
@@ -144,27 +139,6 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
                                     <FormControl>
                                         <Input
                                             placeholder="Enter email"
-                                            {...field}
-                                            onChange={(e) => {
-                                                field.onChange(e);
-                                            }}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Outlet */}
-                        <FormField
-                            control={form.control}
-                            name="outlet"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Outlet</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder="Enter outlet"
                                             {...field}
                                             onChange={(e) => {
                                                 field.onChange(e);

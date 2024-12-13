@@ -22,7 +22,6 @@ interface EditEmployeeProps {
         phone: string;
         email: string;
         position: string;
-        outlet: string;
     }>;
     setEmployees: (employee: Array<{
         id: number;
@@ -30,7 +29,6 @@ interface EditEmployeeProps {
         phone: string;
         email: string;
         position: string;
-        outlet: string;
     }>) => void;
     editIndex: number;
     accordionDatas: Array<{
@@ -49,7 +47,6 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
         phone: z.string().min(10).max(13),
         email: z.string().email(),
         position: z.enum(["Manager", "Kasir"], { required_error: "Please select a position." }),
-        outlet: z.string().min(3).max(255),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -59,7 +56,6 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
             phone: employeeToEdit.phone,
             email: employeeToEdit.email,
             position: employeeToEdit.position as "Manager" | "Kasir",
-            outlet: employeeToEdit.outlet,
         },
     });
 
@@ -70,7 +66,6 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
             phone: data.phone,
             email: data.email,
             position: data.position,
-            outlet: data.outlet,
         };
 
         const updatedEmployees = [...employees];
@@ -139,21 +134,6 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
                                 <FormLabel>Alamat Email</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Enter email" {...field} disabled={true} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* Outlet */}
-                    <FormField
-                        control={form.control}
-                        name="outlet"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Penempatan Outlet</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Enter outlet name" {...field} disabled={true} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

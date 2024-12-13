@@ -78,42 +78,42 @@ const Dashboard = () => {
     };
 
     useEffect(() => {
-        // const checkTokenValidity = async () => {
-        //     const token = localStorage.getItem("token");
+        const checkTokenValidity = async () => {
+            const token = localStorage.getItem("token");
 
-        //     if (!token) {
-        //         console.warn("Token tidak ditemukan.");
-        //         navigate("/"); // Redirect jika token tidak ada
-        //         return;
-        //     }
+            if (!token) {
+                console.warn("Token tidak ditemukan.");
+                navigate("/"); // Redirect jika token tidak ada
+                return;
+            }
 
-        //     try {
-        //         const decoded: TokenPayload = jwtDecode(token);
-        //         const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+            try {
+                const decoded: TokenPayload = jwtDecode(token);
+                const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
 
-        //         if (decoded.exp < currentTime) {
-        //             console.warn("Token telah kedaluwarsa.");
-        //             localStorage.removeItem("token"); // Hapus token dari storage
-        //             navigate("/"); // Redirect ke halaman login
-        //         }
-        //     } catch (err) {
-        //         console.error("Error saat memeriksa token:", err);
-        //         navigate("/"); // Redirect jika token tidak valid
-        //     }
-        // };
+                if (decoded.exp < currentTime) {
+                    console.warn("Token telah kedaluwarsa.");
+                    localStorage.removeItem("token"); // Hapus token dari storage
+                    navigate("/"); // Redirect ke halaman login
+                }
+            } catch (err) {
+                console.error("Error saat memeriksa token:", err);
+                navigate("/"); // Redirect jika token tidak valid
+            }
+        };
 
-        // const checkProfile = async () => {
-        //     try {
-        //         const profile = await axiosInstance.get('auth/profile');
+        const checkProfile = async () => {
+            try {
+                const profile = await axiosInstance.get('auth/profile');
 
-        //         console.log(profile)
-        //     } catch (err) {
-        //         console.log(err)
-        //     }
-        // }
+                console.log(profile)
+            } catch (err) {
+                console.log(err)
+            }
+        }
 
-        // checkTokenValidity();
-        // checkProfile();
+        checkTokenValidity();
+        checkProfile();
     }, [navigate]);
 
     console.log(field.value);

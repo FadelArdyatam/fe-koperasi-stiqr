@@ -11,7 +11,6 @@ const initialEmployees = [
         phone: '08123456789',
         email: 'Rani@gmail.com',
         position: 'Manager',
-        outlet: 'Pangkalan gas Imron'
     },
     {
         id: 2,
@@ -19,7 +18,6 @@ const initialEmployees = [
         phone: '08123456789',
         email: 'johndoe@gmail.com',
         position: 'Kasir',
-        outlet: 'Pangkalan gas Imron'
     }
 ]
 
