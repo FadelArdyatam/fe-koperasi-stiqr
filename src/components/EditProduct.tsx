@@ -25,7 +25,6 @@ interface EditProductProps {
         SKU: string;
         weight: string;
         description: string;
-        outlet: string;
         etalase: string;
         photo: string;
         variants: number[];
@@ -38,7 +37,6 @@ interface EditProductProps {
         SKU: string;
         weight: string;
         description: string;
-        outlet: string;
         etalase: string;
         photo: string;
         variants: number[];
@@ -71,7 +69,6 @@ const EditProduct: React.FC<EditProductProps> = ({
         SKU: z.string().min(1, { message: "SKU is required." }).max(20, { message: "SKU must be less than 20 characters." }),
         price: z.string().min(1, { message: "Price is required." }),
         weight: z.string().min(1, { message: "Weight is required." }),
-        outlet: z.string().min(1, { message: "Outlet is required." }),
         etalase: z.string().min(1, { message: "Etalase is required." }),
         description: z.string().max(100, { message: "Description must be less than 100 characters." }).optional(),
     });
@@ -84,7 +81,6 @@ const EditProduct: React.FC<EditProductProps> = ({
             SKU: productToEdit.SKU,
             price: productToEdit.price,
             weight: productToEdit.weight.replace(/g|kg/, ""),
-            outlet: productToEdit.outlet,
             etalase: productToEdit.etalase,
             description: productToEdit.description,
         },
@@ -99,7 +95,6 @@ const EditProduct: React.FC<EditProductProps> = ({
             price: data.price,
             weight: data.weight + quantity,
             description: data.description || productToEdit.description,
-            outlet: data.outlet,
             etalase: data.etalase,
         };
 
@@ -239,7 +234,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                         />
                                         {/* Dropdown untuk memilih satuan */}
                                         <select
-                                            className="p-5 h-10 border border-gray-300 w-full rounded-md"
+                                            className="h-10 border border-gray-300 w-full rounded-md"
                                         >
                                             <option value="" disabled>
                                                 Pilih satuan
@@ -275,21 +270,6 @@ const EditProduct: React.FC<EditProductProps> = ({
                                             {(field.value?.length ?? 0)}/100
                                         </p>
                                     </div>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* Outlet */}
-                    <FormField
-                        control={form.control}
-                        name="outlet"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Outlet</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Enter outlet name" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

@@ -8,9 +8,9 @@ import Etalase from "./Etalase";
 import { Link } from "react-router-dom";
 
 const initialProducts = [
-    { id: 1, photo: '', name: 'Ayam', SKU: 'GAG10131', price: '15000', weight: '6g', variants: [] as number[], description: '', outlet: 'Jl. Palmerah', etalase: '', showProduct: false },
-    { id: 2, photo: '', name: 'Soda', SKU: 'GAG10121', price: '10000', weight: '6g', variants: [] as number[], description: '', outlet: 'Jl. Palmerah', etalase: '', showProduct: false },
-    { id: 3, photo: '', name: 'Kentang', SKU: 'GAG10731', price: '21000', weight: '6g', variants: [] as number[], description: '', outlet: 'Jl. Palmerah', etalase: '', showProduct: false },
+    { id: 1, photo: '', name: 'Ayam', SKU: 'GAG10131', price: '15000', weight: '6g', variants: [] as number[], description: '', etalase: '', showProduct: false },
+    { id: 2, photo: '', name: 'Soda', SKU: 'GAG10121', price: '10000', weight: '6g', variants: [] as number[], description: '', etalase: '', showProduct: false },
+    { id: 3, photo: '', name: 'Kentang', SKU: 'GAG10731', price: '21000', weight: '6g', variants: [] as number[], description: '', etalase: '', showProduct: false },
 ];
 
 const initialVariants = [

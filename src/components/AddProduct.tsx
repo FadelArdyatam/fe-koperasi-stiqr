@@ -24,7 +24,6 @@ interface AddProductProps {
         SKU: string;
         weight: string;
         description: string;
-        outlet: string;
         etalase: string;
         photo: string;
         variants: number[];
@@ -37,7 +36,6 @@ interface AddProductProps {
         SKU: string;
         weight: string;
         description: string;
-        outlet: string;
         etalase: string;
         photo: string;
         variants: number[];
@@ -62,7 +60,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
         SKU: z.string().min(1, { message: "SKU is required." }).max(20, { message: "SKU must be less than 20 characters." }),
         price: z.string().min(1, { message: "Price is required." }),
         weight: z.string().min(1, { message: "Weight is required." }),
-        outlet: z.string().min(1, { message: "Outlet is required." }),
         etalase: z.string().min(1, { message: "Etalase is required." }),
         description: z.string().max(100, { message: "Description must be less than 100 characters." }).optional(),
     });
@@ -75,7 +72,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
             SKU: "",
             price: '',
             weight: "",
-            outlet: "",
             etalase: "",
             description: "",
         },
@@ -91,7 +87,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
             weight: data.weight + quantity,
             variants: [],
             description: data.description || "",
-            outlet: data.outlet,
             etalase: data.etalase,
             showProduct: true,
         };
@@ -263,21 +258,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
                                                 {(field.value?.length ?? 0)}/100
                                             </p>
                                         </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Outlet */}
-                        <FormField
-                            control={form.control}
-                            name="outlet"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Outlet</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Enter outlet name" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
