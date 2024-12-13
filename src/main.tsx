@@ -21,6 +21,7 @@ import DataMerchant from './pages/Profile/DataMerchant.tsx'
 import DataPembayaran from './pages/Profile/DataPembayaran.tsx'
 import Catalog from './pages/Catalog/Catalog.tsx'
 import Employee from './pages/Profile/Employee.tsx'
+import Printer from './pages/Profile/Printer.tsx'
 
 const router = createBrowserRouter([
   {
@@ -94,6 +95,10 @@ const router = createBrowserRouter([
   {
     path: '/profile/employee',
     element: <Employee />
+  },
+  {
+    path: '/profile/printer',
+    element: <Printer />
   },
   {
     path: '/catalog',

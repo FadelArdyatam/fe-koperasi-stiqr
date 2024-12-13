@@ -145,6 +145,18 @@ const Profile = () => {
 
                         <ChevronRight />
                     </Link>
+
+                    <div className="w-full h-[2px] my-5 bg-gray-200"></div>
+
+                    <Link to={"/profile/printer"} className="flex items-center gap-5 justify-between">
+                        <div>
+                            <p>Printer</p>
+
+                            <p className="text-sm text-gray-500">Atur printer untuk cetak transaksi</p>
+                        </div>
+
+                        <ChevronRight />
+                    </Link>
                 </div>
             </div>
 
