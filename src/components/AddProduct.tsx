@@ -24,7 +24,7 @@ interface AddProductProps {
         SKU: string;
         weight: string;
         description: string;
-        etalase: string;
+        etalase: string[];
         photo: string;
         variants: number[];
     }>;
@@ -36,7 +36,7 @@ interface AddProductProps {
         SKU: string;
         weight: string;
         description: string;
-        etalase: string;
+        etalase: string[];
         photo: string;
         variants: number[];
     }>) => void;
@@ -60,7 +60,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
         SKU: z.string().min(1, { message: "SKU is required." }).max(20, { message: "SKU must be less than 20 characters." }),
         price: z.string().min(1, { message: "Price is required." }),
         weight: z.string().min(1, { message: "Weight is required." }),
-        etalase: z.string().min(1, { message: "Etalase is required." }),
+        etalase: z.array(z.string()).nonempty({ message: "At least one etalase must be selected." }),
         description: z.string().max(100, { message: "Description must be less than 100 characters." }).optional(),
     });
 
@@ -72,7 +72,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
             SKU: "",
             price: '',
             weight: "",
-            etalase: "",
+            etalase: [],
             description: "",
         },
     });
@@ -87,23 +87,26 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
             weight: data.weight + quantity,
             variants: [],
             description: data.description || "",
-            etalase: data.etalase,
+            etalase: data.etalase,  // Sekarang array
             showProduct: true,
         };
 
         setProducts([...products, newProduct]);
 
-        // To update the products field in etalase
-        etalases.map((etalase) => {
-            if (etalase.name === data.etalase) {
-                etalase.products.push(newProduct.id);
-            }
-        })
+        // Mengupdate setiap etalase yang dipilih
+        data.etalase.forEach((selectedEtalase) => {
+            etalases.forEach((etalase) => {
+                if (etalase.name === selectedEtalase) {
+                    etalase.products.push(newProduct.id);
+                }
+            });
+        });
 
-        console.log("New product:", newProduct);
+        console.log("New product added:", newProduct);
 
         setShowNotification(true);
     }
+
 
     return (
         <>
@@ -222,7 +225,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
                                             />
                                             {/* Dropdown untuk memilih satuan */}
                                             <select
-                                                className="p-5 h-10 border border-gray-300 w-full rounded-md"
+                                                className="h-10 border border-gray-300 w-full rounded-md"
                                             >
                                                 <option value="" disabled>
                                                     Pilih satuan
@@ -271,24 +274,22 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Etalase</FormLabel>
-                                    <FormControl>
-                                        <select
-                                            className="p-2 border h-10 border-gray-300 w-full rounded-md"
-                                            {...field}
-                                            value={field.value}
-                                            onChange={(e) => field.onChange(e.target.value)}
-                                        >
-                                            <option value="" disabled>
-                                                Pilih etalase
-                                            </option>
-                                            {etalases.map((etalase) => (
-                                                <option key={etalase.id} value={etalase.name}>
-                                                    {etalase.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </FormControl>
-                                    <FormMessage />
+                                    {etalases.map(etalase => (
+                                        <label key={etalase.id} className="flex items-center mt-2">
+                                            <input
+                                                type="checkbox"
+                                                value={etalase.name}
+                                                checked={field.value.includes(etalase.name)}
+                                                onChange={e => {
+                                                    const updatedValues = e.target.checked
+                                                        ? [...field.value, e.target.value]
+                                                        : field.value.filter(v => v !== e.target.value);
+                                                    field.onChange(updatedValues);
+                                                }}
+                                            />
+                                            {etalase.name}
+                                        </label>
+                                    ))}
                                 </FormItem>
                             )}
                         />

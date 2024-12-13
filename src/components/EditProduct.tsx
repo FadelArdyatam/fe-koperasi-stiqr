@@ -25,7 +25,7 @@ interface EditProductProps {
         SKU: string;
         weight: string;
         description: string;
-        etalase: string;
+        etalase: string[];
         photo: string;
         variants: number[];
     }>;
@@ -37,7 +37,7 @@ interface EditProductProps {
         SKU: string;
         weight: string;
         description: string;
-        etalase: string;
+        etalase: string[];
         photo: string;
         variants: number[];
     }>) => void;
@@ -69,7 +69,7 @@ const EditProduct: React.FC<EditProductProps> = ({
         SKU: z.string().min(1, { message: "SKU is required." }).max(20, { message: "SKU must be less than 20 characters." }),
         price: z.string().min(1, { message: "Price is required." }),
         weight: z.string().min(1, { message: "Weight is required." }),
-        etalase: z.string().min(1, { message: "Etalase is required." }),
+        etalase: z.array(z.string()).nonempty({ message: "At least one etalase must be selected." }),
         description: z.string().max(100, { message: "Description must be less than 100 characters." }).optional(),
     });
 
@@ -99,18 +99,22 @@ const EditProduct: React.FC<EditProductProps> = ({
         };
 
         const updatedProducts = [...products];
-        updatedProducts[editIndex] = updatedProduct; // Update produk pada indeks tertentu
+        updatedProducts[editIndex] = updatedProduct;
 
         setProducts(updatedProducts);
 
         console.log("Updated product:", updatedProduct);
 
-        // To update the products field in etalase
-        etalases.map((etalase) => {
-            if (etalase.name === data.etalase) {
-                etalase.products.push(updatedProduct.id);
+        // Update etalase products field
+        etalases.forEach((etalase) => {
+            if (data.etalase.includes(etalase.name)) {
+                if (!etalase.products.includes(updatedProduct.id)) {
+                    etalase.products.push(updatedProduct.id);
+                }
+            } else {
+                etalase.products = etalase.products.filter((id) => id !== updatedProduct.id);
             }
-        })
+        });
 
         // Tutup form
         setOpen({ id: -1, status: false });
@@ -284,21 +288,25 @@ const EditProduct: React.FC<EditProductProps> = ({
                             <FormItem>
                                 <FormLabel>Etalase</FormLabel>
                                 <FormControl>
-                                    <select
-                                        className="p-2 border h-10 border-gray-300 w-full rounded-md"
-                                        {...field}
-                                        value={field.value}
-                                        onChange={(e) => field.onChange(e.target.value)}
-                                    >
-                                        <option value="" disabled>
-                                            Pilih etalase
-                                        </option>
+                                    <div>
                                         {etalases.map((etalase) => (
-                                            <option key={etalase.id} value={etalase.name}>
+                                            <label key={etalase.id} className="flex items-center gap-2 mb-2">
+                                                <input
+                                                    type="checkbox"
+                                                    value={etalase.name}
+                                                    checked={field.value.includes(etalase.name)}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        const newValues = e.target.checked
+                                                            ? [...field.value, value]
+                                                            : field.value.filter((v) => v !== value);
+                                                        field.onChange(newValues);
+                                                    }}
+                                                />
                                                 {etalase.name}
-                                            </option>
+                                            </label>
                                         ))}
-                                    </select>
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

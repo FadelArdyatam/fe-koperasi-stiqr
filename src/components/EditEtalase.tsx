@@ -29,7 +29,7 @@ interface EditEtalaseProps {
         SKU: string;
         weight: string;
         description: string;
-        etalase: string;
+        etalase: string[];
         photo: string;
         variants: number[];
     }>;
@@ -57,6 +57,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalase
     });
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
+        // Perbarui etalase yang sedang diedit
         const updatedEtalase = {
             ...etalaseToEdit,
             name: data.name,
@@ -64,22 +65,26 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalase
         };
 
         const updatedEtalases = [...etalases];
-        updatedEtalases[editIndex] = updatedEtalase; // Update produk pada indeks tertentu
-
-        setEtalases(updatedEtalases); // Perbarui state etalase
+        updatedEtalases[editIndex] = updatedEtalase;  // Mengupdate etalase pada indeks yang sesuai
 
         console.log("Updated product:", updatedEtalase);
 
-        // Update etalase pada produk yang dipilih
-        products.map((product) => {
-            if (data.products.includes(product.id)) {
-                product.etalase = data.name;
+        // Perbarui produk yang terhubung dengan etalase
+        const updatedProducts = [...products];
+        updatedProducts.forEach((product) => {
+            if (updatedEtalase.products.includes(product.id)) {
+                product.etalase = [...product.etalase, updatedEtalase.name];
+            } else {
+                product.etalase = product.etalase.filter((name) => name !== updatedEtalase.name);
             }
-        })
+        });
+
+        console.log("Updated products:", products);
 
         // Tutup form
         setOpen({ id: -1, status: false });
     }
+
 
     return (
         <>

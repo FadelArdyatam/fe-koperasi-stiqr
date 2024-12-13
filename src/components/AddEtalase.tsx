@@ -27,7 +27,7 @@ interface AddEtalaseProps {
         SKU: string;
         weight: string;
         description: string;
-        etalase: string;
+        etalase: string[];
         photo: string;
         variants: number[];
     }>;
@@ -61,8 +61,8 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase, etalases, setEta
 
         // To update the etalase field in products
         products.map((product) => {
-            if (selectedProducts.includes(product.id)) {
-                product.etalase = data.name;
+            if (!product.etalase.includes(data.name) && selectedProducts.includes(product.id)) {
+                product.etalase = [...product.etalase, data.name]
             }
         })
 

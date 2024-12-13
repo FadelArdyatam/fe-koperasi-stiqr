@@ -48,7 +48,7 @@ interface AddVariantProps {
         SKU: string;
         weight: string;
         description: string;
-        etalase: string;
+        etalase: string[];
         photo: string;
         variants: number[];
     }>;
