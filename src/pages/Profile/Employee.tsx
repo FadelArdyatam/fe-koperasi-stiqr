@@ -8,16 +8,21 @@ const initialEmployees = [
     {
         id: 1,
         name: 'Rani Destrian',
-        phone: '08123456789',
+        phone_number: '08123456789',
         email: 'Rani@gmail.com',
-        position: 'Manager',
+        role_name: 'Manager',
+        password: "rani",
+        role_description: "Administrator dengan akses penuh"
+
     },
     {
         id: 2,
         name: 'John Doe',
-        phone: '08123456789',
+        phone_number: '08123456789',
         email: 'johndoe@gmail.com',
-        position: 'Kasir',
+        role_name: 'Kasir',
+        password: "john",
+        role_description: "Kasir dengan akses terbatas"
     }
 ]
 
@@ -66,6 +71,8 @@ const Employee = () => {
     };
 
     console.log(open)
+
+    console.log(employees)
 
     return (
         <>
@@ -123,7 +130,7 @@ const Employee = () => {
                                 <div className="flex flex-col gap-3">
                                     <p className="text-lg font-semibold">{employee.name}</p>
 
-                                    <p className="text-sm text-gray-500">{employee.position}</p>
+                                    <p className="text-sm text-gray-500">{employee.role_name}</p>
                                 </div>
                             </div>
 

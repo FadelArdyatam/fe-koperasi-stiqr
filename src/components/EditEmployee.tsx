@@ -19,16 +19,20 @@ interface EditEmployeeProps {
     employees: Array<{
         id: number;
         name: string;
-        phone: string;
+        phone_number: string;
         email: string;
-        position: string;
+        role_name: string;
+        password: string;
+        role_description: string;
     }>;
     setEmployees: (employee: Array<{
         id: number;
         name: string;
-        phone: string;
+        phone_number: string;
         email: string;
-        position: string;
+        role_name: string;
+        password: string;
+        role_description: string;
     }>) => void;
     editIndex: number;
     accordionDatas: Array<{
@@ -44,18 +48,20 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
     // Validasi schema untuk form
     const FormSchema = z.object({
         name: z.string().min(3).max(50),
-        phone: z.string().min(10).max(13),
+        phone_number: z.string().min(10).max(13),
         email: z.string().email(),
-        position: z.enum(["Manager", "Kasir"], { required_error: "Please select a position." }),
+        role_name: z.enum(["Manager", "Kasir"], { required_error: "Please select a position." }),
+        password: z.string().min(6).max(50),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
             name: employeeToEdit.name,
-            phone: employeeToEdit.phone,
+            phone_number: employeeToEdit.phone_number,
             email: employeeToEdit.email,
-            position: employeeToEdit.position as "Manager" | "Kasir",
+            role_name: employeeToEdit.role_name as "Manager" | "Kasir",
+            password: employeeToEdit.password,
         },
     });
 
@@ -63,9 +69,11 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
         const updatedEmployee = {
             ...employeeToEdit,
             name: data.name,
-            phone: data.phone,
+            phone_number: data.phone_number,
             email: data.email,
-            position: data.position,
+            role_name: data.role_name,
+            password: data.password,
+            role_description: data.role_name === "Manager" ? "Manager dengan akses penuh" : "Kasir dengan akses terbatas",
         };
 
         const updatedEmployees = [...employees];
@@ -113,7 +121,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
                     {/* Phone */}
                     <FormField
                         control={form.control}
-                        name="phone"
+                        name="phone_number"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Nomor Telepon</FormLabel>
@@ -140,10 +148,29 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
                         )}
                     />
 
+                    {/* Password */}
+                    <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Password</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="password"
+                                        placeholder="Enter password"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
                     {/* Position */}
                     <FormField
                         control={form.control}
-                        name="position"
+                        name="role_name"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Peran Pegawai</FormLabel>

@@ -1,3 +1,4 @@
+import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft, CircleCheck } from "lucide-react";
 import { useState } from "react";
@@ -13,16 +14,20 @@ interface AddEmployeeProps {
     employees: Array<{
         id: number;
         name: string;
-        phone: string;
+        phone_number: string;
         email: string;
-        position: string;
+        role_name: string;
+        password: string;
+        role_description: string;
     }>;
     setEmployees: (employees: Array<{
         id: number;
         name: string;
-        phone: string;
+        phone_number: string;
         email: string;
-        position: string;
+        role_name: string;
+        password: string;
+        role_description: string;
     }>) => void;
     accordionDatas: Array<{
         title: string;
@@ -37,35 +42,53 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
     // Validasi schema untuk form
     const FormSchema = z.object({
         name: z.string().min(3).max(50),
-        phone: z.string().min(10).max(13),
+        phone_number: z.string().min(10).max(13),
         email: z.string().email(),
-        position: z.enum(["Manager", "Kasir"], { required_error: "Please select a position." }),
+        role_name: z.enum(["Manager", "Kasir"], { required_error: "Please select a position." }),
+        password: z.string().min(6).max(50),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
             name: "",
-            phone: "",
+            phone_number: "",
             email: "",
-            position: undefined,
+            role_name: undefined,
+            password: ""
         },
     });
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
         const newEmployee = {
-            id: employees.length + 1,
             name: data.name,
-            phone: data.phone,
+            phone_number: data.phone_number,
             email: data.email,
-            position: data.position,
+            role_name: data.role_name,
+            password: data.password,
+            role_description: data.role_name === "Manager" ? "Manager dengan akses penuh" : "Kasir dengan akses terbatas"
         };
 
-        setEmployees([...employees, newEmployee]);
+        const token = localStorage.getItem("token");
 
-        console.log("New product:", newEmployee);
+        try {
+            // Kirim data ke endpoint API
+            const response = await axios.post("https://be-stiqr.dnstech.co.id/api/employee/create", newEmployee, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            });
 
-        setShowNotification(true);
+            console.log("Response from API:", response.data);
+
+            // Perbarui state jika berhasil
+            setEmployees([...employees, { id: employees.length + 1, ...newEmployee }]);
+            setShowNotification(true);
+        } catch (error) {
+            console.error("Error while adding employee:", error);
+            alert("Failed to add employee. Please try again.");
+        }
     }
 
     return (
@@ -86,11 +109,11 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Nama Produk</FormLabel>
+                                    <FormLabel>Nama Pegawai</FormLabel>
                                     <FormControl>
                                         <div className="relative">
                                             <Input
-                                                placeholder="Enter product name"
+                                                placeholder="Enter employee name"
                                                 {...field}
                                                 onChange={(e) => {
                                                     field.onChange(e);
@@ -110,7 +133,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
                         {/* Phone */}
                         <FormField
                             control={form.control}
-                            name="phone"
+                            name="phone_number"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Phone</FormLabel>
@@ -150,10 +173,32 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
                             )}
                         />
 
+                        {/* Password */}
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Password</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="Enter password"
+                                            {...field}
+                                            onChange={(e) => {
+                                                field.onChange(e);
+                                            }}
+                                            type="password"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
                         {/* Position */}
                         <FormField
                             control={form.control}
-                            name="position"
+                            name="role_name"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Peran Pegawai</FormLabel>
@@ -227,7 +272,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
                 </div>
             )}
         </>
-    )
-}
+    );
+};
 
-export default AddEmployee
+export default AddEmployee;
