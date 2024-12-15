@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
+import axios from 'axios'
 
 const ForgotPassword = () => {
     const [showInputEmail, setShowInputEmail] = useState(false)
@@ -113,11 +114,38 @@ const ForgotPassword = () => {
         },
     })
 
-    function onSubmitNewPassword(data: z.infer<typeof FormNewPasswordSchema>) {
-        console.log(data)
+    const onSubmitNewPassword = async (data: z.infer<typeof FormNewPasswordSchema>) => {
+        console.log("Submitted data:", data);
 
-        setNotification({ status: false, address: '', notificationSuccess: true })
-    }
+        try {
+            // Kirim data ke endpoint menggunakan Axios
+            const response = await axios.patch(`/api/auth/forgotpassword/1`, {
+                password: data.password,
+                confirmPassword: data.confirmPassword,
+            });
+
+            console.log("Success:", response.data);
+
+            // Atur notifikasi berhasil
+            setNotification({
+                status: true,
+                address: 'Your password has been successfully updated!',
+                notificationSuccess: true,
+            });
+        } catch (error) {
+            console.error("Error submitting new password:", error);
+
+            // Tangani error dengan memeriksa response Axios
+            const errorMessage = (error as any).response?.data?.message || "Failed to update the password. Please try again.";
+
+            // Atur notifikasi gagal
+            setNotification({
+                status: true,
+                address: errorMessage,
+                notificationSuccess: false,
+            });
+        }
+    };
     //
 
     const closeNotificationHandler = () => {

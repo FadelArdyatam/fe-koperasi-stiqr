@@ -10,4 +10,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+        "/api": {
+            target: "https://be-stiqr.dnstech.co.id",
+            changeOrigin: true,
+            secure: false,
+        },
+    },
+},
 })

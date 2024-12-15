@@ -26,7 +26,7 @@ const Signin = () => {
 		try {
 			// Menggunakan axios untuk permintaan POST
 			const response = await axios.post(
-				"https://be-stiqr.dnstech.co.id/api/auth/login",
+				`${import.meta.env.VITE_API_URL}api/auth/login`,
 				{ email, password }, // Data yang dikirimkan
 				{
 					headers: {

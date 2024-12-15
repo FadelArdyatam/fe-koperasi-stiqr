@@ -20,13 +20,13 @@ import TermsandCondition from "@/components/TermsandCondition"
 import PinInput from "@/components/PinInput"
 
 const Signup = () => {
-    const [showTermsandConditions, setShowTermsandConditions] = useState(true)
+    const [showTermsandConditions, setShowTermsandConditions] = useState(false)
     const [section, setSection] = useState([true, false, false]);
     const [currentSection, setCurrentSection] = useState(0);
     const [showPassword, setShowPassword] = useState(false)
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
     const [createPin, setCreatePin] = useState(false)
-    const [allData, setAllData] = useState<(z.infer<typeof FormSchemaUser> | z.infer<typeof FormSchemaMerchant>)[]>([])
+    const [allData, setAllData] = useState<{ ownerName?: string } & (z.infer<typeof FormSchemaUser> | z.infer<typeof FormSchemaMerchant>)[]>([])
 
     // FormUser
     const FormSchemaUser = z.object({
@@ -81,7 +81,7 @@ const Signup = () => {
     })
 
     function onSubmitUser(data: z.infer<typeof FormSchemaUser>) {
-        console.log(data)
+        // console.log(data)
 
         console.log(formUser.formState.errors)
 
@@ -136,13 +136,60 @@ const Signup = () => {
         },
     })
 
-    function onSubmitMerchant(data: z.infer<typeof FormSchemaMerchant>) {
-        console.log(data)
-
+    async function onSubmitMerchant(data: z.infer<typeof FormSchemaMerchant>) {
         // Simpan data yang telah diisi
         setAllData([...allData, data]);
 
-        handleNext()
+        // Validasi bahwa `allData` memiliki data dari `FormUser`
+        if (allData.length === 0) {
+            console.error("User data is missing. Please complete the user form first.");
+            return;
+        }
+
+        // Gabungkan semua data menjadi satu objek
+        const payload = {
+            username: (allData[0] as z.infer<typeof FormSchemaUser>)?.ownerName || "Iyan",
+            email: (allData[0] as z.infer<typeof FormSchemaUser>)?.email || "Iyan10@gmail.com",
+            password: (allData[0] as z.infer<typeof FormSchemaUser>)?.password || "Iyan123",
+            confirmPassword: (allData[0] as z.infer<typeof FormSchemaUser>)?.confirmPassword || "Iyan123",
+            gender: (allData[0] as z.infer<typeof FormSchemaUser>)?.gender || "Male",
+            dateOfBirth: (allData[0] as z.infer<typeof FormSchemaUser>)?.dateOfBirth || "1990-05-15T00:00:00Z",
+            merchantAddress: data.merchantAddress || "123 Street Name",
+            merchantCategory: data.merchantCategory || "Retail",
+            merchantCity: data.merchantCity || "Depok",
+            merchantEmail: data.merchantEmail || "coba@example.com",
+            merchantName: data.merchantName || "Test",
+            phoneNumberMerchant: data.phoneNumberMerchant || "081234567999",
+            postalCode: data.postalCode || "12378",
+            typeBusinessEntity: data.typeBusinessEntity || "CV",
+            merchantPin: "12345", // Merchant pin bisa diambil dari input atau didefinisikan di tempat lain
+        };
+
+        console.log(JSON.stringify(payload));
+
+        try {
+            // Kirim data ke endpoint
+            const response = await fetch("https://be-stiqr.dnstech.co.id/api/register/registeruser", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload), // Konversi objek ke JSON string
+            });
+
+            // Periksa respon dari server
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log("Success:", result);
+
+            // Lanjut ke langkah berikutnya
+            handleNext();
+        } catch (error) {
+            console.error("Error submitting merchant data:", error);
+        }
     }
 
     const handleNext = () => {
