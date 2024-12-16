@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 
 const dataPayments = [
     {
@@ -52,19 +53,59 @@ const DataPembayaran = () => {
         },
     })
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log(data)
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
+        console.log("Form data:", data);
 
-        // Add new payment to the list
-        dataPayments.push({
+        // Buat objek bank baru dari data formulir
+        const newBank = {
             title: data.title,
             bankName: data.bankName,
             accountNumber: data.accountNumber,
             ownerName: data.ownerName,
-            savingBook: <Image />
-        })
+            savingBook: <Image />,  // Convert savingBook to JSX element
+        };
 
-        setShowNotification(true)
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
+        const token = localStorage.getItem("token");
+
+        // Struktur data untuk POST ke database sesuai format backend
+        const newBankToDB = {
+            bank_name: data.bankName,
+            account_number: data.accountNumber,
+            owner_name: data.ownerName,
+            bank_notes_photo: String(data.savingBook),  // URL atau path gambar
+            user_id: userData.id  // Mengambil ID user dari sessionStorage
+        };
+
+        try {
+            // Kirim data ke endpoint API
+            const response = await axios.post(
+                "https://be-stiqr.dnstech.co.id/api/account/create",
+                newBankToDB,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log("Response from API:", response.data);
+
+            // Perbarui state employees jika berhasil
+            setShowNotification(true);
+
+            // Tambahkan data ke dataPayments juga
+            dataPayments.push(newBank);
+            console.log("Updated dataPayments:", dataPayments);
+
+        } catch (error) {
+            console.error("Error while adding employee:", error);
+            alert("Failed to add employee. Please try again.");
+            setShowNotification(false);
+        }
     }
 
     const buttonBack = () => {

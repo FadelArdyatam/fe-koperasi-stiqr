@@ -34,6 +34,8 @@ const Signin = () => {
 			const token = response.data.access_token;
 			localStorage.setItem("token", token);
 
+			sessionStorage.setItem("user", JSON.stringify(response.data.data));
+
 			navigate('/dashboard');
 		} catch (err) {
 			if (axios.isAxiosError(err)) {
