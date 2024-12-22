@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Check, ChevronLeft, CreditCard, Home, Image, ScanQrCode, UserRound, FileText } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import { z } from "zod"
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 const DataPemilik = () => {
     const [showEdit, setShowEdit] = useState(false)
     const [showNotification, setShowNotification] = useState(false)
+    const [user, setUser] = useState<any>()
 
     const FormSchema = z.object({
         NIK: z.string().min(2, {
@@ -55,6 +56,13 @@ const DataPemilik = () => {
 
         setShowNotification(true)
     }
+
+    useEffect(() => {
+        // Ambil informasi user dari sessionStorage
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+        setUser(userData);
+    })
 
     return (
         <>
@@ -113,7 +121,7 @@ const DataPemilik = () => {
                     <div className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Nama</p>
 
-                        <p className="text-sm font-semibold">Rani Destrian</p>
+                        <p className="text-sm font-semibold">{user?.username || user?.name}</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
@@ -121,7 +129,7 @@ const DataPemilik = () => {
                     <div className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Email</p>
 
-                        <p className="text-sm font-semibold">Rani.destrian@gmail.com</p>
+                        <p className="text-sm font-semibold">{user?.email}</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
@@ -129,7 +137,7 @@ const DataPemilik = () => {
                     <div className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">No Hp</p>
 
-                        <p className="text-sm font-semibold">08459332332923</p>
+                        <p className="text-sm font-semibold">{user?.phone_number}</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>

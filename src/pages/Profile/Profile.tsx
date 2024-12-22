@@ -62,7 +62,7 @@ const Profile = () => {
                     </div>
 
                     <div className="flex flex-col gap-3">
-                        <p className="text-xl font-semibold">{data?.username}</p>
+                        <p className="text-xl font-semibold">{data?.username || data?.name}</p>
 
                         <p className="text-sm text-gray-500">{data?.email}</p>
                     </div>

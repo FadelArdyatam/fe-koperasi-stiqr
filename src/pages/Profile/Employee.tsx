@@ -28,7 +28,7 @@ const initialEmployees = [
 
 const accordionDatas = [
     {
-        title: 'Manager',
+        title: 'Admin',
         spoiler: 'Dapat melakukan manajemen katalog, melihat semua laporan transaksi dan mengatur akses pegawai.',
         content: [
             'Manajemen produk dan etalase',

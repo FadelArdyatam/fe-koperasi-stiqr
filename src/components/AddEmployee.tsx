@@ -44,7 +44,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
         name: z.string().min(3).max(50),
         phone_number: z.string().min(10).max(13),
         email: z.string().email(),
-        role_name: z.enum(["Manager", "Kasir"], { required_error: "Please select a position." }),
+        role_name: z.enum(["Admin", "Kasir"], { required_error: "Please select a position." }),
         password: z.string().min(6).max(50),
     });
 
@@ -60,20 +60,38 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
     });
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
+        // Generate a random 10-digit number
+        // const randomDigits = Math.floor(1000000000 + Math.random() * 9000000000);
+        // const roleId = `RLE-${randomDigits}`;
+
+        // Ambil informasi user dari sessionStorage
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
         const newEmployee = {
             name: data.name,
-            phone_number: data.phone_number,
             email: data.email,
-            role_name: data.role_name,
+            phone_number: data.phone_number,
             password: data.password,
-            role_description: data.role_name === "Manager" ? "Manager dengan akses penuh" : "Kasir dengan akses terbatas"
+            role_name: data.role_name,
+            role_description: data.role_name === "Admin" ? "Administrator dengan akses penuh" : "Kasir dengan akses terbatas",
         };
+
+        // Prepare FormData to handle file upload
+        const newEmployeeToAPI = {
+            name: data.name,
+            email: data.email,
+            phone_number: data.phone_number,
+            password: data.password,
+            role_id: "RLE-2024120001",
+            merchant_id: userData.merchant_id,
+        }
 
         const token = localStorage.getItem("token");
 
         try {
             // Kirim data ke endpoint API
-            const response = await axios.post("https://be-stiqr.dnstech.co.id/api/employee/create", newEmployee, {
+            const response = await axios.post("https://be-stiqr.dnstech.co.id/api/employee/create", newEmployeeToAPI, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`,
@@ -204,7 +222,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
                                     <FormLabel>Peran Pegawai</FormLabel>
                                     <FormControl>
                                         <div className="space-y-2">
-                                            {["Manager", "Kasir"].map((option) => {
+                                            {["Admin", "Kasir"].map((option) => {
                                                 const accordionData = accordionDatas.find((data) => data.title === option);
 
                                                 return (
