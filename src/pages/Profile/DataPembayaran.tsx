@@ -15,14 +15,14 @@ const dataPayments = [
         bankName: 'BCA',
         accountNumber: '1234567890',
         ownerName: 'Bpk. Rani Destrian',
-        savingBook: <Image />
+        savingBook: ""
     },
     {
         title: 'Ibu',
         bankName: 'BNI',
         accountNumber: '0987654321',
         ownerName: 'Ibu. Rani Destrian',
-        savingBook: <Image />
+        savingBook: ""
     }
 ]
 
@@ -37,9 +37,7 @@ const DataPembayaran = () => {
         bankName: z.string().min(3),
         accountNumber: z.string().min(10),
         ownerName: z.string().min(3),
-        savingBook: z.instanceof(File, {
-            message: "Photo must be a valid file.",
-        }),
+        savingBook: z.union([z.instanceof(File), z.string().url()]), // Update to handle either File or URL
     })
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -56,37 +54,46 @@ const DataPembayaran = () => {
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log("Form data:", data);
 
-        // Buat objek bank baru dari data formulir
-        const newBank = {
-            title: data.title,
-            bankName: data.bankName,
-            accountNumber: data.accountNumber,
-            ownerName: data.ownerName,
-            savingBook: <Image />,  // Convert savingBook to JSX element
-        };
-
+        // Ambil informasi user dari sessionStorage
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
+        if (!userData || !userData.id) {
+            console.error("User data is missing or invalid.");
+            alert("Failed to retrieve user information. Please login again.");
+            return;
+        }
+
         const token = localStorage.getItem("token");
 
-        // Struktur data untuk POST ke database sesuai format backend
-        const newBankToDB = {
-            bank_name: data.bankName,
-            account_number: data.accountNumber,
-            owner_name: data.ownerName,
-            bank_notes_photo: String(data.savingBook),  // URL atau path gambar
-            user_id: userData.id  // Mengambil ID user dari sessionStorage
-        };
+        if (!token) {
+            console.error("Authorization token is missing.");
+            alert("Failed to retrieve authorization token. Please login again.");
+            return;
+        }
+
+        // Struktur data untuk POST ke database
+        const formData = new FormData();
+        formData.append("bank_name", data.bankName);
+        formData.append("account_number", data.accountNumber);
+        formData.append("owner_name", data.ownerName);
+
+        if (data.savingBook instanceof File) {
+            formData.append("bank_notes_photo", data.savingBook);
+        } else {
+            console.warn("No file provided for savingBook.");
+        }
+
+        formData.append("user_id", userData.id);
 
         try {
             // Kirim data ke endpoint API
             const response = await axios.post(
                 "https://be-stiqr.dnstech.co.id/api/account/create",
-                newBankToDB,
+                formData,
                 {
                     headers: {
-                        "Content-Type": "application/json",
+                        "Content-Type": "multipart/form-data",
                         "Authorization": `Bearer ${token}`,
                     },
                 }
@@ -94,16 +101,27 @@ const DataPembayaran = () => {
 
             console.log("Response from API:", response.data);
 
-            // Perbarui state employees jika berhasil
+            // Notifikasi sukses
             setShowNotification(true);
 
-            // Tambahkan data ke dataPayments juga
+            // Tambahkan data ke dataPayments untuk ditampilkan di UI
+            const newBank = {
+                title: data.title,
+                bankName: data.bankName,
+                accountNumber: data.accountNumber,
+                ownerName: data.ownerName,
+                savingBook: data.savingBook instanceof File ? URL.createObjectURL(data.savingBook) : data.savingBook, // Buat URL dari file untuk pratinjau
+            };
+
             dataPayments.push(newBank);
             console.log("Updated dataPayments:", dataPayments);
-
         } catch (error) {
-            console.error("Error while adding employee:", error);
-            alert("Failed to add employee. Please try again.");
+            if (axios.isAxiosError(error)) {
+                console.error("Error while adding Account:", error.response?.data || error.message);
+            } else {
+                console.error("Error while adding Account:", error);
+            }
+            alert("Failed to add Account. Please try again.");
             setShowNotification(false);
         }
     }
@@ -336,7 +354,7 @@ const DataPembayaran = () => {
                                 bankName: data.bankName,
                                 accountNumber: data.accountNumber,
                                 ownerName: data.ownerName,
-                                savingBook: <Image />,
+                                savingBook: data.savingBook instanceof File ? URL.createObjectURL(data.savingBook) : data.savingBook,
                             };
 
                             setShowEdit(false); // Close the edit form

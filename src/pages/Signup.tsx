@@ -120,6 +120,7 @@ const Signup = () => {
         merchantEmail: z.string().email({
             message: "Invalid email address.",
         }),
+        photo: z.union([z.instanceof(File), z.string().url()]), // Update to handle either File or URL
     })
 
     const formMerchant = useForm<z.infer<typeof FormSchemaMerchant>>({
@@ -133,25 +134,18 @@ const Signup = () => {
             merchantAddress: "",
             phoneNumberMerchant: "",
             merchantEmail: "",
+            photo: undefined,
         },
     })
 
-    async function onSubmitMerchant(data: z.infer<typeof FormSchemaMerchant>) {
-        // Simpan data yang telah diisi
-        setAllData([...allData, data]);
-
-        // Validasi bahwa `allData` memiliki data dari `FormUser`
-        if (allData.length === 0) {
-            console.error("User data is missing. Please complete the user form first.");
-            return;
-        }
-
-        // Gabungkan semua data menjadi satu objek
+    const onSubmitMerchant = async (data: z.infer<typeof FormSchemaMerchant>) => {
+        // Constructing the payload with the desired format
         const payload = {
             username: (allData[0] as z.infer<typeof FormSchemaUser>)?.ownerName || "Iyan",
             email: (allData[0] as z.infer<typeof FormSchemaUser>)?.email || "Iyan10@gmail.com",
             password: (allData[0] as z.infer<typeof FormSchemaUser>)?.password || "Iyan123",
             confirmPassword: (allData[0] as z.infer<typeof FormSchemaUser>)?.confirmPassword || "Iyan123",
+            phoneNumber: (allData[0] as z.infer<typeof FormSchemaUser>)?.phoneNumber || "081234567999",
             gender: (allData[0] as z.infer<typeof FormSchemaUser>)?.gender || "Male",
             dateOfBirth: (allData[0] as z.infer<typeof FormSchemaUser>)?.dateOfBirth || "1990-05-15T00:00:00Z",
             merchantAddress: data.merchantAddress || "123 Street Name",
@@ -163,34 +157,52 @@ const Signup = () => {
             postalCode: data.postalCode || "12378",
             typeBusinessEntity: data.typeBusinessEntity || "CV",
             merchantPin: "12345", // Merchant pin bisa diambil dari input atau didefinisikan di tempat lain
+            photo: data.photo instanceof File ? data.photo : "https://via.placeholder.com/150", // Handle photo field (file or fallback URL)
         };
 
-        console.log(JSON.stringify(payload));
+        // Prepare FormData to handle file upload
+        const formData = new FormData();
+        formData.append("username", payload.username);
+        formData.append("email", payload.email);
+        formData.append("password", payload.password);
+        formData.append("confirmPassword", payload.confirmPassword);
+        formData.append("phone_number", payload.phoneNumber);
+        formData.append("gender", payload.gender);
+        formData.append("dateOfBirth", payload.dateOfBirth);
+        formData.append("merchantAddress", payload.merchantAddress);
+        formData.append("merchantCategory", payload.merchantCategory);
+        formData.append("merchantCity", payload.merchantCity);
+        formData.append("merchantEmail", payload.merchantEmail);
+        formData.append("merchantName", payload.merchantName);
+        formData.append("phoneNumberMerchant", payload.phoneNumberMerchant);
+        formData.append("postalCode", payload.postalCode);
+        formData.append("typeBusinessEntity", payload.typeBusinessEntity);
+        formData.append("merchantPin", payload.merchantPin);
+
+        // Append photo if it's a file
+        if (data.photo instanceof File) {
+            formData.append("photo", data.photo);
+        } else {
+            formData.append("photo", payload.photo); // Fallback URL if no file
+        }
 
         try {
-            // Kirim data ke endpoint
-            const response = await fetch("https://be-stiqr.dnstech.co.id/api/register/registeruser", {
+            const response = await fetch("https://be-stiqr.dnstech.co.id/api/register", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload), // Konversi objek ke JSON string
+                body: formData, // Sending FormData with file
             });
 
-            // Periksa respon dari server
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const result = await response.json();
             console.log("Success:", result);
-
-            // Lanjut ke langkah berikutnya
             handleNext();
         } catch (error) {
             console.error("Error submitting merchant data:", error);
         }
-    }
+    };
 
     const handleNext = () => {
         // Validasi apakah section saat ini valid (ganti logika validasi sesuai kebutuhan)
@@ -562,6 +574,49 @@ const Signup = () => {
                                                 <FormItem className="w-full">
                                                     <FormControl>
                                                         <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Email Merchant" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            name="photo"
+                                            control={formMerchant.control}
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <input
+                                                            {...field}  // Spread field props
+                                                            type="file"
+                                                            accept="image/*"
+                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                            onChange={(e) => {
+                                                                const file = e.target.files ? e.target.files[0] : null;
+
+                                                                if (file) {
+                                                                    // Validate file size (max 2MB)
+                                                                    if (file.size > 2 * 1024 * 1024) {
+                                                                        alert("File size exceeds 2MB.");
+                                                                        return;
+                                                                    }
+
+                                                                    // Validate file type (JPEG, PNG, or GIF)
+                                                                    const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
+                                                                    if (!validImageTypes.includes(file.type)) {
+                                                                        alert("Invalid file type. Please upload an image (JPEG, PNG, or GIF).");
+                                                                        return;
+                                                                    }
+
+                                                                    // If file is valid, pass it to React Hook Form
+                                                                    field.onChange(file); // Pass the file to the form state
+                                                                } else {
+                                                                    field.onChange(null);  // Reset the field if no file is selected
+                                                                }
+                                                            }}
+                                                            // `value` should not be directly bound to `field.value` for file input
+                                                            value="" // Clear the value for file input as file input type does not accept string values
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

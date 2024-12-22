@@ -1,7 +1,7 @@
 import { ChevronLeft, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "../images/logo.png";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import QRCode from "react-qr-code";
 import visa from "../images/visa.svg";
 import masterCard from "../images/masterCard.png";
@@ -12,26 +12,22 @@ import linkAja from "../images/linkaja.jpg";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 import { Input } from "@/components/ui/input";
+import axios from "axios";
 
 const payments = [visa, masterCard, gopay, ovo, dana, linkAja];
 
 const QRCodePage = () => {
-    const [qrValue, setQrValue] = useState("");
     const contentRef = useRef(null);
-    const [showInputAmount, setShowInputAmount] = useState(false);
+    const [showQRCode, setShowQRCode] = useState(false);
     const [amount, setAmount] = useState("");
-    const [showShareLink, setShowShareLink] = useState(false);
-    const [linkPayment, setLinkPayment] = useState("");
-    const [copySuccess, setCopySuccess] = useState("");
+    // const [showShareLink, setShowShareLink] = useState(false);
+    // const [copySuccess, setCopySuccess] = useState("");
+    const [stringQR, setStringQR] = useState("");
 
     const generateRandomString = (length = 10) => {
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
     };
-
-    useEffect(() => {
-        setQrValue(generateRandomString());
-    }, []);
 
     const shareContent = async () => {
         try {
@@ -62,38 +58,60 @@ const QRCodePage = () => {
         }
     };
 
-    const showShareLinkGenerator = () => {
-        if (amount) {
-            const paymentLink = `http://www.stiqr.co.id/pay?amount=${amount}`;
-            setLinkPayment(paymentLink);
-        } else {
+    const showShareLinkGenerator = async () => {
+        if (!amount) {
             alert("Silakan masukkan jumlah pembayaran terlebih dahulu!");
+            return;
         }
 
-        setShowInputAmount(false);
-        setShowShareLink(true);
+        try {
+            const requestBody = {
+                email: "testerfinpay@gmail.com",
+                firstName: "Tester",
+                lastName: "Finpay",
+                mobilePhone: "+62048232329",
+                amount: amount, // Gunakan nilai dari state amount
+                description: "Tester",
+                successUrl: "http://success",
+                type: "qris",
+                orderId: generateRandomString(15) // ID pesanan unik
+            };
+
+            const response = await axios.post("https://dev-middleware.idsmartcare.com/api/v1/finpay/initiate", requestBody);
+
+            if (response.data) {
+                setShowQRCode(true);
+                // setShowShareLink(true);
+                setStringQR(response.data.response.stringQr);
+            } else {
+                alert("Gagal membuat link pembayaran. Mohon coba lagi.");
+            }
+        } catch (error) {
+            console.error("Gagal membuat link pembayaran:", error);
+            alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
+        }
     };
 
-    const copyLinkToClipboard = () => {
-        navigator.clipboard.writeText(linkPayment).then(
-            () => {
-                setCopySuccess("Link berhasil disalin!");
-                setTimeout(() => setCopySuccess(""), 3000); // Reset message after 3 seconds
-            },
-            () => {
-                alert("Gagal menyalin link.");
-            }
-        );
-    };
+    // const copyLinkToClipboard = () => {
+    //     navigator.clipboard.writeText(linkPayment).then(
+    //         () => {
+    //             setCopySuccess("Link berhasil disalin!");
+    //             setTimeout(() => setCopySuccess(""), 3000); // Reset message after 3 seconds
+    //         },
+    //         () => {
+    //             alert("Gagal menyalin link.");
+    //         }
+    //     );
+    // };
 
     return (
         <>
             {/* Tampilan QR Code */}
-            <div className={`${showInputAmount || showShareLink ? "hidden" : "block"} w-full min-h-screen p-8 bg-orange-400`}>
+            <div className={`${showQRCode ? 'block' : 'hidden'} w-full min-h-screen p-8 bg-orange-400`}>
                 <div className="flex items-center justify-between gap-5 w-full">
-                    <Link to={"/dashboard"} className="block">
-                        <X className="text-white" />
-                    </Link>
+                    <Button onClick={() => setShowQRCode(false)} className="block bg-transparent hover:bg-transparent">
+                        <X className="text-white scale-[1.5]" />
+                    </Button>
 
                     <Link to={"/"} className="w-7 h-7 text-xl bg-white rounded-full flex items-center justify-center">
                         ?
@@ -109,7 +127,7 @@ const QRCodePage = () => {
                         <p className="mt-5 text-xl font-semibold">Kedai Kopi</p>
 
                         <div className="mt-10 w-full flex flex-col items-center" ref={contentRef}>
-                            <QRCode className="m-auto" value={qrValue} size={200} />
+                            <QRCode className="m-auto" value={stringQR} size={200} />
 
                             <div className="mt-10">
                                 <p>Menerima Pembayaran</p>
@@ -143,19 +161,15 @@ const QRCodePage = () => {
                             }}></div>
                         </div>
                     </div>
-
-                    <Button onClick={() => setShowInputAmount(true)} className="mt-10 w-full bg-green-400 uppercase">
-                        Buat Link Pembayaran
-                    </Button>
                 </div>
             </div>
 
             {/* Input Jumlah Pembayaran */}
-            <div className={`${showInputAmount ? "block" : "hidden"}`}>
+            <div className={`${showQRCode ? "hidden" : "block"}`}>
                 <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
-                    <Button onClick={() => setShowInputAmount(false)} className="bg-transparent hover:bg-transparent">
+                    <Link to={"/dashboard"} className="bg-transparent hover:bg-transparent">
                         <ChevronLeft className="scale-[1.3] text-white" />
-                    </Button>
+                    </Link>
 
                     <p className="font-semibold m-auto text-xl text-white text-center uppercase">
                         QR Code
@@ -184,7 +198,7 @@ const QRCodePage = () => {
             </div>
 
             {/* Share Link */}
-            <div className={`${showShareLink ? "block" : "hidden"} w-full`}>
+            {/* <div className={`${showShareLink ? "block" : "hidden"} w-full`}>
                 <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
                     <Button onClick={() => setShowShareLink(false)} className="bg-transparent hover:bg-transparent">
                         <ChevronLeft className="scale-[1.3] text-white" />
@@ -212,7 +226,7 @@ const QRCodePage = () => {
 
                     {copySuccess && <p className="mt-5 text-green-500">{copySuccess}</p>}
                 </div>
-            </div>
+            </div> */}
         </>
     );
 };

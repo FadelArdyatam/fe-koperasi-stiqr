@@ -9,7 +9,6 @@ const Signin = () => {
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
-	const [loginType, setLoginType] = useState<"auth" | "employee">("auth"); // State untuk loginType
 	const navigate = useNavigate();
 
 	const handleSignin = async (e: React.FormEvent) => {
@@ -25,11 +24,9 @@ const Signin = () => {
 
 		try {
 			const response = await axios.post(
-				`${import.meta.env.VITE_API_URL}api/${loginType}/login`,
+				`${import.meta.env.VITE_API_URL}api/auth/login`,
 				{ email, password }
 			);
-
-			console.log(`${loginType} login success`, response.data);
 
 			const token = response.data.access_token;
 			localStorage.setItem("token", token);
@@ -59,15 +56,6 @@ const Signin = () => {
 				className="flex flex-col items-center mt-10 w-full gap-5"
 			>
 				{error && <p className="text-red-500 text-sm">{error}</p>}
-
-				<select
-					value={loginType}
-					onChange={(e) => setLoginType(e.target.value as "auth" | "employee")}
-					className="w-full border border-black px-4 py-3 rounded-lg"
-				>
-					<option value="auth">User</option>
-					<option value="employee">Employee</option>
-				</select>
 
 				<input
 					type="text"

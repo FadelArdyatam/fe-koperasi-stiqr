@@ -1,10 +1,15 @@
 import TermsandCondition from "@/components/TermsandCondition"
 import { ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, User, UserRound, FileText } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
 const Profile = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(false)
+    const [data, setData] = useState<any>()
+
+    useEffect(() => {
+        setData(JSON.parse(sessionStorage.getItem('user') || '{}'))
+    }, [])
 
     return (
         <>
@@ -57,9 +62,9 @@ const Profile = () => {
                     </div>
 
                     <div className="flex flex-col gap-3">
-                        <p className="text-xl font-semibold">Rani Destrian</p>
+                        <p className="text-xl font-semibold">{data?.username}</p>
 
-                        <p className="text-sm text-gray-500">Rani.destrian@gmail.com</p>
+                        <p className="text-sm text-gray-500">{data?.email}</p>
                     </div>
                 </div>
 

@@ -117,9 +117,13 @@ const ForgotPassword = () => {
     const onSubmitNewPassword = async (data: z.infer<typeof FormNewPasswordSchema>) => {
         console.log("Submitted data:", data);
 
+        // Ambil informasi user dari sessionStorage
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
         try {
             // Kirim data ke endpoint menggunakan Axios
-            const response = await axios.patch(`/api/auth/forgotpassword/1`, {
+            const response = await axios.patch(`/api/auth/forgotpassword/${userData.id}`, {
                 password: data.password,
                 confirmPassword: data.confirmPassword,
             });
