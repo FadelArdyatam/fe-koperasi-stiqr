@@ -12,7 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { ChevronLeft, CircleCheck } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 interface AddProductProps {
     setAddProduct: (value: boolean) => void;
@@ -50,8 +51,18 @@ interface AddProductProps {
 const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setProducts, etalases }) => {
     const [quantity, setQuantity] = useState('g');
     const [showNotification, setShowNotification] = useState(false);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-    // Validasi schema untuk form
+    // Cleanup preview URL when component unmounts
+    useEffect(() => {
+        return () => {
+            if (imagePreview) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
+
+    // Validation schema for form
     const FormSchema = z.object({
         photo: z.instanceof(File, {
             message: "Photo must be a valid file.",
@@ -77,38 +88,83 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
         },
     });
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
+        const formData = new FormData();
+
+        // Append all the product data
+        formData.append('product_name', data.name);
+        formData.append('product_sku', data.SKU);
+        formData.append('product_weight', data.weight + quantity);
+        formData.append('product_category', 'Kain');
+        formData.append('product_price', data.price);
+        formData.append('product_status', 'true');
+        formData.append('product_description', data.description || '');
+
+        const token = localStorage.getItem("token");
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
+        formData.append('merchant_id', userData?.merchant_id || 'Unknown');
+
+        // Append the photo if it exists
+        if (data.photo) {
+            formData.append('product_image', data.photo);
+
+            console.log(data.photo)
+        }
+
+        for (let pair of formData.entries()) {
+            console.log(pair[0], pair[1]);
+        }
+
         const updatedEtalase = data.etalase.includes("semua produk")
             ? data.etalase
             : [...data.etalase, "semua produk"];
 
-        const newProduct = {
-            id: products.length + 1,
-            photo: data.photo ? URL.createObjectURL(data.photo) : "",
-            name: data.name,
-            SKU: data.SKU,
-            price: data.price,
-            weight: data.weight + quantity,
-            variants: [],
-            description: data.description || "",
-            etalase: updatedEtalase, // Etalase yang sudah diperbarui
-            showProduct: true,
-        };
-
-        setProducts([...products, newProduct]);
-
-        // Mengupdate setiap etalase yang dipilih
-        data.etalase.forEach((selectedEtalase) => {
-            etalases.forEach((etalase) => {
-                if (etalase.name === selectedEtalase || etalase.name === 'semua produk') {
-                    etalase.products.push(newProduct.id);
+        try {
+            // API request
+            const response = await axios.post(
+                "https://be-stiqr.dnstech.co.id/api/product/create",
+                formData,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "multipart/form-data",
+                    },
                 }
+            );
+
+            // Add to local state with the returned image URL
+            const newProduct = {
+                id: products.length + 1,
+                photo: response.data.photo_url || "",
+                name: data.name,
+                SKU: data.SKU,
+                price: data.price,
+                weight: `${data.weight + quantity}`,
+                variants: [],
+                description: data.description || "",
+                etalase: updatedEtalase,
+                showProduct: true,
+            };
+
+            setProducts([...products, newProduct]);
+
+            // Update each selected etalase
+            data.etalase.forEach((selectedEtalase) => {
+                etalases.forEach((etalase) => {
+                    if (etalase.name === selectedEtalase || etalase.name === "semua produk") {
+                        etalase.products.push(newProduct.id);
+                    }
+                });
             });
-        });
 
-        console.log("New product added:", newProduct);
+            console.log("Product successfully added to API:", response.data);
+            setShowNotification(true);
 
-        setShowNotification(true);
+        } catch (error) {
+            console.error("Error while adding product to API:", error);
+        }
     }
 
     return (
@@ -131,7 +187,28 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
                                 <FormItem>
                                     <FormLabel>Foto Produk (Optional)</FormLabel>
                                     <FormControl>
-                                        <Input type="file" onChange={(e) => field.onChange(e.target.files?.[0])} />
+                                        <div>
+                                            <Input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) {
+                                                        field.onChange(file);
+                                                        setImagePreview(URL.createObjectURL(file));
+                                                    }
+                                                }}
+                                            />
+                                            {imagePreview && (
+                                                <div className="mt-2">
+                                                    <img
+                                                        src={imagePreview}
+                                                        alt="Preview"
+                                                        className="max-w-[200px] rounded"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -154,7 +231,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
                                                     field.onChange(e);
                                                 }}
                                             />
-                                            {/* Counter */}
                                             <p className="absolute right-2 -bottom-7 text-sm text-gray-500">
                                                 {field.value.length}/50
                                             </p>
@@ -219,22 +295,19 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
                                     <FormLabel>Berat</FormLabel>
                                     <FormControl className="w-full">
                                         <div className="flex items-center space-x-2">
-                                            {/* Input untuk nilai berat */}
                                             <input
                                                 type="number"
                                                 placeholder="Masukkan berat"
                                                 {...field}
                                                 className="p-2 border border-gray-300 w-full rounded-md"
                                             />
-                                            {/* Dropdown untuk memilih satuan */}
                                             <select
                                                 className="h-10 border border-gray-300 w-full rounded-md"
+                                                value={quantity}
+                                                onChange={(e) => setQuantity(e.target.value)}
                                             >
-                                                <option value="" disabled>
-                                                    Pilih satuan
-                                                </option>
-                                                <option onClick={() => setQuantity('g')}>Gram (g)</option>
-                                                <option onClick={() => setQuantity('kg')}>Kilogram (kg)</option>
+                                                <option value="g">Gram (g)</option>
+                                                <option value="kg">Kilogram (kg)</option>
                                             </select>
                                         </div>
                                     </FormControl>
@@ -293,6 +366,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
                                             {etalase.name}
                                         </label>
                                     ))}
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -304,13 +378,11 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
                 </Form>
             </div>
 
-            {/* Notification */}
+            {/* Success Notification */}
             {showNotification && (
                 <div className="p-10">
                     <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
-
                     <p className="mt-10 font-semibold text-xl text-center">Product added successfully!</p>
-
                     <Button onClick={() => setAddProduct(false)} className="w-full bg-green-500 text-white mt-10">
                         Done
                     </Button>

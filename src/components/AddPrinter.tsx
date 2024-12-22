@@ -14,6 +14,7 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Checkbox } from "./ui/checkbox";
+import axios from "axios";
 
 interface AddPrinterProps {
     setShowManualInputPrinter: (showManualInputPrinter: boolean) => void;
@@ -72,20 +73,62 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
         }
     }
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        setPrinters([
-            ...printers,
-            {
-                id: printers.length + 1,
-                type: data.type,
-                macAddress: data.macAddress,
-                name: data.name,
-                paperSize: data.paperSize,
-                receiptType: data.receiptType,
-            },
-        ]);
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
+        // Token Bearer from Local Storage
+        const token = localStorage.getItem("token");
 
-        setShowManualInputPrinter(false);
+        // User information from sessionStorage
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
+        // Prepare the request body
+        const printerPayload = {
+            printer_name: data.name,
+            mac_address: data.macAddress,
+            is_active: true, // Assuming the printer is active by default
+            merchant_id: userData?.merchant_id || "", // Ensure merchant_id is provided
+        };
+
+        try {
+            // API request to create the printer
+            const response = await axios.post(
+                "https://be-stiqr.dnstech.co.id/api/printer/create",
+                printerPayload,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log("Printer successfully added:", response.data);
+
+            // Update local state with the new printer
+            setPrinters([
+                ...printers,
+                {
+                    id: printers.length + 1,
+                    type: data.type,
+                    macAddress: data.macAddress,
+                    name: data.name,
+                    paperSize: data.paperSize,
+                    receiptType: data.receiptType,
+                },
+            ]);
+
+            // Hide the manual input modal
+            setShowManualInputPrinter(false);
+        } catch (error) {
+            console.error("Error while adding printer:", error);
+
+            // Display an error message
+            if (axios.isAxiosError(error) && error.response) {
+                alert(`Failed to add printer: ${error.response.data.message || "Unknown error"}`);
+            } else {
+                alert("An unexpected error occurred. Please try again.");
+            }
+        }
     }
 
     return (
