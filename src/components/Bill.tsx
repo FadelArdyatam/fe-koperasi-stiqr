@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Check } from 'lucide-react';
 import bcrypt from "bcryptjs";
+import { useNavigate } from 'react-router-dom';
 
 interface BillProps {
     data: {
@@ -17,6 +18,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
     const [showPinInput, setShowPinInput] = useState(false);
     const [pin, setPin] = useState<string[]>([]);
     const [showNotification, setShowNotification] = useState(false);
+    const navigate = useNavigate();
 
     const handleNumberClick = (number: string) => {
         if (pin.length < 6) {
@@ -40,6 +42,11 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
             setPin([]); // Reset PIN
         }
     };
+
+    const backToHomeHandler = () => {
+        setShowNotification(false);
+        navigate('/dashboard');
+    }
 
     return (
         <>
@@ -161,7 +168,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
 
                     <p className='text-base'>Transaksi pembayaran Anda Berhasil.</p>
 
-                    <Button onClick={() => setShowNotification(false)} className="w-full">Back To Home</Button>
+                    <Button onClick={backToHomeHandler} className="w-full">Back To Home</Button>
                 </div>
             </div>
         </>

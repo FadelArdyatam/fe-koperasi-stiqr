@@ -8,7 +8,7 @@ import ovo from "@/images/ovo.jpg";
 import dana from "@/images/dana.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import axiosInstance from "@/hooks/axiosInstance";
+import axios from "axios";
 
 export const admissionFees = [
     {
@@ -120,7 +120,7 @@ const Dashboard = () => {
             }
 
             try {
-                const response = await axiosInstance.get(
+                const response = await axios.get(
                     `https://be-stiqr.dnstech.co.id/api/balance/${userData.merchant.id}`,
                     {
                         headers: {

@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useSwipeable } from "react-swipeable";
+import intro1 from "../images/intro1.png";
+import intro2 from "../images/intro2.png";
+import intro3 from "../images/intro3.png";
 
 const slides = [
-    { title: "Title 1", description: "Description for slide 1." },
-    { title: "Title 2", description: "Description for slide 2." },
-    { title: "Title 3", description: "This is the last slide." },
+    { image: intro1, title: "Bisnis Makin Lancar, Tanpa Biaya Besar", description: " Mulai kelola bisnis Anda tanpa khawatir biaya tambahan  STIQR 100% Gratis!" },
+    { image: intro2, title: "Mudah, Cepat, Tanpa Ribet", description: "Kelola bisnismu dengan mudah hanya dengan satu aplikasi." },
+    { image: intro3, title: "Saatnya Tumbuh Bersama STIQR!", description: "Bersama kami wujudkan bisnis impian Anda. " },
 ];
 
 interface OnboardingProps {
@@ -37,11 +40,14 @@ const Onboarding = ({ setShowOnboarding }: OnboardingProps) => {
     return (
         <div className="flex flex-col items-center justify-center p-10">
             {/* Slide Container */}
+            <button className={`${slide <= 1 ? 'block' : 'hidden'} absolute top-14 right-10 z-10`} onClick={() => setShowOnboarding(false)}>Lewati</button>
+
             <div
                 {...handlers}
-                className="relative w-full h-[500px] bg-gray-200 border border-black rounded-lg overflow-hidden"
+                className="relative w-full h-[500px] overflow-hidden"
             >
-                {slides.map((_, index) => (
+
+                {slides.map((item, index) => (
                     <div
                         key={index}
                         className={`absolute inset-0 flex items-center justify-center transition-transform duration-500 ${slide === index
@@ -51,7 +57,7 @@ const Onboarding = ({ setShowOnboarding }: OnboardingProps) => {
                                 : "translate-x-full"
                             }`}
                     >
-                        <p className="text-4xl font-bold">Slide {index + 1}</p>
+                        <img src={item.image} alt="" />
                     </div>
                 ))}
             </div>

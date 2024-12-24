@@ -195,7 +195,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
 
                     <AccordionItem value="item-4" className="w-full border-b pb-2">
                         <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                            <span>Perangkat Stiqr</span>
+                            <span>Pencarian Saldo STIQR</span>
 
                             <ChevronDown
                                 className={`transform transition-transform duration-200 ${openItem === "item-4" ? "rotate-180" : "rotate-0"
@@ -205,16 +205,19 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                         <AccordionContent className="py-2 px-4">
                             <ol className="list-decimal pl-6 space-y-2">
                                 <li>
-                                    Jika menggunakan perangkat STIQR yang disediakan oleh DNS dan/atau Afiliasinya, Pemilik Merchant wajib:
+                                    Pencairan saldo pada aplikasi STIQR dapat dilakukan dengan memperhatikan ketentuan sebagai berikut:
                                     <ol className="list-disc pl-6 space-y-2">
                                         <li>
-                                            Mengamankan perangkat sesuai ketentuan yang ditetapkan oleh DNS dan/atau Afiliasinya, baik secara verbal saat pemasangan maupun melalui media komunikasi lainnya.
+                                            Pemilik merchant dapat melakukan pencairan saldo pada hari yang sama (H0) selama jumlah pencairan tidak melebihi batas limit yang telah ditentukan.
                                         </li>
                                         <li>
-                                            Segera memberi tahu DNS dan/atau Afiliasinya jika perangkat STIQR mengalami gangguan sistem atau kendala, agar dapat diperbaiki.
+                                            Apabila jumlah pencairan yang diajukan pada hari yang sama (H0) melebihi limit yang ditetapkan, maka proses pencairan akan dilakukan pada hari berikutnya (H+1)
                                         </li>
                                         <li>
-                                            Bertanggung jawab atas kerugian yang dialami oleh DNS dan/atau Afiliasinya dan/atau Pelanggan akibat penyalahgunaan perangkat STIQR oleh Pemilik Merchant, karyawannya, atau pihak ketiga yang ditunjuk.
+                                            Sistem secara otomatis menjadwalkan pencairan ke H+1 tanpa perlu pengajuan ulang dari pengguna.
+                                        </li>
+                                        <li>
+                                            Untuk pencairan saldo H+1 tidak ada batasan limit jumlah pencairan.
                                         </li>
                                     </ol>
                                 </li>
@@ -394,7 +397,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                 </div>
             )}
 
-            <div className="fixed bottom-10 w-[90%] m-auto">
+            <div className="w-[90%] m-auto">
                 <Button onClick={termsandConditionHandler} className="w-full bg-green-400">Lanjutkan</Button>
             </div>
         </div>
