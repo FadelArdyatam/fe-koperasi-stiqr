@@ -13,7 +13,6 @@ const Signin = () => {
 
 	const handleSignin = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault(); // Pastikan form tidak refresh
-		console.log("Form submitted"); // Debugging untuk memastikan fungsi dijalankan
 
 		if (!email || !password) {
 			setError("Email dan password tidak boleh kosong.");
