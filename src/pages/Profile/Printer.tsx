@@ -25,7 +25,7 @@ const Printer = () => {
 
         try {
             console.log("Requesting Bluetooth Device...");
-            const device = await navigator.bluetooth.requestDevice({
+            const device = await (navigator as any).bluetooth.requestDevice({
                 acceptAllDevices: true,
                 optionalServices: ["printer"], // Ganti dengan UUID layanan printer Anda
             });

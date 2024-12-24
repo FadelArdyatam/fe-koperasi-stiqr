@@ -233,7 +233,7 @@ const Signup = () => {
     };
 
     // Values from the formUser
-    const values = formUser.getValues()
+    // const values = formUser.getValues()
 
     console.log(allData)
 

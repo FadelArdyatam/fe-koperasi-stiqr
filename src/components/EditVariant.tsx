@@ -55,7 +55,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariant
     const [newChoiceName, setNewChoiceName] = useState("");
     const [newChoicePrice, setNewChoicePrice] = useState<number | "">("");
     const [showChoice, setShowChoice] = useState(false);
-    const [temporaryChoiceValue, setTemporaryChoiceValue] = useState<Choice[]>([]); // State untuk menyimpan nilai sementara pilihan {dan masih gatau fungsinya untuk apa}
+    const [, setTemporaryChoiceValue] = useState<Choice[]>([]); // State untuk menyimpan nilai sementara pilihan {dan masih gatau fungsinya untuk apa}
 
     const variantToEdit = variants[editIndex]; // Produk yang sedang diedit
     console.log("Variant to edit:", variantToEdit);
