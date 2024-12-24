@@ -84,7 +84,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
             phone_number: data.phone_number,
             password: data.password,
             role_id: "RLE-2024120001",
-            merchant_id: userData.merchant_id,
+            merchant_id: userData?.merchant?.id,
         }
 
         const token = localStorage.getItem("token");

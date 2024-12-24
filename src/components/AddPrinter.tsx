@@ -86,7 +86,7 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
             printer_name: data.name,
             mac_address: data.macAddress,
             is_active: true, // Assuming the printer is active by default
-            merchant_id: userData?.merchant_id || "", // Ensure merchant_id is provided
+            merchant_id: userData?.merchant?.id || "", // Ensure merchant_id is provided
         };
 
         try {

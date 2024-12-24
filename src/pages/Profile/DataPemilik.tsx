@@ -62,7 +62,19 @@ const DataPemilik = () => {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
         setUser(userData);
-    })
+    }, [])
+
+    const FormatDate = ({ dateString }: { dateString: string }) => {
+        const formatDate = (isoDate: string | number | Date) => {
+            const date = new Date(isoDate);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // getMonth() dimulai dari 0
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        };
+
+        return <div>{formatDate(dateString)}</div>;
+    };
 
     return (
         <>
@@ -145,7 +157,7 @@ const DataPemilik = () => {
                     <div className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Tanggal Lahir</p>
 
-                        <p className="text-sm font-semibold">23/09/2004</p>
+                        <FormatDate dateString={user?.dob} />
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>

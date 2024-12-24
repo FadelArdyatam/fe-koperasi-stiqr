@@ -104,7 +104,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
-        formData.append('merchant_id', userData?.merchant_id || 'Unknown');
+        formData.append('merchant_id', userData?.merchant?.id || 'Unknown');
 
         // Append the photo if it exists
         if (data.photo) {

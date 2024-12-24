@@ -15,10 +15,8 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 	const [value, setValue] = useState("");
 	const [phoneNumber, setPhoneNumber] = useState("");
 	const [codeSent, setCodeSent] = useState(false);
-	// const [code, setCode] = useState("");
 	const [timeLeft, setTimeLeft] = useState(0); // State for the countdown timer
-
-	// console.log(phoneNumber);
+	const [otpId, setOtpId] = useState(""); // State untuk menyimpan OTP ID dari response
 
 	const sendCode = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
@@ -28,45 +26,85 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 			return;
 		}
 
-		setCreatePin(true)
+		console.log("Phone Number:", phoneNumber);
 
-		console.log(phoneNumber)
+		try {
+			const response = await fetch("https://be-stiqr.dnstech.co.id/api/register/get-otp", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ phoneNumber }),
+			});
 
-		// try {
-		// 	const response = await fetch("http://localhost:3000/api/send-code", {
-		// 		method: "POST",
-		// 		headers: {
-		// 			"Content-Type": "application/json",
-		// 		},
-		// 		body: JSON.stringify({ phoneNumber }),
-		// 	});
+			if (response.ok) {
+				const responseData = await response.json();
+				console.log("Response Data:", responseData);
+				setOtpId(responseData.data.id); // Simpan OTP ID dari response
+				alert("Verification code sent successfully");
+				setCodeSent(true);
+				setTimeLeft(300); // Set waktu 5 menit (300 detik)
+			} else {
+				const errorData = await response.json();
+				console.error("Error Response Data:", errorData);
+				alert("Failed to send verification code. Please try again.");
+			}
+		} catch (error) {
+			console.error("Network or Unexpected Error:", error);
+			alert("An unexpected error occurred. Please check your connection and try again.");
+		}
+	};
 
-		// 	console.log("Response:", response);
+	const verifyOtp = async () => {
+		if (!otpId || !value || !phoneNumber) {
+			alert("Incomplete data. Unable to verify OTP.");
+			return;
+		}
 
-		// 	if (response.ok) {
-		// 		const responseData = await response.json();
-		// 		console.log("Response Data:", responseData);
-		// 		alert("Verification code sent successfully");
-		// 		setCodeSent(true);
-		// 		setTimeLeft(120); // Start the countdown (120 seconds)
-		// 	} else {
-		// 		const errorData = await response.json();
-		// 		console.error("Error Response Data:", errorData);
-		// 		alert("Failed to send verification code. Please try again.");
-		// 	}
-		// } catch (error) {
-		// 	console.error("Network or Unexpected Error:", error);
-		// 	alert("An unexpected error occurred. Please check your connection and try again.");
-		// }
+		try {
+			const response = await fetch("https://be-stiqr.dnstech.co.id/api/register/verif-otp", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					otp_id: otpId,
+					otp: value,
+					phoneNumber,
+				}),
+			});
+
+			if (response.ok) {
+				const responseData = await response.json();
+				console.log("OTP Verification Successful:", responseData);
+				alert("OTP verified successfully!");
+				// Tambahkan logika setelah verifikasi berhasil, seperti navigasi
+				setCreatePin(true);
+			} else {
+				const errorData = await response.json();
+				console.error("OTP Verification Failed:", errorData);
+				alert("Failed to verify OTP. Please try again.");
+			}
+		} catch (error) {
+			console.error("Network or Unexpected Error:", error);
+			alert("An unexpected error occurred. Please check your connection and try again.");
+		}
 	};
 
 	// Countdown timer logic
 	useEffect(() => {
 		if (timeLeft > 0) {
 			const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-			return () => clearTimeout(timer); // Cleanup the timer on unmount
+			return () => clearTimeout(timer);
 		}
 	}, [timeLeft]);
+
+	// Automatically verify OTP when all slots are filled
+	useEffect(() => {
+		if (value.length === 6) {
+			verifyOtp();
+		}
+	}, [value]); // Trigger when `value` changes
 
 	// Format the timer as MM:SS
 	const formatTime = (time: number) => {
@@ -106,8 +144,9 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 					<Button
 						onClick={sendCode}
 						className="bg-[#7ED321] px-5 py-3 w-full text-white rounded-lg"
+						disabled={timeLeft > 0} // Disable tombol jika countdown belum selesai
 					>
-						Kirim
+						{timeLeft > 0 ? `Kirim Lagi (${formatTime(timeLeft)})` : "Kirim"}
 					</Button>
 				</form>
 
@@ -115,7 +154,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 					<InputOTP
 						maxLength={6}
 						value={value}
-						onChange={(value) => setValue(value)}
+						onChange={(value) => setValue(value)} // Update state as user types
 					>
 						<InputOTPGroup>
 							<InputOTPSlot index={0} />

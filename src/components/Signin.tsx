@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import logo from "../images/logo.png";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import axios from "axios";
 
 const Signin = () => {
@@ -11,8 +11,9 @@ const Signin = () => {
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
 
-	const handleSignin = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const handleSignin = async (e: FormEvent<HTMLFormElement>) => {
+		e.preventDefault(); // Pastikan form tidak refresh
+		console.log("Form submitted"); // Debugging untuk memastikan fungsi dijalankan
 
 		if (!email || !password) {
 			setError("Email dan password tidak boleh kosong.");
@@ -52,7 +53,8 @@ const Signin = () => {
 			<img src={logo} className="w-full" alt="Logo" />
 
 			<form
-				onSubmit={handleSignin}
+				action=""
+				onSubmit={handleSignin} // Pastikan hanya gunakan handleSignin
 				className="flex flex-col items-center mt-10 w-full gap-5"
 			>
 				{error && <p className="text-red-500 text-sm">{error}</p>}

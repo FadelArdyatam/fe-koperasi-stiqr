@@ -68,6 +68,7 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to track dropdown open status
     const [showNotification, setShowNotification] = useState(true);
+    const [balance, setBalance] = useState(0);
 
     const toggleDropdown = () => {
         setIsDropdownOpen((prev) => !prev); // Toggle the dropdown state
@@ -95,22 +96,43 @@ const Dashboard = () => {
                     console.warn("Token telah kedaluwarsa.");
                     localStorage.removeItem("token"); // Hapus token dari storage
                     navigate("/"); // Redirect ke halaman login
+                    return;
                 }
             } catch (err) {
                 console.error("Error saat memeriksa token:", err);
                 navigate("/"); // Redirect jika token tidak valid
+                return;
             }
         };
 
         const checkProfile = async () => {
-            try {
-                const profile = await axiosInstance.get('auth/profile');
+            const token = localStorage.getItem("token");
 
-                console.log(profile)
-            } catch (err) {
-                console.log(err)
+            // Ambil informasi user dari sessionStorage
+            const userItem = sessionStorage.getItem("user");
+            const userData = userItem ? JSON.parse(userItem) : null;
+
+            if (!token) {
+                console.warn("Token tidak ditemukan untuk otorisasi.");
+                return;
             }
-        }
+
+            try {
+                const response = await axiosInstance.get(
+                    `https://be-stiqr.dnstech.co.id/api/balance/${userData.merchant.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`, // Menyertakan token
+                        },
+                    }
+                );
+
+                console.log("Profile Response:", response.data);
+                setBalance(response.data.data.balence_amount);
+            } catch (err) {
+                console.error("Error saat mengambil profile:", err);
+            }
+        };
 
         checkTokenValidity();
         checkProfile();
@@ -192,7 +214,10 @@ const Dashboard = () => {
                 <div className="w-full text-center">
                     <p className="font-semibold text-lg">Saldo Anda</p>
 
-                    <p className="font-bold text-4xl mt-2 text-orange-400">200.000</p>
+                    <p className="font-bold text-4xl mt-2 text-orange-400">{Number(balance).toLocaleString("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                    })}</p>
                 </div>
 
                 <div className="mt-10 flex items-center justify-between">
