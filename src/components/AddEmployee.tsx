@@ -85,6 +85,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
             password: data.password,
             role_id: "RLE-2024120001",
             merchant_id: userData?.merchant?.id,
+            role_description: data.role_name === "Admin" ? "Administrator dengan akses penuh" : "Kasir dengan akses terbatas",
         }
 
         const token = localStorage.getItem("token");

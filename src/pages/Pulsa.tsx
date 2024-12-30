@@ -84,6 +84,8 @@ const Pulsa = () => {
         setIndexButton(index)
     }
 
+    console.log(user)
+
     return (
         <div>
             <div className='fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400 bg-opacity-100'>
