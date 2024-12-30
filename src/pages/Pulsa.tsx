@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, Mail } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import telkomsel from '../images/telkomsel.png'
 import Bill from "@/components/Bill"
+import axios from "axios"
 
 interface BillData {
     product: string;
@@ -29,6 +30,42 @@ const Pulsa = () => {
     const [dataBill, setDataBill] = useState<BillData | null>(null)
     const [showBill, setShowBill] = useState(false)
     const [indexButton, setIndexButton] = useState(-1)
+    const [balance, setBalance] = useState(0);
+    const [user, setUser] = useState<any>();
+
+    useEffect(() => {
+        const checkProfile = async () => {
+            const token = localStorage.getItem("token");
+
+            // Ambil informasi user dari sessionStorage
+            const userItem = sessionStorage.getItem("user");
+            const userData = userItem ? JSON.parse(userItem) : null;
+            setUser(userData);
+
+            if (!token) {
+                console.warn("Token tidak ditemukan untuk otorisasi.");
+                return;
+            }
+
+            try {
+                const response = await axios.get(
+                    `https://be-stiqr.dnstech.co.id/api/balance/${userData.merchant.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`, // Menyertakan token
+                        },
+                    }
+                );
+
+                console.log("Profile Response:", response.data);
+                setBalance(response.data.data.balence_amount);
+            } catch (err) {
+                console.error("Error saat mengambil profile:", err);
+            }
+        };
+
+        checkProfile();
+    }, [])
 
     const sendBill = () => {
         const data = {
@@ -65,7 +102,10 @@ const Pulsa = () => {
                 <div className="relative mt-[105px] w-full p-8 shadow-lg flex items-center gap-5 justify-center">
                     <p className="absolute left-5">Saldo</p>
 
-                    <p className="font-semibold text-orange-500 m-auto">Rp 200.000</p>
+                    <p className="font-semibold text-orange-500 m-auto">{Number(balance).toLocaleString("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                    })}</p>
                 </div>
 
                 <div className="mt-10 w-[90%] m-auto flex flex-col items-center gap-5">

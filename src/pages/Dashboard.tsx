@@ -8,7 +8,7 @@ import ovo from "@/images/ovo.jpg";
 import dana from "@/images/dana.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import axiosInstance from "@/hooks/axiosInstance";
+import axios from "axios";
 
 export const admissionFees = [
     {
@@ -69,6 +69,7 @@ const Dashboard = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to track dropdown open status
     const [showNotification, setShowNotification] = useState(true);
     const [balance, setBalance] = useState(0);
+    const [user, setUser] = useState<any>();
 
     const toggleDropdown = () => {
         setIsDropdownOpen((prev) => !prev); // Toggle the dropdown state
@@ -111,6 +112,7 @@ const Dashboard = () => {
             // Ambil informasi user dari sessionStorage
             const userItem = sessionStorage.getItem("user");
             const userData = userItem ? JSON.parse(userItem) : null;
+            setUser(userData);
 
             if (!token) {
                 console.warn("Token tidak ditemukan untuk otorisasi.");
@@ -118,7 +120,7 @@ const Dashboard = () => {
             }
 
             try {
-                const response = await axiosInstance.get(
+                const response = await axios.get(
                     `https://be-stiqr.dnstech.co.id/api/balance/${userData.merchant.id}`,
                     {
                         headers: {
@@ -205,7 +207,7 @@ const Dashboard = () => {
                     </Link>
                 </div>
 
-                <p className="text-center text-white mt-16 font-semibold text-xl">Hi, Kopi Tuku</p>
+                <p className="text-center text-white mt-16 font-semibold text-xl">Hi, {user?.merchant?.name}</p>
             </div>
 
             <div className="w-[90%] m-auto -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">

@@ -94,7 +94,7 @@ const Signup = () => {
 
     // Form Merchant
     const FormSchemaMerchant = z.object({
-        typeBusinessEntity: z.enum(["Perorangan", "CV", "Koperasi", "Firma"], {
+        typeBusinessEntity: z.enum(["Perorangan", "CV", "Koperasi", "Firma", "Perseroan Terbatas"], {
             message: "Please select the type of business entity",
         }),
         merchantName: z.string().min(2, {
@@ -439,6 +439,7 @@ const Signup = () => {
                                                                 <DropdownMenuItem onSelect={() => field.onChange("CV")} className="w-full">CV</DropdownMenuItem>
                                                                 <DropdownMenuItem onSelect={() => field.onChange("Koperasi")} className="w-full">Koperasi</DropdownMenuItem>
                                                                 <DropdownMenuItem onSelect={() => field.onChange("Firma")} className="w-full">Firma</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Perseroan Terbatas")} className="w-full">Perseroan Terbatas</DropdownMenuItem>
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
                                                     </FormControl>
