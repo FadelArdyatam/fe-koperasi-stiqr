@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Check, ChevronDown, ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, FileText } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { z } from "zod"
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form"
@@ -8,10 +8,12 @@ import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
+import axios from "axios"
 
 const DataMerchant = () => {
     const [showEdit, setShowEdit] = useState(false)
     const [showNotification, setShowNotification] = useState(false)
+    const [merchantData, setMerchantData] = useState<any>();
 
     const FormSchema = z.object({
         merchantName: z.string().min(2, {
@@ -53,6 +55,42 @@ const DataMerchant = () => {
 
         setShowNotification(true)
     }
+
+    useEffect(() => {
+        // Ambil informasi user dari sessionStorage
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
+        // Ambil token dari userData
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            console.error("Token tidak ditemukan di sessionStorage.");
+            return;
+        }
+
+        // Fetch data merchant menggunakan Axios
+        const fetchMerchant = async () => {
+            try {
+                const response = await axios.get(
+                    `https://be-stiqr.dnstech.co.id/api/merchant/${userData?.merchant?.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                setMerchantData(response.data[0]); // Simpan data ke state
+            } catch (err) {
+                console.error("Error saat mengambil data merchant:", err);
+            }
+        };
+
+        fetchMerchant();
+    }, []);
+
+    console.log(merchantData)
 
     return (
         <>
@@ -103,7 +141,7 @@ const DataMerchant = () => {
                     <div className="flex w-full items-center justify-between">
                         <p className="text-sm text-gray-500">Nama Merchant</p>
 
-                        <p className="text-sm font-semibold">Kopi</p>
+                        <p className="text-sm font-semibold">{merchantData?.name}</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
@@ -111,7 +149,7 @@ const DataMerchant = () => {
                     <div className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Kategori Merchant</p>
 
-                        <p className="text-sm font-semibold">Restaurant</p>
+                        <p className="text-sm font-semibold">{merchantData?.category}</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
@@ -119,7 +157,7 @@ const DataMerchant = () => {
                     <div className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Kota Merchant</p>
 
-                        <p className="text-sm font-semibold">DKI Jakarta</p>
+                        <p className="text-sm font-semibold">{merchantData?.city}</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
@@ -127,7 +165,7 @@ const DataMerchant = () => {
                     <div className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">No Hp</p>
 
-                        <p className="text-sm font-semibold">08459332332923</p>
+                        <p className="text-sm font-semibold">{merchantData?.phone_number}</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
@@ -135,7 +173,7 @@ const DataMerchant = () => {
                     <div className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Alamat</p>
 
-                        <p className="text-sm font-semibold">Karet Semanggi</p>
+                        <p className="text-sm font-semibold">{merchantData?.address}</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
@@ -143,7 +181,7 @@ const DataMerchant = () => {
                     <div className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Kode Pos</p>
 
-                        <p className="text-sm font-semibold">17132</p>
+                        <p className="text-sm font-semibold">{merchantData?.post_code}</p>
                     </div>
                 </div>
 
