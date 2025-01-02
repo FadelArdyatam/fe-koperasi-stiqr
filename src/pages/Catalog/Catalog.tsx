@@ -3,10 +3,11 @@ import { Input } from "@/components/ui/input";
 import { CreditCard, FileText, Home, ScanQrCode, Search, SlidersHorizontal, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import Product from "./Product";
-import Variant from "./Variant";
+import Variant from './Variant';
 import Etalase from "./Etalase";
 import { Link } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
+import axiosInstance from "@/hooks/axiosInstance";
 
 // const initialProducts = [
 //     { id: 1, photo: '', name: 'Ayam', SKU: 'GAG10131', price: '15000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
@@ -14,11 +15,11 @@ import axios from "axios";
 //     { id: 3, photo: '', name: 'Kentang', SKU: 'GAG10731', price: '21000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
 // ];
 
-const initialVariants = [
-    { id: 1, name: 'Topping', choises: [] as Array<{ name: string; price: number, show: boolean }>, mustBeSelected: false, methods: 'single', products: [] as number[], showVariant: false },
-    { id: 2, name: 'Size', choises: [{ name: 'small', price: 12000, show: true }, { name: 'medium', price: 20000, show: false }], mustBeSelected: true, methods: 'single', products: [] as number[], showVariant: false },
-    { id: 3, name: 'Rasa', choises: [{ name: 'manis', price: 12000, show: false }, { name: 'asin', price: 20000, show: true }], mustBeSelected: true, methods: 'single', products: [] as number[], showVariant: false },
-];
+// const initialVariants = [
+//     { id: 1, name: 'Topping', choises: [] as Array<{ name: string; price: number, show: boolean }>, mustBeSelected: false, methods: 'single', products: [] as number[], showVariant: false },
+//     { id: 2, name: 'Size', choises: [{ name: 'small', price: 12000, show: true }, { name: 'medium', price: 20000, show: false }], mustBeSelected: true, methods: 'single', products: [] as number[], showVariant: false },
+//     { id: 3, name: 'Rasa', choises: [{ name: 'manis', price: 12000, show: false }, { name: 'asin', price: 20000, show: true }], mustBeSelected: true, methods: 'single', products: [] as number[], showVariant: false },
+// ];
 
 // const initialEtalases = [
 //     { id: 1, name: 'semua produk', products: [1, 2, 3] },
@@ -78,12 +79,28 @@ interface Etalase {
     merchant: Merchant;
 }
 
+interface Variant {
+    id:number;
+    variant_id:string;
+    variant_name: string;
+    product_id:string;
+    variant_description:string;
+    is_multiple:boolean;
+    merchant_id:string;
+
+    products:  number[];
+    mustBeSelected: boolean;
+    methods: string;
+    choises:[];
+    showVariant: boolean;
+}
+
 
 const Catalog = () => {
     const [show, setShow] = useState('Produk');
-    const [products, setProducts] = useState<Product[]>([]); // State untuk data produk
-    const [variants, setVariants] = useState(initialVariants); // State untuk data varian
-    const [etalases, setEtalases] = useState<Etalase[]>([]); // State untuk data etalase
+    const [products, setProducts] = useState<Product[]>([]);
+    const [variants, setVariants] = useState<Variant[]>([]); 
+    const [etalases, setEtalases] = useState<Etalase[]>([]); 
     const [addProduct, setAddProduct] = useState(false);
     const [addVariant, setAddVariant] = useState(false);
     const [addEtalase, setAddEtalase] = useState(false);
@@ -91,76 +108,73 @@ const Catalog = () => {
         id: "",
         status: false,
     });
-    const [searchTerm, setSearchTerm] = useState(''); // State untuk input pencarian
-    const [loading, setLoading] = useState(true); // State untuk status loading
-    const [error, setError] = useState<string | null>(null); // State untuk menyimpan error
+    const [searchTerm, setSearchTerm] = useState(''); 
+    const [loading, setLoading] = useState(true); 
+    const [error, setError] = useState<string | null>(null); 
 
+
+   
     useEffect(() => {
-        const token = localStorage.getItem("token");
 
-        // Ambil informasi user dari sessionStorage
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
         const fetchProducts = async () => {
             try {
-                const response = await axios.get(`https://be-stiqr.dnstech.co.id/api/product/${userData?.merchant?.id}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`, // Menyertakan token
-                        },
-                    }
-                ); // Permintaan GET ke API
+                const response = await axiosInstance.get(`/product/${userData?.merchant?.id}`); 
 
-                setProducts(response.data); // Simpan data ke state produk utama
+                setProducts(response.data); 
             } catch (err: any) {
-                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data produk."); // Tangkap error
+                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data produk."); 
 
                 console.error("Error saat mengambil data produk:", err);
             } finally {
-                setLoading(false); // Set loading menjadi false
+                setLoading(false); 
             }
         };
 
         const fetchEtalases = async () => {
             try {
-                const response = await axios.get(`https://be-stiqr.dnstech.co.id/api/showcase/${userData?.merchant?.id}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`, // Menyertakan token
-                        },
-                    }
-                ); // Permintaan GET ke API
+                const response = await axiosInstance.get(`/showcase/${userData?.merchant?.id}`); 
 
-                setEtalases(response.data); // Simpan data ke state produk utama
+                setEtalases(response.data); 
             } catch (err: any) {
-                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data etalase."); // Tangkap error
+                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data etalase."); 
 
                 console.error("Error saat mengambil data etalase:", err);
             } finally {
-                setLoading(false); // Set loading menjadi false
+                setLoading(false); 
             }
         }
+        const fetchVariants = async () => {
+            setLoading(true);
+            try {
+              const response = await axiosInstance.get(`/varian/${userData?.merchant?.id}`);
+              const data = Array.isArray(response.data) ? response.data : [];
+              setVariants(data);
+            } catch (err: any) {
+              setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data etalase.");
+              console.error("Error saat mengambil data etalase:", err);
+            } finally {
+              setLoading(false);
+            }
+          };
 
         fetchProducts();
         fetchEtalases();
+        fetchVariants();
     }, []);
 
-    // Filter produk berdasarkan input pencarian
     const filteredProducts = (products || []).filter(product =>
         product?.product_name.toLowerCase().includes(searchTerm.toLowerCase())
-        // product.SKU.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const filteredVariants = variants.filter(variant =>
-        variant.name.toLowerCase().includes(searchTerm.toLowerCase())
+        variant?.variant_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
     const filteredEtalases = etalases.filter(etalase =>
         etalase.showcase_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
-    console.log(products, variants, etalases);
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center bg-orange-50">

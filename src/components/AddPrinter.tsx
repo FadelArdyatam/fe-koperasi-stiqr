@@ -199,11 +199,11 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
                         name="name"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Nama Produk</FormLabel>
+                                <FormLabel>Nama Printer</FormLabel>
                                 <FormControl>
                                     <div className="relative">
                                         <Input
-                                            placeholder="Enter product name"
+                                            placeholder="Enter Printer Name"
                                             {...field}
                                         />
                                         {/* Counter */}
