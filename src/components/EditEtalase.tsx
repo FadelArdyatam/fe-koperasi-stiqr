@@ -8,8 +8,8 @@ import { Input } from "./ui/input";
 import { useState } from "react";
 
 interface EditEtalaseProps {
-    setOpen: (open: { id: number; status: boolean }) => void;
-    open: { id: number; status: boolean };
+    setOpen: (open: { id: string; status: boolean }) => void;
+    open: { id: string; status: boolean };
     setEtalases: (products: Array<{
         id: number;
         name: string;
@@ -22,16 +22,19 @@ interface EditEtalaseProps {
     }>;
     editIndex: number; // Tambahkan properti ini untuk mengetahui indeks produk yang diedit
     products: Array<{
-        id: number;
-        name: string;
-        price: string;
-        showProduct: boolean;
-        SKU: string;
-        weight: string;
-        description: string;
-        etalase: string[];
-        photo: string;
-        variants: number[];
+        id: number,
+        product_id: string,
+        product_name: string,
+        product_sku: string,
+        product_weight: string,
+        product_category: string,
+        product_price: string,
+        product_status: boolean,
+        product_description: string,
+        product_image: string,
+        created_at: string,
+        updated_at: string,
+        merchant_id: string
     }>;
 }
 
@@ -154,10 +157,10 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalase
 
                                             <div className="flex items-center w-full gap-5 justify-between">
                                                 <div className="flex flex-col">
-                                                    <p>{product?.name}</p>
+                                                    <p>{product?.product_name}</p>
 
                                                     <p className="text-lg">
-                                                        Rp {new Intl.NumberFormat("id-ID").format(Number(product?.price))}
+                                                        Rp {new Intl.NumberFormat("id-ID").format(Number(product?.product_price))}
                                                     </p>
 
                                                     <div className="p-1 rounded-lg bg-green-100">
@@ -224,9 +227,9 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalase
 
                                 <div className="flex items-center w-full gap-5 justify-between">
                                     <div className="flex flex-col">
-                                        <p>{product.name}</p>
+                                        <p>{product.product_name}</p>
 
-                                        <p className="text-lg">Rp {new Intl.NumberFormat('id-ID').format(Number(product.price))}</p>
+                                        <p className="text-lg">Rp {new Intl.NumberFormat('id-ID').format(Number(product.product_price))}</p>
 
                                         <div className="p-1 rounded-lg bg-green-100">
                                             <p className="text-xs text-green-500">Stok Tersedia</p>
