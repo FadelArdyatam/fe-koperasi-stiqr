@@ -15,43 +15,50 @@ import { ChevronLeft, CircleCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+interface Merchant {
+    id: string;
+    name: string;
+    phone_number: string;
+    email: string;
+    address: string;
+    post_code: string;
+    category: string;
+    city: string;
+    type: string;
+    pin: string | null;
+    created_at: string;
+    updated_at: string;
+    user_id: number;
+}
+
+interface ShowcaseProduct {
+    id: number,
+    showcase_product_id: string,
+    showcase_id: string,
+    product_id: string,
+    created_at: string,
+    updated_at: string
+}
+
 interface AddProductProps {
     setAddProduct: (value: boolean) => void;
-    products: Array<{
-        id: number;
-        name: string;
-        price: string;
-        showProduct: boolean;
-        SKU: string;
-        weight: string;
-        description: string;
-        etalase: string[];
-        photo: string;
-        variants: number[];
-    }>;
-    setProducts: (products: Array<{
-        id: number;
-        name: string;
-        price: string;
-        showProduct: boolean;
-        SKU: string;
-        weight: string;
-        description: string;
-        etalase: string[];
-        photo: string;
-        variants: number[];
-    }>) => void;
     etalases: Array<{
         id: number;
-        name: string;
-        products: number[];
+        showcase_id: string;
+        showcase_name: string;
+        created_at: string;
+        updated_at: string;
+        merchant_id: string;
+        showcase_product: ShowcaseProduct[],
+        merchant: Merchant,
     }>;
 }
 
-const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setProducts, etalases }) => {
+const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
     const [quantity, setQuantity] = useState('g');
     const [showNotification, setShowNotification] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
 
     // Cleanup preview URL when component unmounts
     useEffect(() => {
@@ -113,13 +120,9 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
             console.log(data.photo)
         }
 
-        for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1]);
-        }
-
-        const updatedEtalase = data.etalase.includes("semua produk")
-            ? data.etalase
-            : [...data.etalase, "semua produk"];
+        // const updatedEtalase = data.etalase.includes("semua produk")
+        //     ? data.etalase
+        //     : [...data.etalase, "semua produk"];
 
         try {
             // API request
@@ -134,32 +137,50 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
                 }
             );
 
-            // Add to local state with the returned image URL
-            const newProduct = {
-                id: products.length + 1,
-                photo: response.data.photo_url || "",
-                name: data.name,
-                SKU: data.SKU,
-                price: data.price,
-                weight: `${data.weight + quantity}`,
-                variants: [],
-                description: data.description || "",
-                etalase: updatedEtalase,
-                showProduct: true,
-            };
+            const response2 = await axios.post(
+                "https://be-stiqr.dnstech.co.id/api/showcase-product/create",
+                {
+                    product_id: response?.data?.data?.product_id,
+                    showcase_id: selectedEtalase,
+                },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            )
 
-            setProducts([...products, newProduct]);
+            // // Add to local state with the returned image URL
+            // const newProduct = {
+            //     id: products.length + 1,
+            //     product_id: response.data.product_id || "",
+            //     product_name: data.name,
+            //     product_sku: data.SKU,
+            //     product_weight: `${data.weight + quantity}`,
+            //     product_category: 'Kain',
+            //     product_price: data.price,
+            //     product_status: true,
+            //     product_description: data.description || "",
+            //     product_image: response.data.photo_url || "",
+            //     created_at: response.data.created_at || "",
+            //     updated_at: response.data.updated_at || "",
+            //     merchant_id: userData?.merchant?.id || 'Unknown',
+            // };
 
-            // Update each selected etalase
-            data.etalase.forEach((selectedEtalase) => {
-                etalases.forEach((etalase) => {
-                    if (etalase.name === selectedEtalase || etalase.name === "semua produk") {
-                        etalase.products.push(newProduct.id);
-                    }
-                });
-            });
+            // setProducts([...products, newProduct]);
+
+            // // Update each selected etalase
+            // data.etalase.forEach((selectedEtalase) => {
+            //     etalases.forEach((etalase) => {
+            //         if (etalase.name === selectedEtalase || etalase.name === "semua produk") {
+            //             etalase.products.push(newProduct.id);
+            //         }
+            //     });
+            // });
 
             console.log("Product successfully added to API:", response.data);
+            console.log("Showcase Product successfully added to API:", response2.data);
             setShowNotification(true);
 
         } catch (error) {
@@ -347,23 +368,17 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, products, setPro
                         <FormField
                             control={form.control}
                             name="etalase"
-                            render={({ field }) => (
+                            render={() => (
                                 <FormItem>
                                     <FormLabel>Etalase</FormLabel>
-                                    {etalases.map(etalase => (
+                                    {etalases?.map(etalase => (
                                         <label key={etalase.id} className="flex items-center mt-2 gap-2">
                                             <input
                                                 type="checkbox"
-                                                value={etalase.name}
-                                                checked={field.value.includes(etalase.name)}
-                                                onChange={e => {
-                                                    const updatedValues = e.target.checked
-                                                        ? [...field.value, e.target.value]
-                                                        : field.value.filter(v => v !== e.target.value);
-                                                    field.onChange(updatedValues);
-                                                }}
+                                                value={etalase.showcase_name}
+                                                onChange={() => setSelectedEtalase(etalase?.showcase_id)}
                                             />
-                                            {etalase.name}
+                                            {etalase.showcase_name}
                                         </label>
                                     ))}
                                     <FormMessage />

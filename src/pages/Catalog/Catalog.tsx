@@ -1,17 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CreditCard, FileText, Home, ScanQrCode, Search, SlidersHorizontal, UserRound } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Product from "./Product";
 import Variant from "./Variant";
 import Etalase from "./Etalase";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
-const initialProducts = [
-    { id: 1, photo: '', name: 'Ayam', SKU: 'GAG10131', price: '15000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
-    { id: 2, photo: '', name: 'Soda', SKU: 'GAG10121', price: '10000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
-    { id: 3, photo: '', name: 'Kentang', SKU: 'GAG10731', price: '21000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
-];
+// const initialProducts = [
+//     { id: 1, photo: '', name: 'Ayam', SKU: 'GAG10131', price: '15000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
+//     { id: 2, photo: '', name: 'Soda', SKU: 'GAG10121', price: '10000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
+//     { id: 3, photo: '', name: 'Kentang', SKU: 'GAG10731', price: '21000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
+// ];
 
 const initialVariants = [
     { id: 1, name: 'Topping', choises: [] as Array<{ name: string; price: number, show: boolean }>, mustBeSelected: false, methods: 'single', products: [] as number[], showVariant: false },
@@ -19,30 +20,136 @@ const initialVariants = [
     { id: 3, name: 'Rasa', choises: [{ name: 'manis', price: 12000, show: false }, { name: 'asin', price: 20000, show: true }], mustBeSelected: true, methods: 'single', products: [] as number[], showVariant: false },
 ];
 
-const initialEtalases = [
-    { id: 1, name: 'semua produk', products: [1, 2, 3] },
-    { id: 2, name: 'makanan', products: [] as number[] },
-    { id: 3, name: 'minuman', products: [] as number[] },
-];
+// const initialEtalases = [
+//     { id: 1, name: 'semua produk', products: [1, 2, 3] },
+//     { id: 2, name: 'makanan', products: [] as number[] },
+//     { id: 3, name: 'minuman', products: [] as number[] },
+// ];
+
+interface Product {
+    id: number;
+    product_id: string;
+    product_name: string;
+    product_sku: string;
+    product_weight: string;
+    product_category: string;
+    product_price: string;
+    product_status: boolean;
+    product_description: string;
+    product_image: string;
+    created_at: string;
+    updated_at: string;
+    merchant_id: string;
+}
+
+interface Merchant {
+    id: string;
+    name: string;
+    phone_number: string;
+    email: string;
+    address: string;
+    post_code: string;
+    category: string;
+    city: string;
+    type: string;
+    pin: string | null;
+    created_at: string;
+    updated_at: string;
+    user_id: number;
+}
+
+interface ShowcaseProduct {
+    id: number,
+    showcase_product_id: string,
+    showcase_id: string,
+    product_id: string,
+    created_at: string,
+    updated_at: string
+}
+
+interface Etalase {
+    id: number;
+    showcase_id: string;
+    showcase_name: string;
+    created_at: string;
+    updated_at: string;
+    merchant_id: string;
+    showcase_product: ShowcaseProduct[];
+    merchant: Merchant;
+}
+
 
 const Catalog = () => {
     const [show, setShow] = useState('Produk');
-    const [products, setProducts] = useState(initialProducts); // State untuk data produk
+    const [products, setProducts] = useState<Product[]>([]); // State untuk data produk
     const [variants, setVariants] = useState(initialVariants); // State untuk data varian
-    const [etalases, setEtalases] = useState(initialEtalases); // State untuk data etalase
+    const [etalases, setEtalases] = useState<Etalase[]>([]); // State untuk data etalase
     const [addProduct, setAddProduct] = useState(false);
     const [addVariant, setAddVariant] = useState(false);
     const [addEtalase, setAddEtalase] = useState(false);
     const [open, setOpen] = useState({
-        id: -1,
+        id: "",
         status: false,
     });
     const [searchTerm, setSearchTerm] = useState(''); // State untuk input pencarian
+    const [loading, setLoading] = useState(true); // State untuk status loading
+    const [error, setError] = useState<string | null>(null); // State untuk menyimpan error
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+
+        // Ambil informasi user dari sessionStorage
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
+        const fetchProducts = async () => {
+            try {
+                const response = await axios.get(`https://be-stiqr.dnstech.co.id/api/product/${userData?.merchant?.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`, // Menyertakan token
+                        },
+                    }
+                ); // Permintaan GET ke API
+
+                setProducts(response.data); // Simpan data ke state produk utama
+            } catch (err: any) {
+                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data produk."); // Tangkap error
+
+                console.error("Error saat mengambil data produk:", err);
+            } finally {
+                setLoading(false); // Set loading menjadi false
+            }
+        };
+
+        const fetchEtalases = async () => {
+            try {
+                const response = await axios.get(`https://be-stiqr.dnstech.co.id/api/showcase/${userData?.merchant?.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`, // Menyertakan token
+                        },
+                    }
+                ); // Permintaan GET ke API
+
+                setEtalases(response.data); // Simpan data ke state produk utama
+            } catch (err: any) {
+                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data etalase."); // Tangkap error
+
+                console.error("Error saat mengambil data etalase:", err);
+            } finally {
+                setLoading(false); // Set loading menjadi false
+            }
+        }
+
+        fetchProducts();
+        fetchEtalases();
+    }, []);
 
     // Filter produk berdasarkan input pencarian
-    const filteredProducts = products.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.SKU.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredProducts = (products || []).filter(product =>
+        product?.product_name.toLowerCase().includes(searchTerm.toLowerCase())
+        // product.SKU.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const filteredVariants = variants.filter(variant =>
@@ -50,7 +157,7 @@ const Catalog = () => {
     );
 
     const filteredEtalases = etalases.filter(etalase =>
-        etalase.name.toLowerCase().includes(searchTerm.toLowerCase())
+        etalase.showcase_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     console.log(products, variants, etalases);

@@ -36,15 +36,20 @@ interface EditVariantProps {
     }>) => void;
     editIndex: number; // Tambahkan properti ini untuk mengetahui indeks produk yang diedit
     products: Array<{
-        id: number;
-        name: string;
-        price: string;
-        showProduct: boolean;
-        SKU: string;
-        weight: string;
-        description: string;
+        id: number,
+        product_id: string,
+        product_name: string,
+        product_sku: string,
+        product_weight: string,
+        product_category: string,
+        product_price: string,
+        product_status: boolean,
+        product_description: string,
+        product_image: string,
+        created_at: string,
+        updated_at: string,
+        merchant_id: string,
         etalase: string[];
-        photo: string;
         variants: number[];
     }>;
 }
@@ -450,7 +455,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariant
                                                     }}
                                                     className="mr-2"
                                                 />
-                                                <span>{product.name}</span>
+                                                <span>{product.product_name}</span>
                                             </label>
                                         ))}
                                     </div>
