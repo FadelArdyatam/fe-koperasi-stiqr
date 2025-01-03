@@ -1,5 +1,7 @@
 import TermsandCondition from "@/components/TermsandCondition"
 import { Button } from "@/components/ui/button"
+import axiosInstance from "@/hooks/axiosInstance"
+import axios from "axios"
 import { ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, User, UserRound, FileText } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
@@ -11,6 +13,25 @@ const Profile = () => {
     useEffect(() => {
         setData(JSON.parse(sessionStorage.getItem('user') || '{}'))
     }, [])
+
+    const handleSignOut = async () => {
+        try {
+            const response = await axios.post('https://be-stiqr.dnstech.co.id/api/auth/logout',{},{
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
+                    'X-Access-Token': `${localStorage.getItem('token') || ''}`
+                }
+            })
+            if(response.data.status) {
+                localStorage.removeItem('token')
+                sessionStorage.removeItem('user')
+                window.location.href = '/'
+            }
+            console.log(response)
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     return (
         <>
@@ -70,7 +91,7 @@ const Profile = () => {
                         </div>
                     </div>
 
-                    <Button className="w-full mt-5 bg-orange-400">Sign Out</Button>
+                    <Button onClick={handleSignOut} className="w-full mt-5 bg-orange-400">Sign Out</Button>
                 </div>
 
                 <div className="bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20">

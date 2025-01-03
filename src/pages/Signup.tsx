@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -18,6 +18,7 @@ import {
 import OTP from "@/components/OTP"
 import TermsandCondition from "@/components/TermsandCondition"
 import PinInput from "@/components/PinInput"
+import axios from "axios"
 
 const Signup = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(false)
@@ -28,7 +29,6 @@ const Signup = () => {
     const [createPin, setCreatePin] = useState(false)
     const [allData, setAllData] = useState<{ ownerName?: string } & (z.infer<typeof FormSchemaUser> | z.infer<typeof FormSchemaMerchant>)[]>([])
 
-    // FormUser
     const FormSchemaUser = z.object({
         ownerName: z.string().min(2, {
             message: "ownerName must be at least 2 characters.",
@@ -100,9 +100,9 @@ const Signup = () => {
         merchantName: z.string().min(2, {
             message: "Merchant name must be at least 2 characters.",
         }),
-        merchantCity: z.enum(["Jakarta", "Bandung", "Surabaya"], {
-            message: "Please select the city",
-        }),
+        merchantCity: z.string().min(2, {
+            message: "City must be at least 2 characters.",
+        }), 
         merchantCategory: z.enum(["Makanan & Minuman", "Fashion & Aksesori", "Elektronik & Gadget", "Kesehatan & Kecantikan", "Rumah & Dekorasi", "Otomotif", "Hobi & Hiburan", "Jasa & Layanan", "Bahan Pokok & Grosir", "Teknologi & Digital", "Lainnya"], {
             message: "Please select the category",
         }),
@@ -159,8 +159,8 @@ const Signup = () => {
             merchantPin: "12345", // Merchant pin bisa diambil dari input atau didefinisikan di tempat lain
             photo: data.photo instanceof File ? data.photo : "https://via.placeholder.com/150", // Handle photo field (file or fallback URL)
         };
+        console.log(payload)
 
-        // Prepare FormData to handle file upload
         const formData = new FormData();
         formData.append("username", payload.username);
         formData.append("email", payload.email);
@@ -232,11 +232,26 @@ const Signup = () => {
         return true;
     };
 
-    // Values from the formUser
-    // const values = formUser.getValues()
 
-    console.log(allData)
 
+    const [cities, setCities] = useState([]);
+    const [loading,setLoading] = useState(false)
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+            const response = await axios.get("http://103.172.205.204:82/api/provinces.json");
+            setCities(response.data);
+            console.log(response);
+          } catch (error) {
+            console.error("Error fetching cities:", error);
+          } finally {
+            setLoading(false);
+          }
+        };
+      
+        fetchData();
+      }, []);
+      
     return (
         <div>
             {showTermsandConditions ? <TermsandCondition setShowTermsandConditions={setShowTermsandConditions} backToPageProfile={false} /> : (
@@ -460,36 +475,44 @@ const Signup = () => {
                                                 </FormItem>
                                             )}
                                         />
-
                                         <FormField
                                             control={formMerchant.control}
                                             name="merchantCity"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                    <button className="">
-                                                                        {field.value || "Select City"} {/* Display selected value */}
-                                                                    </button>
-
-                                                                    <ChevronDown />
-                                                                </div>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full">
-                                                                <DropdownMenuLabel>City</DropdownMenuLabel>
-                                                                <DropdownMenuSeparator />
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Jakarta")} className="w-full">Jakarta</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Bandung")} className="w-full">Bandung</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Surabaya")} className="w-full">Surabaya</DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </FormControl>
-                                                    <FormMessage />
+                                                <FormControl>
+                                                    <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                        <button className="">
+                                                            {field.value || "Select City"}
+                                                        </button>
+                                                        <ChevronDown />
+                                                        </div>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent className="w-full">
+                                                        <DropdownMenuLabel>City</DropdownMenuLabel>
+                                                        <DropdownMenuSeparator />
+                                                        {loading ? (
+                                                        <div className="p-3">Loading...</div>
+                                                        ) : (
+                                                        cities.map((city) => (
+                                                            <DropdownMenuItem
+                                                            key={city.id}
+                                                            onSelect={() => field.onChange(city.name)}
+                                                            className="w-full"
+                                                            >
+                                                            {city.name}
+                                                            </DropdownMenuItem>
+                                                        ))
+                                                        )}
+                                                    </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </FormControl>
+                                                <FormMessage />
                                                 </FormItem>
                                             )}
-                                        />
+                                            />
 
                                         <FormField
                                             control={formMerchant.control}
