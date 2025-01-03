@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft, Package, Search } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { array, z } from "zod";
+import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -21,7 +21,7 @@ interface EditEtalaseProps {
         name: string;
         products: number[];
     }>;
-    editIndex: number; 
+    editIndex: number;
     products: Array<{
         id: number,
         product_id: string,
@@ -40,22 +40,34 @@ interface EditEtalaseProps {
 }
 
 const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalases, editIndex, products }) => {
-console.log(etalases)
+    interface Showcase {
+        showcase_name: string;
+        showcase_product: {
+            product: {
+                id: any; product_name: string; product_price: string
+            }
+        }[];
+    }
+
+    const [etalaseToEdit, setEtalasaToEdit] = useState<Showcase | null>(null);
+
     useEffect(() => {
-        const fetchDetailShowcase = async() => {
+        const fetchDetailShowcase = async () => {
             try {
                 const showcase = await axiosInstance.get(`/showcase/detail/${editIndex}`)
+
                 setEtalasaToEdit(showcase.data.data)
-            } catch (error) {
-                console.log(error.message)
+            } catch (error: any) {
+                console.log((error as Error).message)
             }
         }
+
         fetchDetailShowcase()
     }, []);
+
     const [showSetProductInput, setShowSetProductInput] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
-    const [etalaseToEdit,setEtalasaToEdit] = useState();
     console.log(etalaseToEdit)
 
     const FormSchema = z.object({
@@ -66,8 +78,8 @@ console.log(etalases)
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            name: etalaseToEdit?.name,
-            products: etalaseToEdit?.showcase_product,
+            name: etalaseToEdit?.showcase_name,
+            products: etalaseToEdit?.showcase_product?.map(product => product.product.id),
         },
     });
 
@@ -75,35 +87,46 @@ console.log(etalases)
         const updatedEtalase = {
             ...etalaseToEdit,
             name: data?.name,
-            products: data?.showcase_product,
+            products: data?.products,
         };
 
-        const updatedEtalases = [...etalases];
-        updatedEtalases[editIndex] = updatedEtalase;  
+        // const updatedEtalases = [...etalases];
+        // updatedEtalases[editIndex] = updatedEtalase;
 
         console.log("Updated product:", updatedEtalase);
 
-        const updatedProducts = [...products];
-        updatedProducts.forEach((product) => {
-            if (updatedEtalase?.products?.includes(product.id)) {
-                product.etalase = [...product.etalase, updatedEtalase?.name];
-            } else {
-                product.etalase = product.etalase.filter((name) => name !== updatedEtalase?.name);
-            }
-        });
+        // const updatedProducts = [...products];
+        // updatedProducts.forEach((product) => {
+        //     if (updatedEtalase?.products?.includes(product.id)) {
+        //         product.etalase = [...product.etalase, updatedEtalase?.name];
+        //     } else {
+        //         product.etalase = product.etalase.filter((name) => name !== updatedEtalase?.name);
+        //     }
+        // });
 
-        console.log("Updated products:", products);
+        // console.log("Updated products:", products);
 
         // Tutup form
-        setOpen({ id: -1, status: false });
+        setOpen({ id: "", status: false });
     }
 
+    const deleteHandler = async () => {
+        try {
+            const response = await axiosInstance.delete(`/showcase/${editIndex}/delete`)
+
+            console.log(response.data.message)
+
+            setOpen({ id: "", status: false });
+        } catch (error: any) {
+            console.log((error as Error).message)
+        }
+    }
 
     return (
         <>
             <div className={`${showSetProductInput ? 'hidden' : 'block'} pt-5`}>
                 <div className="flex items-center gap-5 text-black">
-                    <button onClick={() => setOpen({ id: -1, status: false })}>
+                    <button onClick={() => setOpen({ id: "", status: false })}>
                         <ChevronLeft />
                     </button>
                     <p className="font-semibold text-xl text-center uppercase">Edit Etalase</p>
@@ -156,7 +179,7 @@ console.log(etalases)
                             </div>
 
                             <div className="mt-10 flex flex-col gap-5">
-                                {etalaseToEdit?.showcase_product?.map((products,i) => {
+                                {etalaseToEdit?.showcase_product?.map((products, i) => {
                                     const product = products.product
                                     return (
                                         <div key={i} className="flex items-center gap-5 w-full">
@@ -189,6 +212,8 @@ console.log(etalases)
                         </Button>
                     </form>
                 </Form>
+
+                <Button onClick={deleteHandler} className="w-[90%] m-auto block bg-red-500 text-white">Delete</Button>
             </div>
 
             {/* Form Atur Produk */}
@@ -248,19 +273,19 @@ console.log(etalases)
                                     <input
                                         type="checkbox"
                                         value={product.id}
-                                        checked={etalaseToEdit?.products?.includes(product.id)}
+                                        checked={etalaseToEdit?.showcase_product?.some(p => p.product.id === product.id)}
                                         onChange={() => {
                                             // Create a new array instead of modifying etalaseToEdit.products
-                                            const updatedProducts = etalaseToEdit?.products?.includes(product.id)
-                                                ? etalaseToEdit?.products.filter((id) => id !== product.id) // Remove the product ID
-                                                : [...etalaseToEdit?.products, product.id]; // Add the product ID
+                                            const updatedProducts = etalaseToEdit?.showcase_product?.some(p => p.product.id === product.id)
+                                                ? etalaseToEdit?.showcase_product.filter((p) => p.product.id !== product.id) // Remove the product ID
+                                                : [...(etalaseToEdit?.showcase_product || []), { product }]; // Add the product ID
 
                                             // Update the form state using the provided method
-                                            form.setValue("products", updatedProducts);
+                                            form.setValue("products", updatedProducts.map(p => p.product.id));
 
                                             // Update the etalases state immutably
                                             const newEtalases = etalases.map((etalase, index) =>
-                                                index === editIndex ? { ...etalase, products: updatedProducts } : etalase
+                                                index === editIndex ? { ...etalase, products: updatedProducts.map(p => p.product.id) } : etalase
                                             );
                                             setEtalases(newEtalases);
                                         }}

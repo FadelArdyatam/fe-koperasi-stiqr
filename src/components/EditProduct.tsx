@@ -417,17 +417,14 @@ const EditProduct: React.FC<EditProductProps> = ({
                                         {etalases.map((etalase) => (
                                             <div key={etalase.showcase_id} className="flex items-center gap-2">
                                                 <input
-                                                    type="checkbox"
+                                                    type="radio"
                                                     id={`etalase-${etalase.showcase_id}`}
+                                                    name="etalase"
                                                     value={etalase.showcase_id}
                                                     checked={field.value.includes(etalase.showcase_id)}
                                                     onChange={(e) => {
-                                                        const updatedEtalase = e.target.checked
-                                                            ? [...field.value, etalase.showcase_id]
-                                                            : field.value.filter((id: string) => id !== etalase.showcase_id);
-
-                                                        field.onChange(updatedEtalase); // Perbarui nilai dalam form
-                                                        setSelectedEtalase(etalase.showcase_id); // Perbarui state etalase yang dipilih
+                                                        field.onChange([e.target.value]); // Perbarui nilai dalam form
+                                                        setSelectedEtalase(e.target.value); // Perbarui state etalase yang dipilih
                                                     }}
                                                     className="h-4 w-4 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                                                 />

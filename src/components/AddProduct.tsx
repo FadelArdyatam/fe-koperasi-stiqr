@@ -371,12 +371,14 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
                             render={() => (
                                 <FormItem>
                                     <FormLabel>Etalase</FormLabel>
-                                    {etalases?.map(etalase => (
+                                    {etalases?.map((etalase) => (
                                         <label key={etalase.id} className="flex items-center mt-2 gap-2">
                                             <input
-                                                type="checkbox"
-                                                value={etalase.showcase_name}
-                                                onChange={() => setSelectedEtalase(etalase?.showcase_id)}
+                                                type="radio"
+                                                name="etalase"
+                                                value={etalase.showcase_id}
+                                                checked={selectedEtalase === etalase.showcase_id}
+                                                onChange={() => setSelectedEtalase(etalase.showcase_id)}
                                             />
                                             {etalase.showcase_name}
                                         </label>
