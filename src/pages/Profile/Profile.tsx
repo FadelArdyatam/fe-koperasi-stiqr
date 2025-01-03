@@ -1,4 +1,5 @@
 import TermsandCondition from "@/components/TermsandCondition"
+import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, User, UserRound, FileText } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
@@ -56,16 +57,20 @@ const Profile = () => {
                     </Link>
                 </div>
 
-                <div className="bg-white w-[90%] -translate-y-20 p-5 flex items-center gap-5 rounded-lg shadow-lg z-20">
-                    <div className="w-20 h-20 rounded-full flex items-center bg-gray-300 justify-center">
-                        <User className="scale-[1.5]" />
+                <div className="bg-white w-[90%] -translate-y-20 p-5 rounded-lg shadow-lg z-20">
+                    <div className="flex gap-5 items-center">
+                        <div className="w-20 h-20 rounded-full flex items-center bg-gray-300 justify-center">
+                            <User className="scale-[1.5]" />
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <p className="text-xl font-semibold">{data?.username || data?.name}</p>
+
+                            <p className="text-sm text-gray-500">{data?.email}</p>
+                        </div>
                     </div>
 
-                    <div className="flex flex-col gap-3">
-                        <p className="text-xl font-semibold">{data?.username || data?.name}</p>
-
-                        <p className="text-sm text-gray-500">{data?.email}</p>
-                    </div>
+                    <Button className="w-full mt-5 bg-orange-400">Sign Out</Button>
                 </div>
 
                 <div className="bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20">
