@@ -1,7 +1,7 @@
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft, CircleCheck } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
@@ -11,24 +11,6 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@r
 
 interface AddEmployeeProps {
     setAddEmployee: (value: boolean) => void;
-    employees: Array<{
-        id: number;
-        name: string;
-        phone_number: string;
-        email: string;
-        role_name: string;
-        password: string;
-        role_description: string;
-    }>;
-    setEmployees: (employees: Array<{
-        id: number;
-        name: string;
-        phone_number: string;
-        email: string;
-        role_name: string;
-        password: string;
-        role_description: string;
-    }>) => void;
     accordionDatas: Array<{
         title: string;
         spoiler: string;
@@ -36,8 +18,12 @@ interface AddEmployeeProps {
     }>;
 }
 
-const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, setEmployees, accordionDatas }) => {
+const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, accordionDatas }) => {
     const [showNotification, setShowNotification] = useState(false);
+
+    useEffect(() => {
+
+    })
 
     // Validasi schema untuk form
     const FormSchema = z.object({
@@ -68,14 +54,14 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
-        const newEmployee = {
-            name: data.name,
-            email: data.email,
-            phone_number: data.phone_number,
-            password: data.password,
-            role_name: data.role_name,
-            role_description: data.role_name === "Admin" ? "Administrator dengan akses penuh" : "Kasir dengan akses terbatas",
-        };
+        // const newEmployee = {
+        //     name: data.name,
+        //     email: data.email,
+        //     phone_number: data.phone_number,
+        //     password: data.password,
+        //     role_name: data.role_name,
+        //     role_description: data.role_name === "Admin" ? "Administrator dengan akses penuh" : "Kasir dengan akses terbatas",
+        // };
 
         // Prepare FormData to handle file upload
         const newEmployeeToAPI = {
@@ -101,8 +87,8 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, employees, se
 
             console.log("Response from API:", response.data);
 
-            // Perbarui state jika berhasil
-            setEmployees([...employees, { id: employees.length + 1, ...newEmployee }]);
+            // // Perbarui state jika berhasil
+            // setEmployees([...employees, { id: employees.length + 1, ...newEmployee }]);
             setShowNotification(true);
         } catch (error) {
             console.error("Error while adding employee:", error);
