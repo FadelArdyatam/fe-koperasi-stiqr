@@ -1,30 +1,31 @@
 import AddEmployee from "@/components/AddEmployee";
 import EditEmployee from "@/components/EditEmployee";
+import axiosInstance from "@/hooks/axiosInstance";
 import { ChevronLeft, ChevronRight, CreditCard, FileText, Home, ScanQrCode, User, UserRound } from "lucide-react"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom"
 
-const initialEmployees = [
-    {
-        id: 1,
-        name: 'Rani Destrian',
-        phone_number: '08123456789',
-        email: 'Rani@gmail.com',
-        role_name: 'Manager',
-        password: "rani",
-        role_description: "Administrator dengan akses penuh"
+// const initialEmployees = [
+//     {
+//         id: 1,
+//         name: 'Rani Destrian',
+//         phone_number: '08123456789',
+//         email: 'Rani@gmail.com',
+//         role_name: 'Manager',
+//         password: "rani",
+//         role_description: "Administrator dengan akses penuh"
 
-    },
-    {
-        id: 2,
-        name: 'John Doe',
-        phone_number: '08123456789',
-        email: 'johndoe@gmail.com',
-        role_name: 'Kasir',
-        password: "john",
-        role_description: "Kasir dengan akses terbatas"
-    }
-]
+//     },
+//     {
+//         id: 2,
+//         name: 'John Doe',
+//         phone_number: '08123456789',
+//         email: 'johndoe@gmail.com',
+//         role_name: 'Kasir',
+//         password: "john",
+//         role_description: "Kasir dengan akses terbatas"
+//     }
+// ]
 
 const accordionDatas = [
     {
@@ -56,12 +57,39 @@ const accordionDatas = [
 
 
 const Employee = () => {
-    const [employees, setEmployees] = useState(initialEmployees); // State untuk data produk
+    interface Employee {
+        role_id: string;
+        id: number;
+        name: string;
+        phone_number: string;
+        email: string;
+        password: string;
+        role_description: string;
+    }
+
+    const [employees, setEmployees] = useState<Employee[]>([]); // State untuk data produk
     const [addEmployee, setAddEmployee] = useState(false);
     const [open, setOpen] = useState({
         id: -1,
         status: false,
     });
+
+    useEffect(() => {
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
+        const fetchData = async () => {
+            try {
+                const response = await axiosInstance.get(`/employee/${userData?.merchant?.id}`)
+
+                setEmployees(response.data)
+            } catch (error) {
+                console.log(error)
+            }
+        };
+
+        fetchData();
+    }, [])
 
     const handleOpen = (id: number) => {
         setOpen({
@@ -120,17 +148,17 @@ const Employee = () => {
                 </div>
 
                 <div className="mt-10 w-[90%] flex flex-col gap-5">
-                    {employees.map((employee, index) => (
-                        <div key={index} onClick={() => handleOpen(employee.id)} className="bg-white w-full p-5 flex items-center gap-5 rounded-lg justify-between shadow-lg z-20">
+                    {employees?.map((employee, index) => (
+                        <div key={index} onClick={() => handleOpen(employee?.id)} className="bg-white w-full p-5 flex items-center gap-5 rounded-lg justify-between shadow-lg z-20">
                             <div className="flex items-center gap-5">
                                 <div className="w-14 h-14 rounded-lg flex items-center bg-gray-300 justify-center">
                                     <User className="scale-[1.2]" />
                                 </div>
 
                                 <div className="flex flex-col gap-3">
-                                    <p className="text-lg font-semibold">{employee.name}</p>
+                                    <p className="text-lg font-semibold">{employee?.name}</p>
 
-                                    <p className="text-sm text-gray-500">{employee.role_name}</p>
+                                    <p className="text-sm text-gray-500">{employee?.role_id}</p>
                                 </div>
                             </div>
 
@@ -146,7 +174,7 @@ const Employee = () => {
 
             {open.status && <EditEmployee setOpen={setOpen} employees={employees} setEmployees={setEmployees} editIndex={open.id} open={open} accordionDatas={accordionDatas} />}
 
-            {addEmployee && <AddEmployee setAddEmployee={setAddEmployee} employees={employees} setEmployees={setEmployees} accordionDatas={accordionDatas} />}
+            {addEmployee && <AddEmployee setAddEmployee={setAddEmployee} accordionDatas={accordionDatas} />}
         </>
     )
 }
