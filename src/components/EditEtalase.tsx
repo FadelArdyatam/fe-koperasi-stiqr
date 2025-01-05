@@ -8,20 +8,55 @@ import { Input } from "./ui/input";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
 
+interface Merchant {
+    id: string;
+    name: string;
+    phone_number: string;
+    email: string;
+    address: string;
+    post_code: string;
+    category: string;
+    city: string;
+    type: string;
+    pin: string | null;
+    created_at: string;
+    updated_at: string;
+    user_id: number;
+}
+
+interface ShowcaseProduct {
+    id: number,
+    showcase_product_id: string,
+    showcase_id: string,
+    product_id: string,
+    created_at: string,
+    updated_at: string
+}
+
 interface EditEtalaseProps {
     setOpen: (open: { id: string; status: boolean }) => void;
     open: { id: string; status: boolean };
     setEtalases: (products: Array<{
         id: number;
-        name: string;
-        products: number[];
+        showcase_id: string;
+        showcase_name: string;
+        created_at: string;
+        updated_at: string;
+        merchant_id: string;
+        showcase_product: ShowcaseProduct[],
+        merchant: Merchant,
     }>) => void;
     etalases: Array<{
         id: number;
-        name: string;
-        products: number[];
+        showcase_id: string;
+        showcase_name: string;
+        created_at: string;
+        updated_at: string;
+        merchant_id: string;
+        showcase_product: ShowcaseProduct[],
+        merchant: Merchant,
     }>;
-    editIndex: number;
+    editIndex: string;
     products: Array<{
         id: number,
         product_id: string,
@@ -285,7 +320,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalase
 
                                             // Update the etalases state immutably
                                             const newEtalases = etalases.map((etalase, index) =>
-                                                index === editIndex ? { ...etalase, products: updatedProducts.map(p => p.product.id) } : etalase
+                                                index === Number(editIndex) ? { ...etalase, products: updatedProducts.map(p => p.product.id) } : etalase
                                             );
                                             setEtalases(newEtalases);
                                         }}

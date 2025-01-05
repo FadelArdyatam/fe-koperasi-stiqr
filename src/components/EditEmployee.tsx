@@ -17,20 +17,20 @@ interface EditEmployeeProps {
     setOpen: (open: { id: number; status: boolean }) => void;
     open: { id: number; status: boolean };
     employees: Array<{
+        role_id: string;
         id: number;
         name: string;
         phone_number: string;
         email: string;
-        role_name: string;
         password: string;
         role_description: string;
     }>;
     setEmployees: (employee: Array<{
+        role_id: string;
         id: number;
         name: string;
         phone_number: string;
         email: string;
-        role_name: string;
         password: string;
         role_description: string;
     }>) => void;
@@ -60,7 +60,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
             name: employeeToEdit.name,
             phone_number: employeeToEdit.phone_number,
             email: employeeToEdit.email,
-            role_name: employeeToEdit.role_name as "Manager" | "Kasir",
+            role_name: employeeToEdit.role_description.includes("Manager") ? "Manager" : "Kasir",
             password: employeeToEdit.password,
         },
     });

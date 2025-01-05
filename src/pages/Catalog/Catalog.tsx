@@ -80,18 +80,17 @@ interface Etalase {
 }
 
 interface Variant {
-    id:number;
-    variant_id:string;
+    id: number;
+    variant_id: string;
     variant_name: string;
-    product_id:string;
-    variant_description:string;
-    is_multiple:boolean;
-    merchant_id:string;
-
-    products:  number[];
+    product_id: string;
+    variant_description: string;
+    is_multiple: boolean;
+    merchant_id: string;
+    products: number[];
     mustBeSelected: boolean;
     methods: string;
-    choises:[];
+    choises: [];
     showVariant: boolean;
 }
 
@@ -99,8 +98,8 @@ interface Variant {
 const Catalog = () => {
     const [show, setShow] = useState('Produk');
     const [products, setProducts] = useState<Product[]>([]);
-    const [variants, setVariants] = useState<Variant[]>([]); 
-    const [etalases, setEtalases] = useState<Etalase[]>([]); 
+    const [variants, setVariants] = useState<Variant[]>([]);
+    const [etalases, setEtalases] = useState<Etalase[]>([]);
     const [addProduct, setAddProduct] = useState(false);
     const [addVariant, setAddVariant] = useState(false);
     const [addEtalase, setAddEtalase] = useState(false);
@@ -108,12 +107,10 @@ const Catalog = () => {
         id: "",
         status: false,
     });
-    const [searchTerm, setSearchTerm] = useState(''); 
-    const [loading, setLoading] = useState(true); 
-    const [error, setError] = useState<string | null>(null); 
+    const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-
-   
     useEffect(() => {
 
         const userItem = sessionStorage.getItem("user");
@@ -121,44 +118,44 @@ const Catalog = () => {
 
         const fetchProducts = async () => {
             try {
-                const response = await axiosInstance.get(`/product/${userData?.merchant?.id}`); 
+                const response = await axiosInstance.get(`/product/${userData?.merchant?.id}`);
 
-                setProducts(response.data); 
+                setProducts(response.data);
             } catch (err: any) {
-                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data produk."); 
+                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data produk.");
 
                 console.error("Error saat mengambil data produk:", err);
             } finally {
-                setLoading(false); 
+                setLoading(false);
             }
         };
 
         const fetchEtalases = async () => {
             try {
-                const response = await axiosInstance.get(`/showcase/${userData?.merchant?.id}`); 
+                const response = await axiosInstance.get(`/showcase/${userData?.merchant?.id}`);
 
-                setEtalases(response.data); 
+                setEtalases(response.data);
             } catch (err: any) {
-                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data etalase."); 
+                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data etalase.");
 
                 console.error("Error saat mengambil data etalase:", err);
             } finally {
-                setLoading(false); 
+                setLoading(false);
             }
         }
         const fetchVariants = async () => {
             setLoading(true);
             try {
-              const response = await axiosInstance.get(`/varian/${userData?.merchant?.id}`);
-              const data = Array.isArray(response.data) ? response.data : [];
-              setVariants(data);
+                const response = await axiosInstance.get(`/varian/${userData?.merchant?.id}`);
+                const data = Array.isArray(response.data) ? response.data : [];
+                setVariants(data);
             } catch (err: any) {
-              setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data etalase.");
-              console.error("Error saat mengambil data etalase:", err);
+                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data etalase.");
+                console.error("Error saat mengambil data etalase:", err);
             } finally {
-              setLoading(false);
+                setLoading(false);
             }
-          };
+        };
 
         fetchProducts();
         fetchEtalases();
@@ -175,6 +172,8 @@ const Catalog = () => {
     const filteredEtalases = etalases.filter(etalase =>
         etalase.showcase_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    console.log(error)
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center bg-orange-50">
@@ -213,6 +212,8 @@ const Catalog = () => {
                     <Button onClick={() => setShow('Etalase')} className={`${show === 'Etalase' ? 'bg-orange-100' : 'bg-transparent'} transition-all text-orange-500 rounded-full w-full`}>Etalase</Button>
                 </div>
             </div>
+
+            {loading && <p>Loading...</p>}
 
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
                 <Link to={'/dashboard'} className="flex gap-3 flex-col items-center">

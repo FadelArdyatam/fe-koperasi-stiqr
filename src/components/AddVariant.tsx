@@ -24,22 +24,18 @@ interface AddVariantProps {
     setAddVariant: (value: boolean) => void;
     variants: Array<{
         id: number;
-        name: string;
-        choises: Choice[];
+        variant_id: string;
+        variant_name: string;
+        product_id: string;
+        variant_description: string;
+        is_multiple: boolean;
+        merchant_id: string;
+        products: number[];
         mustBeSelected: boolean;
         methods: string;
-        products: number[];
+        choises: [];
         showVariant: boolean;
     }>;
-    setVariants: (variants: Array<{
-        id: number;
-        name: string;
-        choises: Choice[];
-        mustBeSelected: boolean;
-        methods: string;
-        products: number[];
-        showVariant: boolean;
-    }>) => void;
     products: Array<{
         id: number,
         product_id: string,
@@ -54,12 +50,10 @@ interface AddVariantProps {
         created_at: string,
         updated_at: string,
         merchant_id: string,
-        etalase: string[];
-        variants: number[];
     }>;
 }
 
-const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVariants, products }) => {
+const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, products }) => {
     const [showChoisesInput, setShowChoisesInput] = useState(false);
     const [showEditChoisesInput, setShowEditChoisesInput] = useState({ status: false, index: -1 });
     const [newChoiceName, setNewChoiceName] = useState("");
@@ -106,15 +100,15 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
             showVariant: data.showVariant,
         };
 
-        setVariants([...variants, newVariant]);
+        // setVariants([...variants, newVariant]);
 
-        // To update the variants field in products
-        products.map((product) => {
-            if (data.products.includes(product.id)) {
-                const updatedVariants = [...product.variants, newVariant.id];
-                product.variants = updatedVariants;
-            }
-        })
+        // // To update the variants field in products
+        // products.map((product) => {
+        //     if (data.products.includes(product.id)) {
+        //         const updatedVariants = [...product.variants, newVariant.id];
+        //         product.variants = updatedVariants;
+        //     }
+        // })
 
         console.log("New variant:", newVariant);
 

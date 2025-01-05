@@ -6,20 +6,30 @@ import { ChevronRight } from "lucide-react";
 interface VariantProps {
     variants: Array<{
         id: number;
-        name: string;
-        choises: { name: string; price: number, show: boolean }[];
+        variant_id: string;
+        variant_name: string;
+        product_id: string;
+        variant_description: string;
+        is_multiple: boolean;
+        merchant_id: string;
+        products: number[];
         mustBeSelected: boolean;
         methods: string;
-        products: number[];
+        choises: [];
         showVariant: boolean;
     }>;
     setVariants: (variants: Array<{
         id: number;
-        name: string;
-        choises: { name: string; price: number, show: boolean }[];
+        variant_id: string;
+        variant_name: string;
+        product_id: string;
+        variant_description: string;
+        is_multiple: boolean;
+        merchant_id: string;
+        products: number[];
         mustBeSelected: boolean;
         methods: string;
-        products: number[];
+        choises: [];
         showVariant: boolean;
     }>) => void;
     addVariant: boolean;
@@ -40,8 +50,6 @@ interface VariantProps {
         created_at: string,
         updated_at: string,
         merchant_id: string,
-        etalase: string[];
-        variants: number[];
     }>;
 }
 
@@ -64,9 +72,9 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
         setVariants(updatedVariants); // Perbarui state di Catalog
     };
 
-    const handleOpen = (id: number) => {
+    const handleOpen = (id: string) => {
         setOpen({
-            id: id - 1,
+            id: id,
             status: true,
         });
     };
@@ -82,7 +90,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                             <div
                                 className="flex w-full justify-between items-center p-4 bg-white rounded-md mt-3"
                             >
-                                <h3 className="text-lg font-semibold">{variant.name}</h3>
+                                <h3 className="text-lg font-semibold">{variant.variant_name}</h3>
 
                                 {/* Custom Switch */}
                                 <button
@@ -97,7 +105,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                                 </button>
                             </div>
 
-                            <div onClick={() => handleOpen(variant.id)} className="w-full flex p-4 bg-white rounded-md items-center gap-5 justify-between">
+                            <div onClick={() => handleOpen(variant.variant_id)} className="w-full flex p-4 bg-white rounded-md items-center gap-5 justify-between">
                                 <p>1 Pilihan Aktif</p>
 
                                 <ChevronRight />
@@ -111,7 +119,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                 </Button>
             </div>
 
-            {addVariant && <AddVariant setAddVariant={setAddVariant} variants={variants} setVariants={setVariants} products={products} />}
+            {addVariant && <AddVariant setAddVariant={setAddVariant} variants={variants} products={products} />}
 
             {open.status && <EditVariant setOpen={setOpen} variants={variants} setVariants={setVariants} editIndex={open.id} open={open} products={products} />}
         </div>

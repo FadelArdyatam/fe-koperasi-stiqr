@@ -102,7 +102,7 @@ const Signup = () => {
         }),
         merchantCity: z.string().min(2, {
             message: "City must be at least 2 characters.",
-        }), 
+        }),
         merchantCategory: z.enum(["Makanan & Minuman", "Fashion & Aksesori", "Elektronik & Gadget", "Kesehatan & Kecantikan", "Rumah & Dekorasi", "Otomotif", "Hobi & Hiburan", "Jasa & Layanan", "Bahan Pokok & Grosir", "Teknologi & Digital", "Lainnya"], {
             message: "Please select the category",
         }),
@@ -234,24 +234,24 @@ const Signup = () => {
 
 
 
-    const [cities, setCities] = useState([]);
-    const [loading,setLoading] = useState(false)
+    const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
+    const [loading, setLoading] = useState(false)
     useEffect(() => {
         const fetchData = async () => {
-          try {
-            const response = await axios.get("http://103.172.205.204:82/api/provinces.json");
-            setCities(response.data);
-            console.log(response);
-          } catch (error) {
-            console.error("Error fetching cities:", error);
-          } finally {
-            setLoading(false);
-          }
+            try {
+                const response = await axios.get("http://103.172.205.204:82/api/provinces.json");
+                setCities(response.data);
+                console.log(response);
+            } catch (error) {
+                console.error("Error fetching cities:", error);
+            } finally {
+                setLoading(false);
+            }
         };
-      
+
         fetchData();
-      }, []);
-      
+    }, []);
+
     return (
         <div>
             {showTermsandConditions ? <TermsandCondition setShowTermsandConditions={setShowTermsandConditions} backToPageProfile={false} /> : (
@@ -480,39 +480,39 @@ const Signup = () => {
                                             name="merchantCity"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
-                                                <FormControl>
-                                                    <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                        <button className="">
-                                                            {field.value || "Select City"}
-                                                        </button>
-                                                        <ChevronDown />
-                                                        </div>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="w-full">
-                                                        <DropdownMenuLabel>City</DropdownMenuLabel>
-                                                        <DropdownMenuSeparator />
-                                                        {loading ? (
-                                                        <div className="p-3">Loading...</div>
-                                                        ) : (
-                                                        cities.map((city) => (
-                                                            <DropdownMenuItem
-                                                            key={city.id}
-                                                            onSelect={() => field.onChange(city.name)}
-                                                            className="w-full"
-                                                            >
-                                                            {city.name}
-                                                            </DropdownMenuItem>
-                                                        ))
-                                                        )}
-                                                    </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </FormControl>
-                                                <FormMessage />
+                                                    <FormControl>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                                    <button className="">
+                                                                        {field.value || "Select City"}
+                                                                    </button>
+                                                                    <ChevronDown />
+                                                                </div>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent className="w-full">
+                                                                <DropdownMenuLabel>City</DropdownMenuLabel>
+                                                                <DropdownMenuSeparator />
+                                                                {loading ? (
+                                                                    <div className="p-3">Loading...</div>
+                                                                ) : (
+                                                                    cities.map((city) => (
+                                                                        <DropdownMenuItem
+                                                                            key={city?.id}
+                                                                            onSelect={() => field.onChange(city?.name)}
+                                                                            className="w-full"
+                                                                        >
+                                                                            {city?.name}
+                                                                        </DropdownMenuItem>
+                                                                    ))
+                                                                )}
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </FormControl>
+                                                    <FormMessage />
                                                 </FormItem>
                                             )}
-                                            />
+                                        />
 
                                         <FormField
                                             control={formMerchant.control}

@@ -55,17 +55,17 @@ const accordionDatas = [
     },
 ]
 
+interface Employee {
+    role_id: string;
+    id: number;
+    name: string;
+    phone_number: string;
+    email: string;
+    password: string;
+    role_description: string;
+}
 
 const Employee = () => {
-    interface Employee {
-        role_id: string;
-        id: number;
-        name: string;
-        phone_number: string;
-        email: string;
-        password: string;
-        role_description: string;
-    }
 
     const [employees, setEmployees] = useState<Employee[]>([]); // State untuk data produk
     const [addEmployee, setAddEmployee] = useState(false);

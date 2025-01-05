@@ -1,6 +1,5 @@
 import TermsandCondition from "@/components/TermsandCondition"
 import { Button } from "@/components/ui/button"
-import axiosInstance from "@/hooks/axiosInstance"
 import axios from "axios"
 import { ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, User, UserRound, FileText } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -16,13 +15,13 @@ const Profile = () => {
 
     const handleSignOut = async () => {
         try {
-            const response = await axios.post('https://be-stiqr.dnstech.co.id/api/auth/logout',{},{
+            const response = await axios.post('https://be-stiqr.dnstech.co.id/api/auth/logout', {}, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
                     'X-Access-Token': `${localStorage.getItem('token') || ''}`
                 }
             })
-            if(response.data.status) {
+            if (response.data.status) {
                 localStorage.removeItem('token')
                 sessionStorage.removeItem('user')
                 window.location.href = '/'

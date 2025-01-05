@@ -14,27 +14,37 @@ interface Choice {
 }
 
 interface EditVariantProps {
-    setOpen: (open: { id: number; status: boolean }) => void;
-    open: { id: number; status: boolean };
+    setOpen: (open: { id: string; status: boolean }) => void;
+    open: { id: string; status: boolean };
     variants: Array<{
         id: number;
-        name: string;
-        choises: Choice[];
+        variant_id: string;
+        variant_name: string;
+        product_id: string;
+        variant_description: string;
+        is_multiple: boolean;
+        merchant_id: string;
+        products: number[];
         mustBeSelected: boolean;
         methods: string;
-        products: number[];
+        choises: [];
         showVariant: boolean;
     }>;
     setVariants: (variants: Array<{
         id: number;
-        name: string;
-        choises: Choice[];
+        variant_id: string;
+        variant_name: string;
+        product_id: string;
+        variant_description: string;
+        is_multiple: boolean;
+        merchant_id: string;
+        products: number[];
         mustBeSelected: boolean;
         methods: string;
-        products: number[];
+        choises: [];
         showVariant: boolean;
     }>) => void;
-    editIndex: number; // Tambahkan properti ini untuk mengetahui indeks produk yang diedit
+    editIndex: string; // Tambahkan properti ini untuk mengetahui indeks produk yang diedit
     products: Array<{
         id: number,
         product_id: string,
@@ -49,8 +59,6 @@ interface EditVariantProps {
         created_at: string,
         updated_at: string,
         merchant_id: string,
-        etalase: string[];
-        variants: number[];
     }>;
 }
 
@@ -62,8 +70,10 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariant
     const [showChoice, setShowChoice] = useState(false);
     const [, setTemporaryChoiceValue] = useState<Choice[]>([]); // State untuk menyimpan nilai sementara pilihan {dan masih gatau fungsinya untuk apa}
 
-    const variantToEdit = variants[editIndex]; // Produk yang sedang diedit
-    console.log("Variant to edit:", variantToEdit);
+    console.log("Edit index:", editIndex);
+
+    // const variantToEdit = variants[editIndex]; // Produk yang sedang diedit
+    // console.log("Variant to edit:", variantToEdit);
 
     const FormSchema = z.object({
         name: z.string().nonempty("Nama varian wajib diisi"),
@@ -83,18 +93,18 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariant
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            name: variantToEdit.name,
-            choises: variantToEdit.choises,
-            mustBeSelected: variantToEdit.mustBeSelected,
-            methods: variantToEdit.methods,
-            products: variantToEdit.products,
-            showVariant: variantToEdit.showVariant,
+            // name: variantToEdit.name,
+            // choises: variantToEdit.choises,
+            // mustBeSelected: variantToEdit.mustBeSelected,
+            // methods: variantToEdit.methods,
+            // products: variantToEdit.products,
+            // showVariant: variantToEdit.showVariant,
         },
     });
 
     const onSubmit = (data: z.infer<typeof FormSchema>) => {
         const updatedVariant = {
-            ...variantToEdit,
+            // ...variantToEdit,
             name: data.name,
             choises: data.choises,
             mustBeSelected: data.mustBeSelected,
@@ -103,23 +113,25 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariant
             showVariant: data.showVariant,
         };
 
+        console.log("Updated variant:", updatedVariant);
+
         const updatedVariants = [...variants];
 
-        updatedVariants[editIndex] = updatedVariant; // Perbarui produk yang diedit
+        // updatedVariants[editIndex] = updatedVariant; // Perbarui produk yang diedit
 
         setVariants(updatedVariants);
 
         console.log("Updated variants:", updatedVariants);
 
-        // To update the variants field in products
-        products.map((product) => {
-            if (data.products.includes(product.id)) {
-                const updatedVariants = [...product.variants, updatedVariant.id];
-                product.variants = updatedVariants;
-            }
-        })
+        // // To update the variants field in products
+        // products.map((product) => {
+        //     if (data.products.includes(product.id)) {
+        //         const updatedVariants = [...product.variants, updatedVariant.id];
+        //         product.variants = updatedVariants;
+        //     }
+        // })
 
-        setOpen({ id: -1, status: false }); // Tutup form edit
+        setOpen({ id: "", status: false }); // Tutup form edit
     };
 
     const addNewChoice = () => {
@@ -160,7 +172,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, variants, setVariant
     return (
         <div className="pt-5 w-full mb-32">
             <div className="flex items-center gap-5 text-black">
-                <button onClick={() => setOpen({ id: -1, status: false })}>
+                <button onClick={() => setOpen({ id: "", status: false })}>
                     <ChevronLeft />
                 </button>
                 <p className="font-semibold text-xl text-center uppercase">Edit Varian</p>
