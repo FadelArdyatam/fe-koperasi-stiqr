@@ -475,6 +475,7 @@ const Signup = () => {
                                                 </FormItem>
                                             )}
                                         />
+
                                         <FormField
                                             control={formMerchant.control}
                                             name="merchantCity"
@@ -490,7 +491,10 @@ const Signup = () => {
                                                                     <ChevronDown />
                                                                 </div>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full">
+                                                            <DropdownMenuContent
+                                                                className="w-full max-h-64 overflow-y-auto"
+                                                                style={{ maxHeight: '256px', overflowY: 'auto' }}
+                                                            >
                                                                 <DropdownMenuLabel>City</DropdownMenuLabel>
                                                                 <DropdownMenuSeparator />
                                                                 {loading ? (
