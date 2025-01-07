@@ -81,7 +81,6 @@ const Employee = () => {
         const fetchData = async () => {
             try {
                 const response = await axiosInstance.get(`/employee/${userData?.merchant?.id}`)
-
                 setEmployees(response.data)
             } catch (error) {
                 console.log(error)

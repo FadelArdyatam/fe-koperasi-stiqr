@@ -29,7 +29,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 		console.log("Phone Number:", phoneNumber);
 
 		try {
-			const response = await fetch("https://be-stiqr.dnstech.co.id/api/register/get-otp", {
+			const response = await fetch(`${import.meta.env.VITE_API_URL}/register/get-otp`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -62,7 +62,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 		}
 
 		try {
-			const response = await fetch("https://be-stiqr.dnstech.co.id/api/register/verif-otp", {
+			const response = await fetch(`${import.meta.env.VITE_API_URL}/register/verif-otp`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

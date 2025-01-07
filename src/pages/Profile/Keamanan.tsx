@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import axiosInstance from "@/hooks/axiosInstance"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Check, ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, UserRound, FileText } from "lucide-react"
 import { useState } from "react"
@@ -12,7 +13,6 @@ const Keamanan = () => {
     const [showContent, setShowContent] = useState('')
     const [showNotification, setShowNotification] = useState(false)
 
-    // For password form
     const FormSchema = z.object({
         password: z.string().min(8),
         newPassword: z.string().min(8),
@@ -30,34 +30,64 @@ const Keamanan = () => {
             confirmPassword: ''
         },
     })
-
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log(data)
-
-        setShowNotification(true)
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
+    const [errorPassword,setErrorPassword] = useState("")
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
+        try {
+            const response = await axiosInstance.patch(`users/change-password`, {
+                password: data.password,
+                newPassword: data.newPassword,
+                confirmPassword: data.confirmPassword,
+            })
+            if(response.data.statusCode === 200) {
+                setShowNotification(true)
+                setErrorPassword("")
+                form.reset({ password: '', newPassword: '', confirmPassword: '' });
+            }
+        } catch (error:any) {
+            setErrorPassword(error.response.data?.message || "Terjadi Kesalahan")
+        }
     }
     // 
 
     // For PIN form
     const FormSchema2 = z.object({
-        PIN: z.string().min(6),
-        newPIN: z.string().min(6),
+        oldPin: z.string().min(6),
+        newPin: z.string().min(6),
     })
 
     const form2 = useForm<z.infer<typeof FormSchema2>>({
         resolver: zodResolver(FormSchema2),
         defaultValues: {
-            PIN: '',
-            newPIN: '',
+            oldPin: '',
+            newPin: '',
         },
     })
 
-    function onSubmit2(data: z.infer<typeof FormSchema2>) {
-        console.log(data)
-
-        setShowNotification(true)
+    const [errors,setErrors] = useState("")
+    async function onSubmit2(data: z.infer<typeof FormSchema2>) {
+        try {
+            const response = await axiosInstance.patch(`/merchant/${userData.merchant.id}/updatepin`, {
+                oldPin: data.oldPin,
+                newPin: data.newPin
+            })
+            if(response.data.success) {
+                setShowNotification(true)
+            }
+            setErrors("")
+        } catch (error:any) {
+            if (error.response) {
+                setErrors(error.response.data.message)
+            }
+        }
     }
-    //
+
+    const handleBack = () => {
+        form2.reset({ oldPin: '', newPin: '' });
+        setShowContent('')
+        setShowNotification(false)
+    }
 
     return (
         <div className='w-full flex flex-col min-h-screen items-center'>
@@ -121,6 +151,7 @@ const Keamanan = () => {
 
             {showContent === 'Password' ? (
                 <div className="w-[90%] bg-white p-5 shadow-lg rounded-lg -translate-y-20">
+                    {errorPassword && <p className="text-red-500 text-sm">{errorPassword}</p>}
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
                             <div className={'flex flex-col items-end w-full md:w-2/3 space-y-7'}>
@@ -176,12 +207,13 @@ const Keamanan = () => {
                 </div>
             ) : showContent === 'PIN' ? (
                 <div className="w-[90%] bg-white p-5 shadow-lg rounded-lg -translate-y-20">
+                    {errors && <p className="text-red-500 text-sm">{errors}</p>}
                     <Form {...form2}>
                         <form onSubmit={form2.handleSubmit(onSubmit2)}>
                             <div className={'flex flex-col items-end w-full md:w-2/3 space-y-7'}>
                                 <FormField
                                     control={form2.control}
-                                    name="PIN"
+                                    name="oldPin"
                                     render={({ field }) => (
                                         <FormItem className="w-full">
                                             <FormLabel className="text-gray-500">PIN Saat Ini</FormLabel>
@@ -196,7 +228,7 @@ const Keamanan = () => {
 
                                 <FormField
                                     control={form2.control}
-                                    name="newPIN"
+                                    name="newPin"
                                     render={({ field }) => (
                                         <FormItem className="w-full">
                                             <FormLabel className="text-gray-500">PIN Baru</FormLabel>
@@ -226,7 +258,7 @@ const Keamanan = () => {
 
                     <p className='text-base'>{showContent === 'Password' ? 'Password' : 'PIN'} Berhasil Diubah.</p>
 
-                    <Button onClick={() => setShowNotification(false)} className="w-full">Back</Button>
+                    <Button onClick={() => handleBack()} className="w-full">Back</Button>
                 </div>
             </div>
         </div>

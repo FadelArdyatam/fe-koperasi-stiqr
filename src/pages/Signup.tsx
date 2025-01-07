@@ -18,7 +18,7 @@ import {
 import OTP from "@/components/OTP"
 import TermsandCondition from "@/components/TermsandCondition"
 import PinInput from "@/components/PinInput"
-import axios from "axios"
+import axiosInstance from "@/hooks/axiosInstance"
 
 const Signup = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(false)
@@ -36,11 +36,15 @@ const Signup = () => {
         gender: z.enum(["Laki - Laki", "Perempuan"], {
             message: "Please select the gender",
         }),
-        dateOfBirth: z.string().min(10, {
-            message: "Date of birth must be at least 10 characters.",
-        }).max(10, {
-            message: "Date of birth must be at most 10 characters.",
-        }),
+        dateOfBirth: z
+        .preprocess((value) => {
+            if (typeof value === "string") {
+                return new Date(value);
+            }
+            return value;
+        }, z.date().max(new Date(), {
+            message: "Date of birth cannot be in the future.",
+        })),
         email: z.string().email({
             message: "Invalid email address.",
         }),
@@ -72,7 +76,7 @@ const Signup = () => {
         defaultValues: {
             ownerName: "",
             gender: undefined,
-            dateOfBirth: "",
+            dateOfBirth: new Date(),
             email: "",
             phoneNumber: "",
             password: "",
@@ -168,7 +172,7 @@ const Signup = () => {
         formData.append("confirmPassword", payload.confirmPassword);
         formData.append("phone_number", payload.phoneNumber);
         formData.append("gender", payload.gender);
-        formData.append("dateOfBirth", payload.dateOfBirth);
+        formData.append("dateOfBirth", payload.dateOfBirth.toISOString().split('T')[0]);
         formData.append("merchantAddress", payload.merchantAddress);
         formData.append("merchantCategory", payload.merchantCategory);
         formData.append("merchantCity", payload.merchantCity);
@@ -187,7 +191,7 @@ const Signup = () => {
         }
 
         try {
-            const response = await fetch("https://be-stiqr.dnstech.co.id/api/register", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
                 method: "POST",
                 body: formData, // Sending FormData with file
             });
@@ -239,7 +243,7 @@ const Signup = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://103.172.205.204:82/api/provinces.json");
+                const response = await axiosInstance.get("/merchant/list/provinces");
                 setCities(response.data);
                 console.log(response);
             } catch (error) {
@@ -328,20 +332,24 @@ const Signup = () => {
                                                 </FormItem>
                                             )}
                                         />
-
-                                        <FormField
-                                            control={formUser.control}
-                                            name="dateOfBirth"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="date" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
+                                           <FormField
+                                                control={formUser.control}
+                                                name="dateOfBirth"
+                                                render={({ field }) => (
+                                                    <FormItem className="w-full">
+                                                        <FormControl>
+                                                            <Input
+                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                                type="date"
+                                                                {...field}
+                                                                value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value || ''}
+                                                                onChange={(e) => field.onChange(e.target.value)}  // Ensure the value is updated as a string
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
                                         <FormField
                                             control={formUser.control}
                                             name="email"
@@ -656,8 +664,7 @@ const Signup = () => {
                         <OTP currentSection={currentSection} setCreatePin={setCreatePin} />
                     </div>
 
-                    {createPin && <PinInput />}
-                </div>
+                    {createPin && <PinInput email={formMerchant.getValues("merchantEmail")} />}</div>
             )}
         </div>
     )
