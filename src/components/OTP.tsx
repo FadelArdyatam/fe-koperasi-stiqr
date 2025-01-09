@@ -5,6 +5,7 @@ import {
 } from "@/components/ui/input-otp";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
+import { CircleCheck } from "lucide-react";
 
 interface OTPProps {
 	currentSection: number;
@@ -18,6 +19,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 	const [timeLeft, setTimeLeft] = useState(0); // State for the countdown timer
 	const [otpId, setOtpId] = useState(""); // State untuk menyimpan OTP ID dari response
 
+	const [showNotification,setShowNotification] = useState(false);
 	const sendCode = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 
@@ -41,15 +43,17 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 				const responseData = await response.json();
 				console.log("Response Data:", responseData);
 				setOtpId(responseData.data.id); // Simpan OTP ID dari response
-				alert("Verification code sent successfully");
+				setShowNotification(true);		
 				setCodeSent(true);
 				setTimeLeft(300); // Set waktu 5 menit (300 detik)
 			} else {
 				const errorData = await response.json();
 				console.error("Error Response Data:", errorData);
 				alert("Failed to send verification code. Please try again.");
+				setShowNotification(false);
 			}
 		} catch (error) {
+			setShowNotification(false);
 			console.error("Network or Unexpected Error:", error);
 			alert("An unexpected error occurred. Please check your connection and try again.");
 		}
@@ -78,6 +82,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 				const responseData = await response.json();
 				console.log("OTP Verification Successful:", responseData);
 				alert("OTP verified successfully!");
+
 				// Tambahkan logika setelah verifikasi berhasil, seperti navigasi
 				setCreatePin(true);
 			} else {
@@ -184,6 +189,16 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 						</p>
 					)}
 				</div>
+				{showNotification && (
+					<div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 z-20 flex items-center justify-center">
+						<div className="bg-white w-[90%] rounded-lg m-auto p-5">
+							<p className="text-red-500 text-sm">OTP Berhasil terkirim ke {phoneNumber}</p>
+							<div className="flex items-center gap-5 mt-5">
+								<Button onClick={() => setShowNotification(false)} className="w-full bg-red-400">Tutup</Button>
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
 	);

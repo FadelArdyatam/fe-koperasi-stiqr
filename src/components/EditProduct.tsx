@@ -14,6 +14,7 @@ import { Button } from "./ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import axiosInstance from "@/hooks/axiosInstance";
 
 interface Merchant {
     id: string;
@@ -93,7 +94,7 @@ const EditProduct: React.FC<EditProductProps> = ({
 
         const fetchProductDetail = async () => {
             try {
-                const response = await axios.get(`https://be-stiqr.dnstech.co.id/api/product/detail/${editIndex}`, {
+                const response = await axiosInstance.get(`/product/detail/${editIndex}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -164,15 +165,9 @@ const EditProduct: React.FC<EditProductProps> = ({
                 formData.append("product_image", data.photo);
             }
 
-            const response = await axios.patch(
-                `/api/product/${editIndex}/allProduct`,
+            const response = await axiosInstance.patch(
+                `/product/${editIndex}/allProduct`,
                 formData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`, // Replace with secure token management
-                        "Content-Type": "multipart/form-data",
-                    },
-                }
             );
 
             console.log(response.data)
@@ -180,18 +175,12 @@ const EditProduct: React.FC<EditProductProps> = ({
             console.log("selected etalase: ", selectedEtalase);
             console.log("product id: ", response?.data?.data?.product_id);
 
-            const response2 = await axios.post(
-                "https://be-stiqr.dnstech.co.id/api/showcase-product/create",
+            const response2 = await axiosInstance.post(
+                "/showcase-product/create",
                 {
                     product_id: response?.data?.data?.product_id,
                     showcase_id: selectedEtalase
                 },
-                {
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
             )
 
             console.log("Updated product:", response.data);
@@ -211,13 +200,8 @@ const EditProduct: React.FC<EditProductProps> = ({
 
     const deleteHandler = async () => {
         try {
-            const response = await axios.delete(
-                `/api/product/${editIndex}/delete`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
+            const response = await axiosInstance.delete(
+                `/product/${editIndex}/delete`,
             );
 
             console.log(response.data);

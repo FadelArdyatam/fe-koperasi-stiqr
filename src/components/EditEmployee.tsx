@@ -35,14 +35,9 @@ interface EditEmployeeProps {
         role_description: string;
     }>) => void;
     editIndex: number;
-    accordionDatas: Array<{
-        title: string;
-        spoiler: string;
-        content: string[];
-    }>;
 }
 
-const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmployees, editIndex, accordionDatas }) => {
+const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmployees, editIndex }) => {
     const employeeToEdit = employees[editIndex];
 
     // Validasi schema untuk form

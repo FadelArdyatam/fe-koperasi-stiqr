@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
-import axios from "axios"
+import axiosInstance from "@/hooks/axiosInstance"
 
 const DataMerchant = () => {
     const [showEdit, setShowEdit] = useState(false)
@@ -22,8 +22,8 @@ const DataMerchant = () => {
         merchantCategory: z.enum(["Makanan & Minuman", "Fashion & Aksesori", "Elektronik & Gadget", "Kesehatan & Kecantikan", "Rumah & Dekorasi", "Otomotif", "Hobi & Hiburan", "Jasa & Layanan", "Bahan Pokok & Grosir", "Teknologi & Digital", "Lainnya"], {
             message: "Please select the category",
         }),
-        merchantCity: z.enum(["Jakarta", "Bandung", "Surabaya"], {
-            message: "Please select the city",
+        merchantCity: z.string().min(2, {
+            message: "City must be at least 2 characters.",
         }),
         phoneNumberMerchant: z.string().min(10, {
             message: "Phone number must be at least 10 characters.",
@@ -50,47 +50,78 @@ const DataMerchant = () => {
         },
     })
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log(data)
-
-        setShowNotification(true)
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
+        try {
+            const response = await axiosInstance.put(`/merchant/${merchantData?.id}/update`, {
+                name: data.merchantName,
+                category: data.merchantCategory,
+                city: data.merchantCity,
+                phone_number: data.phoneNumberMerchant,
+                address: data.merchantAddress,
+                post_code: data.postalCode,
+            });
+            console.log("Data merchant berhasil diubah:", response.data);
+            setShowNotification(true)
+        } catch (error:any) {
+            console.log(error)
+        } 
     }
 
+    const [isUpdate,setIsUpdate] = useState(false)
+
     useEffect(() => {
-        // Ambil informasi user dari sessionStorage
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
-        // Ambil token dari userData
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-            console.error("Token tidak ditemukan di sessionStorage.");
-            return;
-        }
-
-        // Fetch data merchant menggunakan Axios
         const fetchMerchant = async () => {
             try {
-                const response = await axios.get(
-                    `https://be-stiqr.dnstech.co.id/api/merchant/${userData?.merchant?.id}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
+                const response = await axiosInstance.get(
+                    `/merchant/${userData?.merchant?.id}`,
                 );
-
-                setMerchantData(response.data[0]); // Simpan data ke state
+                setMerchantData(response.data[0]);
             } catch (err) {
                 console.error("Error saat mengambil data merchant:", err);
             }
         };
 
         fetchMerchant();
+    }, [isUpdate]);
+
+    const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
+    const [loading, setLoading] = useState(false)
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axiosInstance.get("/merchant/list/provinces");
+                setCities(response.data);
+            } catch (error) {
+                console.error("Error fetching cities:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, []);
 
-    console.log(merchantData)
+    const handleEditClick = () => {
+        if (merchantData) {
+            form.setValue("merchantName", merchantData.name);
+            form.setValue("merchantCategory", merchantData.category);
+            form.setValue("merchantCity", merchantData.city);
+            form.setValue("phoneNumberMerchant", merchantData.phone_number);
+            form.setValue("merchantAddress", merchantData.address);
+            form.setValue("postalCode", merchantData.post_code);
+        }
+        setIsUpdate(false)
+        setShowEdit(true);
+    };
+
+    const handleBack = () => {
+        setShowEdit(false);
+        setShowNotification(false);
+        setIsUpdate(true)
+    }
 
     return (
         <>
@@ -185,7 +216,7 @@ const DataMerchant = () => {
                     </div>
                 </div>
 
-                <Button onClick={() => setShowEdit(true)} className="w-[90%] block bg-green-400">Edit</Button>
+                <Button onClick={handleEditClick} className="w-[90%] block bg-green-400">Edit</Button>
             </div>
 
             <div className={`${showEdit ? 'flex' : 'hidden'} w-full flex-col min-h-screen items-center`}>
@@ -251,7 +282,6 @@ const DataMerchant = () => {
                                         </FormItem>
                                     )}
                                 />
-
                                 <FormField
                                     control={form.control}
                                     name="merchantCity"
@@ -262,18 +292,27 @@ const DataMerchant = () => {
                                                     <DropdownMenuTrigger asChild>
                                                         <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                             <button className="">
-                                                                {field.value || "Select City"} {/* Display selected value */}
+                                                                {field.value || "Select City"}
                                                             </button>
-
                                                             <ChevronDown />
                                                         </div>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="w-full bg-white p-5 flex flex-col gap-4 rounded-lg shadow-lg">
+                                                    <DropdownMenuContent className="w-full bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4">
                                                         <DropdownMenuLabel>City</DropdownMenuLabel>
                                                         <DropdownMenuSeparator />
-                                                        <DropdownMenuItem onSelect={() => field.onChange("Jakarta")} className="w-full">Jakarta</DropdownMenuItem>
-                                                        <DropdownMenuItem onSelect={() => field.onChange("Bandung")} className="w-full">Bandung</DropdownMenuItem>
-                                                        <DropdownMenuItem onSelect={() => field.onChange("Surabaya")} className="w-full">Surabaya</DropdownMenuItem>
+                                                        {loading ? (
+                                                            <div className="p-3">Loading...</div>
+                                                        ) : (
+                                                            cities.map((city) => (
+                                                                <DropdownMenuItem
+                                                                    key={city?.id}
+                                                                    onSelect={() => field.onChange(city?.name)}
+                                                                    className="w-full"
+                                                                >
+                                                                    {city?.name}
+                                                                </DropdownMenuItem>
+                                                            ))
+                                                        )}
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </FormControl>
@@ -337,7 +376,7 @@ const DataMerchant = () => {
 
                         <p className='text-base'>Data Pemilik Berhasil Diubah.</p>
 
-                        <Button onClick={() => setShowNotification(false)} className="w-full">Back</Button>
+                        <Button onClick={handleBack} className="w-full">Back</Button>
                     </div>
                 </div>
             </div>

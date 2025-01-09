@@ -9,6 +9,7 @@ import dana from "@/images/dana.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import axiosInstance from "@/hooks/axiosInstance";
 
 export const admissionFees = [
     {
@@ -120,13 +121,8 @@ const Dashboard = () => {
             }
 
             try {
-                const response = await axios.get(
-                    `https://be-stiqr.dnstech.co.id/api/balance/${userData.merchant.id}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`, // Menyertakan token
-                        },
-                    }
+                const response = await axiosInstance.get(
+                    `/balance/${userData.merchant.id}`,
                 );
 
                 console.log("Profile Response:", response.data);

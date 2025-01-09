@@ -1,4 +1,3 @@
-import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft, CircleCheck } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -7,30 +6,22 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@radix-ui/react-accordion";
+// import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@radix-ui/react-accordion";
+import axiosInstance from "@/hooks/axiosInstance";
 
 interface AddEmployeeProps {
     setAddEmployee: (value: boolean) => void;
-    accordionDatas: Array<{
-        title: string;
-        spoiler: string;
-        content: string[];
-    }>;
+    setIsSuccess: (value: boolean) => void;
 }
 
-const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, accordionDatas }) => {
+const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee,setIsSuccess }) => {
     const [showNotification, setShowNotification] = useState(false);
 
-    useEffect(() => {
-
-    })
-
-    // Validasi schema untuk form
     const FormSchema = z.object({
         name: z.string().min(3).max(50),
         phone_number: z.string().min(10).max(13),
         email: z.string().email(),
-        role_name: z.enum(["Admin", "Kasir"], { required_error: "Please select a position." }),
+        role_name: z.string().min(2).max(50),
         password: z.string().min(6).max(50),
     });
 
@@ -45,51 +36,50 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, accordionData
         },
     });
 
-    async function onSubmit(data: z.infer<typeof FormSchema>) {
-        // Generate a random 10-digit number
-        // const randomDigits = Math.floor(1000000000 + Math.random() * 9000000000);
-        // const roleId = `RLE-${randomDigits}`;
+    const [roles, setRoles] = useState([]);
+    useEffect(() => {
+        const fetchRoles = async () => {
+          try {
+            const response = await axiosInstance.get("/employee/roles/all");
+            setRoles(response.data.data);
+            console.log(response.data);
+          } catch (error: any) {
+            console.error(error);
+          }
+        };
+      
+        fetchRoles();
+      }, []);
 
-        // Ambil informasi user dari sessionStorage
+    const handleDone = () => {
+        setIsSuccess(true),
+        setShowNotification(false),
+        setAddEmployee(false)
+    }
+    const handleAddEmployee = () => {
+        setIsSuccess(false),
+        setAddEmployee(true)
+    }
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
-        // const newEmployee = {
-        //     name: data.name,
-        //     email: data.email,
-        //     phone_number: data.phone_number,
-        //     password: data.password,
-        //     role_name: data.role_name,
-        //     role_description: data.role_name === "Admin" ? "Administrator dengan akses penuh" : "Kasir dengan akses terbatas",
-        // };
-
-        // Prepare FormData to handle file upload
         const newEmployeeToAPI = {
             name: data.name,
             email: data.email,
             phone_number: data.phone_number,
             password: data.password,
-            role_id: "RLE-2024120001",
+            role_id: data.role_name,
             merchant_id: userData?.merchant?.id,
             role_description: data.role_name === "Admin" ? "Administrator dengan akses penuh" : "Kasir dengan akses terbatas",
         }
 
-        const token = localStorage.getItem("token");
-
         try {
-            // Kirim data ke endpoint API
-            const response = await axios.post("https://be-stiqr.dnstech.co.id/api/employee/create", newEmployeeToAPI, {
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                },
-            });
-
-            console.log("Response from API:", response.data);
-
-            // // Perbarui state jika berhasil
-            // setEmployees([...employees, { id: employees.length + 1, ...newEmployee }]);
-            setShowNotification(true);
+            const response = await axiosInstance.post("/employee/create", newEmployeeToAPI);
+            if(response.data.status) {
+                setShowNotification(true);
+                setIsSuccess(true);
+            }
         } catch (error) {
             console.error("Error while adding employee:", error);
             alert("Failed to add employee. Please try again.");
@@ -98,16 +88,16 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, accordionData
 
     return (
         <>
-            <div className={`${showNotification ? 'hidden' : 'block'} p-5 w-full mb-32`}>
+            <div className={`${showNotification ? 'hidden' : 'block'} p-5 w-full mb-32 bg-orange-50`}>
                 <div className="flex items-center gap-5 text-black">
-                    <button onClick={() => setAddEmployee(false)}>
+                    <button onClick={handleAddEmployee}>
                         <ChevronLeft />
                     </button>
                     <p className="font-semibold text-xl text-center uppercase">Add Employee</p>
                 </div>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-10">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-10 bg-white p-5 rounded-lg">
                         {/* Name */}
                         <FormField
                             control={form.control}
@@ -209,33 +199,31 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, accordionData
                                     <FormLabel>Peran Pegawai</FormLabel>
                                     <FormControl>
                                         <div className="space-y-2">
-                                            {["Admin", "Kasir"].map((option) => {
-                                                const accordionData = accordionDatas.find((data) => data.title === option);
-
+                                            {roles.map((role,i) => {
                                                 return (
-                                                    <div key={option} className="p-5 bg-orange-50 rounded-lg">
+                                                    <div key={i} className="p-5 bg-orange-50 rounded-lg">
                                                         <label className="flex items-center w-full justify-between gap-2">
-                                                            <p className="font-semibold">{option}</p>
+                                                            <p className="font-semibold">{role.role_name}</p>
                                                             <input
                                                                 type="radio"
-                                                                value={option}
-                                                                checked={field.value === option}
-                                                                onChange={() => field.onChange(option)}
+                                                                value={role.role_id}
+                                                                checked={field.value === role.role_id}
+                                                                onChange={() => field.onChange(role.role_id)}
                                                                 className="form-radio"
                                                             />
                                                         </label>
 
                                                         {/* Spoiler */}
-                                                        {accordionData && (
+                                                        {role.role_description && (
                                                             <p className="mt-5 text-gray-500 text-sm">
-                                                                {accordionData.spoiler}
+                                                                {role.role_description}
                                                             </p>
                                                         )}
 
                                                         {/* Accordion */}
-                                                        {accordionData && (
+                                                        {/* {role && (
                                                             <Accordion type="single" collapsible className="w-full mt-4">
-                                                                <AccordionItem value={`item-${option}`}>
+                                                                <AccordionItem value={`item-${role.role_id}`}>
                                                                     <AccordionTrigger className="text-blue-500">Selengkapnya</AccordionTrigger>
                                                                     <AccordionContent>
                                                                         <ul className="list-disc list-inside space-y-2">
@@ -246,7 +234,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, accordionData
                                                                     </AccordionContent>
                                                                 </AccordionItem>
                                                             </Accordion>
-                                                        )}
+                                                        )} */}
                                                     </div>
                                                 );
                                             })}
@@ -271,7 +259,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, accordionData
 
                     <p className="mt-10 font-semibold text-xl text-center">Employee added successfully!</p>
 
-                    <Button onClick={() => setAddEmployee(false)} className="w-full bg-green-500 text-white mt-10">
+                    <Button onClick={handleDone} className="w-full bg-green-500 text-white mt-10">
                         Done
                     </Button>
                 </div>

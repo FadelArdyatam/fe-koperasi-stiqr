@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import axios from "axios";
+import axiosInstance from "@/hooks/axiosInstance";
 
 interface Merchant {
     id: string;
@@ -73,34 +73,16 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase }) => {
     });
 
     const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-        // Token Bearer from Local Storage
-        const token = localStorage.getItem("token");
-
-        // User information from sessionStorage
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
         try {
-            // Request body
             const requestBody = {
                 showcase_name: data.showcase_name,
                 merchant_id: userData?.merchant?.id,
             };
-
-            // HTTP POST ke endpoint create showcase
-            const response = await axios.post(
-                `https://be-stiqr.dnstech.co.id/api/showcase/create`,
-                requestBody,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-
-            console.log(response.data);
-
+            const response = await axiosInstance.post(`showcase/create`,requestBody);
+            console.log(response)
             setShowNotification(true);
         } catch (error: any) {
             setErrorMessage(error.response?.data?.message || "Terjadi kesalahan saat membuat etalase.");

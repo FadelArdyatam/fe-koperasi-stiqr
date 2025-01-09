@@ -219,7 +219,7 @@ const Keamanan = () => {
                                             <FormLabel className="text-gray-500">PIN Saat Ini</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field} />
+                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" maxLength={6} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

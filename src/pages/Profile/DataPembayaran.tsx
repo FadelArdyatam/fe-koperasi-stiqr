@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import axiosInstance from "@/hooks/axiosInstance";
 
 const dataPayments = [
     {
@@ -88,15 +89,9 @@ const DataPembayaran = () => {
 
         try {
             // Kirim data ke endpoint API
-            const response = await axios.post(
-                "https://be-stiqr.dnstech.co.id/api/account/create",
+            const response = await axiosInstance.post(
+                "/account/create",
                 formData,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                        "Authorization": `Bearer ${token}`,
-                    },
-                }
             );
 
             console.log("Response from API:", response.data);

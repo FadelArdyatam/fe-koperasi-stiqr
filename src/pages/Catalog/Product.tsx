@@ -101,8 +101,7 @@ const Product: React.FC<ProductProps> = ({ products, setProducts, addProduct, se
         });
     };
 
-    console.log(open);
-
+    const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
     return (
         <div className='mb-32 px-5'>
             <div className={`${addProduct || open.status ? 'hidden' : 'block'}`}>
@@ -114,7 +113,9 @@ const Product: React.FC<ProductProps> = ({ products, setProducts, addProduct, se
                             onClick={() => handleOpen(product.product_id)}
                         >
                             <button className="flex items-center">
-                                <div className="h-12 w-12 bg-gray-200 rounded-md mr-4"></div>
+                                <div className="h-12 w-12 bg-gray-200 rounded-md mr-4">
+                                    <img src={`${urlImage}/uploads/products/${product.product_image}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
+                                </div>
                                 <div className="flex flex-col items-start">
                                     <h3 className="text-lg font-semibold">{product?.product_name}</h3>
                                     <p className="text-sm text-gray-600">Rp{product?.product_price}</p>

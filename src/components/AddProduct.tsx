@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { ChevronLeft, CircleCheck } from "lucide-react";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "@/hooks/axiosInstance";
 
 interface Merchant {
     id: string;
@@ -120,35 +120,21 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
             console.log(data.photo)
         }
 
-        // const updatedEtalase = data.etalase.includes("semua produk")
-        //     ? data.etalase
-        //     : [...data.etalase, "semua produk"];
-
+      
         try {
             // API request
-            const response = await axios.post(
-                "https://be-stiqr.dnstech.co.id/api/product/create",
+            const response = await axiosInstance.post(
+                "/product/create",
                 formData,
-                {
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "multipart/form-data",
-                    },
-                }
             );
-
-            const response2 = await axios.post(
-                "https://be-stiqr.dnstech.co.id/api/showcase-product/create",
+            console.log(etalases)
+            const response2 = await axiosInstance.post(
+                "/showcase-product/create",
                 {
                     product_id: response?.data?.data?.product_id,
                     showcase_id: selectedEtalase,
                 },
-                {
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
+                
             )
 
             // // Add to local state with the returned image URL

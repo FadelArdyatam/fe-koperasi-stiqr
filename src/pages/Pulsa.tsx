@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import telkomsel from '../images/telkomsel.png'
 import Bill from "@/components/Bill"
-import axios from "axios"
+import axiosInstance from "@/hooks/axiosInstance"
 
 interface BillData {
     product: string;
@@ -48,13 +48,8 @@ const Pulsa = () => {
             }
 
             try {
-                const response = await axios.get(
-                    `https://be-stiqr.dnstech.co.id/api/balance/${userData.merchant.id}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`, // Menyertakan token
-                        },
-                    }
+                const response = await axiosInstance.get(
+                    `/balance/${userData.merchant.id}`,
                 );
 
                 console.log("Profile Response:", response.data);

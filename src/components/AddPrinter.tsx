@@ -14,7 +14,7 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Checkbox } from "./ui/checkbox";
-import axios from "axios";
+import axiosInstance from "@/hooks/axiosInstance";
 
 interface AddPrinterProps {
     setShowManualInputPrinter: (showManualInputPrinter: boolean) => void;
@@ -90,21 +90,10 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
         };
 
         try {
-            // API request to create the printer
-            const response = await axios.post(
-                "https://be-stiqr.dnstech.co.id/api/printer/create",
-                printerPayload,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            const response = await axiosInstance.post("/printer/create", printerPayload,);
 
             console.log("Printer successfully added:", response.data);
 
-            // Update local state with the new printer
             setPrinters([
                 ...printers,
                 {
@@ -122,7 +111,6 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
         } catch (error) {
             console.error("Error while adding printer:", error);
 
-            // Display an error message
             if (axios.isAxiosError(error) && error.response) {
                 alert(`Failed to add printer: ${error.response.data.message || "Unknown error"}`);
             } else {

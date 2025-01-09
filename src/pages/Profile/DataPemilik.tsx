@@ -7,6 +7,7 @@ import { Link } from "react-router-dom"
 import { z } from "zod"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import axiosInstance from "@/hooks/axiosInstance"
 
 const DataPemilik = () => {
     const [showEdit, setShowEdit] = useState(false)
@@ -36,7 +37,7 @@ const DataPemilik = () => {
         }),
         photo: z.instanceof(File, {
             message: "Photo must be a valid file.",
-        }),
+        }).optional(),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -47,28 +48,78 @@ const DataPemilik = () => {
             email: "",
             phoneNumber: "",
             dateOfBirth: "",
-            photo: undefined,
         },
     })
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log(data)
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
 
-        setShowNotification(true)
+    const [isUpdate,setIsUpdate] = useState(false)
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
+        try {
+            const response = await axiosInstance.put(`/users/${userData.id}/update`, {
+                username: data.ownerName,
+                email: data.email,
+                phone_number: data.phoneNumber,
+                dob: data.dateOfBirth,
+            })
+            if(response.data.statusCode ==200) {
+                console.log(response)
+                setShowNotification(true)
+                sessionStorage.setItem("user", JSON.stringify(response.data.data));
+                setIsUpdate(true)
+            }
+        } catch (error :any) {
+            console.log(error)
+        }
     }
 
     useEffect(() => {
-        // Ambil informasi user dari sessionStorage
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
         setUser(userData);
-    }, [])
+        if (userData) {
+            form.reset({
+                NIK: "123203091821833",
+                ownerName: userData.username || userData.name || "",
+                email: userData.email || "",
+                phoneNumber: userData.phone_number || "",
+                dateOfBirth: formatDateForInput(userData.dob) || "",
+            });
+        }
+    }, [isUpdate])
+
+    const formatDateForInput = (dateString: string) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];
+    };
+
+    const handleEditClick = () => {
+        if (user) {
+            form.reset({
+                NIK: "123203091821833",
+                ownerName: user.username || user.name || "",
+                email: user.email || "",
+                phoneNumber: user.phone_number || "",
+                dateOfBirth: formatDateForInput(user.dob) || "",
+            });
+        }
+        setIsUpdate(false)
+        setShowEdit(true);
+    };
+
+    const handleBack = () => {
+        setShowEdit(false);
+        setShowNotification(false)
+        setIsUpdate(true)
+    }
 
     const FormatDate = ({ dateString }: { dateString: string }) => {
         const formatDate = (isoDate: string | number | Date) => {
             const date = new Date(isoDate);
             const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // getMonth() dimulai dari 0
+            const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
             return `${day}/${month}/${year}`;
         };
@@ -168,8 +219,8 @@ const DataPemilik = () => {
                         <Image />
                     </div>
                 </div>
+                <Button onClick={handleEditClick} className="w-[90%] bg-green-400">Edit</Button>
 
-                <Button onClick={() => setShowEdit(true)} className="w-[90%] bg-green-400">Edit</Button>
             </div>
 
             <div className={`${showEdit ? 'flex' : 'hidden'} w-full flex-col min-h-screen items-center`}>
@@ -223,7 +274,7 @@ const DataPemilik = () => {
                                             <FormLabel className="text-gray-500">Email</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" disabled {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -277,7 +328,7 @@ const DataPemilik = () => {
                                                     onChange={(e) => {
                                                         const file = e.target.files?.[0];
                                                         if (file) {
-                                                            field.onChange(file); // Update field value with the selected file
+                                                            field.onChange(file);
                                                         }
                                                     }}
                                                 />
@@ -303,7 +354,7 @@ const DataPemilik = () => {
 
                         <p className='text-base'>Data Pemilik Berhasil Diubah.</p>
 
-                        <Button onClick={() => setShowNotification(false)} className="w-full">Back</Button>
+                        <Button onClick={handleBack} className="w-full">Back</Button>
                     </div>
                 </div>
             </div>

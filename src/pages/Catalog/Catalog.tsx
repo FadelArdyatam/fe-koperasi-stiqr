@@ -111,11 +111,10 @@ const Catalog = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
+
     useEffect(() => {
-
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
-
         const fetchProducts = async () => {
             try {
                 const response = await axiosInstance.get(`/product/${userData?.merchant?.id}`);

@@ -494,7 +494,7 @@ const Signup = () => {
                                                             <DropdownMenuTrigger asChild>
                                                                 <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                                     <button className="">
-                                                                        {field.value || "Select City"}
+                                                                        {field.value || "Se\lect City"}
                                                                     </button>
                                                                     <ChevronDown />
                                                                 </div>
