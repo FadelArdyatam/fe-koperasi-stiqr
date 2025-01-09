@@ -2,9 +2,8 @@ import { Check, RotateCw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
-import bcrypt from "bcryptjs";
 
-const PinInput = () => {
+const PinInput = ({email}: {email: string}) => {
     const [step, setStep] = useState(1); // Step 1: Input PIN pertama, Step 2: Konfirmasi PIN
     const [pin, setPin] = useState<string[]>([]);
     const [confirmPin, setConfirmPin] = useState<string[]>([]);
@@ -36,12 +35,37 @@ const PinInput = () => {
         }
     }, [pin]);
 
-    const handleSubmit = () => {
+    const handleSetPin = async () => {
+        const pinValue = pin.join("");
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/register/set-pin`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ pin: pinValue,email: email}),
+            });
+
+            if (response.ok) {
+                setNotification({ showRetype: false, showSuccess: true });
+            } else {
+                alert("Failed to set PIN. Please try again.");
+                setStep(1);
+                setPin([]);
+                setConfirmPin([]);
+            }
+        } catch (error) {
+            console.error("Error setting PIN:", error);
+            alert("An error occurred. Please try again.");
+            setStep(1);
+            setPin([]);
+            setConfirmPin([]);
+        }
+    };
+
+    const handleSubmit = async() => {
         if (pin.join("") === confirmPin.join("")) {
-            // Hash PIN sebelum menyimpannya
-            const hashedPin = bcrypt.hashSync(pin.join(""), 10);
-            localStorage.setItem("userPin", hashedPin);
-            setNotification({ showRetype: false, showSuccess: true });
+            await handleSetPin(); // Kirim PIN ke endpoint jika cocok
         } else {
             alert("PINs do not match. Please try again.");
             setStep(1);
@@ -125,7 +149,6 @@ const PinInput = () => {
                 onClick={handleCloseNotification} // Menutup notifikasi saat mengklik area luar
             >
                 <div className="w-[90%] bg-white p-5 mt-5 rounded-lg flex items-center flex-col gap-5" onClick={(e) => e.stopPropagation()}>
-                    {/* stopPropagation untuk mencegah klik di dalam kotak menutup notifikasi */}
                     <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-green-400'>
                         <RotateCw className='scale-[1.5]' />
                     </div>
@@ -137,10 +160,9 @@ const PinInput = () => {
             {/* Notification Success */}
             <div
                 className={`${notification.showSuccess ? 'block' : 'hidden'} w-full fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-black bg-opacity-50`}
-                onClick={handleCloseNotification} // Menutup notifikasi saat mengklik area luar
+                onClick={handleCloseNotification}
             >
                 <div className="w-[90%] bg-white p-5 mt-5 rounded-lg flex items-center flex-col gap-5" onClick={(e) => e.stopPropagation()}>
-                    {/* stopPropagation untuk mencegah klik di dalam kotak menutup notifikasi */}
                     <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-green-400'>
                         <Check className='scale-[1.5]' />
                     </div>

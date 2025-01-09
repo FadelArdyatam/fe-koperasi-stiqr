@@ -6,6 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useEffect, useState } from "react";
+import axios from "axios";
 import axiosInstance from "@/hooks/axiosInstance";
 
 interface Merchant {
@@ -76,6 +77,7 @@ interface EditEtalaseProps {
 
 const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalases, editIndex, products }) => {
     interface Showcase {
+        showcase_id: any;
         showcase_name: string;
         showcase_product: {
             product: {
@@ -118,32 +120,44 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalase
         },
     });
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        const updatedEtalase = {
-            ...etalaseToEdit,
-            name: data?.name,
-            products: data?.products,
-        };
+    const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+        // Token Bearer from Local Storage
+        const token = localStorage.getItem("token");
 
-        // const updatedEtalases = [...etalases];
-        // updatedEtalases[editIndex] = updatedEtalase;
+        try {
+            if (!etalaseToEdit) {
+                alert("Showcase data is not available.");
+                return;
+            }
 
-        console.log("Updated product:", updatedEtalase);
+            const response = await axios.patch(
+                `https://be-stiqr.dnstech.co.id/api/showcase/${etalaseToEdit.showcase_id}/update`,
+                {
+                    showcase_name: data.name,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
 
-        // const updatedProducts = [...products];
-        // updatedProducts.forEach((product) => {
-        //     if (updatedEtalase?.products?.includes(product.id)) {
-        //         product.etalase = [...product.etalase, updatedEtalase?.name];
-        //     } else {
-        //         product.etalase = product.etalase.filter((name) => name !== updatedEtalase?.name);
-        //     }
-        // });
+            console.log("API Response:", response.data);
 
-        // console.log("Updated products:", products);
+            // const updatedEtalases = [...etalases];
+            // updatedEtalases[editIndex] = {
+            //     ...etalaseToEdit,
+            //     showcase_name: data.name,
+            //     showcase_product: data.products.map((id) => ({ product: { id } })),
+            // };
 
-        // Tutup form
-        setOpen({ id: "", status: false });
-    }
+            // setEtalases(updatedEtalases);
+            setOpen({ id: "", status: false });
+        } catch (error) {
+            console.error("Error updating showcase:", error);
+            alert("Failed to update showcase. Please try again.");
+        }
+    };
 
     const deleteHandler = async () => {
         try {

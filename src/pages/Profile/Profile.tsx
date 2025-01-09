@@ -3,19 +3,21 @@ import { Button } from "@/components/ui/button"
 import axios from "axios"
 import { ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, User, UserRound, FileText } from "lucide-react"
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 const Profile = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(false)
     const [data, setData] = useState<any>()
-
+    const urlImage = import.meta.env.VITE_API_URL.replace('/api', '');
+    console.log(`${urlImage}/uploads/photos/${data?.photo}`)
     useEffect(() => {
         setData(JSON.parse(sessionStorage.getItem('user') || '{}'))
     }, [])
 
+    const navigate = useNavigate()
     const handleSignOut = async () => {
         try {
-            const response = await axios.post('https://be-stiqr.dnstech.co.id/api/auth/logout', {}, {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/logout`, {}, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
                     'X-Access-Token': `${localStorage.getItem('token') || ''}`
@@ -24,7 +26,7 @@ const Profile = () => {
             if (response.data.status) {
                 localStorage.removeItem('token')
                 sessionStorage.removeItem('user')
-                window.location.href = '/'
+                navigate('/')
             }
             console.log(response)
         } catch (error) {
@@ -79,21 +81,31 @@ const Profile = () => {
 
                 <div className="bg-white w-[90%] -translate-y-20 p-5 rounded-lg shadow-lg z-20">
                     <div className="flex gap-5 items-center">
-                        <div className="w-20 h-20 rounded-full flex items-center bg-gray-300 justify-center">
-                            <User className="scale-[1.5]" />
+                        <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+                            {data?.photo ? (
+                                <img
+                                    src={`${urlImage}/uploads/photos/${data?.photo}`}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <User className="text-gray-500 scale-[1.5]" />
+                            )}
                         </div>
 
                         <div className="flex flex-col gap-3">
                             <p className="text-xl font-semibold">{data?.username || data?.name}</p>
-
                             <p className="text-sm text-gray-500">{data?.email}</p>
                         </div>
                     </div>
 
-                    <Button onClick={handleSignOut} className="w-full mt-5 bg-orange-400">Sign Out</Button>
+                    <Button onClick={handleSignOut} className="w-full mt-5 bg-orange-400">
+                        Sign Out
+                    </Button>
                 </div>
 
-                <div className="bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20">
+
+                <div className="bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20 mb-10">
                     <Link to={"/profile/security"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Keamanan</p>
@@ -178,7 +190,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link to={"/profile/printer"} className="flex items-center gap-5 justify-between">
+                    <Link to={"/profile/printer"} className="flex items-center gap-5 justify-between ">
                         <div>
                             <p>Printer</p>
 

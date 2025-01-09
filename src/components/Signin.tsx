@@ -24,22 +24,20 @@ const Signin = () => {
 
 		try {
 			const response = await axios.post(
-				`${import.meta.env.VITE_API_URL}api/auth/login`,
+				`${import.meta.env.VITE_API_URL}/auth/login`,
 				{ email, password }
 			);
-
-			const token = response.data.access_token;
-			localStorage.setItem("token", token);
-
-			sessionStorage.setItem("user", JSON.stringify(response.data.data));
-
-			navigate('/dashboard');
+			console.log(response)
+			if(response.data.status == 'success') {
+				const token = response.data.access_token;
+				localStorage.setItem("token", token);
+				sessionStorage.setItem("user", JSON.stringify(response.data.data));
+				navigate('/dashboard');
+			}
 		} catch (err) {
 			if (axios.isAxiosError(err)) {
-				console.error(err.message);
 				setError(err.response?.data?.message || "Login gagal.");
 			} else {
-				console.error(err);
 				setError("Login gagal.");
 			}
 		} finally {
@@ -62,7 +60,7 @@ const Signin = () => {
 					type="text"
 					value={email}
 					onChange={(e) => setEmail(e.target.value)}
-					placeholder="Email/No Hp"
+					placeholder="Email"
 					className="w-full border border-black px-4 py-3 rounded-lg"
 				/>
 
