@@ -63,8 +63,29 @@ const ForgotPassword = () => {
         },
     })
 
-    function onSubmitEmail(data: z.infer<typeof FormEmailSchema>) {
-        setNotification({ status: true, address: data.email, notificationSuccess: false })
+    async function onSubmitEmail(data: z.infer<typeof FormEmailSchema>) {
+        try {
+            // Kirim data ke endpoint menggunakan Axios
+            const response = await axios.post("/api/auth/forgot-password", {
+                email: data.email,
+            });
+
+            console.log("Success:", response.data);
+
+            setNotification({ status: true, address: data.email, notificationSuccess: false })
+        } catch (error) {
+            console.error("Error submitting email:", error);
+
+            // Tangani error dengan memeriksa response Axios
+            const errorMessage = (error as any).response?.data?.message || "Failed to send the email. Please try again.";
+
+            // Atur notifikasi gagal
+            setNotification({
+                status: true,
+                address: errorMessage,
+                notificationSuccess: false,
+            });
+        }
     }
     // 
 

@@ -121,37 +121,21 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalase
     });
 
     const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+        console.log("Form submitted:", data);
         // Token Bearer from Local Storage
         const token = localStorage.getItem("token");
 
         try {
-            if (!etalaseToEdit) {
-                alert("Showcase data is not available.");
-                return;
+            if (etalaseToEdit) {
+                const response = await axios.patch(
+                    `https://be-stiqr.dnstech.co.id/api/showcase/${etalaseToEdit.showcase_id}/update`,
+                    { showcase_name: data.name },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+
+                console.log("API Response:", response.data);
             }
 
-            const response = await axios.patch(
-                `https://be-stiqr.dnstech.co.id/api/showcase/${etalaseToEdit.showcase_id}/update`,
-                {
-                    showcase_name: data.name,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            console.log("API Response:", response.data);
-
-            // const updatedEtalases = [...etalases];
-            // updatedEtalases[editIndex] = {
-            //     ...etalaseToEdit,
-            //     showcase_name: data.name,
-            //     showcase_product: data.products.map((id) => ({ product: { id } })),
-            // };
-
-            // setEtalases(updatedEtalases);
             setOpen({ id: "", status: false });
         } catch (error) {
             console.error("Error updating showcase:", error);
@@ -256,7 +240,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, etalases, setEtalase
                         </div>
 
                         {/* ... */}
-                        <Button type="submit" className="w-full bg-blue-500 text-white">
+                        <Button type="submit" onClick={form.handleSubmit(onSubmit)} className="w-full bg-blue-500 text-white">
                             Update
                         </Button>
                     </form>
