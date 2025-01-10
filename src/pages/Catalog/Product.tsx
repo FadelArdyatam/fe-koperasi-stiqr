@@ -118,7 +118,7 @@ const Product: React.FC<ProductProps> = ({ products, setProducts, addProduct, se
                                 </div>
                                 <div className="flex flex-col items-start">
                                     <h3 className="text-lg font-semibold">{product?.product_name}</h3>
-                                    <p className="text-sm text-gray-600">Rp{product?.product_price}</p>
+                                    <p className="text-sm text-gray-600">Rp {new Intl.NumberFormat('id-ID').format(Number(product?.product_price))}</p>
                                 </div>
                             </button>
 

@@ -15,6 +15,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Checkbox } from "./ui/checkbox";
 import axiosInstance from "@/hooks/axiosInstance";
+import axios from "axios";
 
 interface AddPrinterProps {
     setShowManualInputPrinter: (showManualInputPrinter: boolean) => void;
@@ -74,9 +75,6 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
     }
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
-        // Token Bearer from Local Storage
-        const token = localStorage.getItem("token");
-
         // User information from sessionStorage
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;

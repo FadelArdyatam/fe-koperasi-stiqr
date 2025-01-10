@@ -5,7 +5,6 @@ import {
 } from "@/components/ui/input-otp";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { CircleCheck } from "lucide-react";
 
 interface OTPProps {
 	currentSection: number;
@@ -19,7 +18,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 	const [timeLeft, setTimeLeft] = useState(0); // State for the countdown timer
 	const [otpId, setOtpId] = useState(""); // State untuk menyimpan OTP ID dari response
 
-	const [showNotification,setShowNotification] = useState(false);
+	const [showNotification, setShowNotification] = useState(false);
 	const sendCode = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 
@@ -43,7 +42,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 				const responseData = await response.json();
 				console.log("Response Data:", responseData);
 				setOtpId(responseData.data.id); // Simpan OTP ID dari response
-				setShowNotification(true);		
+				setShowNotification(true);
 				setCodeSent(true);
 				setTimeLeft(300); // Set waktu 5 menit (300 detik)
 			} else {
@@ -159,15 +158,21 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 					<InputOTP
 						maxLength={6}
 						value={value}
-						onChange={(value) => setValue(value)} // Update state as user types
+						onChange={(value) => {
+							// Hanya izinkan angka
+							if (/^\d*$/.test(value)) {
+								setValue(value);
+							}
+						}}
 					>
 						<InputOTPGroup>
-							<InputOTPSlot index={0} />
-							<InputOTPSlot index={1} />
-							<InputOTPSlot index={2} />
-							<InputOTPSlot index={3} />
-							<InputOTPSlot index={4} />
-							<InputOTPSlot index={5} />
+							{/* Pastikan InputOTPSlot menerima atribut tambahan */}
+							<InputOTPSlot index={0} inputMode="numeric" />
+							<InputOTPSlot index={1} inputMode="numeric" />
+							<InputOTPSlot index={2} inputMode="numeric" />
+							<InputOTPSlot index={3} inputMode="numeric" />
+							<InputOTPSlot index={4} inputMode="numeric" />
+							<InputOTPSlot index={5} inputMode="numeric" />
 						</InputOTPGroup>
 					</InputOTP>
 					<div className="text-center text-sm">
@@ -189,6 +194,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 						</p>
 					)}
 				</div>
+
 				{showNotification && (
 					<div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 z-20 flex items-center justify-center">
 						<div className="bg-white w-[90%] rounded-lg m-auto p-5">

@@ -8,7 +8,6 @@ import ovo from "@/images/ovo.jpg";
 import dana from "@/images/dana.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import axios from "axios";
 import axiosInstance from "@/hooks/axiosInstance";
 
 export const admissionFees = [

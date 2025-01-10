@@ -37,14 +37,14 @@ const Signup = () => {
             message: "Please select the gender",
         }),
         dateOfBirth: z
-        .preprocess((value) => {
-            if (typeof value === "string") {
-                return new Date(value);
-            }
-            return value;
-        }, z.date().max(new Date(), {
-            message: "Date of birth cannot be in the future.",
-        })),
+            .preprocess((value) => {
+                if (typeof value === "string") {
+                    return new Date(value);
+                }
+                return value;
+            }, z.date().max(new Date(), {
+                message: "Date of birth cannot be in the future.",
+            })),
         email: z.string().email({
             message: "Invalid email address.",
         }),
@@ -332,24 +332,24 @@ const Signup = () => {
                                                 </FormItem>
                                             )}
                                         />
-                                           <FormField
-                                                control={formUser.control}
-                                                name="dateOfBirth"
-                                                render={({ field }) => (
-                                                    <FormItem className="w-full">
-                                                        <FormControl>
-                                                            <Input
-                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                                type="date"
-                                                                {...field}
-                                                                value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value || ''}
-                                                                onChange={(e) => field.onChange(e.target.value)}  // Ensure the value is updated as a string
-                                                            />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
+                                        <FormField
+                                            control={formUser.control}
+                                            name="dateOfBirth"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input
+                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                            type="date"
+                                                            {...field}
+                                                            value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value || ''}
+                                                            onChange={(e) => field.onChange(e.target.value)}  // Ensure the value is updated as a string
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
                                         <FormField
                                             control={formUser.control}
                                             name="email"
@@ -622,37 +622,43 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <input
-                                                            {...field}  // Spread field props
-                                                            type="file"
-                                                            accept="image/*"
-                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                            onChange={(e) => {
-                                                                const file = e.target.files ? e.target.files[0] : null;
+                                                        <>
+                                                            <p className="font-bold">
+                                                                Photo Profile
+                                                            </p>
 
-                                                                if (file) {
-                                                                    // Validate file size (max 2MB)
-                                                                    if (file.size > 2 * 1024 * 1024) {
-                                                                        alert("File size exceeds 2MB.");
-                                                                        return;
+                                                            <input
+                                                                {...field}  // Spread field props
+                                                                type="file"
+                                                                accept="image/*"
+                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                                onChange={(e) => {
+                                                                    const file = e.target.files ? e.target.files[0] : null;
+
+                                                                    if (file) {
+                                                                        // Validate file size (max 2MB)
+                                                                        if (file.size > 2 * 1024 * 1024) {
+                                                                            alert("File size exceeds 2MB.");
+                                                                            return;
+                                                                        }
+
+                                                                        // Validate file type (JPEG, PNG, or GIF)
+                                                                        const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
+                                                                        if (!validImageTypes.includes(file.type)) {
+                                                                            alert("Invalid file type. Please upload an image (JPEG, PNG, or GIF).");
+                                                                            return;
+                                                                        }
+
+                                                                        // If file is valid, pass it to React Hook Form
+                                                                        field.onChange(file); // Pass the file to the form state
+                                                                    } else {
+                                                                        field.onChange(null);  // Reset the field if no file is selected
                                                                     }
-
-                                                                    // Validate file type (JPEG, PNG, or GIF)
-                                                                    const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
-                                                                    if (!validImageTypes.includes(file.type)) {
-                                                                        alert("Invalid file type. Please upload an image (JPEG, PNG, or GIF).");
-                                                                        return;
-                                                                    }
-
-                                                                    // If file is valid, pass it to React Hook Form
-                                                                    field.onChange(file); // Pass the file to the form state
-                                                                } else {
-                                                                    field.onChange(null);  // Reset the field if no file is selected
-                                                                }
-                                                            }}
-                                                            // `value` should not be directly bound to `field.value` for file input
-                                                            value="" // Clear the value for file input as file input type does not accept string values
-                                                        />
+                                                                }}
+                                                                // `value` should not be directly bound to `field.value` for file input
+                                                                value="" // Clear the value for file input as file input type does not accept string values
+                                                            />
+                                                        </>
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

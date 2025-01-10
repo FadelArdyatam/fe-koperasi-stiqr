@@ -107,7 +107,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
         formData.append('product_status', 'true');
         formData.append('product_description', data.description || '');
 
-        const token = localStorage.getItem("token");
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
@@ -120,7 +119,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
             console.log(data.photo)
         }
 
-      
+
         try {
             // API request
             const response = await axiosInstance.post(
@@ -134,7 +133,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
                     product_id: response?.data?.data?.product_id,
                     showcase_id: selectedEtalase,
                 },
-                
+
             )
 
             // // Add to local state with the returned image URL
