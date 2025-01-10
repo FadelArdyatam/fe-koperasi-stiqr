@@ -180,7 +180,7 @@ const Catalog = () => {
                 <div className="w-full flex items-center gap-5 justify-between">
                     <p className="font-semibold text-2xl">Katalog</p>
 
-                    <Button className="bg-orange-100 rounded-full text-orange-500">Impor Produk</Button>
+                    <Button className={`${show === 'Produk' || show === 'Etalase' ? 'block' : 'hidden'} bg-orange-100 rounded-full text-orange-500`}>Impor Produk</Button>
                 </div>
 
                 <div className="mt-10 relative">

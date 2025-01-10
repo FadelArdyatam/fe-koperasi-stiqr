@@ -62,12 +62,12 @@ const DataMerchant = () => {
             });
             console.log("Data merchant berhasil diubah:", response.data);
             setShowNotification(true)
-        } catch (error:any) {
+        } catch (error: any) {
             console.log(error)
-        } 
+        }
     }
 
-    const [isUpdate,setIsUpdate] = useState(false)
+    const [isUpdate, setIsUpdate] = useState(false)
 
     useEffect(() => {
         const userItem = sessionStorage.getItem("user");
@@ -216,7 +216,7 @@ const DataMerchant = () => {
                     </div>
                 </div>
 
-                <Button onClick={handleEditClick} className="w-[90%] block bg-green-400">Edit</Button>
+                <Button onClick={handleEditClick} className="w-[90%] block bg-green-400 -mt-12">Edit</Button>
             </div>
 
             <div className={`${showEdit ? 'flex' : 'hidden'} w-full flex-col min-h-screen items-center`}>

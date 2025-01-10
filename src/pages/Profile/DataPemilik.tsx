@@ -54,7 +54,7 @@ const DataPemilik = () => {
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
 
-    const [isUpdate,setIsUpdate] = useState(false)
+    const [isUpdate, setIsUpdate] = useState(false)
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         try {
             const response = await axiosInstance.put(`/users/${userData.id}/update`, {
@@ -63,13 +63,13 @@ const DataPemilik = () => {
                 phone_number: data.phoneNumber,
                 dob: data.dateOfBirth,
             })
-            if(response.data.statusCode ==200) {
+            if (response.data.statusCode == 200) {
                 console.log(response)
                 setShowNotification(true)
                 sessionStorage.setItem("user", JSON.stringify(response.data.data));
                 setIsUpdate(true)
             }
-        } catch (error :any) {
+        } catch (error: any) {
             console.log(error)
         }
     }
@@ -219,7 +219,7 @@ const DataPemilik = () => {
                         <Image />
                     </div>
                 </div>
-                <Button onClick={handleEditClick} className="w-[90%] bg-green-400">Edit</Button>
+                <Button onClick={handleEditClick} className="w-[90%] bg-green-400 -mt-12">Edit</Button>
 
             </div>
 

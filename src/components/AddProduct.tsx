@@ -117,7 +117,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
             console.log(data.photo)
         }
 
-      
+
         try {
             const response = await axiosInstance.post(
                 "/product/create",
@@ -130,7 +130,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
                     product_id: response?.data?.data?.product_id,
                     showcase_id: selectedEtalase,
                 },
-                
+
             )
 
             // // Add to local state with the returned image URL

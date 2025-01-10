@@ -11,6 +11,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
+import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, Key } from "react";
 
 
 interface EditEmployeeProps {
@@ -79,6 +80,19 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
 
         setOpen({ id: -1, status: false });
     }
+
+    const accordionData = [
+        {
+            title: "Manager",
+            spoiler: "Manager dengan akses penuh",
+            content: ["Mengelola pegawai", "Mengelola keuangan", "Mengelola inventaris"]
+        },
+        {
+            title: "Kasir",
+            spoiler: "Kasir dengan akses terbatas",
+            content: ["Melakukan transaksi penjualan", "Mencetak struk"]
+        }
+    ];
 
     return (
         <div className="p-5 w-full mb-32">
@@ -173,7 +187,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
                                 <FormControl>
                                     <div className="space-y-2">
                                         {["Manager", "Kasir"].map((option) => {
-                                            const accordionData = accordionDatas.find((data) => data.title === option);
+                                            const accordionDataItem = accordionData.find((data) => data.title === option);
 
                                             return (
                                                 <div key={option} className="p-5 bg-orange-50 rounded-lg">
@@ -189,20 +203,20 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
                                                     </label>
 
                                                     {/* Spoiler */}
-                                                    {accordionData && (
+                                                    {accordionDataItem && (
                                                         <p className="mt-5 text-gray-500 text-sm">
-                                                            {accordionData.spoiler}
+                                                            {accordionDataItem.spoiler}
                                                         </p>
                                                     )}
 
                                                     {/* Accordion */}
-                                                    {accordionData && (
+                                                    {accordionDataItem && (
                                                         <Accordion type="single" collapsible className="w-full mt-4">
                                                             <AccordionItem value={`item-${option}`}>
                                                                 <AccordionTrigger className="text-blue-500">Selengkapnya</AccordionTrigger>
                                                                 <AccordionContent>
                                                                     <ul className="list-disc list-inside space-y-2">
-                                                                        {accordionData.content.map((task, index) => (
+                                                                        {accordionDataItem.content.map((task: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined, index: Key | null | undefined) => (
                                                                             <li key={index}>{task}</li>
                                                                         ))}
                                                                     </ul>

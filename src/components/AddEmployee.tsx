@@ -17,10 +17,9 @@ interface AddEmployeeProps {
 interface Role {
     role_id: string;
     role_name: string;
-    role_description: string;
+    role_description?: string;
 }
-
-const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee,setIsSuccess }) => {
+const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess }) => {
     const [showNotification, setShowNotification] = useState(false);
 
     const FormSchema = z.object({
@@ -45,26 +44,26 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee,setIsSuccess }
     const [roles, setRoles] = useState<Role[]>([]);
     useEffect(() => {
         const fetchRoles = async () => {
-          try {
-            const response = await axiosInstance.get("/employee/roles/all");
-            setRoles(response.data.data);
-            console.log(response.data);
-          } catch (error: any) {
-            console.error(error);
-          }
+            try {
+                const response = await axiosInstance.get("/employee/roles/all");
+                setRoles(response.data.data);
+                console.log(response.data);
+            } catch (error: any) {
+                console.error(error);
+            }
         };
-      
+
         fetchRoles();
-      }, []);
+    }, []);
 
     const handleDone = () => {
         setIsSuccess(true),
-        setShowNotification(false),
-        setAddEmployee(false)
+            setShowNotification(false),
+            setAddEmployee(false)
     }
     const handleAddEmployee = () => {
         setIsSuccess(false),
-        setAddEmployee(true)
+            setAddEmployee(true)
     }
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         const userItem = sessionStorage.getItem("user");
@@ -82,7 +81,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee,setIsSuccess }
 
         try {
             const response = await axiosInstance.post("/employee/create", newEmployeeToAPI);
-            if(response.data.status) {
+            if (response.data.status) {
                 setShowNotification(true);
                 setIsSuccess(true);
             }
@@ -205,7 +204,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee,setIsSuccess }
                                     <FormLabel>Peran Pegawai</FormLabel>
                                     <FormControl>
                                         <div className="space-y-2">
-                                            {roles.map((role,i) => {
+                                            {roles.map((role, i) => {
                                                 return (
                                                     <div key={i} className="p-5 bg-orange-50 rounded-lg">
                                                         <label className="flex items-center w-full justify-between gap-2">

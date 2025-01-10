@@ -76,6 +76,7 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
      
+        // User information from sessionStorage
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
