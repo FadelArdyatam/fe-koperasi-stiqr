@@ -1,5 +1,5 @@
 import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, Image, ChevronRight, Check, FileText } from "lucide-react"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import axiosInstance from "@/hooks/axiosInstance";
 
 const dataPayments = [
     {
@@ -26,6 +27,13 @@ const dataPayments = [
     }
 ]
 
+interface Account {
+    bank_name: string;
+    account_number: string;
+    owner_name: string;
+    // savingBook: string | File;
+}
+
 const DataPembayaran = () => {
     const [showContent, setShowContent] = useState({ show: false, index: -1 });
     const [isAdding, setIsAdding] = useState(false);
@@ -33,7 +41,6 @@ const DataPembayaran = () => {
     const [showNotification, setShowNotification] = useState(false)
 
     const FormSchema = z.object({
-        title: z.string().min(3),
         bankName: z.string().min(3),
         accountNumber: z.string().min(10),
         ownerName: z.string().min(3),
@@ -43,13 +50,25 @@ const DataPembayaran = () => {
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            title: '',
             bankName: '',
             accountNumber: '',
             ownerName: '',
             savingBook: undefined
         },
     })
+
+    const [accounts,setAccounts]  = useState<Account[]>([]);
+    async function fetchData() {
+        try {
+            const response = await axiosInstance.get('/account');
+            setAccounts(response.data);
+        } catch (error:any) {
+            console.error("Failed to fetch data:", error.message);
+        } 
+    }
+    useEffect(() => {
+        fetchData()
+    }, []);
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log("Form data:", data);
@@ -72,7 +91,6 @@ const DataPembayaran = () => {
             return;
         }
 
-        // Struktur data untuk POST ke database
         const formData = new FormData();
         formData.append("bank_name", data.bankName);
         formData.append("account_number", data.accountNumber);
@@ -87,33 +105,15 @@ const DataPembayaran = () => {
         formData.append("user_id", userData.id);
 
         try {
-            // Kirim data ke endpoint API
-            const response = await axios.post(
-                "https://be-stiqr.dnstech.co.id/api/account/create",
+            const response = await axiosInstance.post(
+                "/account/create",
                 formData,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                        "Authorization": `Bearer ${token}`,
-                    },
-                }
             );
 
             console.log("Response from API:", response.data);
 
-            // Notifikasi sukses
             setShowNotification(true);
 
-            // Tambahkan data ke dataPayments untuk ditampilkan di UI
-            const newBank = {
-                title: data.title,
-                bankName: data.bankName,
-                accountNumber: data.accountNumber,
-                ownerName: data.ownerName,
-                savingBook: data.savingBook instanceof File ? URL.createObjectURL(data.savingBook) : data.savingBook, // Buat URL dari file untuk pratinjau
-            };
-
-            dataPayments.push(newBank);
             console.log("Updated dataPayments:", dataPayments);
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -183,15 +183,15 @@ const DataPembayaran = () => {
             </div>
 
             <div className={`${showContent.show === false && !isAdding ? 'block' : 'hidden'} bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20`}>
-                {dataPayments.map((_, index) => (
+                {accounts.map((account, index) => (
                     <div key={index}>
                         <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] my-5 bg-gray-200`}></div>
 
                         <button onClick={() => setShowContent({ show: true, index })} className="flex w-full items-center gap-5 justify-between">
                             <div className="flex flex-col items-start">
-                                <p>Data Pembayaran</p>
+                                <p>{account.bank_name}</p>
 
-                                <p className="text-sm text-gray-500">Nama Bank, Nomer Bank</p>
+                                <p className="text-sm text-gray-500">{account.owner_name}, {account.account_number}</p>
                             </div>
 
                             <ChevronRight />
@@ -251,20 +251,6 @@ const DataPembayaran = () => {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)}>
                         <div className={'flex flex-col items-end w-full md:w-2/3 space-y-7'}>
-                            <FormField
-                                control={form.control}
-                                name="title"
-                                render={({ field }) => (
-                                    <FormItem className="w-full">
-                                        <FormLabel className="text-gray-500">Title</FormLabel>
-
-                                        <FormControl>
-                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
 
                             <FormField
                                 control={form.control}
@@ -347,38 +333,22 @@ const DataPembayaran = () => {
                 <Form {...form}>
                     <form
                         onSubmit={form.handleSubmit((data) => {
-                            // Update the dataPayments array
                             dataPayments[showContent.index] = {
                                 ...dataPayments[showContent.index],
-                                title: data.title,
                                 bankName: data.bankName,
                                 accountNumber: data.accountNumber,
                                 ownerName: data.ownerName,
                                 savingBook: data.savingBook instanceof File ? URL.createObjectURL(data.savingBook) : data.savingBook,
                             };
 
-                            setShowEdit(false); // Close the edit form
-                            setShowContent({ show: true, index: showContent.index }); // Return to detail view
+                            setShowEdit(false); 
+                            setShowContent({ show: true, index: showContent.index }); 
 
-                            setShowNotification(true); // Show notification
+                            setShowNotification(true);
                         })}
                     >
                         <div className="flex flex-col items-end w-full md:w-2/3 space-y-7">
-                            <FormField
-                                control={form.control}
-                                name="title"
-                                defaultValue={dataPayments[showContent.index]?.title}
-                                render={({ field }) => (
-                                    <FormItem className="w-full">
-                                        <FormLabel className="text-gray-500">Title</FormLabel>
-                                        <FormControl>
-                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
+                            
                             <FormField
                                 control={form.control}
                                 name="bankName"

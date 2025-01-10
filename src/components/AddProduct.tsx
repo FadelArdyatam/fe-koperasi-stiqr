@@ -98,7 +98,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         const formData = new FormData();
 
-        // Append all the product data
         formData.append('product_name', data.name);
         formData.append('product_sku', data.SKU);
         formData.append('product_weight', data.weight + quantity);
@@ -107,13 +106,11 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
         formData.append('product_status', 'true');
         formData.append('product_description', data.description || '');
 
-        const token = localStorage.getItem("token");
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
         formData.append('merchant_id', userData?.merchant?.id || 'Unknown');
 
-        // Append the photo if it exists
         if (data.photo) {
             formData.append('product_image', data.photo);
 
@@ -122,7 +119,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
 
       
         try {
-            // API request
             const response = await axiosInstance.post(
                 "/product/create",
                 formData,

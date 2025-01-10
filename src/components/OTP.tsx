@@ -5,7 +5,6 @@ import {
 } from "@/components/ui/input-otp";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { CircleCheck } from "lucide-react";
 
 interface OTPProps {
 	currentSection: number;

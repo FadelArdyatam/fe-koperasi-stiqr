@@ -15,6 +15,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Checkbox } from "./ui/checkbox";
 import axiosInstance from "@/hooks/axiosInstance";
+import axios from "axios";
 
 interface AddPrinterProps {
     setShowManualInputPrinter: (showManualInputPrinter: boolean) => void;
@@ -74,19 +75,15 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
     }
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
-        // Token Bearer from Local Storage
-        const token = localStorage.getItem("token");
-
-        // User information from sessionStorage
+     
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
-        // Prepare the request body
         const printerPayload = {
             printer_name: data.name,
             mac_address: data.macAddress,
-            is_active: true, // Assuming the printer is active by default
-            merchant_id: userData?.merchant?.id || "", // Ensure merchant_id is provided
+            is_active: true,
+            merchant_id: userData?.merchant?.id || "", 
         };
 
         try {
@@ -108,7 +105,7 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
 
             // Hide the manual input modal
             setShowManualInputPrinter(false);
-        } catch (error) {
+        } catch (error:any) {
             console.error("Error while adding printer:", error);
 
             if (axios.isAxiosError(error) && error.response) {

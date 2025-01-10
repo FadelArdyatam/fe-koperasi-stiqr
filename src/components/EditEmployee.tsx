@@ -24,6 +24,7 @@ interface EditEmployeeProps {
         email: string;
         password: string;
         role_description: string;
+        // role: any;
     }>;
     setEmployees: (employee: Array<{
         role_id: string;

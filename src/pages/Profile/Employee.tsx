@@ -63,6 +63,7 @@ interface Employee {
     email: string;
     password: string;
     role_description: string;
+    // role: {}
 }
 
 const Employee = () => {
@@ -75,14 +76,11 @@ const Employee = () => {
     });
     const [isSuccess,setIsSuccess] = useState(false);
     useEffect(() => {
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
-
         const fetchData = async () => {
             try {
                 const response = await axiosInstance.get(`/employee`)
                 setEmployees(response.data.data)
-            } catch (error) {
+            } catch (error:any) {
                 console.log(error)
             }
         };

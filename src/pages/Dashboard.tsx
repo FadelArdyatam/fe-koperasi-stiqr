@@ -1,6 +1,6 @@
-import { ChevronDown, CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, UserRound, ChevronUp, X, FileText } from "lucide-react";
+import {  CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, UserRound, X, FileText } from "lucide-react";
 import logo from "@/images/logo.png";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
+// import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useState } from "react";
 import linkaja from "@/images/linkaja.jpg";
 import gopay from "@/images/gopay.png";
@@ -8,8 +8,8 @@ import ovo from "@/images/ovo.jpg";
 import dana from "@/images/dana.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import axios from "axios";
 import axiosInstance from "@/hooks/axiosInstance";
+import { formatRupiah } from "@/hooks/convertRupiah";
 
 export const admissionFees = [
     {
@@ -65,23 +65,31 @@ type TokenPayload = {
 };
 
 const Dashboard = () => {
-    const [field, setField] = useState({ value: "" });
+    // const [field, setField] = useState({ value: "" });
     const navigate = useNavigate();
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to track dropdown open status
+    // const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to track dropdown open status
     const [showNotification, setShowNotification] = useState(true);
     const [balance, setBalance] = useState(0);
     const [user, setUser] = useState<any>();
 
-    const toggleDropdown = () => {
-        setIsDropdownOpen((prev) => !prev); // Toggle the dropdown state
-    };
+    const [uangMasuk,setUangMasuk] = useState(0);
+    const [uangKeluar,setUangKeluar] = useState(0);
 
-    const handleDropdownChange = (value: string) => {
-        setField({ value }); // Update the field state with the selected value
-    };
+    // const toggleDropdown = () => {
+    //     setIsDropdownOpen((prev) => !prev); 
+    // };
+
+    // const handleDropdownChange = (value: string) => {
+    //     setField({ value }); 
+    // };
 
     useEffect(() => {
-        const checkTokenValidity = async () => {
+           // Ambil informasi user dari sessionStorage
+           const userItem = sessionStorage.getItem("user");
+           const userData = userItem ? JSON.parse(userItem) : null;
+           setUser(userData);
+
+        const checkTokenValidity =  () => {
             const token = localStorage.getItem("token");
 
             if (!token) {
@@ -110,11 +118,6 @@ const Dashboard = () => {
         const checkProfile = async () => {
             const token = localStorage.getItem("token");
 
-            // Ambil informasi user dari sessionStorage
-            const userItem = sessionStorage.getItem("user");
-            const userData = userItem ? JSON.parse(userItem) : null;
-            setUser(userData);
-
             if (!token) {
                 console.warn("Token tidak ditemukan untuk otorisasi.");
                 return;
@@ -126,18 +129,49 @@ const Dashboard = () => {
                 );
 
                 console.log("Profile Response:", response.data);
-                setBalance(response.data.data.balence_amount);
-            } catch (err) {
+                setBalance(response.data);
+            } catch (err:any) {
                 console.error("Error saat mengambil profile:", err);
             }
         };
 
+        const getMoney = async () => {
+            try {
+                const uangMasuk = await axiosInstance.get(`/balance/in/${userData.merchant.id}`)
+                setUangMasuk(uangMasuk.data);
+                const uangKeluar = await axiosInstance.get(`/balance/out/${userData.merchant.id}`)
+                setUangKeluar(uangKeluar.data);
+            } catch (error:any) {
+                console.log(error)
+            }
+        }
+
         checkTokenValidity();
         checkProfile();
+        getMoney();
     }, [navigate]);
 
-    console.log(field.value);
+    
+    const [histories,setHistories] = useState<any[]>([]);
+    useEffect(() => {
+          // Ambil informasi user dari sessionStorage
+          const userItem = sessionStorage.getItem("user");
+          const userData = userItem ? JSON.parse(userItem) : null;
+          setUser(userData);
 
+        const getTransaction = async () => {
+            try {
+                const response = await axiosInstance.get(
+                    `/transactions/${userData.merchant.id}`,
+                );
+                console.log("Transaction Response:", response.data);
+                setHistories(response.data);
+            } catch (err:any) {
+            console.log(err)
+            }
+        }
+        getTransaction()
+    }, []);
     return (
         <div className="w-full">
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -227,7 +261,7 @@ const Dashboard = () => {
                         <div>
                             <p className="text-xs text-gray-500">Uang Masuk</p>
 
-                            <p className="text-sm font-semibold">IDR 500.000</p>
+                            <p className="text-sm font-semibold">{formatRupiah(uangMasuk)}</p>
                         </div>
                     </div>
 
@@ -241,7 +275,7 @@ const Dashboard = () => {
                         <div>
                             <p className="text-xs text-gray-500">Uang Keluar</p>
 
-                            <p className="text-sm font-semibold">IDR 300.000</p>
+                            <p className="text-sm font-semibold">{formatRupiah(uangKeluar)}</p>
                         </div>
                     </div>
                 </div>
@@ -283,9 +317,17 @@ const Dashboard = () => {
 
             <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg p-5 bg-white shadow-lg">
                 <div className="flex items-center gap-5 justify-between">
-                    <p className="text-base font-semibold">Transaksi Terbaru</p>
+                <p className="text-base font-semibold">
+                    Transaksi Terbaru -{' '}
+                    {new Date().toLocaleDateString('id-ID', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric',
+                    })}
+                </p>
 
-                    <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+                <hr/>
+                    {/* <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                         <DropdownMenuTrigger asChild>
                             <div
                                 className="flex items-center gap-5 border border-black rounded-lg p-2 justify-between cursor-pointer"
@@ -293,7 +335,6 @@ const Dashboard = () => {
                             >
                                 <button>{field.value || "- Pilih -"}</button>
 
-                                {/* Change icon based on dropdown state */}
                                 {isDropdownOpen ? <ChevronUp /> : <ChevronDown />}
                             </div>
                         </DropdownMenuTrigger>
@@ -303,41 +344,60 @@ const Dashboard = () => {
                             <DropdownMenuItem onClick={() => handleDropdownChange("Minggu Ini")}>Minggu Ini</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleDropdownChange("Bulan Ini")}>Bulan Ini</DropdownMenuItem>
                         </DropdownMenuContent>
-                    </DropdownMenu>
+                    </DropdownMenu> */}
                 </div>
 
                 <div className="mt-10 flex flex-col gap-5">
-                    {admissionFees.map((admissionFee, index) => (
+                    {
+                        histories.length === 0 && (
+                            <div className="w-full mb-10 flex items-center justify-center text-center text-gray-500">
+                                Belum ada transaksi Hari ini
+                            </div>
+                        )
+                    }
+                    {histories.map((history, index) => (
                         <div key={index}>
                             <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] mb-5 bg-gray-300 rounded-full`}></div>
 
                             <div className="flex items-center justify-between">
                                 <div className="flex items-start gap-2">
-                                    <img src={admissionFee.image} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="" />
+                                    <img src={history.image} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
 
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <p className="uppercase text-sm">{admissionFee.title}</p>
+                                            <p className="uppercase text-sm">{history.payment.bank_name}</p>
 
-                                            <div className={`${admissionFee.status === 'success' ? 'bg-green-400' : admissionFee.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
-                                                <p>{admissionFee.status}</p>
+                                            <div className={`${history.transaction_status === 'success' ? 'bg-green-400' : history.transaction_status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
+                                                <p>{history.transaction_status}</p>
                                             </div>
                                         </div>
 
-                                        <p className="text-xs text-gray-400">{admissionFee.code}</p>
+                                        <p className="text-xs text-gray-400">{history.transaction_id}</p>
                                     </div>
                                 </div>
 
                                 <div className="flex flex-col items-end">
-                                    <p className="text-md font-semibold">Rp {new Intl.NumberFormat('id-ID').format(Number(admissionFee.amount))}</p>
+                                    <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
 
                                     <div className="flex items-center">
-                                        <p className="text-xs">{admissionFee.date}</p>
+                                        <p className="text-xs">
+                                            {new Date(history.transaction_date).toLocaleDateString('id-ID', {
+                                                day: '2-digit',
+                                                month: 'long',
+                                                year: 'numeric',
+                                            })}
+                                        </p>
 
                                         <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
 
-                                        <p className="text-xs">{admissionFee.time}</p>
+                                        <p className="text-xs">
+                                            {new Date(history.transaction_date).toLocaleTimeString('id-ID', {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            })}
+                                        </p>
                                     </div>
+
                                 </div>
                             </div>
                         </div>

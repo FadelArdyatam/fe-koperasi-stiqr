@@ -14,6 +14,12 @@ interface AddEmployeeProps {
     setIsSuccess: (value: boolean) => void;
 }
 
+interface Role {
+    role_id: string;
+    role_name: string;
+    role_description: string;
+}
+
 const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee,setIsSuccess }) => {
     const [showNotification, setShowNotification] = useState(false);
 
@@ -36,7 +42,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee,setIsSuccess }
         },
     });
 
-    const [roles, setRoles] = useState([]);
+    const [roles, setRoles] = useState<Role[]>([]);
     useEffect(() => {
         const fetchRoles = async () => {
           try {
