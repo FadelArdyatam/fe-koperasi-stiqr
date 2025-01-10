@@ -22,6 +22,7 @@ import DataPembayaran from './pages/Profile/DataPembayaran.tsx'
 import Catalog from './pages/Catalog/Catalog.tsx'
 import Employee from './pages/Profile/Employee.tsx'
 import Printer from './pages/Profile/Printer.tsx'
+import ResetPassword from './pages/ResetPassword.tsx'
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
   {
     path: '/forgot-password',
     element: <ForgotPassword />,
+  },
+  {
+    path: '/reset-password',
+    element: <ResetPassword />,
   },
   {
     path: '/dashboard',

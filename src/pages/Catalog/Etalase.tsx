@@ -99,7 +99,7 @@ const Etalase: React.FC<EtalaseProps> = ({ etalases, setEtalases, addEtalase, se
 
             {addEtalase && <AddEtalase setAddEtalase={setAddEtalase} etalases={etalases} setEtalases={setEtalases} />}
 
-            {open.status && <EditEtalase setOpen={setOpen} etalases={etalases} setEtalases={setEtalases} editIndex={open.id} open={open} products={products} />}
+            {open.status && <EditEtalase setOpen={setOpen} editIndex={open.id} open={open} products={products} />}
         </div>
     )
 }
