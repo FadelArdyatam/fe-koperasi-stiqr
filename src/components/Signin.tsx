@@ -28,9 +28,10 @@ const Signin = () => {
 				{ email, password }
 			);
 			console.log(response)
-			if(response.data.status == 'success') {
+			if (response.data.status == 'success') {
 				const token = response.data.access_token;
 				localStorage.setItem("token", token);
+				localStorage.setItem("userID", response.data.data.id);
 				sessionStorage.setItem("user", JSON.stringify(response.data.data));
 				navigate('/dashboard');
 			}

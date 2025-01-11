@@ -56,6 +56,7 @@ import { Link } from "react-router-dom"
 // ]
 
 interface Employee {
+    role: any;
     role_id: string;
     id: number;
     name: string;
@@ -74,13 +75,13 @@ const Employee = () => {
         id: -1,
         status: false,
     });
-    const [isSuccess,setIsSuccess] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await axiosInstance.get(`/employee`)
                 setEmployees(response.data.data)
-            } catch (error:any) {
+            } catch (error: any) {
                 console.log(error)
             }
         };
@@ -163,7 +164,7 @@ const Employee = () => {
                 <button onClick={() => {
                     setAddEmployee(true)
                     setIsSuccess(false)
-                    }} 
+                }}
                     className="fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500 p-3 rounded-full text-white">
                     Tambah Pegawai
                 </button>

@@ -108,70 +108,70 @@ const ForgotPassword = () => {
     }
     //
 
-    // Form for set new password
-    const FormNewPasswordSchema = z.object({
-        password: z
-            .string()
-            .min(8, { message: 'Password must be at least 8 characters long.' })
-            .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
-            .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
-            .regex(/\d/, { message: 'Password must contain at least one number.' }),
-        confirmPassword: z
-            .string()
-            .min(8, { message: 'Password must be at least 8 characters long.' })
-            .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
-            .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
-            .regex(/\d/, { message: 'Password must contain at least one number.' }),
-    }).refine((data) => data.password === data.confirmPassword, {
-        message: 'Passwords do not match.',
-        path: ['confirmPassword'], // Fokuskan error pada confirmPassword
-    })
+    // // Form for set new password
+    // const FormNewPasswordSchema = z.object({
+    //     password: z
+    //         .string()
+    //         .min(8, { message: 'Password must be at least 8 characters long.' })
+    //         .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
+    //         .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
+    //         .regex(/\d/, { message: 'Password must contain at least one number.' }),
+    //     confirmPassword: z
+    //         .string()
+    //         .min(8, { message: 'Password must be at least 8 characters long.' })
+    //         .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
+    //         .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
+    //         .regex(/\d/, { message: 'Password must contain at least one number.' }),
+    // }).refine((data) => data.password === data.confirmPassword, {
+    //     message: 'Passwords do not match.',
+    //     path: ['confirmPassword'], // Fokuskan error pada confirmPassword
+    // })
 
-    const formNewPassword = useForm<z.infer<typeof FormNewPasswordSchema>>({
-        resolver: zodResolver(FormNewPasswordSchema),
-        defaultValues: {
-            password: "",
-            confirmPassword: "",
-        },
-    })
+    // const formNewPassword = useForm<z.infer<typeof FormNewPasswordSchema>>({
+    //     resolver: zodResolver(FormNewPasswordSchema),
+    //     defaultValues: {
+    //         password: "",
+    //         confirmPassword: "",
+    //     },
+    // })
 
-    const onSubmitNewPassword = async (data: z.infer<typeof FormNewPasswordSchema>) => {
-        console.log("Submitted data:", data);
+    // const onSubmitNewPassword = async (data: z.infer<typeof FormNewPasswordSchema>) => {
+    //     console.log("Submitted data:", data);
 
-        // Ambil informasi user dari sessionStorage
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
+    //     // Ambil informasi user dari sessionStorage
+    //     const userItem = sessionStorage.getItem("user");
+    //     const userData = userItem ? JSON.parse(userItem) : null;
 
-        try {
-            // Kirim data ke endpoint menggunakan Axios
-            const response = await axios.patch(`/api/auth/forgotpassword/${userData.id}`, {
-                password: data.password,
-                confirmPassword: data.confirmPassword,
-            });
+    //     try {
+    //         // Kirim data ke endpoint menggunakan Axios
+    //         const response = await axios.patch(`/api/auth/forgotpassword/${userData.id}`, {
+    //             password: data.password,
+    //             confirmPassword: data.confirmPassword,
+    //         });
 
-            console.log("Success:", response.data);
+    //         console.log("Success:", response.data);
 
-            // Atur notifikasi berhasil
-            setNotification({
-                status: true,
-                address: 'Your password has been successfully updated!',
-                notificationSuccess: true,
-            });
-        } catch (error) {
-            console.error("Error submitting new password:", error);
+    //         // Atur notifikasi berhasil
+    //         setNotification({
+    //             status: true,
+    //             address: 'Your password has been successfully updated!',
+    //             notificationSuccess: true,
+    //         });
+    //     } catch (error) {
+    //         console.error("Error submitting new password:", error);
 
-            // Tangani error dengan memeriksa response Axios
-            const errorMessage = (error as any).response?.data?.message || "Failed to update the password. Please try again.";
+    //         // Tangani error dengan memeriksa response Axios
+    //         const errorMessage = (error as any).response?.data?.message || "Failed to update the password. Please try again.";
 
-            // Atur notifikasi gagal
-            setNotification({
-                status: true,
-                address: errorMessage,
-                notificationSuccess: false,
-            });
-        }
-    };
-    //
+    //         // Atur notifikasi gagal
+    //         setNotification({
+    //             status: true,
+    //             address: errorMessage,
+    //             notificationSuccess: false,
+    //         });
+    //     }
+    // };
+    // //
 
     const closeNotificationHandler = () => {
         setNotification({ status: false, address: '', notificationSuccess: false })
@@ -325,7 +325,7 @@ const ForgotPassword = () => {
                     </>
                 )}
 
-                {showAddNewPassword && (
+                {/* {showAddNewPassword && (
                     <Form {...formNewPassword}>
                         <form onSubmit={formNewPassword.handleSubmit(onSubmitNewPassword)} className={`${Notification.status ? 'hidden' : 'block'}`}>
                             <FormField
@@ -369,7 +369,7 @@ const ForgotPassword = () => {
                             </Button>
                         </form>
                     </Form>
-                )}
+                )} */}
 
                 <div className={`${Notification.notificationSuccess ? 'flex' : 'hidden'} items-center justify-center fixed bg-black bg-opacity-50 left-0 right-0 top-0 bottom-0`}>
                     <div className="w-[90%] bg-white p-3 mt-5 rounded-lg flex items-center flex-col gap-5">

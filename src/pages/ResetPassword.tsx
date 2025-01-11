@@ -5,15 +5,19 @@ import axios from "axios";
 import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { z } from "zod";
+import Notification from "@/components/Notification"; // Import komponen notifikasi
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();
     const [isValid, setIsValid] = useState<boolean | null>(null);
     const [errorMessage, setErrorMessage] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [notification, setNotification] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-    // Deklarasi form di awal
+    const navigate = useNavigate();
+
     const FormNewPasswordSchema = z.object({
         password: z
             .string()
@@ -74,29 +78,53 @@ const ResetPassword = () => {
     };
 
     const onSubmitNewPassword = async (data: z.infer<typeof FormNewPasswordSchema>) => {
-        console.log("Submitted data:", data);
-
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
-
-        console.log(userData)
+        setIsLoading(true); // Mulai loading
+        setErrorMessage(""); // Reset pesan kesalahan
 
         try {
-            const response = await axios.patch(`https://be-stiqr.dnstech.co.id/api/auth/forgotpassword/${userData?.id}`, {
-                password: data.password,
-                confirmPassword: data.confirmPassword,
-            });
+            const response = await axios.post(
+                `https://be-stiqr.dnstech.co.id/api/auth/reset-password/`,
+                {
+                    token: searchParams.get('token'),
+                    password: data.password,
+                    confirmPassword: data.confirmPassword,
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
 
             console.log("Success:", response.data);
+
+            // Tampilkan notifikasi sukses
+            setNotification({ message: "Password berhasil diubah!", type: "success" });
+
+            setTimeout(() => {
+                navigate('/'); // Arahkan ke halaman utama setelah 2 detik
+            }, 2000);
         } catch (error) {
             console.error("Error submitting new password:", error);
             const errorMessage = (error as any).response?.data?.message || "Failed to update the password. Please try again.";
-            console.log(errorMessage);
+            setErrorMessage(errorMessage);
+
+            // Tampilkan notifikasi error
+            setNotification({ message: errorMessage, type: "error" });
+        } finally {
+            setIsLoading(false); // Akhiri loading
         }
     };
 
     return (
         <div className="w-full flex flex-col min-h-screen">
+            {notification && (
+                <Notification
+                    message={notification.message}
+                    onClose={() => setNotification(null)} // Hapus notifikasi saat ditutup
+                />
+            )}
+
             <div className='fixed w-full top-0 p-5 flex items-center justify-center bg-orange-400'>
                 <Link to={'/'} className='absolute left-5 bg-transparent hover:bg-transparent'>
                     <ChevronLeft className='scale-[1.3] text-white' />
@@ -107,7 +135,7 @@ const ResetPassword = () => {
 
             {isValid === null && <p className="mt-20 text-center">Loading...</p>}
 
-            {isValid === false && <p className="mt-20 text-center">{errorMessage}</p>}
+            {isValid === false && <p className="mt-20 text-center text-red-500">{errorMessage}</p>}
 
             {isValid && (
                 <Form {...formNewPassword}>
@@ -148,8 +176,12 @@ const ResetPassword = () => {
                             )}
                         />
 
-                        <Button type="submit" className="bg-[#7ED321] px-5 py-3 mt-10 w-full text-white rounded-lg">
-                            Kirim
+                        <Button
+                            type="submit"
+                            className="bg-[#7ED321] px-5 py-3 mt-10 w-full text-white rounded-lg"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "Loading..." : "Kirim"}
                         </Button>
                     </form>
                 </Form>
