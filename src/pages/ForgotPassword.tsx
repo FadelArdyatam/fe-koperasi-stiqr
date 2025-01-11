@@ -66,7 +66,7 @@ const ForgotPassword = () => {
     async function onSubmitEmail(data: z.infer<typeof FormEmailSchema>) {
         try {
             // Kirim data ke endpoint menggunakan Axios
-            const response = await axios.post("/api/auth/forgot-password", {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
                 email: data.email,
             });
 

@@ -45,7 +45,7 @@ const ResetPassword = () => {
     });
 
     useEffect(() => {
-        const token = searchParams.get('token'); // Ambil token dari URL
+        const token = searchParams.get('token'); 
         if (token) {
             validateToken(token);
         } else {
@@ -56,7 +56,7 @@ const ResetPassword = () => {
 
     const validateToken = async (token: string) => {
         try {
-            const response = await fetch(`https://be-stiqr.dnstech.co.id/api/auth/validate-token?token=${token}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/validate-token?token=${token}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -78,12 +78,12 @@ const ResetPassword = () => {
     };
 
     const onSubmitNewPassword = async (data: z.infer<typeof FormNewPasswordSchema>) => {
-        setIsLoading(true); // Mulai loading
+        setIsLoading(true); 
         setErrorMessage(""); // Reset pesan kesalahan
 
         try {
             const response = await axios.post(
-                `https://be-stiqr.dnstech.co.id/api/auth/reset-password/`,
+                `${import.meta.env.VITE_API_URL}/auth/reset-password/`,
                 {
                     token: searchParams.get('token'),
                     password: data.password,
