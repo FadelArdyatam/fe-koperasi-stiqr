@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { ChevronLeft, CircleCheck } from "lucide-react";
 import { useState } from "react";
+import axiosInstance from "@/hooks/axiosInstance";
 
 interface Choice {
     name: string;
@@ -22,20 +23,6 @@ interface Choice {
 
 interface AddVariantProps {
     setAddVariant: (value: boolean) => void;
-    variants: Array<{
-        id: number;
-        variant_id: string;
-        variant_name: string;
-        product_id: string;
-        variant_description: string;
-        is_multiple: boolean;
-        merchant_id: string;
-        products: number[];
-        mustBeSelected: boolean;
-        methods: string;
-        choises: [];
-        showVariant: boolean;
-    }>;
     products: Array<{
         id: number,
         product_id: string,
@@ -53,7 +40,7 @@ interface AddVariantProps {
     }>;
 }
 
-const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, products }) => {
+const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products }) => {
     const [showChoisesInput, setShowChoisesInput] = useState(false);
     const [showEditChoisesInput, setShowEditChoisesInput] = useState({ status: false, index: -1 });
     const [newChoiceName, setNewChoiceName] = useState("");
@@ -73,7 +60,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, produc
         ),
         mustBeSelected: z.boolean(),
         methods: z.string().nonempty("Metode wajib dipilih"),
-        products: z.array(z.number()),
+        products: z.array(z.string()),
         showVariant: z.boolean(),
     });
 
@@ -89,30 +76,36 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, produc
         },
     });
 
-    const onSubmit = (data: z.infer<typeof FormSchema>) => {
-        const newVariant = {
-            id: variants.length + 1,
-            name: data.name,
-            choises: data.choises,
-            mustBeSelected: data.mustBeSelected,
-            methods: data.methods,
-            products: data.products,
-            showVariant: data.showVariant,
+    const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
+        const payload = {
+            variant_name: data.name,
+            product_id: data.products.join(","), // Konversi array ke string dengan koma
+            variant_description: "Deskripsi untuk variant", // Bisa diambil dari form jika diperlukan
+            is_multiple: data.methods === "more",
+            multiple_value: displayChoises.map((choice) => choice.name).join(", "), // Semua pilihan nama
+            merchant_id: userData?.merchant?.id, // ID merchant
         };
 
-        // setVariants([...variants, newVariant]);
+        console.log(data);
 
-        // // To update the variants field in products
-        // products.map((product) => {
-        //     if (data.products.includes(product.id)) {
-        //         const updatedVariants = [...product.variants, newVariant.id];
-        //         product.variants = updatedVariants;
-        //     }
-        // })
+        try {
+            const response = await axiosInstance.post(
+                "/varian/create",
+                payload
+            );
 
-        console.log("New variant:", newVariant);
-
-        setShowNotification(true);
+            if (response.status === 200 || response.status === 201) {
+                console.log("Varian berhasil ditambahkan:", response.data);
+                setShowNotification(true);
+            } else {
+                console.error("Gagal menambahkan varian:", response.data);
+            }
+        } catch (error: any) {
+            console.error("Terjadi kesalahan saat mengirim data:", error.response?.data || error.message);
+        }
     };
 
     const addNewChoice = () => {
@@ -431,13 +424,15 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, produc
                                                 <label key={product.id} className="flex items-center mb-2">
                                                     <input
                                                         type="checkbox"
-                                                        value={product.id}
-                                                        checked={field.value.includes(product.id)}
+                                                        value={product.product_id}
+                                                        checked={field.value.includes(product.product_id)} // Memastikan `product_id` digunakan
                                                         onChange={(e) => {
                                                             if (e.target.checked) {
-                                                                field.onChange([...field.value, product.id]);
+                                                                field.onChange([...field.value, product.product_id]); // Tambahkan jika checked
                                                             } else {
-                                                                field.onChange(field.value.filter((id) => id !== product.id));
+                                                                field.onChange(
+                                                                    field.value.filter((id) => id !== product.product_id) // Hapus jika unchecked
+                                                                );
                                                             }
                                                         }}
                                                         className="mr-2"

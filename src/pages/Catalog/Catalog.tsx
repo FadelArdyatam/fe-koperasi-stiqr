@@ -6,7 +6,6 @@ import Product from "./Product";
 import Variant from './Variant';
 import Etalase from "./Etalase";
 import { Link } from "react-router-dom";
-// import axios from "axios";
 import axiosInstance from "@/hooks/axiosInstance";
 
 // const initialProducts = [
@@ -113,16 +112,19 @@ const Catalog = () => {
 
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const response = await axiosInstance.get(`/product/${userData?.merchant?.id}`);
-
-                setProducts(response.data);
+                if (Array.isArray(response.data)) {
+                    setProducts(response.data);
+                } else {
+                    console.error("Invalid response format for products:", response.data);
+                }
             } catch (err: any) {
                 setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data produk.");
-
                 console.error("Error saat mengambil data produk:", err);
             } finally {
                 setLoading(false);
@@ -132,28 +134,29 @@ const Catalog = () => {
         const fetchEtalases = async () => {
             try {
                 const response = await axiosInstance.get(`/showcase/${userData?.merchant?.id}`);
-
-                setEtalases(response.data);
+                if (Array.isArray(response.data)) {
+                    setEtalases(response.data);
+                } else {
+                    console.error("Invalid response format for etalases:", response.data);
+                }
             } catch (err: any) {
                 setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data etalase.");
-
                 console.error("Error saat mengambil data etalase:", err);
             } finally {
                 setLoading(false);
-            }
+            };
         }
+
         const fetchVariants = async () => {
-            setLoading(true);
             try {
                 const response = await axiosInstance.get(`/varian/${userData?.merchant?.id}`);
-                const data = Array.isArray(response.data) ? response.data : [];
-                setVariants(data);
+                setVariants(response.data.data);
             } catch (err: any) {
-                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data etalase.");
-                console.error("Error saat mengambil data etalase:", err);
+                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data varian.");
+                console.error("Error saat mengambil data varian:", err);
             } finally {
                 setLoading(false);
-            }
+            };
         };
 
         fetchProducts();
@@ -161,18 +164,44 @@ const Catalog = () => {
         fetchVariants();
     }, []);
 
-    const filteredProducts = (products || []).filter(product =>
-        product?.product_name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const handleSortAll = () => {
+        const sortArray = (arr: any[], key: string) => {
+            return arr.sort((a, b) => {
+                if (sortOrder === 'asc') {
+                    return a[key]?.toLowerCase() > b[key]?.toLowerCase() ? 1 : -1;
+                } else {
+                    return a[key]?.toLowerCase() < b[key]?.toLowerCase() ? 1 : -1;
+                }
+            });
+        };
 
-    const filteredVariants = variants.filter(variant =>
-        variant?.variant_name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    const filteredEtalases = etalases.filter(etalase =>
-        etalase.showcase_name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        setProducts((prev) => [...sortArray(prev, 'product_name')]);
+        setVariants((prev) => [...sortArray(prev, 'variant_name')]);
+        setEtalases((prev) => [...sortArray(prev, 'showcase_name')]);
+    };
+
+    // Validasi sebelum memanggil filter
+    const filteredProducts = Array.isArray(products)
+        ? products.filter(product =>
+            product?.product_name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        : [];
+
+    const filteredVariants = Array.isArray(variants)
+        ? variants.filter(variant =>
+            variant?.variant_name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        : [];
+
+    const filteredEtalases = Array.isArray(etalases)
+        ? etalases.filter(etalase =>
+            etalase?.showcase_name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        : [];
 
     console.log(error)
+    console.log(variants)
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center bg-orange-50">
@@ -198,7 +227,7 @@ const Catalog = () => {
                     />
 
                     {/* Ikon Pengaturan */}
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-500">
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-500" onClick={handleSortAll}>
                         <SlidersHorizontal />
                     </div>
                 </div>

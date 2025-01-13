@@ -57,7 +57,6 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
     const handleSwitchChange = (id: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.stopPropagation();
 
-
         // Perbarui status showProduct pada produk tertentu
         const updatedVariants = variants.map((variant) => {
             if (variant.id === id) {
@@ -119,7 +118,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                 </Button>
             </div>
 
-            {addVariant && <AddVariant setAddVariant={setAddVariant} variants={variants} products={products} />}
+            {addVariant && <AddVariant setAddVariant={setAddVariant} products={products} />}
 
             {open.status && <EditVariant setOpen={setOpen} variants={variants} setVariants={setVariants} editIndex={open.id} open={open} products={products} />}
         </div>

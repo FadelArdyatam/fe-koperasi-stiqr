@@ -30,6 +30,7 @@ const Signup = () => {
     const [allData, setAllData] = useState<{ ownerName?: string } & (z.infer<typeof FormSchemaUser> | z.infer<typeof FormSchemaMerchant>)[]>([])
 
     const FormSchemaUser = z.object({
+        photo: z.union([z.instanceof(File), z.string().url()]), // Update to handle either File or URL
         ownerName: z.string().min(2, {
             message: "ownerName must be at least 2 characters.",
         }),
@@ -74,6 +75,7 @@ const Signup = () => {
     const formUser = useForm<z.infer<typeof FormSchemaUser>>({
         resolver: zodResolver(FormSchemaUser),
         defaultValues: {
+            photo: undefined,
             ownerName: "",
             gender: undefined,
             dateOfBirth: new Date(),
@@ -124,7 +126,6 @@ const Signup = () => {
         merchantEmail: z.string().email({
             message: "Invalid email address.",
         }),
-        photo: z.union([z.instanceof(File), z.string().url()]), // Update to handle either File or URL
     })
 
     const formMerchant = useForm<z.infer<typeof FormSchemaMerchant>>({
@@ -138,7 +139,6 @@ const Signup = () => {
             merchantAddress: "",
             phoneNumberMerchant: "",
             merchantEmail: "",
-            photo: undefined,
         },
     })
 
@@ -161,7 +161,7 @@ const Signup = () => {
             postalCode: data.postalCode || "12378",
             typeBusinessEntity: data.typeBusinessEntity || "CV",
             merchantPin: "12345", // Merchant pin bisa diambil dari input atau didefinisikan di tempat lain
-            photo: data.photo instanceof File ? data.photo : "https://via.placeholder.com/150", // Handle photo field (file or fallback URL)
+            photo: (allData[0] as z.infer<typeof FormSchemaUser>).photo instanceof File ? (allData[0] as z.infer<typeof FormSchemaUser>).photo : "https://via.placeholder.com/150", // Handle photo field (file or fallback URL)
         };
         console.log(payload)
 
@@ -184,8 +184,9 @@ const Signup = () => {
         formData.append("merchantPin", payload.merchantPin);
 
         // Append photo if it's a file
-        if (data.photo instanceof File) {
-            formData.append("photo", data.photo);
+        const userData = allData[0] as z.infer<typeof FormSchemaUser>;
+        if (userData.photo instanceof File) {
+            formData.append("photo", userData.photo);
         } else {
             formData.append("photo", payload.photo); // Fallback URL if no file
         }
@@ -285,6 +286,55 @@ const Signup = () => {
                             <Form {...formUser}>
                                 <form onSubmit={formUser.handleSubmit(onSubmitUser)}>
                                     <div className={`${currentSection === 0 ? 'block' : 'hidden'} flex flex-col items-end w-full md:w-2/3 space-y-7`}>
+                                        <FormField
+                                            name="photo"
+                                            control={formUser.control}
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <>
+                                                            <p className="font-bold">
+                                                                Photo Profile
+                                                            </p>
+
+                                                            <input
+                                                                {...field}  // Spread field props
+                                                                type="file"
+                                                                accept="image/*"
+                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                                onChange={(e) => {
+                                                                    const file = e.target.files ? e.target.files[0] : null;
+
+                                                                    if (file) {
+                                                                        // Validate file size (max 2MB)
+                                                                        if (file.size > 2 * 1024 * 1024) {
+                                                                            alert("File size exceeds 2MB.");
+                                                                            return;
+                                                                        }
+
+                                                                        // Validate file type (JPEG, PNG, or GIF)
+                                                                        const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
+                                                                        if (!validImageTypes.includes(file.type)) {
+                                                                            alert("Invalid file type. Please upload an image (JPEG, PNG, or GIF).");
+                                                                            return;
+                                                                        }
+
+                                                                        // If file is valid, pass it to React Hook Form
+                                                                        field.onChange(file); // Pass the file to the form state
+                                                                    } else {
+                                                                        field.onChange(null);  // Reset the field if no file is selected
+                                                                    }
+                                                                }}
+                                                                // `value` should not be directly bound to `field.value` for file input
+                                                                value="" // Clear the value for file input as file input type does not accept string values
+                                                            />
+                                                        </>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
                                         <FormField
                                             control={formUser.control}
                                             name="ownerName"
@@ -400,7 +450,7 @@ const Signup = () => {
                                                             />
                                                         </FormControl>
 
-                                                        <button onClick={() => setShowPassword(!showPassword)} className='absolute right-5'>{showPassword ? <EyeOff /> : <Eye />}</button>
+                                                        <button onClick={() => setShowPassword(!showPassword)} type="button" className='absolute right-5'>{showPassword ? <EyeOff /> : <Eye />}</button>
                                                     </div>
 
                                                     <FormMessage />
@@ -423,7 +473,7 @@ const Signup = () => {
                                                             />
                                                         </FormControl>
 
-                                                        <button onClick={() => setShowPasswordConfirm(!showPasswordConfirm)} className='absolute right-5'>{showPasswordConfirm ? <EyeOff /> : <Eye />}</button>
+                                                        <button onClick={() => setShowPasswordConfirm(!showPasswordConfirm)} type="button" className='absolute right-5'>{showPasswordConfirm ? <EyeOff /> : <Eye />}</button>
                                                     </div>
 
                                                     <FormMessage />
@@ -610,55 +660,6 @@ const Signup = () => {
                                                 <FormItem className="w-full">
                                                     <FormControl>
                                                         <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Email Merchant" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            name="photo"
-                                            control={formMerchant.control}
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <>
-                                                            <p className="font-bold">
-                                                                Photo Profile
-                                                            </p>
-
-                                                            <input
-                                                                {...field}  // Spread field props
-                                                                type="file"
-                                                                accept="image/*"
-                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                                onChange={(e) => {
-                                                                    const file = e.target.files ? e.target.files[0] : null;
-
-                                                                    if (file) {
-                                                                        // Validate file size (max 2MB)
-                                                                        if (file.size > 2 * 1024 * 1024) {
-                                                                            alert("File size exceeds 2MB.");
-                                                                            return;
-                                                                        }
-
-                                                                        // Validate file type (JPEG, PNG, or GIF)
-                                                                        const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
-                                                                        if (!validImageTypes.includes(file.type)) {
-                                                                            alert("Invalid file type. Please upload an image (JPEG, PNG, or GIF).");
-                                                                            return;
-                                                                        }
-
-                                                                        // If file is valid, pass it to React Hook Form
-                                                                        field.onChange(file); // Pass the file to the form state
-                                                                    } else {
-                                                                        field.onChange(null);  // Reset the field if no file is selected
-                                                                    }
-                                                                }}
-                                                                // `value` should not be directly bound to `field.value` for file input
-                                                                value="" // Clear the value for file input as file input type does not accept string values
-                                                            />
-                                                        </>
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
