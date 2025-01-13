@@ -19,6 +19,7 @@ import OTP from "@/components/OTP"
 import TermsandCondition from "@/components/TermsandCondition"
 import PinInput from "@/components/PinInput"
 import axiosInstance from "@/hooks/axiosInstance"
+import Notification from "@/components/Notification"
 
 const Signup = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(false)
@@ -28,9 +29,10 @@ const Signup = () => {
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
     const [createPin, setCreatePin] = useState(false)
     const [allData, setAllData] = useState<{ ownerName?: string } & (z.infer<typeof FormSchemaUser> | z.infer<typeof FormSchemaMerchant>)[]>([])
-
+    const [showNotification, setShowNotification] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>('');
     const FormSchemaUser = z.object({
-        photo: z.union([z.instanceof(File), z.string().url()]), // Update to handle either File or URL
+        photo: z.union([z.instanceof(File), z.string().url()]),
         ownerName: z.string().min(2, {
             message: "ownerName must be at least 2 characters.",
         }),
@@ -48,6 +50,11 @@ const Signup = () => {
             })),
         email: z.string().email({
             message: "Invalid email address.",
+        }),
+        nik: z.string().min(16, {
+            message: "NIK less than 16 characters.",
+        }).max(16, {
+            message: "NIK more than 16 characters.",
         }),
         phoneNumber: z.string().min(10, {
             message: "Phone number must be at least 10 characters.",
@@ -69,7 +76,7 @@ const Signup = () => {
 
     }).refine((data) => data.password === data.confirmPassword, {
         message: 'Passwords do not match.',
-        path: ['confirmPassword'], // Fokuskan error pada confirmPassword
+        path: ['confirmPassword'],
     })
 
     const formUser = useForm<z.infer<typeof FormSchemaUser>>({
@@ -87,18 +94,13 @@ const Signup = () => {
     })
 
     function onSubmitUser(data: z.infer<typeof FormSchemaUser>) {
-        // console.log(data)
+        console.log(data)
 
-        console.log(formUser.formState.errors)
-
-        // Simpan data yang telah diisi
         setAllData([...allData, data]);
 
         handleNext()
     }
-    //
-
-    // Form Merchant
+    
     const FormSchemaMerchant = z.object({
         typeBusinessEntity: z.enum(["Perorangan", "CV", "Koperasi", "Firma", "Perseroan Terbatas"], {
             message: "Please select the type of business entity",
@@ -106,8 +108,17 @@ const Signup = () => {
         merchantName: z.string().min(2, {
             message: "Merchant name must be at least 2 characters.",
         }),
-        merchantCity: z.string().min(2, {
-            message: "City must be at least 2 characters.",
+        merchantProvince: z.string().min(2, {
+            message: "Province must be at least 2 characters.",
+        }),
+        merchantRegency: z.string().min(2, {
+            message: "Regency must be at least 2 characters.",
+        }),
+        merchantDistrict: z.string().min(2, {
+            message: "District must be at least 2 characters.",
+        }),
+        merchantVillage: z.string().min(2, {
+            message: "Village must be at least 2 characters.",
         }),
         merchantCategory: z.enum(["Makanan & Minuman", "Fashion & Aksesori", "Elektronik & Gadget", "Kesehatan & Kecantikan", "Rumah & Dekorasi", "Otomotif", "Hobi & Hiburan", "Jasa & Layanan", "Bahan Pokok & Grosir", "Teknologi & Digital", "Lainnya"], {
             message: "Please select the category",
@@ -133,7 +144,10 @@ const Signup = () => {
         defaultValues: {
             typeBusinessEntity: undefined,
             merchantName: "",
-            merchantCity: undefined,
+            merchantProvince: undefined,
+            merchantRegency: undefined,
+            merchantDistrict: undefined,
+            merchantVillage: undefined,
             merchantCategory: undefined,
             postalCode: "",
             merchantAddress: "",
@@ -143,30 +157,33 @@ const Signup = () => {
     })
 
     const onSubmitMerchant = async (data: z.infer<typeof FormSchemaMerchant>) => {
-        // Constructing the payload with the desired format
         const payload = {
-            username: (allData[0] as z.infer<typeof FormSchemaUser>)?.ownerName || "Iyan",
-            email: (allData[0] as z.infer<typeof FormSchemaUser>)?.email || "Iyan10@gmail.com",
-            password: (allData[0] as z.infer<typeof FormSchemaUser>)?.password || "Iyan123",
-            confirmPassword: (allData[0] as z.infer<typeof FormSchemaUser>)?.confirmPassword || "Iyan123",
-            phoneNumber: (allData[0] as z.infer<typeof FormSchemaUser>)?.phoneNumber || "081234567999",
-            gender: (allData[0] as z.infer<typeof FormSchemaUser>)?.gender || "Male",
-            dateOfBirth: (allData[0] as z.infer<typeof FormSchemaUser>)?.dateOfBirth || "1990-05-15T00:00:00Z",
-            merchantAddress: data.merchantAddress || "123 Street Name",
-            merchantCategory: data.merchantCategory || "Retail",
-            merchantCity: data.merchantCity || "Depok",
-            merchantEmail: data.merchantEmail || "coba@example.com",
-            merchantName: data.merchantName || "Test",
-            phoneNumberMerchant: data.phoneNumberMerchant || "081234567999",
-            postalCode: data.postalCode || "12378",
-            typeBusinessEntity: data.typeBusinessEntity || "CV",
-            merchantPin: "12345", // Merchant pin bisa diambil dari input atau didefinisikan di tempat lain
+            username: (allData[0] as z.infer<typeof FormSchemaUser>)?.ownerName,
+            nik: (allData[0] as z.infer<typeof FormSchemaUser>)?.nik,
+            email: (allData[0] as z.infer<typeof FormSchemaUser>)?.email ,
+            password: (allData[0] as z.infer<typeof FormSchemaUser>)?.password ,
+            confirmPassword: (allData[0] as z.infer<typeof FormSchemaUser>)?.confirmPassword ,
+            phoneNumber: (allData[0] as z.infer<typeof FormSchemaUser>)?.phoneNumber,
+            gender: (allData[0] as z.infer<typeof FormSchemaUser>)?.gender,
+            dateOfBirth: (allData[0] as z.infer<typeof FormSchemaUser>)?.dateOfBirth,
+            merchantAddress: data.merchantAddress,
+            merchantCategory: data.merchantCategory,
+            merchantProvince: data.merchantProvince,
+            merchantRegency: data.merchantRegency,
+            merchantDistrict: data.merchantDistrict,
+            merchantVillage: data.merchantVillage,
+            merchantEmail: data.merchantEmail ,
+            merchantName: data.merchantName ,
+            phoneNumberMerchant: data.phoneNumberMerchant,
+            postalCode: data.postalCode,
+            typeBusinessEntity: data.typeBusinessEntity,
             photo: (allData[0] as z.infer<typeof FormSchemaUser>).photo instanceof File ? (allData[0] as z.infer<typeof FormSchemaUser>).photo : "https://via.placeholder.com/150", // Handle photo field (file or fallback URL)
         };
         console.log(payload)
 
         const formData = new FormData();
         formData.append("username", payload.username);
+        formData.append("nik", payload.nik);
         formData.append("email", payload.email);
         formData.append("password", payload.password);
         formData.append("confirmPassword", payload.confirmPassword);
@@ -175,51 +192,53 @@ const Signup = () => {
         formData.append("dateOfBirth", payload.dateOfBirth.toISOString().split('T')[0]);
         formData.append("merchantAddress", payload.merchantAddress);
         formData.append("merchantCategory", payload.merchantCategory);
-        formData.append("merchantCity", payload.merchantCity);
+        formData.append("merchantProvince", payload.merchantProvince);
+        formData.append("merchantRegency", payload.merchantRegency);
+        formData.append("merchantDistrict", payload.merchantDistrict);
+        formData.append("merchantVillage", payload.merchantVillage);
         formData.append("merchantEmail", payload.merchantEmail);
         formData.append("merchantName", payload.merchantName);
         formData.append("phoneNumberMerchant", payload.phoneNumberMerchant);
         formData.append("postalCode", payload.postalCode);
         formData.append("typeBusinessEntity", payload.typeBusinessEntity);
-        formData.append("merchantPin", payload.merchantPin);
 
-        // Append photo if it's a file
         const userData = allData[0] as z.infer<typeof FormSchemaUser>;
         if (userData.photo instanceof File) {
             formData.append("photo", userData.photo);
         } else {
-            formData.append("photo", payload.photo); // Fallback URL if no file
+            formData.append("photo", payload.photo);
         }
 
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
                 method: "POST",
-                body: formData, // Sending FormData with file
+                body: formData,
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
             const result = await response.json();
-            console.log("Success:", result);
-            handleNext();
-        } catch (error) {
-            console.error("Error submitting merchant data:", error);
+            if(result.status) {
+                handleNext();
+                setShowNotification(false)
+            } else {
+                setShowNotification(true)
+                setErrorMessage(result.message)
+            }
+        } catch (error:any) {
+            console.log(error)
+            console.error("Error:", error)
+            setShowNotification(true)
+            setErrorMessage(error.message || "Terjadi Kesalahan")
         }
     };
 
     const handleNext = () => {
-        // Validasi apakah section saat ini valid (ganti logika validasi sesuai kebutuhan)
         const isCurrentSectionValid = validateSection(currentSection);
 
         if (isCurrentSectionValid) {
-            // Tandai section saat ini sebagai true
             const updatedSections = [...section];
             updatedSections[currentSection + 1] = true;
             setSection(updatedSections);
 
-            // Pindah ke section berikutnya jika belum di akhir
             if (currentSection < section.length - 1) {
                 setCurrentSection(currentSection + 1);
             } else {
@@ -237,25 +256,88 @@ const Signup = () => {
         return true;
     };
 
+    const [provinces, setProvinces] = useState<{ id: number; name: string }[]>([]);
+    const [regencies, setRegencies] = useState<{ id: number; province_id: string, name: string }[]>([]);
+    const [districts, setDistricts] = useState<{ id: number; regency_id: string, name: string }[]>([]);
+    const [villages, setVillages] = useState<{ id: number; district_id: string, name: string }[]>([]);
 
+    const [selectedProvince, setSelectedProvince] = useState<number | null>(null);
+    const [selectedRegency, setSelectedRegency] = useState<number | null>(null);
+    const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);
 
-    const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchProvinces = async () => {
+            setLoading(true);
             try {
                 const response = await axiosInstance.get("/merchant/list/provinces");
-                setCities(response.data);
-                console.log(response);
+                setProvinces(response.data);
             } catch (error) {
-                console.error("Error fetching cities:", error);
+                console.error("Error fetching provinces:", error);
             } finally {
                 setLoading(false);
             }
         };
-
-        fetchData();
+        fetchProvinces();
     }, []);
+
+    useEffect(() => {
+        if (selectedProvince) {
+            const fetchRegencies = async () => {
+                setLoading(true);
+                try {
+                    const response = await axiosInstance.get(
+                        `/merchant/list/regencies/${selectedProvince}`
+                    );
+                    setRegencies(response.data);
+                } catch (error) {
+                    console.error("Error fetching regencies:", error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchRegencies();
+        }
+    }, [selectedProvince]);
+
+    useEffect(() => {
+        if (selectedRegency) {
+            const fetchDistricts = async () => {
+                setLoading(true);
+                try {
+                    const response = await axiosInstance.get(
+                        `/merchant/list/districts/${selectedRegency}`
+                    );
+                    setDistricts(response.data);
+                } catch (error) {
+                    console.error("Error fetching districts:", error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchDistricts();
+        }
+    }, [selectedRegency]);
+
+    useEffect(() => {
+        if (selectedDistrict) {
+            const fetchVillages = async () => {
+                setLoading(true);
+                try {
+                    const response = await axiosInstance.get(
+                        `/merchant/list/villages/${selectedDistrict}`
+                    );
+                    setVillages(response.data);
+                } catch (error) {
+                    console.error("Error fetching villages:", error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchVillages();
+        }
+    }, [selectedDistrict]);
 
     return (
         <div>
@@ -287,55 +369,6 @@ const Signup = () => {
                                 <form onSubmit={formUser.handleSubmit(onSubmitUser)}>
                                     <div className={`${currentSection === 0 ? 'block' : 'hidden'} flex flex-col items-end w-full md:w-2/3 space-y-7`}>
                                         <FormField
-                                            name="photo"
-                                            control={formUser.control}
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <>
-                                                            <p className="font-bold">
-                                                                Photo Profile
-                                                            </p>
-
-                                                            <input
-                                                                {...field}  // Spread field props
-                                                                type="file"
-                                                                accept="image/*"
-                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                                onChange={(e) => {
-                                                                    const file = e.target.files ? e.target.files[0] : null;
-
-                                                                    if (file) {
-                                                                        // Validate file size (max 2MB)
-                                                                        if (file.size > 2 * 1024 * 1024) {
-                                                                            alert("File size exceeds 2MB.");
-                                                                            return;
-                                                                        }
-
-                                                                        // Validate file type (JPEG, PNG, or GIF)
-                                                                        const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
-                                                                        if (!validImageTypes.includes(file.type)) {
-                                                                            alert("Invalid file type. Please upload an image (JPEG, PNG, or GIF).");
-                                                                            return;
-                                                                        }
-
-                                                                        // If file is valid, pass it to React Hook Form
-                                                                        field.onChange(file); // Pass the file to the form state
-                                                                    } else {
-                                                                        field.onChange(null);  // Reset the field if no file is selected
-                                                                    }
-                                                                }}
-                                                                // `value` should not be directly bound to `field.value` for file input
-                                                                value="" // Clear the value for file input as file input type does not accept string values
-                                                            />
-                                                        </>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
                                             control={formUser.control}
                                             name="ownerName"
                                             render={({ field }) => (
@@ -343,6 +376,22 @@ const Signup = () => {
                                                     <FormControl>
                                                         <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Pemilik" {...field} />
                                                     </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                         <FormField
+                                            control={formUser.control}
+                                            name="nik"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <div>
+                                                        <FormControl>
+                                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="Nomor Induk Kewarganegaraan" {...field} />
+                                                        </FormControl>
+
+                                                        {/* <p className="text-xs italic text-gray-500 mt-2">Pastikan </p> */}
+                                                    </div>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
@@ -434,6 +483,51 @@ const Signup = () => {
                                                 </FormItem>
                                             )}
                                         />
+                                        <FormField
+                                            name="photo"
+                                            control={formUser.control}
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <>
+                                                            <p className="font-bold">
+                                                                Photo Profile
+                                                            </p>
+
+                                                            <input
+                                                                {...field}  
+                                                                type="file"
+                                                                accept="image/*"
+                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                                onChange={(e) => {
+                                                                    const file = e.target.files ? e.target.files[0] : null;
+
+                                                                    if (file) {
+                                                                        if (file.size > 2 * 1024 * 1024) {
+                                                                            alert("File size exceeds 2MB.");
+                                                                            return;
+                                                                        }
+
+                                                                        const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
+                                                                        if (!validImageTypes.includes(file.type)) {
+                                                                            alert("Invalid file type. Please upload an image (JPEG, PNG, or GIF).");
+                                                                            return;
+                                                                        }
+
+                                                                        field.onChange(file); 
+                                                                    } else {
+                                                                        field.onChange(null); 
+                                                                    }
+                                                                }}
+                                                                value="" 
+                                                            />
+                                                        </>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
 
                                         <FormField
                                             control={formUser.control}
@@ -536,35 +630,159 @@ const Signup = () => {
 
                                         <FormField
                                             control={formMerchant.control}
-                                            name="merchantCity"
+                                            name="merchantProvince"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                    <button className="">
-                                                                        {field.value || "Se\lect City"}
+                                                                    <button>
+                                                                        {field.value || "Select Province"}
                                                                     </button>
                                                                     <ChevronDown />
                                                                 </div>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent
-                                                                className="w-full max-h-64 overflow-y-auto"
-                                                                style={{ maxHeight: '256px', overflowY: 'auto' }}
-                                                            >
-                                                                <DropdownMenuLabel>City</DropdownMenuLabel>
-                                                                <DropdownMenuSeparator />
+                                                            <DropdownMenuContent>
                                                                 {loading ? (
-                                                                    <div className="p-3">Loading...</div>
+                                                                    <div>Loading...</div>
                                                                 ) : (
-                                                                    cities.map((city) => (
+                                                                    provinces.map((province) => (
                                                                         <DropdownMenuItem
-                                                                            key={city?.id}
-                                                                            onSelect={() => field.onChange(city?.name)}
-                                                                            className="w-full"
+                                                                            key={province.id}
+                                                                            onSelect={() => {
+                                                                                field.onChange(province.name); // Store name instead of id
+                                                                                setSelectedProvince(province.id); // Keep ID for fetching dependent data
+                                                                                // Reset dependent fields
+                                                                                formMerchant.setValue('merchantRegency', '');
+                                                                                formMerchant.setValue('merchantDistrict', '');
+                                                                                formMerchant.setValue('merchantVillage', '');
+                                                                                setSelectedRegency(null);
+                                                                                setSelectedDistrict(null);
+                                                                            }}
                                                                         >
-                                                                            {city?.name}
+                                                                            {province.name}
+                                                                        </DropdownMenuItem>
+                                                                    ))
+                                                                )}
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={formMerchant.control}
+                                            name="merchantRegency"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                                    <button disabled={!selectedProvince}>
+                                                                        {field.value || "Select Regency"}
+                                                                    </button>
+                                                                    <ChevronDown />
+                                                                </div>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent>
+                                                                {loading ? (
+                                                                    <div>Loading...</div>
+                                                                ) : (
+                                                                    regencies.map((regency) => (
+                                                                        <DropdownMenuItem
+                                                                            key={regency.id}
+                                                                            onSelect={() => {
+                                                                                field.onChange(regency.name); // Store name instead of id
+                                                                                setSelectedRegency(regency.id); // Keep ID for fetching dependent data
+                                                                                // Reset dependent fields
+                                                                                formMerchant.setValue('merchantDistrict', '');
+                                                                                formMerchant.setValue('merchantVillage', '');
+                                                                                setSelectedDistrict(null);
+                                                                            }}
+                                                                        >
+                                                                            {regency.name}
+                                                                        </DropdownMenuItem>
+                                                                    ))
+                                                                )}
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={formMerchant.control}
+                                            name="merchantDistrict"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                                    <button disabled={!selectedRegency}>
+                                                                        {field.value || "Select District"}
+                                                                    </button>
+                                                                    <ChevronDown />
+                                                                </div>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent>
+                                                                {loading ? (
+                                                                    <div>Loading...</div>
+                                                                ) : (
+                                                                    districts.map((district) => (
+                                                                        <DropdownMenuItem
+                                                                            key={district.id}
+                                                                            onSelect={() => {
+                                                                                field.onChange(district.name); // Store name instead of id
+                                                                                setSelectedDistrict(district.id); // Keep ID for fetching dependent data
+                                                                                formMerchant.setValue('merchantVillage', '');
+                                                                            }}
+                                                                        >
+                                                                            {district.name}
+                                                                        </DropdownMenuItem>
+                                                                    ))
+                                                                )}
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={formMerchant.control}
+                                            name="merchantVillage"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                                    <button disabled={!selectedDistrict}>
+                                                                        {field.value || "Select Village"}
+                                                                    </button>
+                                                                    <ChevronDown />
+                                                                </div>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent>
+                                                                {loading ? (
+                                                                    <div>Loading...</div>
+                                                                ) : (
+                                                                    villages.map((village) => (
+                                                                        <DropdownMenuItem
+                                                                            key={village.id}
+                                                                            onSelect={() => {
+                                                                                field.onChange(village.name); // Store name instead of id
+                                                                            }}
+                                                                        >
+                                                                            {village.name}
                                                                         </DropdownMenuItem>
                                                                     ))
                                                                 )}
@@ -666,15 +884,25 @@ const Signup = () => {
                                             )}
                                         />
                                     </div>
-
+                                    <div className="grid grid-cols-2 gap-5">
+                                    <Button type="button" onClick={()=> {setCurrentSection(0)}} className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>BACK</Button>
                                     <Button type="submit" className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>SUBMIT</Button>
+                                    </div>
                                 </form>
                             </Form>
                         </div>
 
                         <OTP currentSection={currentSection} setCreatePin={setCreatePin} />
                     </div>
-
+                    {showNotification && (
+                        <>
+                        <Notification
+                            message={errorMessage}
+                            onClose={() => setShowNotification(false)} 
+                            status="error"
+                            />
+                        </>
+                    )}
                     {createPin && <PinInput email={formMerchant.getValues("merchantEmail")} />}</div>
             )}
         </div>

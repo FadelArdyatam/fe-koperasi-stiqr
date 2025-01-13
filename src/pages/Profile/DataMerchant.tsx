@@ -10,10 +10,23 @@ import { useForm } from "react-hook-form"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
 import axiosInstance from "@/hooks/axiosInstance"
 
+
+interface MerchantData {
+  id: number;
+  name: string;
+  category: "Makanan & Minuman"| "Fashion & Aksesori"| "Elektronik & Gadget"| "Kesehatan & Kecantikan"| "Rumah & Dekorasi"| "Otomotif"| "Hobi & Hiburan"| "Jasa & Layanan"| "Bahan Pokok & Grosir"|"Teknologi & Digital"|"Lainnya"; 
+  phone_number: string;
+  address: string;
+  post_code: string;
+  province: string;
+  regency: string;
+  district: string;
+  village: string;
+}
 const DataMerchant = () => {
     const [showEdit, setShowEdit] = useState(false)
     const [showNotification, setShowNotification] = useState(false)
-    const [merchantData, setMerchantData] = useState<any>();
+    const [merchantData, setMerchantData] = useState<MerchantData>();
 
     const FormSchema = z.object({
         merchantName: z.string().min(2, {
@@ -22,8 +35,17 @@ const DataMerchant = () => {
         merchantCategory: z.enum(["Makanan & Minuman", "Fashion & Aksesori", "Elektronik & Gadget", "Kesehatan & Kecantikan", "Rumah & Dekorasi", "Otomotif", "Hobi & Hiburan", "Jasa & Layanan", "Bahan Pokok & Grosir", "Teknologi & Digital", "Lainnya"], {
             message: "Please select the category",
         }),
-        merchantCity: z.string().min(2, {
-            message: "City must be at least 2 characters.",
+        merchantProvince: z.string().min(2, {
+            message: "Province must be at least 2 characters.",
+        }),
+        merchantRegency: z.string().min(2, {
+            message: "Regency must be at least 2 characters.",
+        }),
+        merchantDistrict: z.string().min(2, {
+            message: "District must be at least 2 characters.",
+        }),
+        merchantVillage: z.string().min(2, {
+            message: "Village must be at least 2 characters.",
         }),
         phoneNumberMerchant: z.string().min(10, {
             message: "Phone number must be at least 10 characters.",
@@ -43,7 +65,10 @@ const DataMerchant = () => {
         defaultValues: {
             merchantName: '',
             merchantCategory: undefined,
-            merchantCity: undefined,
+            merchantProvince: undefined,
+            merchantRegency: undefined,
+            merchantDistrict: undefined,
+            merchantVillage: undefined,
             phoneNumberMerchant: '',
             merchantAddress: '',
             postalCode: '',
@@ -55,7 +80,10 @@ const DataMerchant = () => {
             const response = await axiosInstance.put(`/merchant/${merchantData?.id}/update`, {
                 name: data.merchantName,
                 category: data.merchantCategory,
-                city: data.merchantCity,
+                province: data.merchantProvince,
+                regency: data.merchantRegency,
+                district: data.merchantDistrict,
+                village: data.merchantVillage,
                 phone_number: data.phoneNumberMerchant,
                 address: data.merchantAddress,
                 post_code: data.postalCode,
@@ -94,7 +122,7 @@ const DataMerchant = () => {
             try {
                 const response = await axiosInstance.get("/merchant/list/provinces");
                 setCities(response.data);
-            } catch (error) {
+            } catch (error:any) {
                 console.error("Error fetching cities:", error);
             } finally {
                 setLoading(false);
@@ -108,7 +136,10 @@ const DataMerchant = () => {
         if (merchantData) {
             form.setValue("merchantName", merchantData.name);
             form.setValue("merchantCategory", merchantData.category);
-            form.setValue("merchantCity", merchantData.city);
+            form.setValue("merchantProvince", merchantData.province);
+            form.setValue("merchantRegency", merchantData.regency);
+            form.setValue("merchantDistrict", merchantData.district);
+            form.setValue("merchantVillage", merchantData.village);
             form.setValue("phoneNumberMerchant", merchantData.phone_number);
             form.setValue("merchantAddress", merchantData.address);
             form.setValue("postalCode", merchantData.post_code);
@@ -186,11 +217,32 @@ const DataMerchant = () => {
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
                     <div className="flex w-full items-center gap-5 justify-between">
+                        <p className="text-sm text-gray-500">Provinsi Merchant</p>
+
+                        <p className="text-sm font-semibold">{merchantData?.province}</p>
+                    </div>
+                    <div className="w-full h-[2px] my-2 bg-gray-200"></div>
+
+                    <div className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Kota Merchant</p>
 
-                        <p className="text-sm font-semibold">{merchantData?.city}</p>
+                        <p className="text-sm font-semibold">{merchantData?.regency}</p>
                     </div>
+                    <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
+
+                    <div className="flex w-full items-center gap-5 justify-between">
+                        <p className="text-sm text-gray-500">Kecamatan Merchant</p>
+
+                        <p className="text-sm font-semibold">{merchantData?.district}</p>
+                    </div>
+                    <div className="w-full h-[2px] my-2 bg-gray-200"></div>
+
+                    <div className="flex w-full items-center gap-5 justify-between">
+                        <p className="text-sm text-gray-500">Kelurahan Merchant</p>
+
+                        <p className="text-sm font-semibold">{merchantData?.village}</p>
+                    </div>
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
                     <div className="flex w-full items-center gap-5 justify-between">
@@ -284,7 +336,7 @@ const DataMerchant = () => {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="merchantCity"
+                                    name="merchantProvince"
                                     render={({ field }) => (
                                         <FormItem className="w-full">
                                             <FormControl>

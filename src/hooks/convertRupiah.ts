@@ -1,4 +1,4 @@
-export function formatRupiah(value: number | string, prefix: string = 'Rp. '): string {
+export function formatRupiah(value: number | string, prefix: string = 'Rp '): string {
     // Validasi input harus berupa number atau string
     if (typeof value !== 'number' && typeof value !== 'string') {
         throw new Error('Input harus berupa angka atau string.');

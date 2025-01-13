@@ -176,7 +176,7 @@ const DataPemilik = () => {
                     <div className="flex w-full items-center justify-between">
                         <p className="text-sm text-gray-500">NIK</p>
 
-                        <p className="text-sm font-semibold">123203091821833</p>
+                        <p className="text-sm font-semibold">{user?.nikl}</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>

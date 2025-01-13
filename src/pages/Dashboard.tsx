@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axiosInstance from "@/hooks/axiosInstance";
 import { formatRupiah } from "@/hooks/convertRupiah";
+import imgNoTransaction from "@/images/no-transaction.png";
 
 export const admissionFees = [
     {
@@ -63,6 +64,21 @@ type TokenPayload = {
     exp: number; // Expiration time in seconds
     [key: string]: any; // Other possible fields
 };
+
+interface IHistory {
+    image: string;
+    transaction_date: string;
+    title: string;
+    transaction_id: string;
+    total_amount: number;
+    date: string;
+    time: string;
+    transaction_status: "success" | "failed" | "pending";
+    code: string;
+    payment : {
+        bank_name: string;
+    }
+}
 
 const Dashboard = () => {
     // const [field, setField] = useState({ value: "" });
@@ -152,7 +168,7 @@ const Dashboard = () => {
     }, [navigate]);
 
     
-    const [histories,setHistories] = useState<any[]>([]);
+    const [histories,setHistories] = useState<IHistory[]>([]);
     useEffect(() => {
           // Ambil informasi user dari sessionStorage
           const userItem = sessionStorage.getItem("user");
@@ -350,8 +366,11 @@ const Dashboard = () => {
                 <div className="mt-10 flex flex-col gap-5">
                     {
                         histories.length === 0 && (
-                            <div className="w-full mb-10 flex items-center justify-center text-center text-gray-500">
-                                Belum ada transaksi Hari ini
+                            <div className="w-full mb-10 flex flex-col items-center justify-center text-center text-gray-500 gap-10">
+                                <img src={imgNoTransaction} className="md:w-5/12 w-6/12"/>
+                                <p className="text-center text-orange-400 font-bold text-lg">
+                                Belum ada transaksi hari ini
+                                </p>
                             </div>
                         )
                     }

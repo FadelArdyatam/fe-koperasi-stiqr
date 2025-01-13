@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import logo from "../images/logo.png";
 import { FormEvent, useState } from "react";
 import axios from "axios";
+import Notification from "./Notification";
 
 const Signin = () => {
 	const [email, setEmail] = useState("");
@@ -37,6 +38,7 @@ const Signin = () => {
 			}
 		} catch (err) {
 			if (axios.isAxiosError(err)) {
+				console.log(err)
 				setError(err.response?.data?.message || "Login gagal.");
 			} else {
 				setError("Login gagal.");
@@ -48,14 +50,17 @@ const Signin = () => {
 
 	return (
 		<div className="p-10 flex flex-col items-center justify-center w-full min-h-screen">
-			<img src={logo} className="w-full" alt="Logo" />
+			<img src={logo} className="md:w-64 w-full" alt="Logo" />
 
 			<form
 				action=""
 				onSubmit={handleSignin} // Pastikan hanya gunakan handleSignin
 				className="flex flex-col items-center mt-10 w-full gap-5"
 			>
-				{error && <p className="text-red-500 text-sm">{error}</p>}
+
+				{error && (
+					<Notification message={error} onClose={() => setError(null)} status="error" />
+				)}
 
 				<input
 					type="text"
@@ -73,7 +78,7 @@ const Signin = () => {
 					className="w-full border border-black px-4 py-3 rounded-lg"
 				/>
 
-				<Link to="/forgot-password" className="text-gray-500 mt-2 text-sm">
+				<Link to="/forgot-password" className="text-gray-500 text-sm">
 					Lupa Password?
 				</Link>
 
