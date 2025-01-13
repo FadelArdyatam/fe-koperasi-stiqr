@@ -120,7 +120,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
 
             {addVariant && <AddVariant setAddVariant={setAddVariant} products={products} />}
 
-            {open.status && <EditVariant setOpen={setOpen} variants={variants} setVariants={setVariants} editIndex={open.id} open={open} products={products} />}
+            {open.status && <EditVariant setOpen={setOpen} editIndex={open.id} open={open} />}
         </div>
     )
 }

@@ -10,24 +10,8 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import axiosInstance from "@/hooks/axiosInstance";
 
-const dataPayments = [
-    {
-        title: 'Bpk',
-        bankName: 'BCA',
-        accountNumber: '1234567890',
-        ownerName: 'Bpk. Rani Destrian',
-        savingBook: ""
-    },
-    {
-        title: 'Ibu',
-        bankName: 'BNI',
-        accountNumber: '0987654321',
-        ownerName: 'Ibu. Rani Destrian',
-        savingBook: ""
-    }
-]
-
 interface Account {
+    account_id: string;
     bank_name: string;
     account_number: string;
     owner_name: string;
@@ -35,10 +19,11 @@ interface Account {
 }
 
 const DataPembayaran = () => {
-    const [showContent, setShowContent] = useState({ show: false, index: -1 });
+    const [showContent, setShowContent] = useState({ show: false, index: "" });
     const [isAdding, setIsAdding] = useState(false);
     const [showEdit, setShowEdit] = useState(false)
     const [showNotification, setShowNotification] = useState(false)
+    const [dataForEdit, setDataForEdit] = useState<Account | null>(null);
 
     const FormSchema = z.object({
         bankName: z.string().min(3),
@@ -57,18 +42,45 @@ const DataPembayaran = () => {
         },
     })
 
-    const [accounts,setAccounts]  = useState<Account[]>([]);
+    const [accounts, setAccounts] = useState<Account[]>([]);
+
     async function fetchData() {
         try {
             const response = await axiosInstance.get('/account');
             setAccounts(response.data);
-        } catch (error:any) {
+        } catch (error: any) {
             console.error("Failed to fetch data:", error.message);
-        } 
+        }
     }
+
     useEffect(() => {
         fetchData()
     }, []);
+
+    async function getAccountForEdit(accountId: string) {
+        try {
+            const response = await axiosInstance.get(`/account/${accountId}/detail`);
+
+            const account = response.data;
+
+            setDataForEdit(account);
+
+            form.reset({
+                bankName: account.bank_name,
+                accountNumber: account.account_number,
+                ownerName: account.owner_name,
+                savingBook: account.bank_notes_photo,
+            });
+        } catch (error: any) {
+            console.error("Failed to fetch data:", error.message);
+        }
+    }
+
+    useEffect(() => {
+        if (showContent.show) {
+            getAccountForEdit(showContent.index);
+        }
+    }, [showContent.show])
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log("Form data:", data);
@@ -113,8 +125,58 @@ const DataPembayaran = () => {
             console.log("Response from API:", response.data);
 
             setShowNotification(true);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error("Error while adding Account:", error.response?.data || error.message);
+            } else {
+                console.error("Error while adding Account:", error);
+            }
+            alert("Failed to add Account. Please try again.");
+            setShowNotification(false);
+        }
+    }
 
-            console.log("Updated dataPayments:", dataPayments);
+    async function onSubmitForEdit(data: z.infer<typeof FormSchema>) {
+        console.log("Form data:", data);
+
+        // Ambil informasi user dari sessionStorage
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
+        if (!userData || !userData.id) {
+            console.error("User data is missing or invalid.");
+            alert("Failed to retrieve user information. Please login again.");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            console.error("Authorization token is missing.");
+            alert("Failed to retrieve authorization token. Please login again.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("bank_name", data.bankName);
+        formData.append("account_number", data.accountNumber);
+        formData.append("owner_name", data.ownerName);
+
+        if (data.savingBook instanceof File) {
+            formData.append("bank_notes_photo", data.savingBook);
+        } else {
+            console.warn("No file provided for savingBook.");
+        }
+
+        try {
+            const response = await axiosInstance.patch(
+                `/account/${showContent.index}/update`,
+                formData,
+            );
+
+            console.log("Response from API:", response.data);
+
+            setShowNotification(true);
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 console.error("Error while adding Account:", error.response?.data || error.message);
@@ -127,10 +189,12 @@ const DataPembayaran = () => {
     }
 
     const buttonBack = () => {
-        setShowContent({ show: false, index: -1 })
+        setShowContent({ show: false, index: "" })
         setShowEdit(false)
         setIsAdding(false)
     }
+
+    console.log(dataForEdit)
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center">
@@ -187,7 +251,7 @@ const DataPembayaran = () => {
                     <div key={index}>
                         <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] my-5 bg-gray-200`}></div>
 
-                        <button onClick={() => setShowContent({ show: true, index })} className="flex w-full items-center gap-5 justify-between">
+                        <button onClick={() => setShowContent({ show: true, index: account.account_id })} className="flex w-full items-center gap-5 justify-between">
                             <div className="flex flex-col items-start">
                                 <p>{account.bank_name}</p>
 
@@ -204,18 +268,10 @@ const DataPembayaran = () => {
 
             <div className={`${showContent.show === true && !showEdit ? 'block' : 'hidden'} w-[90%] bg-white -translate-y-20 p-5 rounded-lg shadow-lg`}>
                 <div className="flex flex-col gap-5">
-                    <div className="flex w-full items-center justify-between">
-                        <p className="text-sm text-gray-500">Title</p>
-
-                        <p className="text-sm font-semibold">{dataPayments[showContent.index]?.title}</p>
-                    </div>
-
-                    <div className="w-full h-[2px] my-2 bg-gray-200"></div>
-
                     <div className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Nama Bank</p>
 
-                        <p className="text-sm font-semibold">{dataPayments[showContent.index]?.bankName}</p>
+                        <p className="text-sm font-semibold">{dataForEdit?.bank_name}</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
@@ -223,7 +279,7 @@ const DataPembayaran = () => {
                     <div className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Nomor Rekening</p>
 
-                        <p className="text-sm font-semibold">{dataPayments[showContent.index]?.accountNumber}</p>
+                        <p className="text-sm font-semibold">{dataForEdit?.account_number}</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
@@ -231,7 +287,7 @@ const DataPembayaran = () => {
                     <div className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Nama Pemilik</p>
 
-                        <p className="text-sm font-semibold">{dataPayments[showContent.index]?.ownerName}</p>
+                        <p className="text-sm font-semibold">{dataForEdit?.owner_name}</p>
                     </div>
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
@@ -332,27 +388,14 @@ const DataPembayaran = () => {
             <div className={`${showEdit ? 'block' : 'hidden'} w-[90%] p-5 bg-white -translate-y-20 rounded-lg shadow-lg`}>
                 <Form {...form}>
                     <form
-                        onSubmit={form.handleSubmit((data) => {
-                            dataPayments[showContent.index] = {
-                                ...dataPayments[showContent.index],
-                                bankName: data.bankName,
-                                accountNumber: data.accountNumber,
-                                ownerName: data.ownerName,
-                                savingBook: data.savingBook instanceof File ? URL.createObjectURL(data.savingBook) : data.savingBook,
-                            };
-
-                            setShowEdit(false); 
-                            setShowContent({ show: true, index: showContent.index }); 
-
-                            setShowNotification(true);
-                        })}
+                        onSubmit={form.handleSubmit(onSubmitForEdit)}
                     >
                         <div className="flex flex-col items-end w-full md:w-2/3 space-y-7">
-                            
+
                             <FormField
                                 control={form.control}
                                 name="bankName"
-                                defaultValue={dataPayments[showContent.index]?.bankName}
+                                defaultValue={dataForEdit?.bank_name}
                                 render={({ field }) => (
                                     <FormItem className="w-full">
                                         <FormLabel className="text-gray-500">Nama Bank</FormLabel>
@@ -367,7 +410,7 @@ const DataPembayaran = () => {
                             <FormField
                                 control={form.control}
                                 name="accountNumber"
-                                defaultValue={dataPayments[showContent.index]?.accountNumber}
+                                defaultValue={dataForEdit?.account_number}
                                 render={({ field }) => (
                                     <FormItem className="w-full">
                                         <FormLabel className="text-gray-500">Nomor Rekening</FormLabel>
@@ -386,7 +429,7 @@ const DataPembayaran = () => {
                             <FormField
                                 control={form.control}
                                 name="ownerName"
-                                defaultValue={dataPayments[showContent.index]?.ownerName}
+                                defaultValue={dataForEdit?.owner_name}
                                 render={({ field }) => (
                                     <FormItem className="w-full">
                                         <FormLabel className="text-gray-500">Nama Pemilik Rekening</FormLabel>

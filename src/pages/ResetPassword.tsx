@@ -45,7 +45,7 @@ const ResetPassword = () => {
     });
 
     useEffect(() => {
-        const token = searchParams.get('token'); 
+        const token = searchParams.get('token');
         if (token) {
             validateToken(token);
         } else {
@@ -78,7 +78,7 @@ const ResetPassword = () => {
     };
 
     const onSubmitNewPassword = async (data: z.infer<typeof FormNewPasswordSchema>) => {
-        setIsLoading(true); 
+        setIsLoading(true);
         setErrorMessage(""); // Reset pesan kesalahan
 
         try {
@@ -122,6 +122,7 @@ const ResetPassword = () => {
                 <Notification
                     message={notification.message}
                     onClose={() => setNotification(null)} // Hapus notifikasi saat ditutup
+                    status="success"
                 />
             )}
 

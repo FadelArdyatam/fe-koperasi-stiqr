@@ -63,7 +63,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
     }
     const handleAddEmployee = () => {
         setIsSuccess(false),
-            setAddEmployee(true)
+            setAddEmployee(false)
     }
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         const userItem = sessionStorage.getItem("user");
