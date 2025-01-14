@@ -651,7 +651,7 @@ const Signup = () => {
                                                                     <ChevronDown />
                                                                 </div>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent>
+                                                            <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
                                                                 {loading ? (
                                                                     <div>Loading...</div>
                                                                 ) : (
@@ -696,7 +696,7 @@ const Signup = () => {
                                                                     <ChevronDown />
                                                                 </div>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent>
+                                                            <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
                                                                 {loading ? (
                                                                     <div>Loading...</div>
                                                                 ) : (
@@ -739,7 +739,7 @@ const Signup = () => {
                                                                     <ChevronDown />
                                                                 </div>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent>
+                                                            <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
                                                                 {loading ? (
                                                                     <div>Loading...</div>
                                                                 ) : (
@@ -779,7 +779,7 @@ const Signup = () => {
                                                                     <ChevronDown />
                                                                 </div>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent>
+                                                            <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
                                                                 {loading ? (
                                                                     <div>Loading...</div>
                                                                 ) : (

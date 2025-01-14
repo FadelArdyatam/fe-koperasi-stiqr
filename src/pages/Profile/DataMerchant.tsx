@@ -199,7 +199,7 @@ const DataMerchant = () => {
                     </Link>
                 </div>
 
-                <div className="bg-white w-[90%] -translate-y-20 p-5 flex flex-col items-center gap-5 rounded-lg shadow-lg z-20">
+                <div className="bg-white w-[90%] -translate-y-20 p-5 flex flex-col items-center gap-5 rounded-lg shadow-lg z-0 mb-10">
                     <div className="flex w-full items-center justify-between">
                         <p className="text-sm text-gray-500">Nama Merchant</p>
 
