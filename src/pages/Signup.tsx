@@ -94,13 +94,15 @@ const Signup = () => {
     })
 
     function onSubmitUser(data: z.infer<typeof FormSchemaUser>) {
-        console.log(data)
+        console.log("Data user yang dikirim:", data);
 
-        setAllData([...allData, data]);
+        // Update allData dengan data baru
+        const updatedAllData = [data, ...allData.slice(1)];
+        setAllData(updatedAllData);
 
-        handleNext()
+        handleNext();
     }
-    
+
     const FormSchemaMerchant = z.object({
         typeBusinessEntity: z.enum(["Perorangan", "CV", "Koperasi", "Firma", "Perseroan Terbatas"], {
             message: "Please select the type of business entity",
@@ -157,28 +159,34 @@ const Signup = () => {
     })
 
     const onSubmitMerchant = async (data: z.infer<typeof FormSchemaMerchant>) => {
+        const userDatas = allData[0] as z.infer<typeof FormSchemaUser>;
+
+        // Debug email user sebelum membuat payload
+        console.log("Email user yang digunakan:", userDatas?.email);
+
         const payload = {
-            username: (allData[0] as z.infer<typeof FormSchemaUser>)?.ownerName,
-            nik: (allData[0] as z.infer<typeof FormSchemaUser>)?.nik,
-            email: (allData[0] as z.infer<typeof FormSchemaUser>)?.email ,
-            password: (allData[0] as z.infer<typeof FormSchemaUser>)?.password ,
-            confirmPassword: (allData[0] as z.infer<typeof FormSchemaUser>)?.confirmPassword ,
-            phoneNumber: (allData[0] as z.infer<typeof FormSchemaUser>)?.phoneNumber,
-            gender: (allData[0] as z.infer<typeof FormSchemaUser>)?.gender,
-            dateOfBirth: (allData[0] as z.infer<typeof FormSchemaUser>)?.dateOfBirth,
+            username: userDatas?.ownerName,
+            nik: userDatas?.nik,
+            email: userDatas?.email, // Pastikan ini adalah email terbaru
+            password: userDatas?.password,
+            confirmPassword: userDatas?.confirmPassword,
+            phoneNumber: userDatas?.phoneNumber,
+            gender: userDatas?.gender,
+            dateOfBirth: userDatas?.dateOfBirth,
             merchantAddress: data.merchantAddress,
             merchantCategory: data.merchantCategory,
             merchantProvince: data.merchantProvince,
             merchantRegency: data.merchantRegency,
             merchantDistrict: data.merchantDistrict,
             merchantVillage: data.merchantVillage,
-            merchantEmail: data.merchantEmail ,
-            merchantName: data.merchantName ,
+            merchantEmail: data.merchantEmail,
+            merchantName: data.merchantName,
             phoneNumberMerchant: data.phoneNumberMerchant,
             postalCode: data.postalCode,
             typeBusinessEntity: data.typeBusinessEntity,
-            photo: (allData[0] as z.infer<typeof FormSchemaUser>).photo instanceof File ? (allData[0] as z.infer<typeof FormSchemaUser>).photo : "https://via.placeholder.com/150", // Handle photo field (file or fallback URL)
+            photo: userDatas.photo instanceof File ? userDatas.photo : "https://via.placeholder.com/150",
         };
+
         console.log(payload)
 
         const formData = new FormData();
@@ -216,14 +224,14 @@ const Signup = () => {
             });
 
             const result = await response.json();
-            if(result.status) {
+            if (result.status) {
                 handleNext();
                 setShowNotification(false)
             } else {
                 setShowNotification(true)
                 setErrorMessage(result.message)
             }
-        } catch (error:any) {
+        } catch (error: any) {
             console.log(error)
             console.error("Error:", error)
             setShowNotification(true)
@@ -380,7 +388,7 @@ const Signup = () => {
                                                 </FormItem>
                                             )}
                                         />
-                                         <FormField
+                                        <FormField
                                             control={formUser.control}
                                             name="nik"
                                             render={({ field }) => (
@@ -495,7 +503,7 @@ const Signup = () => {
                                                             </p>
 
                                                             <input
-                                                                {...field}  
+                                                                {...field}
                                                                 type="file"
                                                                 accept="image/*"
                                                                 className="w-full bg-[#F4F4F4] font-sans font-semibold"
@@ -514,12 +522,12 @@ const Signup = () => {
                                                                             return;
                                                                         }
 
-                                                                        field.onChange(file); 
+                                                                        field.onChange(file);
                                                                     } else {
-                                                                        field.onChange(null); 
+                                                                        field.onChange(null);
                                                                     }
                                                                 }}
-                                                                value="" 
+                                                                value=""
                                                             />
                                                         </>
                                                     </FormControl>
@@ -885,8 +893,8 @@ const Signup = () => {
                                         />
                                     </div>
                                     <div className="grid grid-cols-2 gap-5">
-                                    <Button type="button" onClick={()=> {setCurrentSection(0)}} className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>BACK</Button>
-                                    <Button type="submit" className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>SUBMIT</Button>
+                                        <Button type="button" onClick={() => { setCurrentSection(0) }} className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>BACK</Button>
+                                        <Button type="submit" className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>SUBMIT</Button>
                                     </div>
                                 </form>
                             </Form>
@@ -896,10 +904,10 @@ const Signup = () => {
                     </div>
                     {showNotification && (
                         <>
-                        <Notification
-                            message={errorMessage}
-                            onClose={() => setShowNotification(false)} 
-                            status="error"
+                            <Notification
+                                message={errorMessage}
+                                onClose={() => setShowNotification(false)}
+                                status="error"
                             />
                         </>
                     )}
