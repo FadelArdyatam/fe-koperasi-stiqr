@@ -3,18 +3,22 @@ import { Button } from './ui/button';
 import { Check } from 'lucide-react';
 import bcrypt from "bcryptjs";
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from '@/hooks/axiosInstance';
 
 interface BillProps {
     data: {
+        productCode: any;
+        phoneNumber: any;
         product: string;
         amount: string;
         date: string;
         time: string;
     };
     marginTop?: boolean;
+    product?: string;
 }
 
-const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
+const Bill: React.FC<BillProps> = ({ data, marginTop, product }) => {
     const [showPinInput, setShowPinInput] = useState(false);
     const [pin, setPin] = useState<string[]>([]);
     const [showNotification, setShowNotification] = useState(false);
@@ -30,11 +34,28 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
         setPin(pin.slice(0, -1)); // Hapus angka terakhir dari PIN
     };
 
-    const handleSubmitPin = () => {
+    const handleSubmitPin = async () => {
         const savedPin = localStorage.getItem("userPin"); // Ambil PIN yang disimpan
 
         if (savedPin && bcrypt.compareSync(pin.join(''), savedPin)) {
-            setShowNotification(true); // Tampilkan notifikasi
+            try {
+                // Lakukan API call di sini
+                if (product === "pulsa" || product === "paket data") {
+                    const response = await axiosInstance.post("/ayoconnect/inquiry", {
+                        accountNumber: data.phoneNumber,
+                        productCode: data.productCode,
+                    });
+
+                    console.log("Inquiry Response:", response.data);
+
+                    // Tampilkan notifikasi sukses setelah API call berhasil
+                    setShowNotification(true);
+                }
+            } catch (error) {
+                console.error("Error saat melakukan pembayaran:", error);
+                alert("Terjadi kesalahan saat proses pembayaran.");
+            }
+
             setShowPinInput(false);
             setPin([]); // Reset PIN
         } else {
@@ -46,10 +67,11 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
     const backToHomeHandler = () => {
         setShowNotification(false);
         navigate('/dashboard');
-    }
+    };
 
     return (
         <>
+            {/* Komponen Detail Tagihan */}
             <div className={`${marginTop ? 'mt-[130px]' : 'mt-[-90px] bg-white'} w-[90%] m-auto shadow-lg p-10 rounded-lg`}>
                 <div className='w-16 h-16 flex items-center justify-center border-2 border-black bg-orange-400 rounded-full m-auto'>
                     <Check className='scale-[2] text-white' />
@@ -65,16 +87,13 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                     <div className='flex items-start gap-5 justify-between'>
                         <div>
                             <p>{data.product} {data.amount}</p>
-
                             <p className='text-sm text-gray-400 mt-2'>1 x Rp {data.amount}</p>
                         </div>
-
                         <p>Rp {data.amount}</p>
                     </div>
 
                     <div className='mt-10 flex items-center gap-5 justify-between'>
                         <p>Total Belanja</p>
-
                         <p>Rp {data.amount}</p>
                     </div>
 
@@ -82,7 +101,6 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
 
                     <div className='flex items-center gap-5 justify-between'>
                         <p>Total Bayar</p>
-
                         <p className='text-orange-400'>Rp {data.amount}</p>
                     </div>
 
@@ -90,14 +108,17 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
 
                     <div className='flex items-center gap-5 justify-between'>
                         <p>Date:</p>
-
                         <p>{data.date} | {data.time}</p>
                     </div>
                 </div>
             </div>
 
-            <Button onClick={() => setShowPinInput(true)} className='uppercase translate-y-10 block text-center w-[90%] m-auto bg-green-500 mb-32 text-white'>Bayar</Button>
+            {/* Tombol Bayar */}
+            <Button onClick={() => setShowPinInput(true)} className='uppercase translate-y-10 block text-center w-[90%] m-auto bg-green-500 mb-32 text-white'>
+                Bayar
+            </Button>
 
+            {/* Komponen Input PIN */}
             {showPinInput && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white w-[90%] p-6 rounded-lg">
@@ -158,6 +179,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                 </div>
             )}
 
+            {/* Notifikasi Sukses */}
             <div className={`${showNotification ? 'flex' : 'hidden'} fixed items-center justify-center top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50`}>
                 <div className="w-[90%] bg-white p-5 mt-5 rounded-lg flex items-center flex-col gap-5">
                     <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-green-400'>

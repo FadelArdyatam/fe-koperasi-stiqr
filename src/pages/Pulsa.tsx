@@ -11,27 +11,19 @@ interface BillData {
     amount: string;
     date: string;
     time: string;
+    productCode: any;
+    phoneNumber: any;
 }
-
-const amounts = [
-    '10.',
-    '25.',
-    '50.',
-    '100.',
-    '150.',
-    '200.',
-    '300.',
-    '500.',
-]
 
 const Pulsa = () => {
     const [phoneNumber, setPhoneNumber] = useState("")
-    const [selectedAmount, setSelectedAmount] = useState("")
+    const [selectedProduct, setSelecteProduct] = useState<any>(null)
     const [dataBill, setDataBill] = useState<BillData | null>(null)
     const [showBill, setShowBill] = useState(false)
     const [indexButton, setIndexButton] = useState(-1)
     const [balance, setBalance] = useState(0);
-    const [user, setUser] = useState<any>();
+    const [products, setProducts] = useState<any[]>([]);
+    const [category, setCategory] = useState("pulsa");
 
     useEffect(() => {
         const checkProfile = async () => {
@@ -40,7 +32,6 @@ const Pulsa = () => {
             // Ambil informasi user dari sessionStorage
             const userItem = sessionStorage.getItem("user");
             const userData = userItem ? JSON.parse(userItem) : null;
-            setUser(userData);
 
             if (!token) {
                 console.warn("Token tidak ditemukan untuk otorisasi.");
@@ -52,8 +43,17 @@ const Pulsa = () => {
                     `/balance/${userData.merchant.id}`,
                 );
 
-                console.log("Profile Response:", response.data);
-                setBalance(response.data.data.balence_amount);
+                const responseProducts = await axiosInstance.post("/ayoconnect/products",
+                    {
+                        "category": category,
+                        "status": "active"
+                    },);
+
+                setProducts(responseProducts.data.data);
+
+                console.log("Profile Response:", response);
+                console.log("Products Response:", responseProducts.data);
+                setBalance(response.data);
             } catch (err) {
                 console.error("Error saat mengambil profile:", err);
             }
@@ -64,8 +64,10 @@ const Pulsa = () => {
 
     const sendBill = () => {
         const data = {
-            product: 'Telkomsel - Simpati',
-            amount: selectedAmount,
+            product: selectedProduct.name,
+            amount: selectedProduct.amount,
+            phoneNumber: phoneNumber,
+            productCode: selectedProduct.code,
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString(),
         }
@@ -74,12 +76,35 @@ const Pulsa = () => {
         setShowBill(true)
     }
 
-    const selectedAmountHandler = (amount: string, index: number) => {
-        setSelectedAmount(`${amount}000`)
+    const selectedAmountHandler = (amount: object, index: number) => {
+        setSelecteProduct(amount);
         setIndexButton(index)
     }
 
-    console.log(user)
+    const setCategoryHandler = async (newCategory: string) => {
+        setCategory(newCategory);
+
+        const token = localStorage.getItem("token");
+
+        try {
+            const responseProducts = await axiosInstance.post("/ayoconnect/products",
+                {
+                    "category": newCategory, // Gunakan parameter langsung
+                    "status": "active"
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+            setProducts(responseProducts.data.data);
+        } catch (err) {
+            console.error("Error saat mengambil produk:", err);
+        }
+    };
+
+    console.log("Selected Products:", selectedProduct);
 
     return (
         <div>
@@ -111,24 +136,34 @@ const Pulsa = () => {
                     <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
                 </div>
 
+                <div className="mt-10 w-[90%] m-auto flex flex-row items-center justify-center gap-5">
+                    <Button onClick={() => setCategoryHandler("pulsa")} className="bg-orange-400 text-white w-full">
+                        Pulsa
+                    </Button>
+
+                    <Button onClick={() => setCategoryHandler("paket data")} className="bg-orange-400 text-white w-full">
+                        Paket Data
+                    </Button>
+                </div>
+
                 <div className="mt-10 w-[90%] mb-10 m-auto flex flex-col items-center gap-5 shadow-lg">
                     <div className="w-full flex items-center justify-center">
                         <img src={telkomsel} className="w-[50%]" alt="" />
                     </div>
 
                     <div className="w-full flex flex-wrap">
-                        {amounts.map((amount, index) => (
-                            <button key={index} onClick={() => selectedAmountHandler(amount, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-2xl font-semibold`}>{amount}<span className="text-xs">000</span></button>
+                        {products.map((product, index) => (
+                            <button key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
                         ))}
                     </div>
                 </div>
 
-                <Button onClick={sendBill} className={`${phoneNumber.length === 0 || selectedAmount.length === 0 ? 'hidden' : 'block'} uppercase mt-5 text-center w-[90%] m-auto mb-10 bg-green-500 text-white`}>
+                <Button onClick={sendBill} className={`${phoneNumber.length === 0 ? 'hidden' : 'block'} uppercase mt-5 text-center w-[90%] m-auto mb-10 bg-green-500 text-white`}>
                     Lanjutkan
                 </Button>
             </div>
 
-            {showBill && dataBill && <Bill data={dataBill} marginTop={true} />}
+            {showBill && dataBill && <Bill data={dataBill} marginTop={true} product={category} />}
         </div>
     )
 }

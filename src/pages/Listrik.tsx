@@ -18,6 +18,8 @@ interface BillData {
     amount: string;
     date: string;
     time: string;
+    productCode: any;
+    phoneNumber: any;
 }
 
 const Listrik = () => {
@@ -33,6 +35,8 @@ const Listrik = () => {
             amount: nominal,
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString(),
+            productCode: "", // Add appropriate value
+            phoneNumber: "", // Add appropriate value
         };
 
         setDataBill(data);
