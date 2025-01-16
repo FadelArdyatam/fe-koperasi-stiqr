@@ -13,6 +13,7 @@ interface BillData {
     time: string;
     productCode: any;
     phoneNumber: any;
+    inquiryId: any;
 }
 
 const Pulsa = () => {
@@ -62,19 +63,32 @@ const Pulsa = () => {
         checkProfile();
     }, [])
 
-    const sendBill = () => {
-        const data = {
-            product: selectedProduct.name,
-            amount: selectedProduct.amount,
-            phoneNumber: phoneNumber,
-            productCode: selectedProduct.code,
-            date: new Date().toLocaleDateString(),
-            time: new Date().toLocaleTimeString(),
-        }
+    const sendBill = async () => {
+        try {
+            const response = await axiosInstance.post("/ayoconnect/inquiry", {
+                accountNumber: phoneNumber,
+                productCode: selectedProduct.code,
+            });
 
-        setDataBill(data)
-        setShowBill(true)
-    }
+            console.log("Inquiry Response:", response.data);
+
+            const data = {
+                product: selectedProduct.name,
+                amount: selectedProduct.amount,
+                phoneNumber: phoneNumber,
+                productCode: selectedProduct.code,
+                inquiryId: response.data.data.inquiryId, // Assuming inquiryId comes from response
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString(),
+            };
+
+            setDataBill(data);
+            setShowBill(true);
+        } catch (error) {
+            console.error("Error saat melakukan inquiry:", error);
+            alert("Terjadi kesalahan saat melakukan inquiry.");
+        }
+    };
 
     const selectedAmountHandler = (amount: object, index: number) => {
         setSelecteProduct(amount);
@@ -163,7 +177,7 @@ const Pulsa = () => {
                 </Button>
             </div>
 
-            {showBill && dataBill && <Bill data={dataBill} marginTop={true} product={category} />}
+            {showBill && dataBill && <Bill data={dataBill} marginTop={true} />}
         </div>
     )
 }

@@ -15,6 +15,7 @@ interface BillData {
     time: string;
     productCode: any;
     phoneNumber: any;
+    inquiryId: any;
 }
 
 const BPJS = () => {
@@ -31,7 +32,8 @@ const BPJS = () => {
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString(),
             productCode: '', // Add appropriate value
-            phoneNumber: ''  // Add appropriate value
+            phoneNumber: '',  // Add appropriate value
+            inquiryId: ''  // Add appropriate
         }
 
         setDataBill(data)
