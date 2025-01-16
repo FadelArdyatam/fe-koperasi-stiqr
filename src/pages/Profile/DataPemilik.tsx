@@ -80,7 +80,7 @@ const DataPemilik = () => {
         setUser(userData);
         if (userData) {
             form.reset({
-                NIK: "123203091821833",
+                NIK: userData.nik,
                 ownerName: userData.username || userData.name || "",
                 email: userData.email || "",
                 phoneNumber: userData.phone_number || "",
@@ -98,7 +98,7 @@ const DataPemilik = () => {
     const handleEditClick = () => {
         if (user) {
             form.reset({
-                NIK: "123203091821833",
+                NIK: user.nik,
                 ownerName: user.username || user.name || "",
                 email: user.email || "",
                 phoneNumber: user.phone_number || "",
@@ -219,7 +219,7 @@ const DataPemilik = () => {
                         <Image />
                     </div>
                 </div>
-                <Button onClick={handleEditClick} className="w-[90%] bg-green-400 -mt-12">Edit</Button>
+                <Button onClick={handleEditClick} className="w-[90%] bg-green-400 -mt-16 md:mb-20">Edit</Button>
 
             </div>
 

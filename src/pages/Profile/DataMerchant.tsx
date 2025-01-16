@@ -268,7 +268,7 @@ const DataMerchant = () => {
                     </div>
                 </div>
 
-                <Button onClick={handleEditClick} className="w-[90%] block bg-green-400 -mt-12">Edit</Button>
+                <Button onClick={handleEditClick} className="w-[90%] block bg-green-400 -mt-24 mb-32">Edit</Button>
             </div>
 
             <div className={`${showEdit ? 'flex' : 'hidden'} w-full flex-col min-h-screen items-center`}>

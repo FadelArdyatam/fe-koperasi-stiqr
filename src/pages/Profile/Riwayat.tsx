@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, Filter, ArrowDownAZ, FileText } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { admissionFees } from "../Dashboard";
 import telkomsel from "../../images/telkomsel.png";
 import pln from "../../images/pln.png";
 import bpjs from "../../images/bpjs.png";
 import html2canvas from "html2canvas";
+import axiosInstance from "@/hooks/axiosInstance";
 
 const payments = [
     {
@@ -47,6 +48,16 @@ const payments = [
     },
 ];
 
+
+interface Purchase {
+    type: string;
+    purchase_id: string;
+    amount: string;
+    date: string;
+    image?: string;
+    status: string;
+}
+
 const Riwayat = () => {
     const [type, setType] = useState("Uang Masuk");
     const [showDescription, setShowDescription] = useState({ status: false, index: -1 });
@@ -57,6 +68,19 @@ const Riwayat = () => {
     const [typeFilter, setTypeFilter] = useState({ show: false, type: 'all' });
     const [filterPayments, setFilterPayments] = useState<typeof payments>([]);
     const [filterAdmissionFees, setFilterAdmissionFees] = useState<typeof admissionFees>([]);
+
+
+    const [purchases,setPurchases] = useState<Purchase[]>([]);
+    useEffect(() => {
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
+        const fetchPurchase = async() => {
+            const response = await axiosInstance.get(`/history/purchases/${userData.merchant.id}`);
+            setPurchases(response.data);
+        }
+        fetchPurchase();
+    }, []);
 
     const downloadImage = async () => {
         if (contentRef.current) {
@@ -440,45 +464,55 @@ const Riwayat = () => {
                                     </div>
                                 </div>
                             </button>
-                        )) : payments.map((payment, index) => ( // Tampilkan data yang belum diurutkan
+                        )) : purchases.map((purchase, index) => ( // Tampilkan data yang belum diurutkan
                             <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
                                 <div
                                     className={`${index === 0 ? "hidden" : "block"
                                         } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
                                 ></div>
 
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-start gap-2">
+                                <div className="flex md:items-center md:justify-between md:flex-row flex-col">
+                                    <div className="flex md:items-start items-center gap-5">
                                         <img
-                                            src={payment.image}
-                                            className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
+                                            src={purchase.image}
+                                            className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
                                             alt=""
                                         />
 
-                                        <div className="flex flex-col items-start">
-                                            <div className="flex items-center gap-2">
-                                                <p className="uppercase text-sm">{payment.title}</p>
-
-                                                <div className={`${payment.status === 'success' ? 'bg-green-400' : payment.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
-                                                    <p>{payment.status}</p>
-                                                </div>
+                                        <div className="flex md:flex-row flex-col items-start gap-5">
+                                            <div className="flex flex-col gap-2">
+                                                <p className="uppercase text-sm">{purchase.type}</p>
+                                                <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
                                             </div>
+                                                <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
+                                                    <p>{purchase.status}</p>
+                                                </div>
 
-                                            <p className="text-xs text-gray-400">{payment.code}</p>
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col items-end">
+                                    <div className="flex md:mt-0 mt-5 flex-col items-end">
                                         <p className="text-md font-semibold">
-                                            Rp {new Intl.NumberFormat("id-ID").format(Number(payment.amount))}
+                                            Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
                                         </p>
 
                                         <div className="flex items-center">
-                                            <p className="text-xs">{payment.date}</p>
+                                            <p className="text-xs">
+                                            {new Date(purchase.date).toLocaleDateString('id-ID', {
+                                                day: '2-digit',
+                                                month: 'long',
+                                                year: 'numeric',
+                                            })}
+                                            </p>
 
                                             <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
 
-                                            <p className="text-xs">{payment.time}</p>
+                                            <p className="text-xs">
+                                            {new Date(purchase.date).toLocaleTimeString('id-ID', {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            })}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

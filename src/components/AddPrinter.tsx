@@ -81,7 +81,7 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
         const userData = userItem ? JSON.parse(userItem) : null;
 
         const printerPayload = {
-            printer_name: data.name,
+            name: data.name,
             mac_address: data.macAddress,
             is_active: true,
             merchant_id: userData?.merchant?.id || "", 

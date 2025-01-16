@@ -122,7 +122,7 @@ const Printer = () => {
                                         <PrinterCheck className="block scale-[1.5] text-gray-500" />
                                     </div>
                                     <div>
-                                        <p>{printer.printer_name}</p>
+                                        <p>{printer.name}</p>
                                     </div>
                                 </div>
                             ))}

@@ -123,15 +123,17 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
                 "/product/create",
                 formData,
             );
-            console.log(etalases)
-            const response2 = await axiosInstance.post(
-                "/showcase-product/create",
-                {
-                    product_id: response?.data?.data?.product_id,
-                    showcase_id: selectedEtalase,
-                },
-
-            )
+            console.log(selectedEtalase);
+            if(selectedEtalase) {
+                const response2 = await axiosInstance.post(
+                    "/showcase-product/create",
+                    {
+                        product_id: response?.data?.data?.product_id,
+                        showcase_id: selectedEtalase,
+                    },
+                )
+                console.log(response2)
+            }
 
             // // Add to local state with the returned image URL
             // const newProduct = {
@@ -162,7 +164,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
             // });
 
             console.log("Product successfully added to API:", response.data);
-            console.log("Showcase Product successfully added to API:", response2.data);
+            // console.log("Showcase Product successfully added to API:", response2.data);
             setShowNotification(true);
 
         } catch (error) {

@@ -22,7 +22,7 @@ import axiosInstance from "@/hooks/axiosInstance"
 import Notification from "@/components/Notification"
 
 const Signup = () => {
-    const [showTermsandConditions, setShowTermsandConditions] = useState(false)
+    const [showTermsandConditions, setShowTermsandConditions] = useState(true)
     const [section, setSection] = useState([true, false, false]);
     const [currentSection, setCurrentSection] = useState(0);
     const [showPassword, setShowPassword] = useState(false)
