@@ -1,4 +1,4 @@
-import TermsandCondition from "@/components/TermsandCondition"
+import TermsandConditionInProfile from "@/components/TermsandConditionInProfile"
 import { Button } from "@/components/ui/button"
 import axios from "axios"
 import { ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, User, UserRound, FileText } from "lucide-react"
@@ -202,7 +202,7 @@ const Profile = () => {
                 </div>
             </div>
 
-            {showTermsandConditions && <TermsandCondition setShowTermsandConditions={setShowTermsandConditions} backToPageProfile={true} />}
+            {showTermsandConditions && <TermsandConditionInProfile />}
         </>
     )
 }

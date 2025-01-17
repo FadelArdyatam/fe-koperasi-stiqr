@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Check } from 'lucide-react';
-import bcrypt from "bcryptjs";
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '@/hooks/axiosInstance';
 import Notification from './Notification';
@@ -37,41 +36,37 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
     };
 
     const handleSubmitPin = async () => {
-        const savedPin = localStorage.getItem("userPin"); // Ambil PIN yang disimpan
+        // const savedPin = localStorage.getItem("userPin"); // Ambil PIN yang disimpan
 
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
-        if (savedPin && bcrypt.compareSync(pin.join(''), savedPin)) {
-            console.log("data from bill: ", data)
+        console.log("data from bill: ", data)
 
-            try {
-                // Mengirim request ke endpoint /payment
-                const response = await axiosInstance.post("/ayoconnect/payment", {
-                    accountNumber: data.phoneNumber,
-                    productCode: data.productCode,
-                    inquiryId: data.inquiryId,
-                    amount: data.amount,
-                    merchant_id: userData.merchant.id,
-                });
+        try {
+            // Mengirim request ke endpoint /payment
+            const response = await axiosInstance.post("/ayoconnect/payment", {
+                accountNumber: data.phoneNumber,
+                productCode: data.productCode,
+                inquiryId: data.inquiryId,
+                amount: data.amount,
+                merchant_id: userData.merchant.id,
+                pin: pin.join(''),
+            });
 
-                console.log("Payment Response:", response.data);
+            console.log("Payment Response:", response.data);
 
-                // Tampilkan notifikasi sukses setelah API call berhasil
-                setShowNotification(true);
-            } catch (error: any) {
-                console.error("Error saat melakukan pembayaran:", error);
+            // Tampilkan notifikasi sukses setelah API call berhasil
+            setShowNotification(true);
+        } catch (error: any) {
+            console.error("Error saat melakukan pembayaran:", error);
 
-                // Tampilkan notifikasi error
-                setError(error.response?.data?.message || "Terjadi kesalahan saat proses pembayaran.");
-            }
-
-            setShowPinInput(false);
-            setPin([]); // Reset PIN
-        } else {
-            alert("PIN salah, coba lagi."); // PIN tidak cocok
-            setPin([]); // Reset PIN
+            // Tampilkan notifikasi error
+            setError(error.response?.data?.message || "Terjadi kesalahan saat proses pembayaran.");
         }
+
+        setShowPinInput(false);
+        setPin([]); // Reset PIN
     };
 
     const backToHomeHandler = () => {
