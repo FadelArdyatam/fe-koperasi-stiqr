@@ -1,54 +1,21 @@
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@radix-ui/react-accordion";
-import { ChevronDown, ChevronLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ChevronLeft, ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { Button } from "./ui/button";
+import { Link } from "react-router-dom";
 
-interface TermsandConditionProps {
-    setShowTermsandConditions: (show: boolean) => void;
-    backToPageProfile: boolean;
-}
-
-const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: TermsandConditionProps) => {
+const TermsandConditionInProfile = () => {
     const [openItem, setOpenItem] = useState<string | null>(null);
-    const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({ "item-1": false, "item-2": false, "item-3": false, "item-4": false, "item-5": false, "item-6": false });
-    const [showNotification, setShowNotification] = useState(false);
 
     const handleAccordionChange = (value: string) => {
         setOpenItem((prev) => (prev === value ? null : value));
     };
 
-    const handleCheckboxChange = (item: string) => {
-        setCheckedItems((prev) => ({
-            ...prev,
-            [item]: !prev[item],
-        }));
-    };
-
-    const allChecked = Object.values(checkedItems).every((checked) => checked);
-
-    const termsandConditionHandler = () => {
-        if (allChecked) {
-            setShowTermsandConditions(false);
-        } else {
-            setShowNotification(true);
-        }
-    }
-
-    console.log(allChecked);
-
     return (
         <div className="w-full flex flex-col min-h-screen items-center">
             <div className="w-full px-5 pt-5 pb-32 flex items-center justify-center bg-orange-400">
-                {backToPageProfile ? (
-                    <button onClick={() => setShowTermsandConditions(false)} className="absolute left-5 bg-transparent hover:bg-transparent">
-                        <ChevronLeft className="scale-[1.3] text-white" />
-                    </button>
-                ) : (
-                    <Link to={"/"} className="absolute left-5 bg-transparent hover:bg-transparent">
-                        <ChevronLeft className="scale-[1.3] text-white" />
-                    </Link>
-                )}
+                <Link to={"/dashboard"} className="absolute left-5 bg-transparent hover:bg-transparent">
+                    <ChevronLeft className="scale-[1.3] text-white" />
+                </Link>
 
                 <p className="font-semibold m-auto text-xl text-white text-center">Syarat dan Ketentuan</p>
             </div>
@@ -92,18 +59,6 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                         Dengan memperhatikan seluruh ketentuan dalam Ketentuan Pemakaian STIQR, Para Pihak sepakat pada Ketentuan Pemakaian STIQR ini.
                                     </li>
                                 </ol>
-
-                                <div className="flex items-center gap-5 mt-5">
-                                    <input
-                                        type="checkbox"
-                                        id="item-1-checkbox"
-                                        checked={checkedItems["item-1"] || false}
-                                        onChange={() => handleCheckboxChange("item-1")}
-                                        className="mt-1"
-                                    />
-
-                                    <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
-                                </div>
                             </AccordionContent>
                         </AccordionItem>
 
@@ -143,18 +98,6 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                         Pemilik Merchant juga memahami dan menyetujui peran yang melekat pada setiap Akun STIQR serta tunduk pada Syarat dan Ketentuan Penunjukan Peran Akun STIQR yang merupakan bagian dari Ketentuan Pemakaian ini.
                                     </li>
                                 </ol>
-
-                                <div className="flex items-center gap-5 mt-5">
-                                    <input
-                                        type="checkbox"
-                                        id="item-2-checkbox"
-                                        checked={checkedItems["item-2"] || false}
-                                        onChange={() => handleCheckboxChange("item-2")}
-                                        className="mt-1"
-                                    />
-
-                                    <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
-                                </div>
                             </AccordionContent>
                         </AccordionItem>
 
@@ -179,18 +122,6 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                         Pemakaian web STIQR dari sumber selain browser resmi dan/atau pada perangkat yang tidak sesuai (selain perangkat telepon genggam, tablet, laptop, atau komputer.) dianggap sebagai pelanggaran terhadap Ketentuan Pemakaian STIQR dan hak kekayaan intelektual DNS.
                                     </li>
                                 </ol>
-
-                                <div className="flex items-center gap-5 mt-5">
-                                    <input
-                                        type="checkbox"
-                                        id="item-3-checkbox"
-                                        checked={checkedItems["item-3"] || false}
-                                        onChange={() => handleCheckboxChange("item-3")}
-                                        className="mt-1"
-                                    />
-
-                                    <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
-                                </div>
                             </AccordionContent>
                         </AccordionItem>
 
@@ -246,18 +177,6 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                         Pemilik Merchant wajib memberi tahu DNS dan/atau Afiliasinya tentang kehilangan atau kerusakan dan bertanggung jawab atas biaya yang ditetapkan.
                                     </li>
                                 </ol>
-
-                                <div className="flex items-center gap-5 mt-5">
-                                    <input
-                                        type="checkbox"
-                                        id="item-4-checkbox"
-                                        checked={checkedItems["item-4"] || false}
-                                        onChange={() => handleCheckboxChange("item-4")}
-                                        className="mt-1"
-                                    />
-
-                                    <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
-                                </div>
                             </AccordionContent>
                         </AccordionItem>
 
@@ -316,18 +235,6 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                         DNS berhak meminta Pemilik Merchant untuk menyerahkan bukti pendukung sebagai bagian dari proses banding terkait tindakan yang diambil. Bukti pendukung tersebut harus diserahkan dalam waktu 7 (tujuh) hari kerja kalender setelah permintaan dari DNS. Setelah menerima bukti tersebut, DNS akan melakukan penilaian dan, berdasarkan kebijakannya sendiri, akan memutuskan apakah akan melanjutkan proses penyelesaian atau tetap menggunakan hak-haknya yang telah ditetapkan.
                                     </li>
                                 </ol>
-
-                                <div className="flex items-center gap-5 mt-5">
-                                    <input
-                                        type="checkbox"
-                                        id="item-5-checkbox"
-                                        checked={checkedItems["item-5"] || false}
-                                        onChange={() => handleCheckboxChange("item-5")}
-                                        className="mt-1"
-                                    />
-
-                                    <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
-                                </div>
                             </AccordionContent>
                         </AccordionItem>
 
@@ -369,41 +276,13 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                         Pemilik Merchant setuju bahwa DNS memiliki hak untuk: (1) menginformasikan semua data dan Informasi Rahasia kepada vendor, subkontraktor, agen, atau konsultan hanya untuk tujuan pelaksanaan Ketentuan Pemakaian STIQR ini; dan/atau (2) mengolah serta memanfaatkan data Pemilik Merchant untuk (a) meningkatkan layanan yang diberikan oleh DNS, Afiliasinya, atau Penyedia Layanan kepada Pemilik Merchant (termasuk untuk sistem deteksi penipuan, aturan penipuan, dan kebutuhan audit korporasi); serta (b) untuk menawarkan produk dan/atau layanan DNS, Afiliasinya, atau Penyedia Layanan lainnya kepada Pemilik Merchant.
                                     </li>
                                 </ol>
-
-                                <div className="flex items-center gap-5 mt-5">
-                                    <input
-                                        type="checkbox"
-                                        id="item-6-checkbox"
-                                        checked={checkedItems["item-6"] || false}
-                                        onChange={() => handleCheckboxChange("item-6")}
-                                        className="mt-1"
-                                    />
-
-                                    <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
-                                </div>
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
                 </div>
             </div>
-
-            <div className={`w-[90%] ${openItem ? 'fixed bottom-4 m-auto' : 'm-64'}`}>
-                <Button onClick={termsandConditionHandler} className="w-full bg-green-400">Lanjutkan</Button>
-            </div>
-
-            {showNotification && (
-                <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 z-20 flex items-center justify-center">
-                    <div className="bg-white w-[90%] rounded-lg m-auto p-5">
-                        <p className="text-red-500 text-sm">Anda harus menyetujui semua syarat dan ketentuan untuk melanjutkan.</p>
-
-                        <div className="flex items-center gap-5 mt-5">
-                            <Button onClick={() => setShowNotification(false)} className="w-full bg-red-400">Tutup</Button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
-};
+}
 
-export default TermsandCondition;
+export default TermsandConditionInProfile
