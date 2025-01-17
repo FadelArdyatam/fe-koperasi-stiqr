@@ -4,9 +4,11 @@ import { Check } from 'lucide-react';
 import bcrypt from "bcryptjs";
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '@/hooks/axiosInstance';
+import Notification from './Notification';
 
 interface BillProps {
     data: {
+        inquiryId: any;
         productCode: any;
         phoneNumber: any;
         product: string;
@@ -15,13 +17,13 @@ interface BillProps {
         time: string;
     };
     marginTop?: boolean;
-    product?: string;
 }
 
-const Bill: React.FC<BillProps> = ({ data, marginTop, product }) => {
+const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
     const [showPinInput, setShowPinInput] = useState(false);
     const [pin, setPin] = useState<string[]>([]);
     const [showNotification, setShowNotification] = useState(false);
+    const [error, setError] = useState<string>("");
     const navigate = useNavigate();
 
     const handleNumberClick = (number: string) => {
@@ -37,23 +39,31 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, product }) => {
     const handleSubmitPin = async () => {
         const savedPin = localStorage.getItem("userPin"); // Ambil PIN yang disimpan
 
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
         if (savedPin && bcrypt.compareSync(pin.join(''), savedPin)) {
+            console.log("data from bill: ", data)
+
             try {
-                // Lakukan API call di sini
-                if (product === "pulsa" || product === "paket data") {
-                    const response = await axiosInstance.post("/ayoconnect/inquiry", {
-                        accountNumber: data.phoneNumber,
-                        productCode: data.productCode,
-                    });
+                // Mengirim request ke endpoint /payment
+                const response = await axiosInstance.post("/ayoconnect/payment", {
+                    accountNumber: data.phoneNumber,
+                    productCode: data.productCode,
+                    inquiryId: data.inquiryId,
+                    amount: data.amount,
+                    merchant_id: userData.merchant.id,
+                });
 
-                    console.log("Inquiry Response:", response.data);
+                console.log("Payment Response:", response.data);
 
-                    // Tampilkan notifikasi sukses setelah API call berhasil
-                    setShowNotification(true);
-                }
-            } catch (error) {
+                // Tampilkan notifikasi sukses setelah API call berhasil
+                setShowNotification(true);
+            } catch (error: any) {
                 console.error("Error saat melakukan pembayaran:", error);
-                alert("Terjadi kesalahan saat proses pembayaran.");
+
+                // Tampilkan notifikasi error
+                setError(error.response?.data?.message || "Terjadi kesalahan saat proses pembayaran.");
             }
 
             setShowPinInput(false);
@@ -178,6 +188,9 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, product }) => {
                     </div>
                 </div>
             )}
+
+            {/* Notifikasi Error */}
+            {error && <Notification onClose={() => setError("")} message={error} status="error" />}
 
             {/* Notifikasi Sukses */}
             <div className={`${showNotification ? 'flex' : 'hidden'} fixed items-center justify-center top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50`}>
