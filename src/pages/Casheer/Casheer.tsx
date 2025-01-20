@@ -164,6 +164,8 @@ const Casheer = () => {
 
     console.log("showService:", showService);
 
+    console.log(error)
+
     return (
         <>
             <div className={`${showDetailProduct || showService.service !== null ? 'hidden' : 'flex'} w-full flex-col min-h-screen items-center bg-orange-50`}>

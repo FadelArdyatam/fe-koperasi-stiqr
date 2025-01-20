@@ -2,19 +2,17 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Computer, Image } from "lucide-react"
 
 interface OrderProcessedProps {
-    showOrderProcess: boolean;
     setShowOrderProcess: React.Dispatch<React.SetStateAction<boolean>>;
     basket: any[];
     showService: { show: boolean; service: string | null };
-    references: React.MutableRefObject<HTMLDivElement | null>;
 }
 
-const OrderProcessed: React.FC<OrderProcessedProps> = ({ references, basket, setShowOrderProcess, showOrderProcess, showService }) => {
+const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderProcess, showService }) => {
     console.log("basket from order processed: ", basket)
     console.log("showService from order processed: ", showService)
 
     return (
-        <div ref={references} className="w-full flex flex-col min-h-screen pb-[250px] items-center bg-orange-50">
+        <div className="w-full flex flex-col min-h-screen pb-[250px] items-center bg-orange-50">
             <div className={`p-5 w-full bg-white`}>
                 <div className="w-full flex items-center gap-5 justify-between">
                     <div className="flex items-center gap-5">
