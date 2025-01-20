@@ -7,11 +7,12 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ChevronDown, ChevronLeft } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Bill from "@/components/Bill";
 import { Input } from "@/components/ui/input";
+import axiosInstance from "@/hooks/axiosInstance";
 
 interface BillData {
     product: string;
@@ -29,29 +30,80 @@ const Listrik = () => {
     const [type, setType] = useState("");
     const [dataBill, setDataBill] = useState<BillData | null>(null);
     const [showBill, setShowBill] = useState(false);
+    const [products, setProducts] = useState<any[]>([]);
+    const [selectedProduct, setSelecteProduct] = useState<any>(null);
 
-    const sendBill = () => {
-        const data = {
-            product: "Tagihan Listrik",
-            amount: nominal,
-            date: new Date().toLocaleDateString(),
-            time: new Date().toLocaleTimeString(),
-            productCode: "", // Add appropriate value
-            phoneNumber: "", // Add appropriate value
-            inquiryId: "", // Add appropriate
+    useEffect(() => {
+        const checkProfile = async () => {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                console.warn("Token tidak ditemukan untuk otorisasi.");
+                return;
+            }
+
+            try {
+
+                const responseProducts = await axiosInstance.post("/ayoconnect/products",
+                    {
+                        "category": "listrik",
+                        "status": "active"
+                    },);
+
+                setProducts(responseProducts.data.data);
+
+                console.log("Products Response:", responseProducts.data);
+            } catch (err) {
+                console.error("Error saat mengambil profile:", err);
+            }
         };
 
-        setDataBill(data);
-        setShowBill(true);
+        checkProfile();
+    }, [])
+
+    const sendBill = async () => {
+        try {
+            console.log('Selected Product:', selectedProduct)
+
+            const response = await axiosInstance.post("/ayoconnect/inquiry", {
+                accountNumber: noMeter,
+                productCode: selectedProduct.code,
+            });
+
+            console.log('Inquiry Response:', response.data)
+
+            const data = {
+                product: selectedProduct.name,
+                amount: selectedProduct.amount + 300,
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString(),
+                productCode: selectedProduct.code, // Add appropriate value
+                phoneNumber: noMeter, // Add appropriate value
+                inquiryId: response.data.data.inquiryId, // Add appropriate
+            };
+
+            setDataBill(data);
+            setShowBill(true);
+        } catch (err) {
+            console.error("Error saat mengambil profile:", err);
+        }
+
     };
 
     const handleDropdownChange = (value: string) => {
+        console.log("Value:", value);
+        setSelecteProduct(products.find((product) => product.amount === value))
         setNominal(value);
     };
 
     const handleRadioChange = (value: string) => {
         setType(value);
+        if (value === "Tagihan Listrik") {
+            setNominal(""); // Reset nominal jika tipe "Tagihan Listrik" dipilih
+        }
     };
+
+    console.log("Products:", products);
 
     return (
         <>
@@ -65,7 +117,7 @@ const Listrik = () => {
                 </p>
             </div>
 
-            <div className={`${showBill ? 'hidden' : 'block'}`}>
+            <div className={`${showBill ? "hidden" : "block"}`}>
                 <div className="bg-white w-[90%] -translate-y-[100px] p-10 shadow-lg rounded-md m-auto">
                     <p className="font-semibold m-auto text-xl text-center">
                         Beli Token Atau Bayar Listrik
@@ -96,62 +148,52 @@ const Listrik = () => {
                         />
                     </div>
 
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <div className="mt-10">
-                                <p>Nominal</p>
+                    {/* Dropdown hanya muncul jika tipe adalah "Token Listrik" */}
+                    {type === "Token Listrik" && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <div className="mt-10">
+                                    <p>Nominal</p>
 
-                                <div className="flex items-center gap-5 border mt-2 text-gray-400 border-black rounded-lg p-2 justify-between">
-                                    <button>{nominal || "Nominal"}</button>
+                                    <div className="flex items-center gap-5 border mt-2 text-gray-400 border-black rounded-lg p-2 justify-between">
+                                        <button>{nominal || "Nominal"}</button>
 
-                                    <ChevronDown />
+                                        <ChevronDown />
+                                    </div>
                                 </div>
-                            </div>
-                        </DropdownMenuTrigger>
+                            </DropdownMenuTrigger>
 
-                        <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg w-[300px] flex flex-col gap-3">
-                            <DropdownMenuItem onClick={() => handleDropdownChange("22.000")}>
-                                22.000
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDropdownChange("50.000")}>
-                                50.000
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDropdownChange("100.000")}>
-                                100.000
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDropdownChange("200.000")}>
-                                200.000
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDropdownChange("500.000")}>
-                                500.000
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDropdownChange("1.000.000")}>
-                                1.000.000
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDropdownChange("5.000.000")}>
-                                5.000.000
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDropdownChange("10.000.000")}>
-                                10.000.000
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDropdownChange("50.000.000")}>
-                                50.000.000
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                            <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg w-[300px] flex flex-col gap-3">
+                                {products.map((product, index) => (
+                                    <DropdownMenuItem onClick={() => handleDropdownChange(product.amount)} key={index}>
+                                        {Number(product.amount).toLocaleString("id-ID", {
+                                            style: "currency",
+                                            currency: "IDR",
+                                        })}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
                 </div>
 
-                <div className={`${nominal.length === 0 || type.length === 0 || noMeter.length === 0 ? 'hidden' : 'block'} w-[90%] m-auto shadow-lg rounded-lg p-5`}>
+                <div className={`${type.length === 0 || noMeter.length === 0 || (type === "Token Listrik" && nominal.length === 0) ? "hidden" : "block"} w-[90%] m-auto shadow-lg rounded-lg p-5`}>
                     <p className="font-semibold">Keterangan</p>
 
-                    <p className="mt-3">1. Informasi kode token yang Anda bayar akan di kirimkan <span className="font-semibold">maksimal 2 x 24 jam.</span></p>
+                    <p className="mt-3">
+                        1. Informasi kode token yang Anda bayar akan dikirimkan{" "}
+                        <span className="font-semibold">maksimal 2 x 24 jam.</span>
+                    </p>
 
-                    <p className="mt-3">2. Pembelian token listrik tidak dapat dilakukan pada <span className="font-semibold">jam 23:00 - 00:59.</span></p>
+                    <p className="mt-3">
+                        2. Pembelian token listrik tidak dapat dilakukan pada{" "}
+                        <span className="font-semibold">jam 23:00 - 00:59.</span>
+                    </p>
                 </div>
 
                 <Button
                     onClick={sendBill}
-                    className={`${nominal.length === 0 || type.length === 0 || noMeter.length === 0 ? 'hidden' : 'block'} w-[90%] m-auto bg-green-400 text-white py-3 rounded-md hover:bg-green-500 mt-10 mb-10`}
+                    className={`${type.length === 0 || noMeter.length === 0 || (type === "Token Listrik" && nominal.length === 0) ? "hidden" : "block"} w-[90%] m-auto bg-green-400 text-white py-3 rounded-md hover:bg-green-500 mt-10 mb-10`}
                 >
                     Lanjutkan
                 </Button>
