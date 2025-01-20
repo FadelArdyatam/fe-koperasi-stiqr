@@ -1,4 +1,4 @@
-import {  CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, UserRound, X, FileText } from "lucide-react";
+import { CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, UserRound, X, FileText, ClipboardList, CirclePercent } from "lucide-react";
 import logo from "@/images/logo.png";
 // import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useState } from "react";
@@ -75,7 +75,7 @@ interface IHistory {
     time: string;
     transaction_status: "success" | "failed" | "pending";
     code: string;
-    payment : {
+    payment: {
         bank_name: string;
     }
 }
@@ -88,8 +88,8 @@ const Dashboard = () => {
     const [balance, setBalance] = useState(0);
     const [user, setUser] = useState<any>();
 
-    const [uangMasuk,setUangMasuk] = useState(0);
-    const [uangKeluar,setUangKeluar] = useState(0);
+    const [uangMasuk, setUangMasuk] = useState(0);
+    const [uangKeluar, setUangKeluar] = useState(0);
 
     // const toggleDropdown = () => {
     //     setIsDropdownOpen((prev) => !prev); 
@@ -100,12 +100,12 @@ const Dashboard = () => {
     // };
 
     useEffect(() => {
-           // Ambil informasi user dari sessionStorage
-           const userItem = sessionStorage.getItem("user");
-           const userData = userItem ? JSON.parse(userItem) : null;
-           setUser(userData);
+        // Ambil informasi user dari sessionStorage
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+        setUser(userData);
 
-        const checkTokenValidity =  () => {
+        const checkTokenValidity = () => {
             const token = localStorage.getItem("token");
 
             if (!token) {
@@ -146,7 +146,7 @@ const Dashboard = () => {
 
                 console.log("Profile Response:", response.data);
                 setBalance(response.data);
-            } catch (err:any) {
+            } catch (err: any) {
                 console.error("Error saat mengambil profile:", err);
             }
         };
@@ -157,7 +157,7 @@ const Dashboard = () => {
                 setUangMasuk(uangMasuk.data);
                 const uangKeluar = await axiosInstance.get(`/balance/out/${userData.merchant.id}`)
                 setUangKeluar(uangKeluar.data);
-            } catch (error:any) {
+            } catch (error: any) {
                 console.log(error)
             }
         }
@@ -167,13 +167,13 @@ const Dashboard = () => {
         getMoney();
     }, [navigate]);
 
-    
-    const [histories,setHistories] = useState<IHistory[]>([]);
+
+    const [histories, setHistories] = useState<IHistory[]>([]);
     useEffect(() => {
-          // Ambil informasi user dari sessionStorage
-          const userItem = sessionStorage.getItem("user");
-          const userData = userItem ? JSON.parse(userItem) : null;
-          setUser(userData);
+        // Ambil informasi user dari sessionStorage
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+        setUser(userData);
 
         const getTransaction = async () => {
             try {
@@ -182,8 +182,8 @@ const Dashboard = () => {
                 );
                 console.log("Transaction Response:", response.data);
                 setHistories(response.data);
-            } catch (err:any) {
-            console.log(err)
+            } catch (err: any) {
+                console.log(err)
             }
         }
         getTransaction()
@@ -297,6 +297,24 @@ const Dashboard = () => {
                 </div>
             </div>
 
+            <div className="w-[90%] flex items-center gap-10 justify-center m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
+                <Link to={"/booking"} className="flex flex-col gap-2 items-center justify-center">
+                    <div className="flex items-center justify-center p-3 bg-orange-400 rounded-full">
+                        <ClipboardList className="text-white scale-[1.1]" />
+                    </div>
+
+                    <p className="text-sm uppercase">Pemesanan</p>
+                </Link>
+
+                <Link to={"/casheer"} className="flex flex-col gap-2 items-center justify-center">
+                    <div className="flex items-center justify-center p-3 bg-orange-400 rounded-full">
+                        <CirclePercent className="text-white scale-[1.1]" />
+                    </div>
+
+                    <p className="text-sm uppercase">Kasir</p>
+                </Link>
+            </div>
+
             <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
                 <div className="flex items-center justify-between">
                     <Link to={'/pulsa'} className="flex flex-col items-center gap-3">
@@ -333,16 +351,16 @@ const Dashboard = () => {
 
             <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg p-5 bg-white shadow-lg">
                 <div className="flex items-center gap-5 justify-between">
-                <p className="text-base font-semibold">
-                    Transaksi Terbaru -{' '}
-                    {new Date().toLocaleDateString('id-ID', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
-                    })}
-                </p>
+                    <p className="text-base font-semibold">
+                        Transaksi Terbaru -{' '}
+                        {new Date().toLocaleDateString('id-ID', {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric',
+                        })}
+                    </p>
 
-                <hr/>
+                    <hr />
                     {/* <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                         <DropdownMenuTrigger asChild>
                             <div
@@ -367,9 +385,9 @@ const Dashboard = () => {
                     {
                         histories.length === 0 && (
                             <div className="w-full mb-10 flex flex-col items-center justify-center text-center text-gray-500 gap-10">
-                                <img src={imgNoTransaction} className="md:w-5/12 w-6/12"/>
+                                <img src={imgNoTransaction} className="md:w-5/12 w-6/12" />
                                 <p className="text-center text-orange-400 font-bold text-lg">
-                                Belum ada transaksi hari ini
+                                    Belum ada transaksi hari ini
                                 </p>
                             </div>
                         )

@@ -23,6 +23,8 @@ import Catalog from './pages/Catalog/Catalog.tsx'
 import Employee from './pages/Profile/Employee.tsx'
 import Printer from './pages/Profile/Printer.tsx'
 import ResetPassword from './pages/ResetPassword.tsx'
+import Casheer from './pages/Casheer/Casheer.tsx'
+import Booking from './pages/Booking/Booking.tsx'
 
 const router = createBrowserRouter([
   {
@@ -108,6 +110,14 @@ const router = createBrowserRouter([
   {
     path: '/catalog',
     element: <Catalog />
+  },
+  {
+    path: '/casheer',
+    element: <Casheer />
+  },
+  {
+    path: '/booking',
+    element: <Booking />
   }
 ], {
   future: {
