@@ -48,6 +48,7 @@ const Casheer = () => {
                             price: product.product_price,
                             notes: "",
                             date: new Date().toLocaleString(),
+                            service: showService?.service,
                         },
                     ];
                 }
@@ -301,7 +302,7 @@ const Casheer = () => {
                 )}
             </div>
 
-            {showDetailProduct && <DetailProduct product={selectedProduct} variants={variants} setShowDetailProduct={setShowDetailProduct} basket={basket} setBasket={setBasket} />}
+            {showDetailProduct && <DetailProduct product={selectedProduct} variants={variants} setShowDetailProduct={setShowDetailProduct} basket={basket} setBasket={setBasket} showService={showService} />}
 
             {showService.show && showService.service !== null && <OrderSummary references={serviceRef} setBasket={setBasket} basket={basket} setShowService={setShowService} showService={showService} />}
         </>

@@ -81,6 +81,8 @@ const QRCodePage = () => {
 
             if (response.data) {
                 setShowQRCode(true);
+
+                console.log(response.data)
                 // setShowShareLink(true);
                 setStringQR(response.data.response.stringQr);
             } else {

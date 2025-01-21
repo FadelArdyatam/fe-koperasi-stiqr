@@ -8,9 +8,10 @@ interface DetailProductProps {
     variants: any[];
     basket: any[];
     setBasket: any;
+    showService: { show: boolean; service: string | null };
 }
 
-const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailProduct, variants, basket, setBasket }) => {
+const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailProduct, variants, basket, setBasket, showService }) => {
     const [quantity, setQuantity] = useState(1);
     const [price, setPrice] = useState(product.product_price);
     const [notes, setNotes] = useState("");
@@ -24,6 +25,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
             price: price,
             notes: notes,
             date: new Date().toLocaleString(),
+            service: showService?.service,
         }
 
         setBasket([...basket, payload]);
