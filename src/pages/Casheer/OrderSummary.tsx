@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import OrderProcessed from "./OrderProcessed";
 import { bookingDatas } from '@/pages/Booking/Booking';
+import axiosInstance from "@/hooks/axiosInstance";
 
 interface OrderSummaryProps {
     basket: any[];
@@ -18,6 +19,10 @@ interface OrderSummaryProps {
 const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showService, setShowService, references }) => {
     const [mergedBasket, setMergedBasket] = useState<any[]>([]);
     const [showOrderProcess, setShowOrderProcess] = useState(false);
+    const [noMeja, setNoMeja] = useState("");
+
+    console.log("Total Quantity: ", mergedBasket.reduce((acc, curr) => acc + curr.quantity, 0))
+    console.log("Total Price: ", mergedBasket.reduce((acc, curr) => acc + curr.price * curr.quantity, 0))
 
     // Update mergedBasket setiap kali basket berubah
     useEffect(() => {
@@ -67,6 +72,63 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         );
     };
 
+    const openBillHandler = async () => {
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
+        try {
+            // Process and modify the mergedBasket to ensure it has the correct structure
+            const modifyBasket = mergedBasket.map(item => ({
+                product_id: item.product_id,
+                variant_id: item.detail_variant && item.detail_variant.length > 0
+                    ? item.detail_variant.map((variant: { variant_id: any; }) => variant.variant_id)[0] // Ambil hanya array variant_id
+                    : "",
+                quantity: item.quantity,
+                price: item.price,
+                subtotal: (item.price) * (item.quantity),
+                detail_variants: []
+            }));
+
+            console.log("modifyBasket: ", modifyBasket);
+
+            // Define the request body
+            const requestBody = {
+                customer_name: userData.username,
+                status: "inprogress",
+                order_type: showService.service === "Dine In" ? "dinein" : "takeaway",
+                table_number: noMeja,
+                merchant_id: userData.merchant.id,
+                quantity: mergedBasket.reduce((acc, curr) => acc + curr.quantity, 0),
+                subtotal: mergedBasket.reduce((acc, curr) => acc + curr.price * curr.quantity, 0),
+                salesDetails: modifyBasket
+            };
+
+            // Make the API call using axios
+            const response = await axiosInstance.post('/sales/create', requestBody);
+
+            // Handle the successful response
+            console.log('Order created successfully:', response.data);
+
+            // Update state and push to bookingDatas
+            setShowOrderProcess(true);
+            bookingDatas.push(mergedBasket);
+
+        } catch (error: any) {
+            // Handle errors
+            console.error('Error creating order:', error);
+            if (error.response) {
+                // The server responded with a status other than 2xx
+                console.error('Response error:', error.response.data);
+            } else if (error.request) {
+                // No response was received
+                console.error('Request error:', error.request);
+            } else {
+                // Something happened in setting up the request
+                console.error('Setup error:', error.message);
+            }
+        }
+    };
+
     console.log("show service from order summary: ", showService);
     console.log("merged basket: ", mergedBasket);
 
@@ -106,7 +168,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                         <div className="w-[35%]">
                             <p className="font-semibold">No. Meja</p>
 
-                            <Input placeholder="No. Meja" className="w-full bg-white p-3 rounded-lg mt-2" />
+                            <Input onChange={(e) => setNoMeja(e.target.value)} placeholder="No. Meja" className="w-full bg-white p-3 rounded-lg mt-2" />
                         </div>
                     </div>
 
@@ -169,7 +231,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     <div className="w-full mt-10 flex items-center gap-5 justify-between">
                         <Button onClick={() => setBasket([])} className="rounded-full w-14 h-14 min-w-14 min-h-14 bg-orange-100 text-orange-400 font-semibold"><Trash2 className="scale-[1.5]" /></Button>
 
-                        <Button onClick={() => { setShowOrderProcess(true); bookingDatas.push(mergedBasket) }} className={`${showService.service === "Take Away" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
+                        <Button onClick={openBillHandler} className={`${showService.service === "Take Away" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
 
                         <Button className="bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold">Tagih</Button>
                     </div>

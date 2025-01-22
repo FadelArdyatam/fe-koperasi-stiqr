@@ -124,15 +124,30 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
                 formData,
             );
             console.log(selectedEtalase);
-            if(selectedEtalase) {
-                const response2 = await axiosInstance.post(
+
+            // Ini untuk get etalase "Semua Produk"
+            const etalaseSemuaProduk = etalases.find((etalase) => etalase.showcase_name === "Semua Produk");
+
+            const response2 = await axiosInstance.post(
+                "/showcase-product/create",
+                {
+                    product_id: response?.data?.data?.product_id,
+                    showcase_id: etalaseSemuaProduk?.showcase_id,
+                },
+            )
+
+            console.log(response2)
+
+            if (selectedEtalase) {
+                const response3 = await axiosInstance.post(
                     "/showcase-product/create",
                     {
                         product_id: response?.data?.data?.product_id,
                         showcase_id: selectedEtalase,
                     },
                 )
-                console.log(response2)
+
+                console.log(response3)
             }
 
             // // Add to local state with the returned image URL
@@ -355,18 +370,20 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
                             render={() => (
                                 <FormItem>
                                     <FormLabel>Etalase</FormLabel>
-                                    {etalases?.map((etalase) => (
-                                        <label key={etalase.id} className="flex items-center mt-2 gap-2">
-                                            <input
-                                                type="radio"
-                                                name="etalase"
-                                                value={etalase.showcase_id}
-                                                checked={selectedEtalase === etalase.showcase_id}
-                                                onChange={() => setSelectedEtalase(etalase.showcase_id)}
-                                            />
-                                            {etalase.showcase_name}
-                                        </label>
-                                    ))}
+                                    {etalases
+                                        ?.filter((etalase) => etalase.showcase_name !== "Semua Produk") // Filter showcase "Semua Produk"
+                                        .map((etalase) => (
+                                            <label key={etalase.id} className="flex items-center mt-2 gap-2">
+                                                <input
+                                                    type="radio"
+                                                    name="etalase"
+                                                    value={etalase.showcase_id}
+                                                    checked={selectedEtalase === etalase.showcase_id}
+                                                    onChange={() => setSelectedEtalase(etalase.showcase_id)}
+                                                />
+                                                {etalase.showcase_name}
+                                            </label>
+                                        ))}
                                     <FormMessage />
                                 </FormItem>
                             )}
