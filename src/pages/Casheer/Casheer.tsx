@@ -43,11 +43,13 @@ const Casheer = () => {
                     return [
                         ...prevBasket,
                         {
+                            product_id: product.product_id,
                             product: product.product_name,
                             quantity: 1,
                             price: product.product_price,
                             notes: "",
                             date: new Date().toLocaleString(),
+                            detail_variant: [],
                             service: showService?.service,
                         },
                     ];
@@ -130,6 +132,25 @@ const Casheer = () => {
         fetchVariants();
     }, [])
 
+    // Show Product By Etalase Handler
+    const showProductByEtalaseHandler = async (showcaseId: any) => {
+        try {
+            console.log("ShowcaseID: ", showcaseId)
+            const response = await axiosInstance.get(`/product/${userData?.merchant?.id}?showcase_id=${showcaseId}`);
+            if (Array.isArray(response.data)) {
+                setProducts(response.data);
+            } else {
+                console.error("Invalid response format for products:", response.data);
+            }
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data produk.");
+            console.error("Error saat mengambil data produk:", err);
+        } finally {
+            setLoading(false);
+        }
+    }
+    //
+
     // ClickOutsideHandler
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -178,7 +199,7 @@ const Casheer = () => {
                             <p className="font-semibold text-2xl">Kasir</p>
                         </div>
 
-                        <Link to={"/qr-code"} className={`bg-orange-100 rounded-full text-orange-500`}>+ Input Manual</Link>
+                        <Link to={"/qr-code"} className={`bg-orange-100 rounded-full text-orange-500 p-2`}>+ Input Manual</Link>
                     </div>
 
                     <div className="mt-10 relative">
@@ -203,7 +224,7 @@ const Casheer = () => {
 
                     <div className="mt-5 flex items-center gap-5 justify-between">
                         {etalases.map((etalase, index) => (
-                            <Button key={index} className={`bg-orange-100 rounded-full text-orange-500`}>
+                            <Button onClick={() => showProductByEtalaseHandler(etalase.showcase_id)} key={index} className={`bg-orange-100 rounded-full text-orange-500`}>
                                 {etalase.showcase_name}
                             </Button>
                         ))}
