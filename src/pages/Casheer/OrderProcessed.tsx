@@ -1,15 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Computer, Image } from "lucide-react"
+import { ISales } from "../Booking/Booking";
 
 interface OrderProcessedProps {
     setShowOrderProcess: React.Dispatch<React.SetStateAction<boolean>>;
-    basket: any[];
-    showService: { show: boolean; service: string | null };
+    basket: ISales[];
 }
-
-const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderProcess, showService }) => {
-    console.log("basket from order processed: ", basket)
-    console.log("showService from order processed: ", showService)
+const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderProcess }) => {
 
     return (
         <div className="w-full flex flex-col min-h-screen pb-[250px] items-center bg-orange-50">
@@ -35,7 +32,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                 <div className="w-full p-5 bg-orange-300 rounded-lg mt-5 flex items-center gap-5 justify-between">
                     <p className="font-semibold">No. Antrian</p>
 
-                    <p className="font-semibold">1</p>
+                    <p className="font-semibold">{basket?.queue_number}</p>
                 </div>
 
                 <div className="w-full mt-5">
@@ -52,7 +49,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                     <div className="w-full mt-5 flex items-center gap-5 justify-between">
                         <p className="font-semibold text-gray-500">Layanan</p>
 
-                        <p className="font-semibold">{showService?.service}</p>
+                        <p className="font-semibold">{basket.order_type =='dinein' ? "Makan di Tempat" :"Bawa Pulang"}</p>
                     </div>
                 </div>
             </div>
@@ -73,26 +70,29 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
 
                     <div className="w-full h-[1px] bg-gray-200 my-5"></div>
 
-                    <div className="w-full flex flex-col items-start gap-5 px-3">
-                        {basket.map((item, index) => (
-                            <div key={index} className="flex items-center gap-5">
-                                <Image className="scale-[2]" />
+                    <div className="w-full flex flex-col items-start gap-2 px-3">
+                        {basket?.sales_details.map((item, index) => (
+                            <>
+                                <div key={index} className="flex items-center gap-5">
+                                    <Image className="scale-[2]" />
 
-                                <div>
-                                    <p className="text-lg font-semibold">{item.product}</p>
+                                    <div>
+                                        <p className="text-lg font-semibold">{item.product.product_name}</p>
 
-                                    <div className="flex items-center gap-3">
-                                        <p className="font-semibold text-xl">{Number(item.price).toLocaleString("id-ID", {
-                                            style: "currency",
-                                            currency: "IDR",
-                                        })}</p>
+                                        <div className="flex items-center gap-3">
+                                            <p className="font-semibold text-xl">{Number(item.product.product_price).toLocaleString("id-ID", {
+                                                style: "currency",
+                                                currency: "IDR",
+                                            })}</p>
 
-                                        <div className="flex items-center justify-center w-8 h-8 bg-orange-200 rounded-lg">
-                                            <p>x{item.quantity}</p>
+                                            <div className="flex items-center justify-center w-8 h-8 bg-orange-200 rounded-lg">
+                                                <p>x{item.quantity}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                                <div className="w-full h-[1px] bg-gray-200 my-5"></div>
+                            </>
                         ))}
                     </div>
                 </div>
@@ -102,10 +102,10 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                 <div className="flex w-full items-center justify-between gap-5">
                     <p className="font-semibold text-xl">Total Tagihan</p>
 
-                    <p className="font-semibold text-xl">{Number(basket.reduce((acc, curr) => acc + curr.price * curr.quantity, 0)).toLocaleString("id-ID", {
+                    {/* <p className="font-semibold text-xl">{Number(basket.reduce((acc, curr) => acc + curr.price * curr.quantity, 0)).toLocaleString("id-ID", {
                         style: "currency",
                         currency: "IDR",
-                    })}</p>
+                    })}</p> */}
                 </div>
 
                 <div className="w-full mt-10 flex items-center gap-5 justify-between">
