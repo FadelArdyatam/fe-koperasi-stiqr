@@ -82,7 +82,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 product_id: item.product_id,
                 variant_id: item.detail_variant && item.detail_variant.length > 0
                     ? item.detail_variant.map((variant: { variant_id: any; }) => variant.variant_id)[0] // Ambil hanya array variant_id
-                    : "",
+                    : null,
                 quantity: item.quantity,
                 price: item.price,
                 subtotal: (item.price) * (item.quantity),

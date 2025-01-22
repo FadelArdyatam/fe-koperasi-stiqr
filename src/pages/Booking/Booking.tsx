@@ -293,6 +293,7 @@ const Booking = () => {
                 <OrderProcessed
                     setShowOrderProcess={setShowOrderProcess}
                     basket={datas[index]}
+                    type="detail"
                 />
             )}
         </>
