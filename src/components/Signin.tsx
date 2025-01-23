@@ -4,10 +4,12 @@ import logo from "../images/logo.png";
 import { FormEvent, useState } from "react";
 import axios from "axios";
 import Notification from "./Notification";
+import { Eye, EyeOff } from "lucide-react";
 
 const Signin = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
@@ -70,13 +72,17 @@ const Signin = () => {
 					className="w-full border border-black px-4 py-3 rounded-lg"
 				/>
 
-				<input
-					type="password"
-					value={password}
-					onChange={(e) => setPassword(e.target.value)}
-					placeholder="Password"
-					className="w-full border border-black px-4 py-3 rounded-lg"
-				/>
+				<div className="w-full relative flex items-center">
+					<input
+						type={showPassword ? "text" : "password"}
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						placeholder="Password"
+						className="w-full border border-black px-4 py-3 rounded-lg"
+					/>
+
+					<button onClick={() => setShowPassword(!showPassword)} type="button" className="absolute right-5">{showPassword ? <EyeOff /> : <Eye />}</button>
+				</div>
 
 				<Link to="/forgot-password" className="text-gray-500 text-sm">
 					Lupa Password?

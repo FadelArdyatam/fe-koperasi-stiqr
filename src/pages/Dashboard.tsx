@@ -1,4 +1,4 @@
-import { CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, UserRound, X, FileText, ClipboardList, CirclePercent } from "lucide-react";
+import { CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, UserRound, X, FileText, ClipboardList, CirclePercent, EyeOff, Eye } from "lucide-react";
 import logo from "@/images/logo.png";
 // import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useState } from "react";
@@ -87,6 +87,8 @@ const Dashboard = () => {
     const [showNotification, setShowNotification] = useState(true);
     const [balance, setBalance] = useState(0);
     const [user, setUser] = useState<any>();
+
+    const [showBalance, setShowBalance] = useState(false);
 
     const [uangMasuk, setUangMasuk] = useState(0);
     const [uangKeluar, setUangKeluar] = useState(0);
@@ -262,10 +264,26 @@ const Dashboard = () => {
                 <div className="w-full text-center">
                     <p className="font-semibold text-lg">Saldo Anda</p>
 
-                    <p className="font-bold text-4xl mt-2 text-orange-400">{Number(balance).toLocaleString("id-ID", {
-                        style: "currency",
-                        currency: "IDR",
-                    })}</p>
+                    <div className="flex items-center justify-center gap-2">
+                        {showBalance ? (
+                            <p className="font-bold text-4xl mt-2 text-orange-400">
+                                {Number(balance).toLocaleString("id-ID", {
+                                    style: "currency",
+                                    currency: "IDR",
+                                })}
+                            </p>
+                        ) : (
+                            <p className="font-bold text-4xl mt-2 text-orange-400">Rp ****</p>
+                        )}
+
+                        <button
+                            onClick={() => setShowBalance(!showBalance)}
+                            type="button"
+                            className="block mt-3"
+                        >
+                            {showBalance ? <Eye /> : <EyeOff />}
+                        </button>
+                    </div>
                 </div>
 
                 <div className="mt-10 flex items-center justify-between">

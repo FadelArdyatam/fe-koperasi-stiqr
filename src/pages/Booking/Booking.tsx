@@ -149,11 +149,8 @@ const Booking = () => {
 
     console.log(datas);
     return (
-        <>
-            <div
-                className={`${showOrderProcess ? "hidden" : "flex"
-                    } w-full flex-col min-h-screen items-center bg-orange-50`}
-            >
+        <div>
+            <div className={`${showOrderProcess ? "hidden" : "flex"} w-full flex-col min-h-screen items-center bg-orange-50`}>
                 <div className={`p-5 w-full`}>
                     <div className="w-full flex items-center gap-5 justify-between">
                         <div className="flex items-center gap-5">
@@ -209,94 +206,92 @@ const Booking = () => {
                         </p>
                     </div>
                 )}
-                    {datas.map((data, index) => (
-                        <div className="mt-5 w-[90%] bg-white p-5 rounded-lg shadow-lg">
+                {datas.map((data, index) => (
+                    <div className="mt-5 w-[90%] bg-white p-5 rounded-lg shadow-lg">
+                        <div key={index} className="w-full">
                             <div key={index} className="w-full">
-                                <div key={index} className="w-full">
-                                    <div className="w-full flex items-center gap-5 justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <p className="font-semibold text-lg">
-                                                Antrian {Number(index) + 1}
+                                <div className="w-full flex items-center gap-5 justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <p className="font-semibold text-lg">
+                                            Antrian {Number(index) + 1}
+                                        </p>
+                                        <LabelStatus status={status} />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Computer />
+                                        <p className="font-semibold">Kasir</p>
+                                    </div>
+                                </div>
+
+                                <div className="w-full h-[1px] bg-gray-300 my-5"></div>
+
+                                <div>
+                                    <div className="flex items-center gap-5">
+                                        <Image className="scale-[2]" />
+
+                                        <div>
+                                            <p className="text-lg font-semibold">
+                                                {data.sales_details[0]?.product.product_name}
                                             </p>
-                                            <LabelStatus status={status} />
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Computer />
-                                            <p className="font-semibold">Kasir</p>
+
+                                            <p className="text-base text-gray-500">
+                                                {convertDate(data.created_at)} |{" "}
+                                                {convertTime(data.created_at)}{" "}
+                                            </p>
+
+                                            <p
+                                                className={`${data.sales_details.length > 1 ? "block" : "hidden"
+                                                    } text-base text-gray-500`}
+                                            >
+                                                +{data.sales_details.length - 1} produk lainnya
+                                            </p>
                                         </div>
                                     </div>
 
-                                    <div className="w-full h-[1px] bg-gray-300 my-5"></div>
+                                    <div className="mt-5 flex items-center gap-2">
+                                        <p className="font-semibold text-xl">
+                                            {formatRupiah(data.subtotal)}
+                                        </p>
 
-                                    <div>
-                                        <div className="flex items-center gap-5">
-                                            <Image className="scale-[2]" />
+                                        <p className="font-semibold text-gray-500">
+                                            ({data.quantity} produk)
+                                        </p>
+                                    </div>
+                                    <div className="w-full mt-5">
+                                        <div className="w-full flex items-center gap-5">
+                                            <Button className="w-full rounded-full bg-transparent border border-orange-500 text-orange-500">
+                                                Tambah Pesanan
+                                            </Button>
 
-                                            <div>
-                                                <p className="text-lg font-semibold">
-                                                    {data.sales_details[0]?.product.product_name}
-                                                </p>
-
-                                                <p className="text-base text-gray-500">
-                                                    {convertDate(data.created_at)} |{" "}
-                                                    {convertTime(data.created_at)}{" "}
-                                                </p>
-
-                                                <p
-                                                    className={`${data.sales_details.length > 1 ? "block" : "hidden"
-                                                        } text-base text-gray-500`}
-                                                >
-                                                    +{data.sales_details.length - 1} produk lainnya
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-5 flex items-center gap-2">
-                                            <p className="font-semibold text-xl">
-                                                {formatRupiah(data.subtotal)}
-                                            </p>
-
-                                            <p className="font-semibold text-gray-500">
-                                                ({data.quantity} produk)
-                                            </p>
-                                        </div>
-                                        <div className="w-full mt-5">
-                                            <div className="w-full flex items-center gap-5">
-                                                <Button className="w-full rounded-full bg-transparent border border-orange-500 text-orange-500">
-                                                    Tambah Pesanan
-                                                </Button>
-
-                                                <Button className="w-full rounded-full bg-orange-200 border border-orange-500 text-orange-500">
-                                                    Cetak Struk
-                                                </Button>
-                                            </div>
-
-                                            <Button
-                                                onClick={() => {
-                                                    setShowOrderProcess(true);
-                                                    setIndex(index);
-                                                }}
-                                                className="mt-5 bg-orange-500 text-white w-full rounded-full"
-                                            >
-                                                Detail Pemesanan
+                                            <Button className="w-full rounded-full bg-orange-200 border border-orange-500 text-orange-500">
+                                                Cetak Struk
                                             </Button>
                                         </div>
+
+                                        <Button
+                                            onClick={() => {
+                                                setShowOrderProcess(true);
+                                                setIndex(index);
+                                            }}
+                                            className="mt-5 bg-orange-500 text-white w-full rounded-full"
+                                        >
+                                            Detail Pemesanan
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    ))}
-                </div>
-                {console.log(datas[index])}
+                    </div>
+                ))}
+            </div>
 
             {showOrderProcess && (
                 <OrderProcessed
                     setShowOrderProcess={setShowOrderProcess}
                     basket={datas[index]}
-                    type="detail"
-                />
+                    type="detail" />
             )}
-        </>
+        </div>
     );
 };
 

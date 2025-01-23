@@ -1,7 +1,7 @@
 import { ChevronLeft, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import QRCode from "react-qr-code";
 import visa from "../images/visa.svg";
 import masterCard from "../images/masterCard.png";
@@ -16,13 +16,75 @@ import axios from "axios";
 
 const payments = [visa, masterCard, gopay, ovo, dana, linkAja];
 
-const QRCodePage = () => {
+interface QRCodePageProps {
+    type: string;
+    datas: any;
+}
+
+const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
     const contentRef = useRef(null);
     const [showQRCode, setShowQRCode] = useState(false);
     const [amount, setAmount] = useState("");
     // const [showShareLink, setShowShareLink] = useState(false);
     // const [copySuccess, setCopySuccess] = useState("");
     const [stringQR, setStringQR] = useState("");
+    const [isLoading, setIsLoading] = useState(false); // State untuk loading
+    const navigate = useNavigate();
+
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
+
+    console.log("datas from QRCode: ", datas);
+    console.log("type from QRCode: ", type);
+
+    // Tambahkan useEffect di bawah definisi fungsi komponen
+    useEffect(() => {
+        const fetchQRCode = async () => {
+            if (!datas || !Array.isArray(datas) || datas.length === 0) {
+                console.warn("Datas is empty or invalid, skipping QR Code generation.");
+                return;
+            }
+
+            setIsLoading(true); // Aktifkan loading
+
+            try {
+                const requestBody = {
+                    email: "testerfinpay@gmail.com",
+                    firstName: "Tester",
+                    lastName: "Finpay",
+                    mobilePhone: "+62048232329",
+                    amount: datas.reduce((acc: number, curr: any) => acc + curr.price * curr.quantity, 0).toString(),
+                    description: "Tester",
+                    successUrl: "http://success",
+                    type: "qris",
+                    orderId: generateRandomString(15),
+                    item: datas.map((data: any) => ({
+                        name: data.product,
+                        quantity: data.quantity.toString(),
+                        unitPrice: data.price.toString(),
+                    })),
+                };
+
+                console.log("Request Body: ", requestBody);
+
+                const response = await axios.post("https://dev-middleware.idsmartcare.com/api/v1/finpay/initiate", requestBody);
+
+                if (response.data) {
+                    setShowQRCode(true);
+                    setStringQR(response.data.response.stringQr);
+                } else {
+                    alert("Gagal membuat link pembayaran. Mohon coba lagi.");
+                }
+            } catch (error) {
+                console.error("Gagal membuat link pembayaran:", error);
+                alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
+            } finally {
+                setIsLoading(false); // Nonaktifkan loading
+            }
+        };
+
+        fetchQRCode();
+    }, [datas]);
 
     const generateRandomString = (length = 10) => {
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -64,33 +126,39 @@ const QRCodePage = () => {
             return;
         }
 
-        try {
-            const requestBody = {
-                email: "testerfinpay@gmail.com",
-                firstName: "Tester",
-                lastName: "Finpay",
-                mobilePhone: "+62048232329",
-                amount: amount, // Gunakan nilai dari state amount
-                description: "Tester",
-                successUrl: "http://success",
-                type: "qris",
-                orderId: generateRandomString(15) // ID pesanan unik
-            };
+        if (type === undefined) {
+            setIsLoading(true);
 
-            const response = await axios.post("https://dev-middleware.idsmartcare.com/api/v1/finpay/initiate", requestBody);
+            try {
+                const requestBody = {
+                    email: "testerfinpay@gmail.com",
+                    firstName: "Tester",
+                    lastName: "Finpay",
+                    mobilePhone: "+62048232329",
+                    amount: amount, // Gunakan nilai dari state amount
+                    description: "Tester",
+                    successUrl: "http://success",
+                    type: "qris",
+                    orderId: generateRandomString(15) // ID pesanan unik
+                };
 
-            if (response.data) {
-                setShowQRCode(true);
+                const response = await axios.post("https://dev-middleware.idsmartcare.com/api/v1/finpay/initiate", requestBody);
 
-                console.log(response.data)
-                // setShowShareLink(true);
-                setStringQR(response.data.response.stringQr);
-            } else {
-                alert("Gagal membuat link pembayaran. Mohon coba lagi.");
+                if (response.data) {
+                    setShowQRCode(true);
+
+                    console.log(response.data)
+                    // setShowShareLink(true);
+                    setStringQR(response.data.response.stringQr);
+                } else {
+                    alert("Gagal membuat link pembayaran. Mohon coba lagi.");
+                }
+            } catch (error) {
+                console.error("Gagal membuat link pembayaran:", error);
+                alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
+            } finally {
+                setIsLoading(false);
             }
-        } catch (error) {
-            console.error("Gagal membuat link pembayaran:", error);
-            alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
         }
     };
 
@@ -106,12 +174,14 @@ const QRCodePage = () => {
     //     );
     // };
 
+    console.log("stringQR from QRCode: ", stringQR);
+
     return (
         <>
             {/* Tampilan QR Code */}
             <div className={`${showQRCode ? 'block' : 'hidden'} w-full min-h-screen p-8 bg-orange-400`}>
                 <div className="flex items-center justify-between gap-5 w-full">
-                    <Button onClick={() => setShowQRCode(false)} className="block bg-transparent hover:bg-transparent">
+                    <Button onClick={() => { setShowQRCode(false); navigate("/dashboard") }} className="block bg-transparent hover:bg-transparent">
                         <X className="text-white scale-[1.5]" />
                     </Button>
 
@@ -126,7 +196,7 @@ const QRCodePage = () => {
                     <div className="mt-10 w-full p-5 bg-white shadow-lg rounded-t-lg">
                         <img src={logo} className="w-10" alt="Logo Kedai Kopi" />
 
-                        <p className="mt-5 text-xl font-semibold">Kedai Kopi</p>
+                        <p className="mt-5 text-xl font-semibold">{userData.merchant.name}</p>
 
                         <div className="mt-10 w-full flex flex-col items-center" ref={contentRef}>
                             <QRCode className="m-auto" value={stringQR} size={200} />
@@ -167,7 +237,7 @@ const QRCodePage = () => {
             </div>
 
             {/* Input Jumlah Pembayaran */}
-            <div className={`${showQRCode ? "hidden" : "block"}`}>
+            <div className={`${showQRCode || type !== undefined ? "hidden" : "block"}`}>
                 <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
                     <Link to={"/dashboard"} className="bg-transparent hover:bg-transparent">
                         <ChevronLeft className="scale-[1.3] text-white" />
@@ -229,6 +299,13 @@ const QRCodePage = () => {
                     {copySuccess && <p className="mt-5 text-green-500">{copySuccess}</p>}
                 </div>
             </div> */}
+
+            {/* Loading */}
+            {isLoading && (
+                <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-orange-400 z-50">
+                    <p className="text-white text-xl font-medium">Loading QR Code...</p>
+                </div>
+            )}
         </>
     );
 };
