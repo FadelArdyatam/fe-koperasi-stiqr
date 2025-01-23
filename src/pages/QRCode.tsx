@@ -1,4 +1,4 @@
-import { ChevronLeft, X } from "lucide-react";
+import { ChevronLeft, X, Banknote, Calculator, ArrowLeftRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
 import { useRef, useState, useEffect } from "react";
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
+import PaymentMethod from "./PaymentMethod.tsx/PaymentMethod";
 
 const payments = [visa, masterCard, gopay, ovo, dana, linkAja];
 
@@ -25,8 +26,10 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
     const contentRef = useRef<HTMLDivElement>(null);
     const [showQRCode, setShowQRCode] = useState(false);
     const [amount, setAmount] = useState("");
-    // const [showShareLink, setShowShareLink] = useState(false);
-    // const [copySuccess, setCopySuccess] = useState("");
+    const [showOtherMethod, setShowOtherMethod] = useState(false);
+    const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+    const [dataForPaymentMethod, setDataForPaymentMethod] = useState<any>(null);
+    const [showPaymentMehodComponent, setShowPaymentMethodComponent] = useState(false);
     const [stringQR, setStringQR] = useState("");
     const [isLoading, setIsLoading] = useState(false); // State untuk loading
     const navigate = useNavigate();
@@ -71,6 +74,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
 
                 if (response.data) {
                     setShowQRCode(true);
+                    setDataForPaymentMethod(requestBody)
                     setStringQR(response.data.response.stringQr);
                 } else {
                     alert("Gagal membuat link pembayaran. Mohon coba lagi.");
@@ -162,6 +166,8 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                 if (response.data) {
                     setShowQRCode(true);
 
+                    setDataForPaymentMethod(requestBody);
+
                     console.log(response.data)
                     // setShowShareLink(true);
                     setStringQR(response.data.response.stringQr);
@@ -177,24 +183,17 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
         }
     };
 
-    // const copyLinkToClipboard = () => {
-    //     navigator.clipboard.writeText(linkPayment).then(
-    //         () => {
-    //             setCopySuccess("Link berhasil disalin!");
-    //             setTimeout(() => setCopySuccess(""), 3000); // Reset message after 3 seconds
-    //         },
-    //         () => {
-    //             alert("Gagal menyalin link.");
-    //         }
-    //     );
-    // };
+    const handleRadioChange = (method: string) => {
+        setSelectedMethod(method);
+    };
 
     console.log("stringQR from QRCode: ", stringQR);
+    console.log("selectedMethod from QRCode: ", selectedMethod);
 
     return (
         <>
             {/* Tampilan QR Code */}
-            <div className={`${showQRCode ? 'block' : 'hidden'} w-full min-h-screen p-8 bg-orange-400`}>
+            <div className={`${showQRCode && showPaymentMehodComponent === false ? 'block' : 'hidden'} w-full min-h-screen p-8 bg-orange-400`}>
                 <div className="flex items-center justify-between gap-5 w-full">
                     <Button onClick={() => { setShowQRCode(false); navigate("/dashboard") }} className="block bg-transparent hover:bg-transparent">
                         <X className="text-white scale-[1.5]" />
@@ -238,6 +237,8 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                         <Button onClick={shareContent} className="mt-10 text-orange-400 bg-transparent w-full">
                             Bagikan
                         </Button>
+
+                        <Button onClick={() => setShowOtherMethod(true)} className="mt-5">Pilih Metode Pembayaran Lain</Button>
                     </div>
 
                     <div className="relative rotate-180">
@@ -284,43 +285,88 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                 </Button>
             </div>
 
-            {/* Share Link */}
-            {/* <div className={`${showShareLink ? "block" : "hidden"} w-full`}>
-                <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
-                    <Button onClick={() => setShowShareLink(false)} className="bg-transparent hover:bg-transparent">
-                        <ChevronLeft className="scale-[1.3] text-white" />
-                    </Button>
-
-                    <p className="font-semibold m-auto text-xl text-white text-center uppercase">
-                        Share a Link
-                    </p>
-                </div>
-
-                <div className="mt-28 w-[90%] m-auto text-center p-5 bg-white shadow-lg rounded-lg flex flex-col items-center">
-                    <p className="font-medium">Send anyone this link to the campaign.</p>
-
-                    <div className="flex flex-col items-end">
-                        <div className="p-3 border border-gray-500 w-full rounded-lg mt-5">
-                            <a href={linkPayment} className="text-blue-500 underline break-all">
-                                {linkPayment}
-                            </a>
-                        </div>
-
-                        <Button onClick={copyLinkToClipboard} className="mt-3 bg-transparent text-orange-400 hover:bg-transparent">
-                            Copy Link
-                        </Button>
-                    </div>
-
-                    {copySuccess && <p className="mt-5 text-green-500">{copySuccess}</p>}
-                </div>
-            </div> */}
-
             {/* Loading */}
             {isLoading && (
                 <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-orange-400 z-50">
                     <p className="text-white text-xl font-medium">Loading QR Code...</p>
                 </div>
             )}
+
+            {/* Metode Pembayaran Lain */}
+            <div className={`${showOtherMethod ? "block" : "hidden"} fixed bg-black inset-0 bg-opacity-50 flex items-end justify-center`}>
+                <div className="w-full bg-white rounded-t-lg p-5">
+                    <div className="flex justify-between items-center">
+                        <p className="font-semibold text-lg">Pilih Metode Pembayaran</p>
+
+                        <Button onClick={() => setShowOtherMethod(false)} className="bg-transparent">
+                            <X className="text-gray-500 scale-[1.5]" />
+                        </Button>
+                    </div>
+
+                    <div className="mt-5 space-y-4">
+                        <label className="flex items-center w-full justify-between">
+                            <div className="text-black flex items-center gap-3 font-semibold text-lg">
+                                <Banknote />
+
+                                <p>Tunai</p>
+                            </div>
+
+                            <input
+                                type="radio"
+                                name="paymentMethod"
+                                checked={selectedMethod === "Tunai"}
+                                onChange={() => handleRadioChange("Tunai")}
+                                className="form-radio h-5 w-5 text-orange-400"
+                            />
+                        </label>
+
+                        <label className="flex items-center w-full justify-between">
+                            <div className="text-black flex items-center gap-3 font-semibold text-lg">
+                                <Calculator />
+
+                                <p>EDC</p>
+                            </div>
+
+                            <input
+                                type="radio"
+                                name="paymentMethod"
+                                checked={selectedMethod === "EDC"}
+                                onChange={() => handleRadioChange("EDC")}
+                                className="form-radio h-5 w-5 text-orange-400"
+                            />
+                        </label>
+
+                        <label className="flex items-center w-full justify-between">
+                            <div className="text-black flex items-center gap-3 font-semibold text-lg">
+                                <ArrowLeftRight />
+
+                                <p>Transfer</p>
+                            </div>
+
+                            <input
+                                type="radio"
+                                name="paymentMethod"
+                                checked={selectedMethod === "Transfer"}
+                                onChange={() => handleRadioChange("Transfer")}
+                                className="form-radio h-5 w-5 text-orange-400"
+                            />
+                        </label>
+                    </div>
+
+                    <Button
+                        onClick={() => {
+                            setShowOtherMethod(false);
+                            setShowPaymentMethodComponent(true);
+                        }}
+                        className="mt-5 w-full bg-orange-400 text-white"
+                    >
+                        Simpan Pilihan
+                    </Button>
+                </div>
+            </div>
+
+            {/* Komponen Metode Pembayaran */}
+            {showPaymentMehodComponent && <PaymentMethod dataPayment={dataForPaymentMethod} setShowPaymentMethodComponent={setShowPaymentMethodComponent} selectedMethod={selectedMethod} />}
         </>
     );
 };
