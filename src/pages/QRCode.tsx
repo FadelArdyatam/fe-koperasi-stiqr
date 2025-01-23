@@ -22,7 +22,7 @@ interface QRCodePageProps {
 }
 
 const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
-    const contentRef = useRef(null);
+    const contentRef = useRef<HTMLDivElement>(null);
     const [showQRCode, setShowQRCode] = useState(false);
     const [amount, setAmount] = useState("");
     // const [showShareLink, setShowShareLink] = useState(false);
@@ -95,9 +95,24 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
         try {
             if (navigator.share) {
                 if (contentRef.current) {
-                    const canvas = await html2canvas(contentRef.current, { useCORS: true });
-                    const dataURL = canvas.toDataURL("image/png");
+                    // Tunggu gambar selesai dimuat
+                    const images = (contentRef.current as HTMLElement).querySelectorAll("img");
+                    const promises = Array.from(images).map(img => new Promise<void>(resolve => {
+                        if (img.complete) resolve();
+                        img.onload = () => resolve();
+                        img.onerror = () => resolve();
+                    }));
+                    await Promise.all(promises);
 
+                    // Tangkap elemen dengan ukuran yang sesuai
+                    const canvas = await html2canvas(contentRef.current, {
+                        useCORS: true,
+                        scale: 2, // Tingkatkan resolusi
+                        width: contentRef.current.offsetWidth,
+                        height: contentRef.current.offsetHeight,
+                    });
+
+                    const dataURL = canvas.toDataURL("image/png");
                     const response = await fetch(dataURL);
                     const blob = await response.blob();
                     const file = new File([blob], "CodePayment.png", { type: "image/png" });
@@ -126,7 +141,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
             return;
         }
 
-        if (type === undefined) {
+        if (type === '') {
             setIsLoading(true);
 
             try {
@@ -237,7 +252,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
             </div>
 
             {/* Input Jumlah Pembayaran */}
-            <div className={`${showQRCode || type !== undefined ? "hidden" : "block"}`}>
+            <div className={`${showQRCode || type !== '' ? "hidden" : "block"}`}>
                 <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
                     <Link to={"/dashboard"} className="bg-transparent hover:bg-transparent">
                         <ChevronLeft className="scale-[1.3] text-white" />
