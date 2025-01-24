@@ -14,6 +14,8 @@ import html2canvas from "html2canvas";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
 import PaymentMethod from "./PaymentMethod.tsx/PaymentMethod";
+import io from 'socket.io-client';
+import axiosInstance from "@/hooks/axiosInstance";
 
 const payments = [visa, masterCard, gopay, ovo, dana, linkAja];
 
@@ -37,17 +39,50 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
 
-    console.log("datas from QRCode: ", datas);
-    console.log("type from QRCode: ", type);
+   
+    useEffect(() => {
+    const socket = io(`https://be-stiqr.dnstech.co.id/`);
+    console.log(socket)
+
+    socket.on('payment_status', (data) => {
+        console.log('Payment Status Received:', data);
+
+        if (data.status === 'PAID') {
+        navigate('/payment-success', { 
+            state: { 
+            orderId: data.orderId ?? "dummy-order-id", 
+            amount: data.amount ?? 0
+            } 
+        });
+        }
+    });
+
+    // Cleanup socket connection
+    return () => {
+        socket.off("payment_status");
+        socket.disconnect();
+    };
+    }, []);
 
     // Tambahkan useEffect di bawah definisi fungsi komponen
     useEffect(() => {
+        const generateRandomString = (length = 10) => {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
+        };
+        const generateOrderId = generateRandomString(15)
+    
         const fetchQRCode = async () => {
-            if (!datas || !Array.isArray(datas) || datas.length === 0) {
-                console.warn("Datas is empty or invalid, skipping QR Code generation.");
+            // if (!datas || !Array.isArray(datas) || datas.length === 0) {
+            //     console.warn("Datas is empty or invalid, skipping QR Code generation.");
+            //     return;
+            // }
+
+            if (type !== "kasir") {
+                // Jika type bukan "kasir", tidak menjalankan efek ini
                 return;
             }
-
+    
             setIsLoading(true); // Aktifkan loading
 
             try {
@@ -60,7 +95,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                     description: "Tester",
                     successUrl: "http://success",
                     type: "qris",
-                    orderId: generateRandomString(15),
+                    orderId: generateOrderId,
                     item: datas.map((data: any) => ({
                         name: data.product,
                         quantity: data.quantity.toString(),
@@ -70,8 +105,10 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
 
                 console.log("Request Body: ", requestBody);
 
-                const response = await axios.post("https://dev-middleware.idsmartcare.com/api/v1/finpay/initiate", requestBody);
+                const response = await axiosInstance.post(`${import.meta.env.VITE_API_URL}/finpay/initiate`, requestBody);
 
+                console.log('initiate : ')
+                console.log(response);
                 if (response.data) {
                     setShowQRCode(true);
                     setDataForPaymentMethod(requestBody)
@@ -80,6 +117,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                     alert("Gagal membuat link pembayaran. Mohon coba lagi.");
                 }
             } catch (error) {
+                console.log(error)
                 console.error("Gagal membuat link pembayaran:", error);
                 alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
             } finally {
@@ -88,12 +126,8 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
         };
 
         fetchQRCode();
-    }, [datas]);
+    }, [type, datas]);
 
-    const generateRandomString = (length = 10) => {
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
-    };
 
     const shareContent = async () => {
         try {
@@ -147,6 +181,11 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
 
         if (type === '') {
             setIsLoading(true);
+            const generateRandomString = (length = 10) => {
+                const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
+            };
+            const generateOrderId = generateRandomString(15)        
 
             try {
                 const requestBody = {
@@ -158,7 +197,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                     description: "Tester",
                     successUrl: "http://success",
                     type: "qris",
-                    orderId: generateRandomString(15) // ID pesanan unik
+                    orderId: generateOrderId // ID pesanan unik
                 };
 
                 const response = await axios.post("https://dev-middleware.idsmartcare.com/api/v1/finpay/initiate", requestBody);

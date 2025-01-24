@@ -25,6 +25,7 @@ import Printer from './pages/Profile/Printer.tsx'
 import ResetPassword from './pages/ResetPassword.tsx'
 import Casheer from './pages/Casheer/Casheer.tsx'
 import Booking from './pages/Booking/Booking.tsx'
+import PaymentSuccess from './components/PaymentSuccess.tsx'
 
 const router = createBrowserRouter([
   {
@@ -118,6 +119,10 @@ const router = createBrowserRouter([
   {
     path: '/booking',
     element: <Booking />
+  },
+  {
+    path: '/payment-success',
+    element: <PaymentSuccess />  
   }
 ], {
   future: {

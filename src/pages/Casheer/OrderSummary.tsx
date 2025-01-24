@@ -24,7 +24,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
     console.log("Total Quantity: ", mergedBasket.reduce((acc, curr) => acc + curr.quantity, 0))
     console.log("Total Price: ", mergedBasket.reduce((acc, curr) => acc + curr.price * curr.quantity, 0))
 
-    // Update mergedBasket setiap kali basket berubah
     useEffect(() => {
         const mergedBasket = basket.reduce((acc, curr) => {
             const existingProduct = acc.find((item: { product: any }) => item.product === curr.product);
