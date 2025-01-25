@@ -8,6 +8,7 @@ import { formatRupiah } from "@/hooks/convertRupiah";
 import { Input } from "@/components/ui/input";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import notification from "../images/notification(404).png";
 
 const Settlement = () => {
     // const [showCodePayment, setShowCodePayment] = useState(false);
@@ -16,6 +17,7 @@ const Settlement = () => {
     const [startDate, setStartDate] = useState<Date | null>(new Date());
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [showCalendar, setShowCalendar] = useState(false);
+    const [showNotification, setShowNotification] = useState(true);
 
     useEffect(() => {
         // Ambil informasi user dari sessionStorage
@@ -90,8 +92,8 @@ const Settlement = () => {
             </div>
 
             {/* Form Penarikan */}
-            <div className="w-[90%] m-auto pb-[250px]">
-                <div className="flex items-start gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+            <div className="w-[90%] m-auto pb-10">
+                <div className={`${showNotification ? 'flex' : 'hidden'} items-start gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm`}>
                     <div className="text-blue-500">
                         <Info className="w-5 h-5" />
                     </div>
@@ -100,12 +102,12 @@ const Settlement = () => {
                         <p>Penarikan dana pada malam hari antara 21.00 s/d 06.00 membutuhkan proses yang lebih lama. Stiqr menganjurkan penarikan dana di luar jam tersebut.</p>
                     </div>
 
-                    <button className="text-gray-400 hover:text-gray-600">
+                    <button onClick={() => setShowNotification(false)} className="text-gray-400 hover:text-gray-600">
                         <XCircle className="w-5 h-5" />
                     </button>
                 </div>
 
-                <div className="w-full mt-10 border border-gray-300 rounded-lg p-5">
+                <div className={`${showNotification ? 'mt-10' : 'mt-24'} w-full border border-gray-300 rounded-lg p-5`}>
                     <div>
                         <p className="font-semibold text-lg">Total Saldo Stiqr</p>
 
@@ -138,9 +140,9 @@ const Settlement = () => {
                 <Button className="mt-5 w-full text-base bg-orange-500">Tarik Saldo</Button>
             </div>
 
-            <div>
+            <div className="pb-20 rounded-lg border border-gray-500">
                 {/* Button untuk Rentang Tanggal */}
-                <div className="fixed bottom-[65px] p-5 border bg-white border-gray-500 rounded-t-lg w-[100%]">
+                <div className="p-5 bg-white rounded-t-lg w-[100%]">
                     <p className="font-semibold text-lg">Riwayat Transaksi</p>
 
                     <Button
@@ -180,6 +182,8 @@ const Settlement = () => {
                         </div>
                     )}
                 </div>
+
+                <img className="p-5" src={notification} alt="" />
             </div>
 
             {/* {showCodePayment && <CodePayment />} */}
