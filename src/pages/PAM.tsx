@@ -57,9 +57,15 @@ const PAM = () => {
         try {
             console.log('Selected Product:', selectedProduct)
 
+            // Ambil informasi user dari sessionStorage
+            const userItem = sessionStorage.getItem("user");
+            const userData = userItem ? JSON.parse(userItem) : null;
+
             const response = await axiosInstance.post("/ayoconnect/inquiry", {
                 accountNumber: phoneNumber,
                 productCode: selectedProduct.code,
+                merchant_id: userData.merchant.id,
+                amount: selectedProduct.amount,
             });
 
             console.log('Inquiry Response:', response.data)

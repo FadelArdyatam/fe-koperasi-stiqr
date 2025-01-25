@@ -32,6 +32,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
     const [showPaymentMehodComponent, setShowPaymentMethodComponent] = useState(false);
     const [stringQR, setStringQR] = useState("");
     const [isLoading, setIsLoading] = useState(false); // State untuk loading
+    const [timeLeft, setTimeLeft] = useState(300); // 5 menit dalam detik
     const navigate = useNavigate();
 
     const userItem = sessionStorage.getItem("user");
@@ -76,6 +77,21 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                     setShowQRCode(true);
                     setDataForPaymentMethod(requestBody)
                     setStringQR(response.data.response.stringQr);
+
+                    // Countdown timer
+                    const timer = setInterval(() => {
+                        setTimeLeft((prevTime) => {
+                            if (prevTime <= 1) {
+                                clearInterval(timer);
+                                navigate("/dashboard"); // Direct ke /dashboard setelah waktu habis
+                                return 0;
+                            }
+                            return prevTime - 1;
+                        });
+                    }, 1000);
+
+                    // Cleanup interval saat komponen di-unmount
+                    return () => clearInterval(timer);
                 } else {
                     alert("Gagal membuat link pembayaran. Mohon coba lagi.");
                 }
@@ -111,7 +127,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                     // Tangkap elemen dengan ukuran yang sesuai
                     const canvas = await html2canvas(contentRef.current, {
                         useCORS: true,
-                        scale: 2, // Tingkatkan resolusi
+                        scale: 5, // Tingkatkan resolusi
                         width: contentRef.current.offsetWidth,
                         height: contentRef.current.offsetHeight,
                     });
@@ -171,6 +187,21 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                     console.log(response.data)
                     // setShowShareLink(true);
                     setStringQR(response.data.response.stringQr);
+
+                    // Countdown timer
+                    const timer = setInterval(() => {
+                        setTimeLeft((prevTime) => {
+                            if (prevTime <= 1) {
+                                clearInterval(timer);
+                                navigate("/dashboard"); // Direct ke /dashboard setelah waktu habis
+                                return 0;
+                            }
+                            return prevTime - 1;
+                        });
+                    }, 1000);
+
+                    // Cleanup interval saat komponen di-unmount
+                    return () => clearInterval(timer);
                 } else {
                     alert("Gagal membuat link pembayaran. Mohon coba lagi.");
                 }
@@ -181,6 +212,12 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                 setIsLoading(false);
             }
         }
+    };
+
+    const formatTime = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
     };
 
     const handleRadioChange = (method: string) => {
@@ -207,13 +244,15 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                 <div className="mt-20 font-medium text-center">
                     <p className="text-white">Pindai QR ini melalui Aplikasi Penerbit kamu.</p>
 
+                    <p className="text-white font-semibold text-2xl">{formatTime(timeLeft)}</p> {/* Countdown Timer */}
+
                     <div className="mt-10 w-full p-5 bg-white shadow-lg rounded-t-lg">
                         <img src={logo} className="w-10" alt="Logo Kedai Kopi" />
 
                         <p className="mt-5 text-xl font-semibold">{userData.merchant.name}</p>
 
-                        <div className="mt-10 w-full flex flex-col items-center" ref={contentRef}>
-                            <QRCode className="m-auto" value={stringQR} size={200} />
+                        <div className="mt-10 w-full flex flex-col items-center p-5" ref={contentRef}>
+                            <QRCode value={stringQR} size={200} />
 
                             <div className="mt-10">
                                 <p>Menerima Pembayaran</p>

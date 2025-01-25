@@ -1,66 +1,50 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
-import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, ChevronDown, FileText } from "lucide-react";
+import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, FileText, Info, XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import { admissionFees } from "./Dashboard"; // Assuming admissionFees is a valid dataset
-import logo from "../images/logo.png";
-import { useState } from "react";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
-import CodePayment from "@/components/CodePayment";
-
-// Schema untuk validasi data form
-const FormSchema = z.object({
-    items: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one item.",
-    }),
-});
+import { useEffect, useState } from "react";
+// import CodePayment from "@/components/CodePayment";
+import axiosInstance from "@/hooks/axiosInstance";
+import { formatRupiah } from "@/hooks/convertRupiah";
+import { Input } from "@/components/ui/input";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const Settlement = () => {
-    const [showBill, setShowBill] = useState(false);
-    const [showCodePayment, setShowCodePayment] = useState(false);
-    const [selectedItems, setSelectedItems] = useState<typeof admissionFees>([]);
-    const [totalSettle, setTotalSettle] = useState(0);
-    const [method, setmethod] = useState("");
+    // const [showCodePayment, setShowCodePayment] = useState(false);
+    const [uangMasuk, setUangMasuk] = useState(0);
+    const [uangKeluar, setUangKeluar] = useState(0);
+    const [startDate, setStartDate] = useState<Date | null>(new Date());
+    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [showCalendar, setShowCalendar] = useState(false);
 
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
-        defaultValues: {
-            items: [],
-        },
-    });
+    useEffect(() => {
+        // Ambil informasi user dari sessionStorage
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        // Filter data berdasarkan kode item yang dipilih
-        const selected = admissionFees.filter((item) => data.items.includes(item.code));
-        setSelectedItems(selected);
+        const getMoney = async () => {
+            try {
+                const uangMasuk = await axiosInstance.get(`/balance/in/${userData.merchant.id}`)
+                setUangMasuk(uangMasuk.data);
 
-        // Hitung total dengan memastikan bahwa nilai amount valid
-        const total = selected.reduce((acc, item) => {
-            const amount = parseInt(item.amount, 10);
-            return acc + (isNaN(amount) ? 0 : amount);
-        }, 0);
+                const uangKeluar = await axiosInstance.get(`/balance/out/${userData.merchant.id}`)
+                setUangKeluar(uangKeluar.data);
+            } catch (error: any) {
+                console.log(error)
+            }
+        }
 
-        setTotalSettle(total);
-        setShowBill(true);
-    }
+        getMoney()
+    }, [])
 
-    const handleDropdownChange = (value: string) => {
-        setmethod(value);
+    const onChange = (dates: [any, any]) => {
+        const [start, end] = dates;
+        setStartDate(start);
+        setEndDate(end);
     };
 
-    console.log(selectedItems)
+    console.log("startDate: ", startDate);
+    console.log("endDate: ", endDate);
 
     return (
         <div>
@@ -105,126 +89,100 @@ const Settlement = () => {
                 </Link>
             </div>
 
-            {/* Form Selection */}
-            <div className={`${showBill ? "hidden" : "block"}`}>
-                {/* Form */}
-                <div className="mt-28 w-full">
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
-                            <FormField
-                                control={form.control}
-                                name="items"
-                                render={() => (
-                                    <FormItem>
-                                        {admissionFees.map((item, index) => (
-                                            <FormField
-                                                key={item.code}
-                                                control={form.control}
-                                                name="items"
-                                                render={({ field }) => (
-                                                    <FormItem className="flex flex-row items-center space-x-5 w-[90%] m-auto space-y-0">
-                                                        <FormControl className={`${index === 0 ? "mt-0" : "mt-10"}`}>
-                                                            <Checkbox
-                                                                checked={field.value?.includes(item.code)}
-                                                                onCheckedChange={(checked) => {
-                                                                    if (checked) {
-                                                                        field.onChange([...field.value, item.code]);
-                                                                    } else {
-                                                                        field.onChange(
-                                                                            field.value.filter((value) => value !== item.code)
-                                                                        );
-                                                                    }
-                                                                }}
-                                                            />
-                                                        </FormControl>
-                                                        <FormLabel className="font-normal w-full m-auto">
-                                                            <div>
-                                                                <div
-                                                                    className={`${index === 0 ? "hidden" : "block"
-                                                                        } w-full h-[2px] mb-5 mt-3 bg-gray-300 rounded-full`}
-                                                                ></div>
-                                                                <div className="flex items-center justify-between">
-                                                                    <div className="flex items-start gap-2">
-                                                                        <img
-                                                                            src={item.image}
-                                                                            className="rounded-full w-10 h-10"
-                                                                            alt=""
-                                                                        />
-                                                                        <div>
-                                                                            <p className="uppercase text-sm">{item.title}</p>
-                                                                            <p className="text-xs text-gray-400">{item.code}</p>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="flex flex-col items-end">
-                                                                        <p className="text-md font-semibold">Rp {new Intl.NumberFormat('id-ID').format(Number(item.amount))}</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </FormLabel>
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        ))}
-                                        <FormMessage className="!mt-10 text-center" />
-                                    </FormItem>
-                                )}
+            {/* Form Penarikan */}
+            <div className="w-[90%] m-auto pb-[250px]">
+                <div className="flex items-start gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+                    <div className="text-blue-500">
+                        <Info className="w-5 h-5" />
+                    </div>
+
+                    <div className="text-sm text-black">
+                        <p>Penarikan dana pada malam hari antara 21.00 s/d 06.00 membutuhkan proses yang lebih lama. Stiqr menganjurkan penarikan dana di luar jam tersebut.</p>
+                    </div>
+
+                    <button className="text-gray-400 hover:text-gray-600">
+                        <XCircle className="w-5 h-5" />
+                    </button>
+                </div>
+
+                <div className="w-full mt-10 border border-gray-300 rounded-lg p-5">
+                    <div>
+                        <p className="font-semibold text-lg">Total Saldo Stiqr</p>
+
+                        <p className="mt-2 font-semibold text-3xl">{formatRupiah(uangMasuk)}</p>
+                    </div>
+
+                    <div className="w-full h-[1px] bg-gray-300 my-5"></div>
+
+                    <div className="w-full flex flex-col gap-5">
+                        <div className="w-full flex items-center gap-5 justify-between">
+                            <p className="text-gray-500">Saldo Pemasukan</p>
+
+                            <p className="font-semibold text-lg">{formatRupiah(uangMasuk)}</p>
+                        </div>
+
+                        <div className="w-full flex items-center gap-5 justify-between">
+                            <p className="text-gray-500">Saldo Pengeluaran</p>
+
+                            <p className="font-semibold text-lg">{formatRupiah(uangKeluar)}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-5 flex flex-col gap-3">
+                    <p>Saldo Yang Ingin Ditarik</p>
+
+                    <Input placeholder="Masukkan Jumlah Saldo" />
+                </div>
+
+                <Button className="mt-5 w-full text-base bg-orange-500">Tarik Saldo</Button>
+            </div>
+
+            <div>
+                {/* Button untuk Rentang Tanggal */}
+                <div className="fixed bottom-[65px] p-5 border bg-white border-gray-500 rounded-t-lg w-[100%]">
+                    <p className="font-semibold text-lg">Riwayat Transaksi</p>
+
+                    <Button
+                        className="w-full mt-3 text-base font-medium bg-gray-200 text-gray-700 border border-gray-400 rounded-lg flex justify-center items-center px-3 py-2"
+                        onClick={() => setShowCalendar(!showCalendar)}
+                    >
+                        {startDate && endDate
+                            ? `${startDate.toLocaleDateString("id-ID", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                            })} - ${endDate.toLocaleDateString("id-ID", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                            })}`
+                            : "Pilih Rentang Tanggal"}
+                    </Button>
+
+                    {/* Kalender DatePicker */}
+                    {showCalendar && (
+                        <div className="mt-3 border flex flex-col items-center p-2 border-gray-300 rounded-lg shadow-md">
+                            <DatePicker
+                                selected={startDate}
+                                onChange={onChange}
+                                startDate={startDate}
+                                endDate={endDate}
+                                selectsRange
+                                inline
                             />
                             <Button
-                                type="submit"
-                                className={`${form.watch("items").length > 0 ? "block" : "hidden"} bg-green-400 uppercase mt-20 w-[90%] m-auto`}
+                                className="w-full mt-2 bg-orange-500 text-white rounded-lg py-2"
+                                onClick={() => setShowCalendar(false)}
                             >
-                                Lanjut
+                                Pilih
                             </Button>
-                        </form>
-                    </Form>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Bill Display */}
-            <div className={`${showBill ? "block" : "hidden"} ${showCodePayment ? 'hidden' : 'block'} w-[90%] m-auto mt-28 mb-32`}>
-                <img src={logo} className="w-28 m-auto" alt="" />
-                <div>
-                    <p className="font-semibold text-xl mt-10 text-center uppercase">
-                        Total Jumlah Yang Ingin Anda Settle.
-                    </p>
-
-                    <div className="mt-10 text-center p-5 bg-gray-200 rounded-lg">
-                        <p className="uppercase font-semibold text-lg">Total</p>
-                        <p className="text-3xl font-semibold text-black mt-2">Rp {new Intl.NumberFormat('id-ID').format(totalSettle)}</p>
-                    </div>
-
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <div className="mt-10">
-                                <div className="flex items-center gap-5 border mt-2 text-gray-400 border-black rounded-lg p-2 justify-between">
-                                    <button>{method || "Pilih Metode Penarikan"}</button>
-
-                                    <ChevronDown />
-                                </div>
-                            </div>
-                        </DropdownMenuTrigger>
-
-                        <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg w-[400px] flex flex-col gap-3">
-                            <DropdownMenuItem onClick={() => handleDropdownChange("Akun Bank")}>
-                                Akun Bank
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDropdownChange("Tarik Tunai")}>
-                                Tarik Tunai
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    <div className="mt-10 flex items-center gap-5">
-                        <Button onClick={() => setShowBill(false)} className="w-full p-2 text-center rounded-md bg-white hover:text-white border border-black text-black">Batal</Button>
-
-                        <Button onClick={() => setShowCodePayment(true)} disabled={method.length !== 0 ? false : true} className="w-full bg-orange-400 text-white">Transfer</Button>
-                    </div>
-
-                </div>
-
-            </div>
-
-            {showCodePayment && <CodePayment />}
+            {/* {showCodePayment && <CodePayment />} */}
         </div>
     );
 };

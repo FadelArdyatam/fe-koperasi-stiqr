@@ -2,7 +2,7 @@ import DetailProduct from "@/pages/Casheer/DetailProduct"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import axiosInstance from "@/hooks/axiosInstance"
-import { ArrowLeft, Search, SlidersHorizontal, Image, ShoppingBasket } from "lucide-react"
+import { ArrowLeft, Search, SlidersHorizontal, ShoppingBasket } from "lucide-react"
 import { useEffect, useState, useCallback, useRef } from "react"
 import { Link } from "react-router-dom"
 import takeAway from "../../images/take-away.png"
@@ -21,6 +21,8 @@ const Casheer = () => {
     const [basket, setBasket] = useState<any[]>([]);
     const [showService, setShowService] = useState<{ show: boolean, service: string | null }>({ show: false, service: null });
     const serviceRef = useRef<HTMLDivElement | null>(null);
+
+    const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
@@ -233,23 +235,39 @@ const Casheer = () => {
 
                 <div className="w-[90%] mt-5 flex flex-col items-center gap-5">
                     {products.map((product, index) => (
-                        <div key={index} className="flex items-center gap-5 justify-between w-full p-5 bg-white rounded-lg">
+                        <div
+                            key={index}
+                            className="flex items-center gap-5 w-full p-5 bg-white rounded-lg justify-between"
+                        >
                             {/* Detail Produk */}
-                            <div onClick={() => detailProductHandler(index)} className="flex items-center gap-5 w-full cursor-pointer">
-                                <Image className="scale-[1.5]" />
+                            <div
+                                onClick={() => detailProductHandler(index)}
+                                className="flex items-center gap-5 w-full cursor-pointer"
+                            >
+                                <img src={`${urlImage}/uploads/products/${product.product_image}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
 
                                 <div className="flex flex-col justify-start items-start">
                                     <p className="font-semibold">{product.product_name}</p>
 
-                                    <p className="font-semibold">{Number(product.product_price).toLocaleString("id-ID", {
-                                        style: "currency",
-                                        currency: "IDR",
-                                    })}</p>
+                                    <p className="font-semibold text-wrap">
+                                        {/* Format angka dengan pemotongan */}
+                                        {String(product.product_price).length > 5
+                                            ? `${Number(product.product_price)
+                                                .toLocaleString("id-ID", {
+                                                    style: "currency",
+                                                    currency: "IDR",
+                                                })
+                                                .slice(0, 10)}...`
+                                            : Number(product.product_price).toLocaleString("id-ID", {
+                                                style: "currency",
+                                                currency: "IDR",
+                                            })}
+                                    </p>
                                 </div>
                             </div>
 
                             {/* Tombol Tambah dan Kurangi Kuantitas */}
-                            <div className="flex items-center gap-5">
+                            <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => removeQuantityHandler(index)}
                                     className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
@@ -257,10 +275,11 @@ const Casheer = () => {
                                     -
                                 </button>
 
-                                <p>
+                                <p className="text-center w-6">
                                     {basket
                                         .filter((item) => item.product === product.product_name) // Filter sesuai produk
-                                        .reduce((total, item) => total + item.quantity, 0)} {/* Hitung quantity */}
+                                        .reduce((total, item) => total + item.quantity, 0)}{" "}
+                                    {/* Hitung quantity */}
                                 </p>
 
                                 <button

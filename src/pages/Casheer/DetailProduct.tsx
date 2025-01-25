@@ -1,4 +1,4 @@
-import { ArrowLeft, Image } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../../components/ui/button";
 
@@ -16,6 +16,8 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
     const [price, setPrice] = useState(product.product_price);
     const [notes, setNotes] = useState("");
     const [detailVariant, setDetailVariant] = useState<any[]>([]);
+
+    const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
     console.log("variants from detail product: ", variants);
 
@@ -48,7 +50,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
     };
 
     return (
-        <div className="flex w-full flex-col min-h-screen items-center bg-orange-50">
+        <div className="flex w-full flex-col min-h-screen items-center bg-orange-50 pb-[150px]">
             <div className={`p-5 w-full bg-white`}>
                 <div className="w-full flex items-center gap-5 justify-between">
                     <div className="flex items-center gap-5">
@@ -61,7 +63,8 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
             <div className="w-[90%] flex flex-col items-end mt-5 bg-white p-5 shadow-lg rounded-md">
                 <div className="w-full">
                     <div className="flex items-center gap-5">
-                        <Image className="scale-[1.5]" />
+                        <img src={`${urlImage}/uploads/products/${product.product_image}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
+
                         <p className="font-semibold text-lg">{product.product_name}</p>
                     </div>
                     <div className="mt-5">
@@ -79,7 +82,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
 
             <div className="w-[90%] mt-5 p-5 rounded-lg bg-white shadow-lg">
                 {variants.map((variant, index) => (
-                    <div key={index}>
+                    <div key={index} className="mt-5">
                         <p className="font-semibold">{variant.variant_name}</p>
 
                         <p className="text-gray-500">Optional - pilih maksimum {variant.multiple_value.split(",").map((value: string) => value.trim()).length}</p>

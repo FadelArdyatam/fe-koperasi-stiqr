@@ -140,12 +140,12 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                         </div>
 
                         {/* Number Pad */}
-                        <div className="grid grid-cols-3 gap-4 mb-4">
+                        <div className="grid grid-cols-3 gap-4 mb-4 translate-x-[15px]">
                             {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((number) => (
                                 <button
                                     key={number}
                                     onClick={() => handleNumberClick(number)}
-                                    className="w-16 h-16 rounded-full bg-gray-100 text-xl font-bold"
+                                    className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
                                 >
                                     {number}
                                 </button>
@@ -153,13 +153,13 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                             <div></div>
                             <button
                                 onClick={() => handleNumberClick("0")}
-                                className="w-16 h-16 rounded-full bg-gray-100 text-xl font-bold"
+                                className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
                             >
                                 0
                             </button>
                             <button
                                 onClick={handleDelete}
-                                className="w-16 h-16 rounded-full bg-red-400 text-white text-xl font-bold"
+                                className="w-16 h-16 flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold"
                             >
                                 ⌫
                             </button>

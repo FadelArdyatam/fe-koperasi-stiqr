@@ -7,7 +7,6 @@ import {
     Computer,
     Search,
     SlidersHorizontal,
-    Image,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -122,6 +121,8 @@ const Booking = () => {
     const [status, setStatus] = useState<string>("inprogress");
     const [datas, setDatas] = useState<ISales[]>([]); // Disesuaikan sesuai tipe data response
 
+    const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
+
     const statuses = [
         { value: "inprogress", label: "Belum Dibayar" },
         { value: "done", label: "Selesai" },
@@ -227,7 +228,7 @@ const Booking = () => {
 
                                 <div>
                                     <div className="flex items-center gap-5">
-                                        <Image className="scale-[2]" />
+                                        <img src={`${urlImage}/uploads/products/${data.sales_details[0].product.product_image}`} alt={data.sales_details[0].product.product_image} className="h-12 w-12 object-cover rounded-md" />
 
                                         <div>
                                             <p className="text-lg font-semibold">
