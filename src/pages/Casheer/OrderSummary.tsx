@@ -171,6 +171,12 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                         </div>
                     </div>
 
+                    <div className="mt-5">
+                        <p className="font-semibold">No. Telephone</p>
+
+                        <Input placeholder="No. Telphone" className="w-full bg-white p-3 rounded-lg mt-2" />
+                    </div>
+
                     <div className="mt-5 w-full flex items-center gap-5 justify-between bg-white p-5 rounded-lg">
                         <p className="font-semibold">Ada lagi pesanannya?</p>
 

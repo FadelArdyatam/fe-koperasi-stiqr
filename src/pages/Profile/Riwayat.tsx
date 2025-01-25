@@ -3,53 +3,11 @@ import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, Filter, ArrowDown
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { admissionFees } from "../Dashboard";
-import telkomsel from "../../images/telkomsel.png";
-import pln from "../../images/pln.png";
-import bpjs from "../../images/bpjs.png";
 import html2canvas from "html2canvas";
 import axiosInstance from "@/hooks/axiosInstance";
 
-const payments = [
-    {
-        title: "PLN",
-        code: "INV-0001",
-        amount: "100000",
-        date: "23/11/2024",
-        time: "10:00",
-        image: pln,
-        status: 'success'
-    },
-    {
-        title: "BPJS",
-        code: "INV-0002",
-        amount: "150000",
-        date: "24/11/2024",
-        time: "10:00",
-        image: bpjs,
-        status: 'pending'
-    },
-    {
-        title: "PLN",
-        code: "INV-0003",
-        amount: "200000",
-        date: "29/11/2024",
-        time: "10:00",
-        image: pln,
-        status: 'success'
-    },
-    {
-        title: "Telkomsel",
-        code: "INV-0004",
-        amount: "300000",
-        date: "12/11/2024",
-        time: "10:00",
-        image: telkomsel,
-        status: 'failed'
-    },
-];
-
-
 interface Purchase {
+    refnumber: string;
     type: string;
     purchase_id: string;
     amount: string;
@@ -63,22 +21,27 @@ const Riwayat = () => {
     const [showDescription, setShowDescription] = useState({ status: false, index: -1 });
     const contentRef = useRef(null); // Untuk mereferensikan elemen yang akan dirender menjadi gambar
     const [typeSorting, setTypeSorting] = useState({ show: false, type: 'asc' });
-    const [sortingPayments, setSortingPayments] = useState<typeof payments>([]);
+    const [sortingPurchases, setSortingPurchases] = useState<Purchase[]>([]);
     const [sortingAdmissionFees, setSortingAdmissionFees] = useState<typeof admissionFees>([]);
     const [typeFilter, setTypeFilter] = useState({ show: false, type: 'all' });
-    const [filterPayments, setFilterPayments] = useState<typeof payments>([]);
+    const [filterPurchases, setFilterPurchases] = useState<Purchase[]>([]);
     const [filterAdmissionFees, setFilterAdmissionFees] = useState<typeof admissionFees>([]);
 
+    const [dataUser, setDataUser] = useState<any>();
 
-    const [purchases,setPurchases] = useState<Purchase[]>([]);
+    const [purchases, setPurchases] = useState<Purchase[]>([]);
+
     useEffect(() => {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
-        const fetchPurchase = async() => {
+        setDataUser(userData);
+
+        const fetchPurchase = async () => {
             const response = await axiosInstance.get(`/history/purchases/${userData.merchant.id}`);
             setPurchases(response.data);
         }
+
         fetchPurchase();
     }, []);
 
@@ -102,7 +65,7 @@ const Riwayat = () => {
 
     const sortingHandler = () => {
         // Sorting Payments by Date
-        const sortedPayments = [...payments].sort((a, b) => {
+        const sortedPurchase = [...purchases].sort((a, b) => {
             const dateA = new Date(a.date.split('/').reverse().join('/')); // Convert DD/MM/YYYY to YYYY/MM/DD
             const dateB = new Date(b.date.split('/').reverse().join('/')); // Convert DD/MM/YYYY to YYYY/MM/DD
 
@@ -126,7 +89,7 @@ const Riwayat = () => {
         });
 
         // Update State
-        setSortingPayments(sortedPayments);
+        setSortingPurchases(sortedPurchase);
         setSortingAdmissionFees(sortedAdmissionFees);
 
         // Toggle Sorting Order
@@ -140,11 +103,11 @@ const Riwayat = () => {
         setTypeFilter({ show: true, type: filterType });
 
         // Filter Payments by Status
-        const filteredPayments = payments.filter(payment => {
+        const filteredPurchases = purchases.filter(purchase => {
             if (filterType === 'all') {
                 return true; // Include all payments
             } else {
-                return payment.status === filterType;
+                return purchase.status === filterType;
             }
         });
 
@@ -158,11 +121,13 @@ const Riwayat = () => {
         });
 
         // Update State
-        setFilterPayments(filteredPayments);
+        setFilterPurchases(filteredPurchases);
         setFilterAdmissionFees(filteredAdmissionFees);
     };
 
     console.log(typeSorting.show)
+
+    console.log("Purchases: ", purchases);
 
     return (
         <div className="relative h-screen">
@@ -378,88 +343,108 @@ const Riwayat = () => {
                     className={`absolute inset-0 ${type === "Pembelian" ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"} transition-all duration-500 ease-in-out`}
                 >
                     <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg">
-                        {typeSorting.show ? sortingPayments.map((payment, index) => ( // Tampilkan data yang sudah diurutkan
+                        {typeSorting.show ? sortingPurchases.map((purchase, index) => ( // Tampilkan data yang sudah diurutkan
                             <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
                                 <div
                                     className={`${index === 0 ? "hidden" : "block"
                                         } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
                                 ></div>
 
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-start gap-2">
+                                <div className="flex md:items-center md:justify-between md:flex-row flex-col">
+                                    <div className="flex md:items-start items-center gap-5">
                                         <img
-                                            src={payment.image}
-                                            className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
+                                            src={purchase.image}
+                                            className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
                                             alt=""
                                         />
 
-                                        <div className="flex flex-col items-start">
-                                            <div className="flex items-center gap-2">
-                                                <p className="uppercase text-sm">{payment.title}</p>
-
-                                                <div className={`${payment.status === 'success' ? 'bg-green-400' : payment.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
-                                                    <p>{payment.status}</p>
-                                                </div>
+                                        <div className="flex md:flex-row flex-col items-start gap-5">
+                                            <div className="flex flex-col gap-2">
+                                                <p className="uppercase text-sm">{purchase.type}</p>
+                                                <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
+                                            </div>
+                                            <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
+                                                <p>{purchase.status}</p>
                                             </div>
 
-                                            <p className="text-xs text-gray-400">{payment.code}</p>
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col items-end">
+                                    <div className="flex md:mt-0 mt-5 flex-col items-end">
                                         <p className="text-md font-semibold">
-                                            Rp {new Intl.NumberFormat("id-ID").format(Number(payment.amount))}
+                                            Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
                                         </p>
 
                                         <div className="flex items-center">
-                                            <p className="text-xs">{payment.date}</p>
+                                            <p className="text-xs">
+                                                {new Date(purchase.date).toLocaleDateString('id-ID', {
+                                                    day: '2-digit',
+                                                    month: 'long',
+                                                    year: 'numeric',
+                                                })}
+                                            </p>
 
                                             <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
 
-                                            <p className="text-xs">{payment.time}</p>
+                                            <p className="text-xs">
+                                                {new Date(purchase.date).toLocaleTimeString('id-ID', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                })}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
                             </button>
-                        )) : typeFilter.show ? filterPayments.map((payment, index) => ( // Tampilkan data yang belum diurutkan
+                        )) : typeFilter.show ? filterPurchases.map((purchase, index) => ( // Tampilkan data yang belum diurutkan
                             <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
                                 <div
                                     className={`${index === 0 ? "hidden" : "block"
                                         } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
                                 ></div>
 
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-start gap-2">
+                                <div className="flex md:items-center md:justify-between md:flex-row flex-col">
+                                    <div className="flex md:items-start items-center gap-5">
                                         <img
-                                            src={payment.image}
-                                            className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
+                                            src={purchase.image}
+                                            className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
                                             alt=""
                                         />
 
-                                        <div className="flex flex-col items-start">
-                                            <div className="flex items-center gap-2">
-                                                <p className="uppercase text-sm">{payment.title}</p>
-
-                                                <div className={`${payment.status === 'success' ? 'bg-green-400' : payment.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
-                                                    <p>{payment.status}</p>
-                                                </div>
+                                        <div className="flex md:flex-row flex-col items-start gap-5">
+                                            <div className="flex flex-col gap-2">
+                                                <p className="uppercase text-sm">{purchase.type}</p>
+                                                <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
+                                            </div>
+                                            <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
+                                                <p>{purchase.status}</p>
                                             </div>
 
-                                            <p className="text-xs text-gray-400">{payment.code}</p>
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col items-end">
+                                    <div className="flex md:mt-0 mt-5 flex-col items-end">
                                         <p className="text-md font-semibold">
-                                            Rp {new Intl.NumberFormat("id-ID").format(Number(payment.amount))}
+                                            Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
                                         </p>
 
                                         <div className="flex items-center">
-                                            <p className="text-xs">{payment.date}</p>
+                                            <p className="text-xs">
+                                                {new Date(purchase.date).toLocaleDateString('id-ID', {
+                                                    day: '2-digit',
+                                                    month: 'long',
+                                                    year: 'numeric',
+                                                })}
+                                            </p>
 
                                             <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
 
-                                            <p className="text-xs">{payment.time}</p>
+                                            <p className="text-xs">
+                                                {new Date(purchase.date).toLocaleTimeString('id-ID', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                })}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -484,9 +469,9 @@ const Riwayat = () => {
                                                 <p className="uppercase text-sm">{purchase.type}</p>
                                                 <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
                                             </div>
-                                                <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
-                                                    <p>{purchase.status}</p>
-                                                </div>
+                                            <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
+                                                <p>{purchase.status}</p>
+                                            </div>
 
                                         </div>
                                     </div>
@@ -498,20 +483,20 @@ const Riwayat = () => {
 
                                         <div className="flex items-center">
                                             <p className="text-xs">
-                                            {new Date(purchase.date).toLocaleDateString('id-ID', {
-                                                day: '2-digit',
-                                                month: 'long',
-                                                year: 'numeric',
-                                            })}
+                                                {new Date(purchase.date).toLocaleDateString('id-ID', {
+                                                    day: '2-digit',
+                                                    month: 'long',
+                                                    year: 'numeric',
+                                                })}
                                             </p>
 
                                             <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
 
                                             <p className="text-xs">
-                                            {new Date(purchase.date).toLocaleTimeString('id-ID', {
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                            })}
+                                                {new Date(purchase.date).toLocaleTimeString('id-ID', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                })}
                                             </p>
                                         </div>
                                     </div>
@@ -538,7 +523,7 @@ const Riwayat = () => {
                                 All
                             </button>
 
-                            <button onClick={() => filterHandler('success')} className="text-sm font-medium text-gray-600 hover:text-gray-800">
+                            <button onClick={() => filterHandler('Berhasil')} className="text-sm font-medium text-gray-600 hover:text-gray-800">
                                 Success
                             </button>
 
@@ -613,17 +598,17 @@ const Riwayat = () => {
                 ) : (
                     <div>
                         <div className="flex items-center gap-3">
-                            <img src={payments[showDescription.index]?.image} className="w-10 min-w-10 h-10 min-h-10 rounded-full" alt="" />
+                            <img src={purchases[showDescription.index]?.image} className="w-10 min-w-10 h-10 min-h-10 rounded-full" alt="" />
 
                             <div>
-                                <p>{payments[showDescription.index]?.title}</p>
+                                <p>{purchases[showDescription.index]?.type}</p>
                             </div>
                         </div>
 
                         <div className="p-5 bg-gray-200 rounded-lg flex flex-col gap-5 items-center mt-10">
                             <p className="text-gray-500">Amount</p>
 
-                            <p className="text-3xl text-orange-400 font-semibold">Rp {new Intl.NumberFormat('id-ID').format(Number(payments[showDescription.index]?.amount))}</p>
+                            <p className="text-3xl text-orange-400 font-semibold">Rp {new Intl.NumberFormat('id-ID').format(Number(purchases[showDescription.index]?.amount))}</p>
                         </div>
 
                         <div className="flex flex-col w-full">
@@ -631,13 +616,13 @@ const Riwayat = () => {
                                 <div className="flex flex-col items-start">
                                     <p className="text-gray-500">user</p>
 
-                                    <p className="mt-2">Kopi Tuku</p>
+                                    <p className="mt-2">{dataUser.merchant.name}</p>
                                 </div>
 
                                 <div className="flex flex-col items-end">
                                     <p className="text-gray-500">No. Referensi</p>
 
-                                    <p className="mt-2">{payments[showDescription.index]?.code}</p>
+                                    <p className="mt-2">{purchases[showDescription.index]?.refnumber}</p>
                                 </div>
                             </div>
 
@@ -645,13 +630,24 @@ const Riwayat = () => {
                                 <div className="flex flex-col items-start">
                                     <p className="text-gray-500">Status</p>
 
-                                    <p className="mt-2">{payments[showDescription.index]?.status}</p>
+                                    <p className="mt-2">{purchases[showDescription.index]?.status}</p>
                                 </div>
 
                                 <div className="flex flex-col items-end">
                                     <p className="text-gray-500">Tanggal & Waktu</p>
 
-                                    <p className="mt-2">{payments[showDescription.index]?.date} | {payments[showDescription.index]?.time}</p>
+                                    <p className="mt-2">
+                                        {new Date(purchases[showDescription.index]?.date).toLocaleDateString("id-ID", {
+                                            day: "numeric",
+                                            month: "long",
+                                            year: "numeric",
+                                        })}{" "}
+                                        |{" "}
+                                        {new Date(purchases[showDescription.index]?.date).toLocaleTimeString("id-ID", {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                        })}
+                                    </p>
                                 </div>
                             </div>
 

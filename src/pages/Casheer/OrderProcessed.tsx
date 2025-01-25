@@ -16,6 +16,8 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
 
     console.log("basket from order processed: ", basket)
 
+    console.log("showQRCode: ", showQRCode)
+
     return (
         <>
             <div className={`${showQRCode ? 'hidden' : 'flex'} w-full flex-col min-h-screen pb-[250px] items-center bg-orange-50`}>

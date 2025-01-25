@@ -10,32 +10,25 @@ interface PaymentMethodProps {
 }
 
 const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPaymentMethodComponent, selectedMethod }) => {
-    const [paymentAmount, setPaymentAmount] = useState<string>("");
-    const [errorMessage, setErrorMessage] = useState("");
-    const [change, setChange] = useState(0);
-
-    const handlePaymentSubmit = () => {
-        const amount = parseInt(paymentAmount.replace(/\D/g, "")); // Hapus karakter non-digit
-
-        // Validasi input
-        if (isNaN(amount) || amount <= 0) {
-            setErrorMessage("Nominal pembayaran harus lebih dari 0.");
-            return;
-        }
-
-        if (amount < dataPayment.amount) {
-            setErrorMessage("Nominal pembayaran tidak boleh kurang dari total tagihan.");
-            return;
-        }
-
-        // Reset error dan lanjutkan proses
-        setErrorMessage("");
-        setChange(amount - dataPayment.amount);
-    };
+    const [paymentAmount, setPaymentAmount] = useState<string>(""); // Nominal pembayaran
+    const [errorMessage, setErrorMessage] = useState(""); // Pesan error
+    const [change, setChange] = useState(0); // Kembalian
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/\D/g, ""); // Hanya angka
-        setPaymentAmount(value); // Simpan angka mentah tanpa "Rp"
+        const amount = parseInt(value || "0"); // Konversi ke integer (default 0 jika kosong)
+
+        setPaymentAmount(value); // Update nominal pembayaran
+
+        if (amount >= dataPayment.amount) {
+            // Hitung kembalian jika nominal pembayaran >= total tagihan
+            setChange(amount - dataPayment.amount);
+            setErrorMessage(""); // Reset error jika valid
+        } else {
+            // Tetapkan kembalian menjadi 0 jika nominal pembayaran < total tagihan
+            setChange(0);
+            setErrorMessage(amount > 0 ? "Nominal pembayaran tidak boleh kurang dari total tagihan." : "");
+        }
     };
 
     return (
@@ -81,19 +74,26 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
 
                 {errorMessage && <p className="text-red-500 text-sm mt-2">{errorMessage}</p>}
 
-                <Button className="bg-orange-200 text-orange-500 rounded-full w-max mt-5" onClick={() => setPaymentAmount(dataPayment.amount)}>Uang Pas</Button>
+                <Button
+                    className="bg-orange-200 text-orange-500 rounded-full w-max mt-5"
+                    onClick={() => setPaymentAmount(dataPayment.amount.toString())}
+                >
+                    Uang Pas
+                </Button>
             </div>
 
             {/* Tombol Proses Pembayaran */}
             <div className="w-full fixed bottom-0 p-5 bg-white flex flex-col gap-5 justify-end mt-5">
                 <div className="flex items-center gap-5 justify-between">
-                    <p>kembalian</p>
+                    <p>Kembalian</p>
 
                     <p className="font-semibold text-lg">{formatRupiah(change)}</p>
                 </div>
 
                 <Button
-                    onClick={handlePaymentSubmit}
+                    onClick={() => {
+                        /* Proses pembayaran tetap bisa dilakukan jika diperlukan */
+                    }}
                     className="bg-orange-500 w-full text-white px-5 py-2 rounded-md hover:bg-orange-600"
                 >
                     Proses Pembayaran

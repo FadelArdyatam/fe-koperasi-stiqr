@@ -65,9 +65,15 @@ const Listrik = () => {
         try {
             console.log('Selected Product:', selectedProduct)
 
+            // Ambil informasi user dari sessionStorage
+            const userItem = sessionStorage.getItem("user");
+            const userData = userItem ? JSON.parse(userItem) : null;
+
             const response = await axiosInstance.post("/ayoconnect/inquiry", {
                 accountNumber: noMeter,
                 productCode: selectedProduct.code,
+                amount: selectedProduct.amount,
+                merchant_id: userData.merchant.id,
             });
 
             console.log('Inquiry Response:', response.data)
