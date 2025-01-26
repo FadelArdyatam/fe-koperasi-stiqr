@@ -137,7 +137,6 @@ const Casheer = () => {
     // Show Product By Etalase Handler
     const showProductByEtalaseHandler = async (showcaseId: any) => {
         try {
-            console.log("ShowcaseID: ", showcaseId)
             const response = await axiosInstance.get(`/product/${userData?.merchant?.id}?showcase_id=${showcaseId}`);
             if (Array.isArray(response.data)) {
                 setProducts(response.data);
@@ -146,7 +145,6 @@ const Casheer = () => {
             }
         } catch (err: any) {
             setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data produk.");
-            console.error("Error saat mengambil data produk:", err);
         } finally {
             setLoading(false);
         }
@@ -175,21 +173,11 @@ const Casheer = () => {
         return <div>Loading...</div>
     }
 
-    console.log("Etalases:", etalases);
-    console.log("Products:", products);
-
     const detailProductHandler = (index: number) => {
         setShowDetailProduct(true);
         setSelectedProduct(products[index]);
-        console.log("Detail Product:", products[index]);
     }
-
-    console.log("Basket:", basket);
-
-    console.log("showService:", showService);
-
     console.log(error)
-
     return (
         <>
             <div className={`${showDetailProduct || showService.service !== null ? 'hidden' : 'flex'} w-full flex-col min-h-screen items-center bg-orange-50`}>

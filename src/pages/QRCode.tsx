@@ -1,4 +1,4 @@
-import { ChevronLeft, X, Banknote, Calculator, ArrowLeftRight } from "lucide-react";
+import { ChevronLeft, X, Banknote, Calculator, ArrowLeftRight, CircleAlert } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
 import { useRef, useState, useEffect } from "react";
@@ -12,137 +12,151 @@ import linkAja from "../images/linkaja.jpg";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 import { Input } from "@/components/ui/input";
-import axios from "axios";
 import PaymentMethod from "./PaymentMethod.tsx/PaymentMethod";
-import io from 'socket.io-client';
+import { getSocket } from "@/hooks/websocket";
 import axiosInstance from "@/hooks/axiosInstance";
+import { AlertDialogHeader, AlertDialogFooter } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@radix-ui/react-alert-dialog";
 
 const payments = [visa, masterCard, gopay, ovo, dana, linkAja];
 
+
 interface QRCodePageProps {
     type: string;
-    datas: any;
+    orderId?: string|null;
+    stringQR?: string | null;
+    showQRCode?: boolean;
+    setShowQRCode?: React.Dispatch<React.SetStateAction<boolean>>;
+    timeLeftOpenBill?: number;
 }
 
-const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
+const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQRCode, setShowQRCode,timeLeftOpenBill }) => {
     const contentRef = useRef<HTMLDivElement>(null);
-    const [showQRCode, setShowQRCode] = useState(false);
+    // const [showQRCode, setShowQRCode] = useState(false);
     const [amount, setAmount] = useState("");
     const [showOtherMethod, setShowOtherMethod] = useState(false);
     const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
     const [dataForPaymentMethod, setDataForPaymentMethod] = useState<any>(null);
     const [showPaymentMehodComponent, setShowPaymentMethodComponent] = useState(false);
-    const [stringQR, setStringQR] = useState("");
+    // const [stringQR, setStringQR] = useState("");
     const [isLoading, setIsLoading] = useState(false); // State untuk loading
     const [timeLeft, setTimeLeft] = useState(300); // 5 menit dalam detik
     const navigate = useNavigate();
 
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
+    const [orderIdInstant, setOrderIdInstant] = useState<string | null>(null)
 
-   
     useEffect(() => {
-    const socket = io(`https://be-stiqr.dnstech.co.id/`);
-    console.log(socket)
-
-    socket.on('payment_status', (data) => {
-        console.log('Payment Status Received:', data);
-
-        if (data.status === 'PAID') {
-        navigate('/payment-success', { 
-            state: { 
-            orderId: data.orderId ?? "dummy-order-id", 
-            amount: data.amount ?? 0
-            } 
-        });
+        if (orderId || orderIdInstant) {
+            const socket = getSocket();
+            const handlePaymentSuccess = (data: { orderId: string; status: string; amount?: number }) => {
+                if ((orderId === data.orderId || orderIdInstant === data.orderId) && data.status === 'PAID') {
+                    navigate('/payment-success', {
+                        state: {
+                            orderId: data.orderId ?? "dummy-order-id",
+                            amount: data.amount ?? 0,
+                        },
+                    });
+                }
+            };
+            socket.on('payment:success', handlePaymentSuccess);   
+            return () => {
+                console.log('Cleaning up WebSocket listeners for QRCODE');
+                socket.off('payment:success', handlePaymentSuccess);
+            };
         }
-    });
+    }, [orderId, navigate, orderIdInstant]);
 
-    // Cleanup socket connection
-    return () => {
-        socket.off("payment_status");
-        socket.disconnect();
-    };
-    }, []);
+
 
     // Tambahkan useEffect di bawah definisi fungsi komponen
-    useEffect(() => {
-        const generateRandomString = (length = 10) => {
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
-        };
-        const generateOrderId = generateRandomString(15)
-    
-        const fetchQRCode = async () => {
-            // if (!datas || !Array.isArray(datas) || datas.length === 0) {
-            //     console.warn("Datas is empty or invalid, skipping QR Code generation.");
-            //     return;
-            // }
+    // useEffect(() => {
 
-            if (type !== "kasir") {
-                // Jika type bukan "kasir", tidak menjalankan efek ini
-                return;
-            }
-    
-            setIsLoading(true); // Aktifkan loading
+    //     const fetchQRCode = async () => {
+    //         // if (!datas || !Array.isArray(datas) || datas.length === 0) {
+    //         //     console.warn("Datas is empty or invalid, skipping QR Code generation.");
+    //         //     return;
+    //         // }
 
-            try {
-                const requestBody = {
-                    email: "testerfinpay@gmail.com",
-                    firstName: "Tester",
-                    lastName: "Finpay",
-                    mobilePhone: "+62048232329",
-                    amount: datas.reduce((acc: number, curr: any) => acc + curr.price * curr.quantity, 0).toString(),
-                    description: "Tester",
-                    successUrl: "http://success",
-                    type: "qris",
-                    orderId: generateOrderId,
-                    item: datas.map((data: any) => ({
-                        name: data.product,
-                        quantity: data.quantity.toString(),
-                        unitPrice: data.price.toString(),
-                    })),
-                };
+    //         if (type !== "kasir") {
+    //             // Jika type bukan "kasir", tidak menjalankan efek ini
+    //             return;
+    //         }
 
-                console.log("Request Body: ", requestBody);
+    //         setIsLoading(true); // Aktifkan loading
 
-                const response = await axiosInstance.post(`${import.meta.env.VITE_API_URL}/finpay/initiate`, requestBody);
+    //         try {
+    //             const requestBody = {
+    //                 email: "testerfinpay@gmail.com",
+    //                 firstName: "Tester",
+    //                 lastName: "Finpay",
+    //                 mobilePhone: "+62048232329",
+    //                 amount: calculateTotalAmount(),
+    //                 description: "Tester",
+    //                 successUrl: "http://success",
+    //                 type: "qris",
+    //                 orderId: orderId,
+    //                 item:prepareItems(),
+    //             };
 
-                console.log('initiate : ')
-                console.log(response);
-                if (response.data) {
-                    setShowQRCode(true);
-                    setDataForPaymentMethod(requestBody)
-                    setStringQR(response.data.response.stringQr);
+    //             console.log("Request Body: ", requestBody);
 
-                    // Countdown timer
-                    const timer = setInterval(() => {
-                        setTimeLeft((prevTime) => {
-                            if (prevTime <= 1) {
-                                clearInterval(timer);
-                                navigate("/dashboard"); // Direct ke /dashboard setelah waktu habis
-                                return 0;
-                            }
-                            return prevTime - 1;
-                        });
-                    }, 1000);
+    //             const response = await axiosInstance.post(`${import.meta.env.VITE_API_URL}/finpay/initiate`, requestBody);
 
-                    // Cleanup interval saat komponen di-unmount
-                    return () => clearInterval(timer);
-                } else {
-                    alert("Gagal membuat link pembayaran. Mohon coba lagi.");
-                }
-            } catch (error) {
-                console.log(error)
-                console.error("Gagal membuat link pembayaran:", error);
-                alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
-            } finally {
-                setIsLoading(false); // Nonaktifkan loading
-            }
-        };
+    //             console.log('initiate : ')
+    //             console.log(response);
+    //             if (response.data) {
+    //                 setShowQRCode(true);
+    //                 setDataForPaymentMethod(requestBody)
+    //                 setStringQR(response.data.response.stringQr);
 
-        fetchQRCode();
-    }, [type, datas]);
+    //         console.log('initiate : ')
+    //         console.log(response);
+    //         if (response.data) {
+    //             setShowQRCode(true);
+    //             setDataForPaymentMethod(requestBody)
+    //             setStringQR(response.data.response.stringQr);
+
+    //             // Countdown timer
+    //             const timer = setInterval(() => {
+    //                 setTimeLeft((prevTime) => {
+    //                     if (prevTime <= 1) {
+    //                         clearInterval(timer);
+    //                         navigate("/dashboard"); // Direct ke /dashboard setelah waktu habis
+    //                         return 0;
+    //                     }
+    //                     return prevTime - 1;
+    //                 });
+    //             }, 1000);
+
+    //             // Cleanup interval saat komponen di-unmount
+    //             return () => clearInterval(timer);
+    //         } else {
+    //             alert("Gagal membuat link pembayaran. Mohon coba lagi.");
+    //         }
+    //     } catch (error) {
+    //         console.log(error)
+    //         console.error("Gagal membuat link pembayaran:", error);
+    //         alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
+    //     } finally {
+    //         setIsLoading(false); // Nonaktifkan loading
+    //     }
+    // };
+    //             } else {
+    //                 alert("Gagal membuat link pembayaran. Mohon coba lagi.");
+    //             }
+    //         } catch (error) {
+    //             console.log(error)
+    //             console.error("Gagal membuat link pembayaran:", error);
+    //             alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
+    //         } finally {
+    //             setIsLoading(false); // Nonaktifkan loading
+    //         }
+    //     };
+
+    //     fetchQRCode();
+    // }, [orderId]);
 
 
     const shareContent = async () => {
@@ -189,6 +203,8 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
         }
     };
 
+    const [stringQRInstant,setStringQRInstant] = useState<string|null>(null)
+    const [showQRInstant,setShowQRInstant] = useState<boolean|null>(null)
     const showShareLinkGenerator = async () => {
         if (!amount) {
             alert("Silakan masukkan jumlah pembayaran terlebih dahulu!");
@@ -201,51 +217,45 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
                 return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
             };
-            const generateOrderId = generateRandomString(15)        
-
+            const generateOrderId = generateRandomString(15)
             try {
                 const requestBody = {
                     email: "testerfinpay@gmail.com",
                     firstName: "Tester",
                     lastName: "Finpay",
                     mobilePhone: "+62048232329",
-                    amount: amount, // Gunakan nilai dari state amount
+                    amount: amount,
                     description: "Tester",
                     successUrl: "http://success",
                     type: "qris",
-                    orderId: generateOrderId // ID pesanan unik
+                    orderId: generateOrderId
                 };
 
-                const response = await axios.post("https://dev-middleware.idsmartcare.com/api/v1/finpay/initiate", requestBody);
-
+                const response = await axiosInstance.post("/finpay/initiate", requestBody);
                 if (response.data) {
-                    setShowQRCode(true);
-
+                    setStringQRInstant(response.data.response.stringQr);
                     setDataForPaymentMethod(requestBody);
+                    setShowQRInstant(true);
+                    setOrderIdInstant(generateOrderId)
 
-                    console.log(response.data)
-                    // setShowShareLink(true);
-                    setStringQR(response.data.response.stringQr);
-
-                    // Countdown timer
                     const timer = setInterval(() => {
                         setTimeLeft((prevTime) => {
                             if (prevTime <= 1) {
                                 clearInterval(timer);
-                                navigate("/dashboard"); // Direct ke /dashboard setelah waktu habis
+                                navigate("/dashboard");
                                 return 0;
                             }
                             return prevTime - 1;
                         });
                     }, 1000);
 
-                    // Cleanup interval saat komponen di-unmount
                     return () => clearInterval(timer);
                 } else {
                     alert("Gagal membuat link pembayaran. Mohon coba lagi.");
                 }
             } catch (error) {
-                console.error("Gagal membuat link pembayaran:", error);
+                console.log(error)
+                console.log("Gagal membuat link pembayaran:", error);
                 alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
             } finally {
                 setIsLoading(false);
@@ -263,17 +273,55 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
         setSelectedMethod(method);
     };
 
-    console.log("stringQR from QRCode: ", stringQR);
-    console.log("selectedMethod from QRCode: ", selectedMethod);
+    // const handleBack = () => {
+    //     setShowQRCode(false);
+    //     navigate('/dashboard')
+    // };
 
     return (
         <>
             {/* Tampilan QR Code */}
-            <div className={`${showQRCode && showPaymentMehodComponent === false ? 'block' : 'hidden'} w-full min-h-screen p-8 bg-orange-400`}>
+            <div className={`${(showQRCode || showQRInstant) && showPaymentMehodComponent === false ? 'block' : 'hidden'} w-full min-h-screen p-8 bg-orange-400`}>
                 <div className="flex items-center justify-between gap-5 w-full">
-                    <Button onClick={() => { setShowQRCode(false); navigate("/dashboard") }} className="block bg-transparent hover:bg-transparent">
-                        <X className="text-white scale-[1.5]" />
-                    </Button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button className="block bg-transparent hover:bg-transparent">
+                                <X className="text-white scale-[1.5]" />
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent
+                            className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm"
+                        >
+                            <div className="bg-white p-5 rounded-lg shadow-lg w-[90%]">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle className="font-semibold text-lg">
+                                        <CircleAlert />
+
+                                        <p>Are you absolutely sure?</p>
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete your payment.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter className="mt-5 flex flex-col gap-3">
+                                    <AlertDialogAction
+                                        className="w-full p-2 rounded-lg bg-green-500 text-white"
+                                        onClick={() => {
+                                            if (setShowQRCode) {
+                                                setShowQRCode(false);
+                                            }
+                                            navigate("/dashboard");
+                                        }}
+                                    >
+                                        Continue
+                                    </AlertDialogAction>
+                                    <AlertDialogCancel className="w-full p-2 rounded-lg bg-red-500 text-white">
+                                        Cancel
+                                    </AlertDialogCancel>
+                                </AlertDialogFooter>
+                            </div>
+                        </AlertDialogContent>
+                    </AlertDialog>
 
                     <Link to={"/"} className="w-7 h-7 text-xl bg-white rounded-full flex items-center justify-center">
                         ?
@@ -283,7 +331,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                 <div className="mt-20 font-medium text-center">
                     <p className="text-white">Pindai QR ini melalui Aplikasi Penerbit kamu.</p>
 
-                    <p className="text-white font-semibold text-2xl">{formatTime(timeLeft)}</p> {/* Countdown Timer */}
+                    <p className="text-white font-semibold text-2xl">{formatTime(timeLeftOpenBill ?? timeLeft)}</p> {/* Countdown Timer */}
 
                     <div className="mt-10 w-full p-5 bg-white shadow-lg rounded-t-lg">
                         <img src={logo} className="w-10" alt="Logo Kedai Kopi" />
@@ -291,8 +339,8 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                         <p className="mt-5 text-xl font-semibold">{userData.merchant.name}</p>
 
                         <div className="mt-10 w-full flex flex-col items-center p-5" ref={contentRef}>
-                            <QRCode value={stringQR} size={200} />
-
+                            {stringQR && <QRCode value={stringQR} size={200} />}
+                            { stringQRInstant && <QRCode value={stringQRInstant} size={200} />}
                             <div className="mt-10">
                                 <p>Menerima Pembayaran</p>
 
@@ -331,7 +379,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
             </div>
 
             {/* Input Jumlah Pembayaran */}
-            <div className={`${showQRCode || type !== '' ? "hidden" : "block"}`}>
+            <div className={`${(showQRCode || showQRInstant) || type !== '' ? "hidden" : "block"}`}>
                 <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
                     <Link to={"/dashboard"} className="bg-transparent hover:bg-transparent">
                         <ChevronLeft className="scale-[1.3] text-white" />
@@ -443,8 +491,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
                 </div>
             </div>
 
-            {/* Komponen Metode Pembayaran */}
-            {showPaymentMehodComponent && <PaymentMethod dataPayment={dataForPaymentMethod} setShowPaymentMethodComponent={setShowPaymentMethodComponent} selectedMethod={selectedMethod} />}
+            {showPaymentMehodComponent  && <PaymentMethod dataPayment={dataForPaymentMethod} setShowPaymentMethodComponent={setShowPaymentMethodComponent} selectedMethod={selectedMethod} />}
         </>
     );
 };

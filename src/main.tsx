@@ -74,7 +74,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/qr-code',
-    element: <QRCode type={''} datas={undefined} />
+    element: <QRCode type={''}/>
   },
   {
     path: '/profile',

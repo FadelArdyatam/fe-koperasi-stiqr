@@ -41,7 +41,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         setMergedBasket(mergedBasket);
     }, [basket]);
 
-    // Function untuk menambah kuantitas
+
     const increaseHandler = (index: number) => {
         const updatedBasket = [...basket];
         const productToUpdate = mergedBasket[index];
@@ -55,7 +55,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         );
     };
 
-    // Function untuk mengurangi kuantitas
+
     const decreaseHandler = (index: number) => {
         const updatedBasket = [...basket];
         const productToUpdate = mergedBasket[index];
@@ -67,20 +67,19 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                         ? { ...item, quantity: item.quantity - 1 }
                         : item
                 )
-                .filter((item) => item.quantity > 0) // Hapus item jika quantity <= 0
+                .filter((item) => item.quantity > 0)
         );
     };
-
-    const openBillHandler = async () => {
+    const [orderId,setOrderId] = useState<string|null>(null)
+    const [tagih,setTagih] = useState<boolean>(false)
+    const openBillHandler = async (status:any) => {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
-
         try {
-            // Process and modify the mergedBasket to ensure it has the correct structure
             const modifyBasket = mergedBasket.map(item => ({
                 product_id: item.product_id,
                 variant_id: item.detail_variant && item.detail_variant.length > 0
-                    ? item.detail_variant.map((variant: { variant_id: any; }) => variant.variant_id)[0] // Ambil hanya array variant_id
+                    ? item.detail_variant.map((variant: { variant_id: any; }) => variant.variant_id)[0]
                     : null,
                 quantity: item.quantity,
                 price: item.price,
@@ -88,9 +87,12 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 detail_variants: []
             }));
 
-            console.log("modifyBasket: ", modifyBasket);
-
-            // Define the request body
+            const generateRandomString = (length = 10) => {
+                const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
+            };
+            const generateOrderId = generateRandomString(15);
+            setOrderId(generateOrderId)
             const requestBody = {
                 customer_name: userData.username,
                 status: "inprogress",
@@ -99,37 +101,29 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 merchant_id: userData.merchant.id,
                 quantity: mergedBasket.reduce((acc, curr) => acc + curr.quantity, 0),
                 subtotal: mergedBasket.reduce((acc, curr) => acc + curr.price * curr.quantity, 0),
-                salesDetails: modifyBasket
+                salesDetails: modifyBasket,
+                orderId: generateOrderId,
             };
-
-            // Make the API call using axios
-            const response = await axiosInstance.post('/sales/create', requestBody);
-
-            // Handle the successful response
-            console.log('Order created successfully:', response.data);
-
-            // Update state and push to bookingDatas
+            await axiosInstance.post('/sales/create', requestBody);
+            if(status == 'tagih') {
+                setTagih(true)
+            } 
             setShowOrderProcess(true);
             bookingDatas.push(mergedBasket);
 
         } catch (error: any) {
-            // Handle errors
             console.error('Error creating order:', error);
             if (error.response) {
-                // The server responded with a status other than 2xx
                 console.error('Response error:', error.response.data);
             } else if (error.request) {
-                // No response was received
                 console.error('Request error:', error.request);
             } else {
-                // Something happened in setting up the request
                 console.error('Setup error:', error.message);
             }
         }
     };
 
-    console.log("show service from order summary: ", showService);
-    console.log("merged basket: ", mergedBasket);
+    console.log()
 
     return (
         <div ref={references}>
@@ -236,14 +230,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     <div className="w-full mt-10 flex items-center gap-5 justify-between">
                         <Button onClick={() => setBasket([])} className="rounded-full w-14 h-14 min-w-14 min-h-14 bg-orange-100 text-orange-400 font-semibold"><Trash2 className="scale-[1.5]" /></Button>
 
-                        <Button onClick={openBillHandler} className={`${showService.service === "Take Away" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
+                        <Button onClick={()=> openBillHandler('open')} className={`${showService.service === "Take Away" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
 
-                        <Button className="bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold">Tagih</Button>
+                        <Button onClick={()=> openBillHandler('tagih')}  className="bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold">Tagih</Button>
                     </div>
                 </div>
             </div>
 
-            {showOrderProcess && <OrderProcessed setShowOrderProcess={setShowOrderProcess} basket={mergedBasket} type="" />}
+            {showOrderProcess && <OrderProcessed setShowOrderProcess={setShowOrderProcess} basket={mergedBasket} type="" orderId={orderId} tagih={tagih} setTagih={setTagih}/>}
         </div>
     )
 }
