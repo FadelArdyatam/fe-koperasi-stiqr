@@ -6,6 +6,7 @@ import {
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { CircleCheck } from "lucide-react";
+import Notification from "../components/Notification"; // Import the custom Notification component
 
 interface OTPProps {
 	currentSection: number;
@@ -20,15 +21,22 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 	const [otpId, setOtpId] = useState(""); // State untuk menyimpan OTP ID dari response
 
 	const [showNotification, setShowNotification] = useState(false);
+
+	const [notification, setNotification] = useState<{
+		message: string;
+		status: "success" | "error";
+	} | null>(null);
+
 	const sendCode = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 
 		if (!phoneNumber) {
-			alert("Please enter a valid phone number.");
+			setNotification({
+				message: "Please enter a valid phone number.",
+				status: "error",
+			});
 			return;
 		}
-
-		console.log("Phone Number:", phoneNumber);
 
 		try {
 			const response = await fetch(`${import.meta.env.VITE_API_URL}/register/get-otp`, {
@@ -41,27 +49,33 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 
 			if (response.ok) {
 				const responseData = await response.json();
-				console.log("Response Data:", responseData);
-				setOtpId(responseData.data.id); // Simpan OTP ID dari response
-				setShowNotification(true);
+				setOtpId(responseData.data.id);
+				setNotification({
+					message: `OTP Berhasil terkirim ke ${phoneNumber}`,
+					status: "success",
+				});
 				setCodeSent(true);
-				setTimeLeft(300); // Set waktu 5 menit (300 detik)
+				setTimeLeft(300);
 			} else {
-				const errorData = await response.json();
-				console.error("Error Response Data:", errorData);
-				alert("Failed to send verification code. Please try again.");
-				setShowNotification(false);
+				setNotification({
+					message: "Masukkan Nomer dengan Format 08xxx",
+					status: "error",
+				});
 			}
 		} catch (error) {
-			setShowNotification(false);
-			console.error("Network or Unexpected Error:", error);
-			alert("An unexpected error occurred. Please check your connection and try again.");
+			setNotification({
+				message: "An unexpected error occurred. Please check your connection.",
+				status: "error",
+			});
 		}
 	};
 
 	const verifyOtp = async () => {
 		if (!otpId || !value || !phoneNumber) {
-			alert("Incomplete data. Unable to verify OTP.");
+			setNotification({
+				message: "Please enter a valid OTP.",
+				status: "error",
+			});
 			return;
 		}
 
@@ -79,24 +93,27 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 			});
 
 			if (response.ok) {
-				const responseData = await response.json();
-				console.log("OTP Verification Successful:", responseData);
-				alert("OTP verified successfully!");
-
-				// Tambahkan logika setelah verifikasi berhasil, seperti navigasi
+				// const responseData = await response.json();
+				setNotification({
+					message: "OTP verified successfully!",
+					status: "success",
+				});
 				setCreatePin(true);
 			} else {
 				const errorData = await response.json();
-				console.error("OTP Verification Failed:", errorData);
-				alert("Failed to verify OTP. Please try again.");
+				setNotification({
+					message: errorData.message || "Failed to verify OTP.",
+					status: "error",
+				});
 			}
 		} catch (error) {
-			console.error("Network or Unexpected Error:", error);
-			alert("An unexpected error occurred. Please check your connection and try again.");
+			setNotification({
+				message: "An unexpected error occurred. Please check your connection.",
+				status: "error",
+			});
 		}
 	};
 
-	// Countdown timer logic
 	useEffect(() => {
 		if (timeLeft > 0) {
 			const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
@@ -104,14 +121,12 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 		}
 	}, [timeLeft]);
 
-	// Automatically verify OTP when all slots are filled
 	useEffect(() => {
 		if (value.length === 6) {
 			verifyOtp();
 		}
-	}, [value]); // Trigger when `value` changes
+	}, [value]);
 
-	// Format the timer as MM:SS
 	const formatTime = (time: number) => {
 		const minutes = Math.floor(time / 60);
 		const seconds = time % 60;
@@ -139,7 +154,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 						</div>
 
 						<input
-							type="text"
+							type=""
 							onChange={(e) => setPhoneNumber(e.target.value)}
 							placeholder="Masukkan No Hp Anda (0859...)"
 							className="rounded-sm border border-black px-4 w-full py-3"
@@ -195,6 +210,14 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 						</p>
 					)}
 				</div>
+
+				{notification && (
+					<Notification
+						message={notification.message}
+						status={notification.status}
+						onClose={() => setNotification(null)}
+					/>
+				)}
 
 				{showNotification && (
 					<div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 z-20 flex items-center justify-center">

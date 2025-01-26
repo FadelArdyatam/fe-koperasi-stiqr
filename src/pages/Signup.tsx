@@ -34,50 +34,48 @@ const Signup = () => {
     const FormSchemaUser = z.object({
         photo: z.union([z.instanceof(File), z.string().url()]),
         ownerName: z.string().min(2, {
-            message: "ownerName must be at least 2 characters.",
+            message: "Nama pemilik harus terdiri dari minimal 2 karakter.",
         }),
         gender: z.enum(["Laki - Laki", "Perempuan"], {
-            message: "Please select the gender",
+            message: "Harap pilih jenis kelamin.",
         }),
-        dateOfBirth: z
-            .preprocess((value) => {
-                if (typeof value === "string") {
-                    return new Date(value);
-                }
-                return value;
-            }, z.date().max(new Date(), {
-                message: "Date of birth cannot be in the future.",
-            })),
+        dateOfBirth: z.preprocess((value) => {
+            if (typeof value === "string") {
+                return new Date(value);
+            }
+            return value;
+        }, z.date().max(new Date(), {
+            message: "Tanggal lahir tidak boleh di masa depan.",
+        })),
         email: z.string().email({
-            message: "Invalid email address.",
+            message: "Alamat email tidak valid.",
         }),
         nik: z.string().min(16, {
-            message: "NIK less than 16 characters.",
+            message: "NIK harus terdiri dari 16 karakter.",
         }).max(16, {
-            message: "NIK more than 16 characters.",
+            message: "NIK harus terdiri dari 16 karakter.",
         }),
         phoneNumber: z.string().min(10, {
-            message: "Phone number must be at least 10 characters.",
+            message: "Nomor telepon harus terdiri dari minimal 10 karakter.",
         }).max(15, {
-            message: "Phone number must be at most 15 characters.",
+            message: "Nomor telepon harus terdiri dari maksimal 15 karakter.",
         }),
         password: z
             .string()
-            .min(8, { message: 'Password must be at least 8 characters long.' })
-            .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
-            .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
-            .regex(/\d/, { message: 'Password must contain at least one number.' }),
+            .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
+            .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
+            .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
+            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
         confirmPassword: z
             .string()
-            .min(8, { message: 'Password must be at least 8 characters long.' })
-            .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
-            .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
-            .regex(/\d/, { message: 'Password must contain at least one number.' }),
-
+            .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
+            .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
+            .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
+            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
     }).refine((data) => data.password === data.confirmPassword, {
-        message: 'Passwords do not match.',
+        message: 'Kata sandi dan konfirmasi kata sandi tidak cocok.',
         path: ['confirmPassword'],
-    })
+    });
 
     const formUser = useForm<z.infer<typeof FormSchemaUser>>({
         resolver: zodResolver(FormSchemaUser),
@@ -104,42 +102,63 @@ const Signup = () => {
     }
 
     const FormSchemaMerchant = z.object({
-        typeBusinessEntity: z.enum(["Perorangan", "CV", "Koperasi", "Firma", "Perseroan Terbatas"], {
-            message: "Please select the type of business entity",
-        }),
+        typeBusinessEntity: z.enum(
+            ["Perorangan", "CV", "Koperasi", "Firma", "Perseroan Terbatas"],
+            {
+                message: "Harap pilih jenis badan usaha.",
+            }
+        ),
         merchantName: z.string().min(2, {
-            message: "Merchant name must be at least 2 characters.",
+            message: "Nama merchant harus terdiri dari minimal 2 karakter.",
         }),
         merchantProvince: z.string().min(2, {
-            message: "Province must be at least 2 characters.",
+            message: "Nama provinsi harus terdiri dari minimal 2 karakter.",
         }),
         merchantRegency: z.string().min(2, {
-            message: "Regency must be at least 2 characters.",
+            message: "Nama kabupaten/kota harus terdiri dari minimal 2 karakter.",
         }),
         merchantDistrict: z.string().min(2, {
-            message: "District must be at least 2 characters.",
+            message: "Nama kecamatan harus terdiri dari minimal 2 karakter.",
         }),
         merchantVillage: z.string().min(2, {
-            message: "Village must be at least 2 characters.",
+            message: "Nama desa/kelurahan harus terdiri dari minimal 2 karakter.",
         }),
-        merchantCategory: z.enum(["Makanan & Minuman", "Fashion & Aksesori", "Elektronik & Gadget", "Kesehatan & Kecantikan", "Rumah & Dekorasi", "Otomotif", "Hobi & Hiburan", "Jasa & Layanan", "Bahan Pokok & Grosir", "Teknologi & Digital", "Lainnya"], {
-            message: "Please select the category",
-        }),
+        merchantCategory: z.enum(
+            [
+                "Makanan & Minuman",
+                "Fashion & Aksesori",
+                "Elektronik & Gadget",
+                "Kesehatan & Kecantikan",
+                "Rumah & Dekorasi",
+                "Otomotif",
+                "Hobi & Hiburan",
+                "Jasa & Layanan",
+                "Bahan Pokok & Grosir",
+                "Teknologi & Digital",
+                "Lainnya",
+            ],
+            {
+                message: "Harap pilih kategori merchant.",
+            }
+        ),
         postalCode: z.string().min(5, {
-            message: "Postal code must be at least 5 characters.",
+            message: "Kode pos harus terdiri dari minimal 5 karakter.",
         }),
         merchantAddress: z.string().min(5, {
-            message: "Merchant address must be at least 5 characters.",
+            message: "Alamat merchant harus terdiri dari minimal 5 karakter.",
         }),
-        phoneNumberMerchant: z.string().min(10, {
-            message: "Phone number must be at least 10 characters.",
-        }).max(15, {
-            message: "Phone number must be at most 15 characters.",
-        }),
+        phoneNumberMerchant: z
+            .string()
+            .min(10, {
+                message: "Nomor telepon harus terdiri dari minimal 10 karakter.",
+            })
+            .max(15, {
+                message: "Nomor telepon harus terdiri dari maksimal 15 karakter.",
+            }),
         merchantEmail: z.string().email({
-            message: "Invalid email address.",
+            message: "Alamat email tidak valid.",
         }),
-    })
+    });
 
     const formMerchant = useForm<z.infer<typeof FormSchemaMerchant>>({
         resolver: zodResolver(FormSchemaMerchant),
@@ -352,7 +371,7 @@ const Signup = () => {
             {showTermsandConditions ? <TermsandCondition setShowTermsandConditions={setShowTermsandConditions} backToPageProfile={false} /> : (
                 <div>
                     <div className={`${createPin ? 'hidden' : 'flex'} w-full flex-col p-10`}>
-                        <p className="uppercase text-center font-semibold text-2xl">Data Personal</p>
+                        <p className="uppercase text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : 'Kode Otp'}</p>
 
                         <div className="mt-10 w-full flex items-center">
                             <div className={`${section[0] ? 'bg-orange-500' : 'bg-gray-500'} transition-all w-12 h-12 rounded-full flex items-center justify-center`}>
@@ -846,7 +865,18 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="Postal Code" {...field} />
+                                                        <Input
+                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                            type="number"
+                                                            placeholder="Postal Code"
+                                                            {...field}
+                                                            onInput={(e) => {
+                                                                const value = (e.target as HTMLInputElement).value;
+                                                                if (value.length > 5) {
+                                                                    (e.target as HTMLInputElement).value = value.slice(0, 5); // Limit to 5 digits
+                                                                }
+                                                            }}
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

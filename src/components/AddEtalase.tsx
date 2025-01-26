@@ -81,11 +81,11 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase }) => {
                 showcase_name: data.showcase_name,
                 merchant_id: userData?.merchant?.id,
             };
-            const response = await axiosInstance.post(`showcase/create`,requestBody);
+            const response = await axiosInstance.post(`showcase/create`, requestBody);
             console.log(response)
             setShowNotification(true);
         } catch (error: any) {
-            setErrorMessage(error.response?.data?.message || "Terjadi kesalahan saat membuat etalase.");
+            setErrorMessage("Showcase dengan nama yang sama sudah ada.");
         }
     };
 

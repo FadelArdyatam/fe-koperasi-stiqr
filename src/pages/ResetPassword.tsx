@@ -21,18 +21,18 @@ const ResetPassword = () => {
     const FormNewPasswordSchema = z.object({
         password: z
             .string()
-            .min(8, { message: 'Password must be at least 8 characters long.' })
-            .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
-            .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
-            .regex(/\d/, { message: 'Password must contain at least one number.' }),
+            .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
+            .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
+            .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
+            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
         confirmPassword: z
             .string()
-            .min(8, { message: 'Password must be at least 8 characters long.' })
-            .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
-            .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
-            .regex(/\d/, { message: 'Password must contain at least one number.' }),
+            .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
+            .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
+            .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
+            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
     }).refine((data) => data.password === data.confirmPassword, {
-        message: 'Passwords do not match.',
+        message: 'Kata sandi dan konfirmasi kata sandi tidak cocok.',
         path: ['confirmPassword'],
     });
 

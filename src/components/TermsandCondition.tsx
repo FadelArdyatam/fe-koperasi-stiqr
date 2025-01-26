@@ -11,7 +11,14 @@ interface TermsandConditionProps {
 
 const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: TermsandConditionProps) => {
     const [openItem, setOpenItem] = useState<string | null>(null);
-    const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({ "item-1": false, "item-2": false, "item-3": false, "item-4": false, "item-5": false, "item-6": false });
+    const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({
+        "item-1": false,
+        "item-2": false,
+        "item-3": false,
+        "item-4": false,
+        "item-5": false,
+        "item-6": false,
+    });
     const [showNotification, setShowNotification] = useState(false);
 
     const handleAccordionChange = (value: string) => {
@@ -28,12 +35,14 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
     const allChecked = Object.values(checkedItems).every((checked) => checked);
 
     const termsandConditionHandler = () => {
-        if (allChecked) {
-            setShowTermsandConditions(false);
+        const uncheckedItems = Object.keys(checkedItems).filter((key) => !checkedItems[key]);
+
+        if (uncheckedItems.length > 0) {
+            setShowNotification(true); // Tampilkan notifikasi
         } else {
-            setShowNotification(true);
+            setShowTermsandConditions(false);
         }
-    }
+    };
 
     console.log(allChecked);
 
@@ -387,7 +396,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                 </div>
             </div>
 
-            <div className={`w-[90%] ${openItem ? 'fixed bottom-4 m-auto' : 'm-64'}`}>
+            <div className={`w-[90%] ${openItem ? 'fixed bottom-4 m-auto' : 'm-64'} z-10`}>
                 <Button onClick={termsandConditionHandler} className="w-full bg-green-400">Lanjutkan</Button>
             </div>
 
