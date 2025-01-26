@@ -1,4 +1,4 @@
-import { ChevronLeft, X, Banknote, Calculator, ArrowLeftRight } from "lucide-react";
+import { ChevronLeft, X, Banknote, Calculator, ArrowLeftRight, CircleAlert } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
 import { useRef, useState, useEffect } from "react";
@@ -14,6 +14,8 @@ import html2canvas from "html2canvas";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
 import PaymentMethod from "./PaymentMethod.tsx/PaymentMethod";
+import { AlertDialogHeader, AlertDialogFooter } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@radix-ui/react-alert-dialog";
 
 const payments = [visa, masterCard, gopay, ovo, dana, linkAja];
 
@@ -232,9 +234,43 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, datas }) => {
             {/* Tampilan QR Code */}
             <div className={`${showQRCode && showPaymentMehodComponent === false ? 'block' : 'hidden'} w-full min-h-screen p-8 bg-orange-400`}>
                 <div className="flex items-center justify-between gap-5 w-full">
-                    <Button onClick={() => { setShowQRCode(false); navigate("/dashboard") }} className="block bg-transparent hover:bg-transparent">
-                        <X className="text-white scale-[1.5]" />
-                    </Button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button className="block bg-transparent hover:bg-transparent">
+                                <X className="text-white scale-[1.5]" />
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent
+                            className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm"
+                        >
+                            <div className="bg-white p-5 rounded-lg shadow-lg w-[90%]">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle className="font-semibold text-lg">
+                                        <CircleAlert />
+
+                                        <p>Are you absolutely sure?</p>
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete your payment.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter className="mt-5 flex flex-col gap-3">
+                                    <AlertDialogAction
+                                        className="w-full p-2 rounded-lg bg-green-500 text-white"
+                                        onClick={() => {
+                                            setShowQRCode(false);
+                                            navigate("/dashboard");
+                                        }}
+                                    >
+                                        Continue
+                                    </AlertDialogAction>
+                                    <AlertDialogCancel className="w-full p-2 rounded-lg bg-red-500 text-white">
+                                        Cancel
+                                    </AlertDialogCancel>
+                                </AlertDialogFooter>
+                            </div>
+                        </AlertDialogContent>
+                    </AlertDialog>
 
                     <Link to={"/"} className="w-7 h-7 text-xl bg-white rounded-full flex items-center justify-center">
                         ?

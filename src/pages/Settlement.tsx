@@ -8,7 +8,7 @@ import { formatRupiah } from "@/hooks/convertRupiah";
 import { Input } from "@/components/ui/input";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import notification from "../images/notification(404).png";
+import notransaction from "../images/no-transaction.png";
 
 const Settlement = () => {
     // const [showCodePayment, setShowCodePayment] = useState(false);
@@ -183,7 +183,11 @@ const Settlement = () => {
                     )}
                 </div>
 
-                <img className="p-5" src={notification} alt="" />
+                <div className="flex flex-col items-center gap-5">
+                    <img className="p-5" src={notransaction} alt="" />
+
+                    <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
+                </div>
             </div>
 
             {/* {showCodePayment && <CodePayment />} */}

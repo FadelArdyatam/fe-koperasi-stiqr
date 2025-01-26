@@ -4,7 +4,10 @@ import axiosInstance from "@/hooks/axiosInstance";
 import noDataImg from "@/images/no-data-image/product.png";
 import {
     ArrowLeft,
+    ClipboardList,
     Computer,
+    CookingPot,
+    ReceiptText,
     Search,
     SlidersHorizontal,
 } from "lucide-react";
@@ -13,6 +16,7 @@ import { Link } from "react-router-dom";
 import OrderProcessed from "../Casheer/OrderProcessed";
 import { formatRupiah } from "../../hooks/convertRupiah";
 import { convertDate, convertTime } from "@/hooks/convertDate";
+import Receipt from "@/components/Receipt";
 
 const bookingDatas: any[] = [
     [
@@ -120,6 +124,7 @@ const Booking = () => {
     const userData = userItem ? JSON.parse(userItem) : null;
     const [status, setStatus] = useState<string>("inprogress");
     const [datas, setDatas] = useState<ISales[]>([]); // Disesuaikan sesuai tipe data response
+    const [showReceipt, setShowReceipt] = useState({ type: "", show: false, index: index });
 
     const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
@@ -151,7 +156,7 @@ const Booking = () => {
     console.log(datas);
     return (
         <div>
-            <div className={`${showOrderProcess ? "hidden" : "flex"} w-full flex-col min-h-screen items-center bg-orange-50`}>
+            <div className={`${showOrderProcess || !showReceipt.show && showReceipt.type !== "" ? "hidden" : "flex"} w-full flex-col min-h-screen items-center bg-orange-50`}>
                 <div className={`p-5 w-full`}>
                     <div className="w-full flex items-center gap-5 justify-between">
                         <div className="flex items-center gap-5">
@@ -186,8 +191,8 @@ const Booking = () => {
 
                 <div className=" w-[90%] flex flex-col gap-5">
                     <div className="flex gap-3">
-                        {statuses.map((status, i) => (
-                            <div key={i} className="flex items-center gap-5 justify-between">
+                        {statuses.map((status) => (
+                            <div key={status.value} className="flex items-center gap-5 justify-between">
                                 <Button
                                     onClick={() => handleChangeStatus(status.value)}
                                     className={`bg-orange-100 rounded-full text-orange-500`}
@@ -208,13 +213,13 @@ const Booking = () => {
                     </div>
                 )}
                 {datas.map((data, index) => (
-                    <div className="mt-5 w-[90%] bg-white p-5 rounded-lg shadow-lg">
-                        <div key={index} className="w-full">
-                            <div key={index} className="w-full">
+                    <div key={data.sales_id} className="mt-5 w-[90%] bg-white p-5 rounded-lg shadow-lg">
+                        <div className="w-full">
+                            <div className="w-full">
                                 <div className="w-full flex items-center gap-5 justify-between">
                                     <div className="flex items-center gap-2">
                                         <p className="font-semibold text-lg">
-                                            Antrian {Number(index) + 1}
+                                            Antrian {data.queue_number}
                                         </p>
                                         <LabelStatus status={status} />
                                     </div>
@@ -228,7 +233,7 @@ const Booking = () => {
 
                                 <div>
                                     <div className="flex items-center gap-5">
-                                        <img src={`${urlImage}/uploads/products/${data.sales_details[0].product.product_image}`} alt={data.sales_details[0].product.product_image} className="h-12 w-12 object-cover rounded-md" />
+                                        <img src={`${urlImage}/uploads/products/${data?.sales_details[0]?.product?.product_image}`} alt={data?.sales_details[0]?.product?.product_image} className="h-12 w-12 object-cover rounded-md" />
 
                                         <div>
                                             <p className="text-lg font-semibold">
@@ -264,7 +269,7 @@ const Booking = () => {
                                                 Tambah Pesanan
                                             </Button>
 
-                                            <Button className="w-full rounded-full bg-orange-200 border border-orange-500 text-orange-500">
+                                            <Button onClick={() => setShowReceipt({ type: "", show: true, index: index })} className="w-full rounded-full bg-orange-200 border border-orange-500 text-orange-500">
                                                 Cetak Struk
                                             </Button>
                                         </div>
@@ -292,6 +297,118 @@ const Booking = () => {
                     basket={datas[index]}
                     type="detail" />
             )}
+
+            {showReceipt.show && (
+                <div className="fixed flex items-end justify-center top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50">
+                    <div className="w-[100%] bg-white p-5 mt-5 rounded-t-lg flex items-center flex-col gap-5">
+                        <p className="font-semibold text-lg">
+                            Pilih Jenis Struk Antrian {datas[showReceipt.index].queue_number}
+                        </p>
+
+                        <div className="flex flex-col gap-5">
+                            {/* Struk Dapur */}
+                            <label
+                                htmlFor="dapur"
+                                className="flex items-center gap-5 justify-between cursor-pointer p-2 rounded-lg hover:bg-orange-100"
+                            >
+                                <div className="w-10 h-10 min-w-10 min-h-10 rounded-lg bg-orange-200 flex items-center justify-center">
+                                    <CookingPot />
+                                </div>
+
+                                <div>
+                                    <p className="font-semibold">Struk Dapur</p>
+                                    <p>Informasi menu yang harus disiapkan oleh juru masak.</p>
+                                </div>
+
+                                <Input
+                                    type="radio"
+                                    id="dapur"
+                                    name="receiptType"
+                                    value="dapur"
+                                    className="w-6 h-6"
+                                    onChange={(e) =>
+                                        setShowReceipt({
+                                            ...showReceipt,
+                                            type: e.target.value,
+                                        })
+                                    }
+                                />
+                            </label>
+
+                            {/* Struk Checker */}
+                            <label
+                                htmlFor="checker"
+                                className="flex items-center gap-5 justify-between cursor-pointer p-2 rounded-lg hover:bg-orange-100"
+                            >
+                                <div className="w-10 h-10 min-w-10 min-h-10 rounded-lg bg-orange-200 flex items-center justify-center">
+                                    <ClipboardList />
+                                </div>
+
+                                <div>
+                                    <p className="font-semibold">Struk Checker</p>
+                                    <p>Informasi untuk memeriksa kesesuaian pesanan pembeli.</p>
+                                </div>
+
+                                <Input
+                                    type="radio"
+                                    id="checker"
+                                    name="receiptType"
+                                    value="checker"
+                                    className="w-6 h-6"
+                                    onChange={(e) =>
+                                        setShowReceipt({
+                                            ...showReceipt,
+                                            type: e.target.value,
+                                        })
+                                    }
+                                />
+                            </label>
+
+                            {/* Struk Tagihan */}
+                            <label
+                                htmlFor="tagihan"
+                                className="flex items-center gap-5 justify-between cursor-pointer p-2 rounded-lg hover:bg-orange-100"
+                            >
+                                <div className="w-10 h-10 min-w-10 min-h-10 rounded-lg bg-orange-200 flex items-center justify-center">
+                                    <ReceiptText />
+                                </div>
+
+                                <div>
+                                    <p className="font-semibold">Struk Tagihan</p>
+                                    <p>Informasi bukti pembayaran untuk pembeli.</p>
+                                </div>
+
+                                <Input
+                                    type="radio"
+                                    id="tagihan"
+                                    name="receiptType"
+                                    value="tagihan"
+                                    className="w-6 h-6"
+                                    onChange={(e) =>
+                                        setShowReceipt({
+                                            ...showReceipt,
+                                            type: e.target.value,
+                                        })
+                                    }
+                                />
+                            </label>
+                        </div>
+
+                        <Button
+                            className="mt-5 bg-orange-500 text-white w-full rounded-full"
+                            disabled={!showReceipt.type}
+                            onClick={() => {
+                                console.log(`Jenis struk yang dipilih: ${showReceipt.type}`);
+                                setShowReceipt({ ...showReceipt, show: false });
+                            }}
+                        >
+                            Konfirmasi
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            {!showReceipt.show && showReceipt.type !== "" && <Receipt data={datas[showReceipt.index]} showReceipt={showReceipt} />}
         </div>
     );
 };
