@@ -26,6 +26,7 @@ import ResetPassword from './pages/ResetPassword.tsx'
 import Casheer from './pages/Casheer/Casheer.tsx'
 import Booking from './pages/Booking/Booking.tsx'
 import PaymentSuccess from './components/PaymentSuccess.tsx'
+import ModalExpired from './components/ModalExpired.tsx'
 
 const router = createBrowserRouter([
   {
@@ -74,7 +75,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/qr-code',
-    element: <QRCode type={''}/>
+    element: <QRCode type={''} />
   },
   {
     path: '/profile',
@@ -139,5 +140,6 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <RouterProvider router={router} />
+    <ModalExpired/>
   </React.StrictMode>
 )
