@@ -212,9 +212,13 @@ const Casheer = () => {
                         </div>
                     </div>
 
-                    <div className="mt-5 flex items-center gap-5 justify-between">
+                    <div className="mt-5 flex items-center gap-5 justify-between overflow-x-auto scrollbar-hide">
                         {etalases.map((etalase, index) => (
-                            <Button onClick={() => showProductByEtalaseHandler(etalase.showcase_id)} key={index} className={`bg-orange-100 rounded-full text-orange-500`}>
+                            <Button
+                                onClick={() => showProductByEtalaseHandler(etalase.showcase_id)}
+                                key={index}
+                                className="bg-orange-100 whitespace-nowrap rounded-full text-orange-500 px-4 py-2"
+                            >
                                 {etalase.showcase_name}
                             </Button>
                         ))}

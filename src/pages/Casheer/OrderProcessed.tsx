@@ -11,7 +11,7 @@ interface OrderProcessedProps {
     setShowOrderProcess: React.Dispatch<React.SetStateAction<boolean>>;
     basket: any;
     type: string;
-    orderId?:string|null;
+    orderId?: string | null;
     tagih?: boolean;
     setTagih?: React.Dispatch<React.SetStateAction<boolean>>;
 
@@ -30,7 +30,7 @@ interface ProductItem {
     quantity: number;
 }
 
-const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderProcess, type,orderId, tagih, setTagih }) => {
+const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderProcess, type, orderId, tagih, setTagih }) => {
     const [showQRCode, setShowQRCode] = useState(false);
     // const [orderId, setOrderId] = useState<string>(null);
     const [stringQR, setStringQR] = useState<string | null>(null);
@@ -68,9 +68,9 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
 
         return [];
     };
-    const [timeLeft,setTimeLeft] = useState(300)
+    const [timeLeft, setTimeLeft] = useState(300)
     useEffect(() => {
-        if(!tagih) {
+        if (!tagih) {
             return
         }
         handleTagih()

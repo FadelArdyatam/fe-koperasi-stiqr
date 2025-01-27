@@ -23,14 +23,14 @@ const payments = [visa, masterCard, gopay, ovo, dana, linkAja];
 
 interface QRCodePageProps {
     type: string;
-    orderId?: string|null;
+    orderId?: string | null;
     stringQR?: string | null;
     showQRCode?: boolean;
     setShowQRCode?: React.Dispatch<React.SetStateAction<boolean>>;
     timeLeftOpenBill?: number;
 }
 
-const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQRCode, setShowQRCode,timeLeftOpenBill }) => {
+const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQRCode, setShowQRCode, timeLeftOpenBill }) => {
     const contentRef = useRef<HTMLDivElement>(null);
     // const [showQRCode, setShowQRCode] = useState(false);
     const [amount, setAmount] = useState("");
@@ -60,15 +60,13 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     });
                 }
             };
-            socket.on('payment:success', handlePaymentSuccess);   
+            socket.on('payment:success', handlePaymentSuccess);
             return () => {
                 console.log('Cleaning up WebSocket listeners for QRCODE');
                 socket.off('payment:success', handlePaymentSuccess);
             };
         }
     }, [orderId, navigate, orderIdInstant]);
-
-
 
     // Tambahkan useEffect di bawah definisi fungsi komponen
     // useEffect(() => {
@@ -203,8 +201,8 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
         }
     };
 
-    const [stringQRInstant,setStringQRInstant] = useState<string|null>(null)
-    const [showQRInstant,setShowQRInstant] = useState<boolean|null>(null)
+    const [stringQRInstant, setStringQRInstant] = useState<string | null>(null)
+    const [showQRInstant, setShowQRInstant] = useState<boolean | null>(null)
     const showShareLinkGenerator = async () => {
         if (!amount) {
             alert("Silakan masukkan jumlah pembayaran terlebih dahulu!");
@@ -340,7 +338,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
 
                         <div className="mt-10 w-full flex flex-col items-center p-5" ref={contentRef}>
                             {stringQR && <QRCode value={stringQR} size={200} />}
-                            { stringQRInstant && <QRCode value={stringQRInstant} size={200} />}
+                            {stringQRInstant && <QRCode value={stringQRInstant} size={200} />}
                             <div className="mt-10">
                                 <p>Menerima Pembayaran</p>
 
@@ -398,9 +396,15 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                             Rp
                         </span>
                         <Input
-                            type="number"
+                            type="text"
                             className="pl-10 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-                            onChange={(e) => setAmount(e.target.value)}
+                            onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ''); // Hanya angka
+                                if (value.length <= 12) {
+                                    setAmount(value); // Simpan nilai hingga 12 digit
+                                }
+                            }}
+                            value={amount} // Pastikan hanya 12 digit yang ditampilkan
                             placeholder="0.00"
                         />
                     </div>
@@ -491,7 +495,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                 </div>
             </div>
 
-            {showPaymentMehodComponent  && <PaymentMethod dataPayment={dataForPaymentMethod} setShowPaymentMethodComponent={setShowPaymentMethodComponent} selectedMethod={selectedMethod} />}
+            {showPaymentMehodComponent && <PaymentMethod dataPayment={dataForPaymentMethod} setShowPaymentMethodComponent={setShowPaymentMethodComponent} selectedMethod={selectedMethod} />}
         </>
     );
 };
