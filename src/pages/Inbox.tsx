@@ -12,17 +12,19 @@ import imgNotification from "@/images/notification(404).png";
 
 interface INotification {
     id: number;
-    notification_description: string;
-    notification_id: string;
-    notification_title: string;
+    description: string;
+    title: string;
+    type?: string;
     created_at: Date;
 }
 const Inbox = () => {
     const [notifications, setNotifications] = useState<INotification[]>([]);
     useEffect(() => {
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
         const fetchNotification = async () => {
             try {
-                const response = await axiosInstance.get("/notifications");
+                const response = await axiosInstance.get(`/notifications/${userData.merchant.id}`);
                 setNotifications(response.data);
             } catch (error) {
                 console.log(error)
@@ -94,7 +96,7 @@ const Inbox = () => {
                             <div className="w-full">
                                 <div className="flex items-center gap-5 justify-between">
                                     <p className="font-semibold text-black">
-                                        {notification.notification_title}
+                                        {notification.title}
                                     </p>
 
                                     <p className="text-xs text-gray-500">
@@ -111,7 +113,7 @@ const Inbox = () => {
                                 </div>
 
                                 <p className="mt-1 text-sm text-gray-500">
-                                    {notification.notification_description}
+                                    {notification.description}
                                 </p>
                             </div>
                         </div>

@@ -1,5 +1,5 @@
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@radix-ui/react-accordion";
-import { ChevronDown, ChevronLeft } from "lucide-react";
+import { ChevronDown, ChevronLeft, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "./ui/button";
@@ -20,6 +20,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
         "item-6": false,
     });
     const [showNotification, setShowNotification] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
     const handleAccordionChange = (value: string) => {
         setOpenItem((prev) => (prev === value ? null : value));
@@ -32,19 +33,31 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
         }));
     };
 
-    const allChecked = Object.values(checkedItems).every((checked) => checked);
+    const termsTitles: { [key: string]: string } = {
+        "item-1": "Ketentuan Umum",
+        "item-2": "Ketentuan Akun STIQR",
+        "item-3": "Perangkat Lunak Aplikasi STIQR",
+        "item-4": "Pencarian Saldo STIQR",
+        "item-5": "Tindakan Kecurangan",
+        "item-6": "Kerahasiaan",
+    };
 
     const termsandConditionHandler = () => {
         const uncheckedItems = Object.keys(checkedItems).filter((key) => !checkedItems[key]);
-
+    
         if (uncheckedItems.length > 0) {
-            setShowNotification(true); // Tampilkan notifikasi
+            const errorList = uncheckedItems.map((key) => termsTitles[key]);
+            const formattedMessage = `Untuk melanjutkan ke tahap selanjutnya dimohon untuk menyetujui syarat ${errorList.join(", ").replace(/, ([^,]*)$/, " dan $1")}`;
+            setErrorMessage(formattedMessage);
+            setShowNotification(true);
         } else {
-            setShowTermsandConditions(false);
+            setErrorMessage("");
+            setShowNotification(false);
+            setShowTermsandConditions(false); // Asumsi fungsi ini sudah ada
         }
     };
+    
 
-    console.log(allChecked);
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center">
@@ -118,7 +131,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
 
                         <AccordionItem value="item-2" className="w-full border-b pb-2">
                             <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                                <span>Ketentuan Akun Stiqr</span>
+                                <span>Ketentuan Akun STIQR</span>
 
                                 <ChevronDown
                                     className={`transform transition-transform duration-200 ${openItem === "item-2" ? "rotate-180" : "rotate-0"
@@ -169,7 +182,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
 
                         <AccordionItem value="item-3" className="w-full border-b pb-2">
                             <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                                <span>Perangkat Lunak Aplikasi Stiqr</span>
+                                <span>Perangkat Lunak Aplikasi STIQR</span>
 
                                 <ChevronDown
                                     className={`transform transition-transform duration-200 ${openItem === "item-3" ? "rotate-180" : "rotate-0"
@@ -403,8 +416,10 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
             {showNotification && (
                 <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 z-20 flex items-center justify-center">
                     <div className="bg-white w-[90%] rounded-lg m-auto p-5">
-                        <p className="text-red-500 text-sm">Anda harus menyetujui semua syarat dan ketentuan untuk melanjutkan.</p>
-
+                        <div className="flex justify-center p-5">
+                    <Info className="text-red-500" size={60} />
+                        </div>
+                    <p className="text-red-500 text-sm">{errorMessage}</p>
                         <div className="flex items-center gap-5 mt-5">
                             <Button onClick={() => setShowNotification(false)} className="w-full bg-red-400">Tutup</Button>
                         </div>
