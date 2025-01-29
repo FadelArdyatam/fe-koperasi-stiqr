@@ -710,7 +710,6 @@ const Signup = () => {
                                                 </FormItem>
                                             )}
                                         />
-
                                         <FormField
                                             control={formMerchant.control}
                                             name="merchantRegency"
@@ -719,34 +718,44 @@ const Signup = () => {
                                                     <FormControl>
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                    <button disabled={!selectedProvince}>
+                                                                <div
+                                                                    className={`p-3 font-sans font-semibold flex items-center w-full justify-between ${selectedProvince ? "bg-[#F4F4F4] cursor-pointer" : "bg-gray-200 cursor-not-allowed"
+                                                                        }`}
+                                                                >
+                                                                    <button
+                                                                        disabled={!selectedProvince}
+                                                                        className="w-full text-left"
+                                                                        type="button"
+                                                                        style={{ pointerEvents: !selectedProvince ? "none" : "auto" }}
+                                                                    >
                                                                         {field.value || "Select Regency"}
                                                                     </button>
                                                                     <ChevronDown />
                                                                 </div>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
-                                                                {loading ? (
-                                                                    <div>Loading...</div>
-                                                                ) : (
-                                                                    regencies.map((regency) => (
-                                                                        <DropdownMenuItem
-                                                                            key={regency.id}
-                                                                            onSelect={() => {
-                                                                                field.onChange(regency.name); // Store name instead of id
-                                                                                setSelectedRegency(regency.id); // Keep ID for fetching dependent data
-                                                                                // Reset dependent fields
-                                                                                formMerchant.setValue('merchantDistrict', '');
-                                                                                formMerchant.setValue('merchantVillage', '');
-                                                                                setSelectedDistrict(null);
-                                                                            }}
-                                                                        >
-                                                                            {regency.name}
-                                                                        </DropdownMenuItem>
-                                                                    ))
-                                                                )}
-                                                            </DropdownMenuContent>
+                                                            {selectedProvince && (
+                                                                <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
+                                                                    {loading ? (
+                                                                        <div>Loading...</div>
+                                                                    ) : (
+                                                                        regencies.map((regency) => (
+                                                                            <DropdownMenuItem
+                                                                                key={regency.id}
+                                                                                onSelect={() => {
+                                                                                    field.onChange(regency.name);
+                                                                                    setSelectedRegency(regency.id);
+                                                                                    // Reset dependent fields
+                                                                                    formMerchant.setValue('merchantDistrict', '');
+                                                                                    formMerchant.setValue('merchantVillage', '');
+                                                                                    setSelectedDistrict(null);
+                                                                                }}
+                                                                            >
+                                                                                {regency.name}
+                                                                            </DropdownMenuItem>
+                                                                        ))
+                                                                    )}
+                                                                </DropdownMenuContent>
+                                                            )}
                                                         </DropdownMenu>
                                                     </FormControl>
                                                     <FormMessage />
@@ -762,31 +771,41 @@ const Signup = () => {
                                                     <FormControl>
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                    <button disabled={!selectedRegency}>
+                                                                <div
+                                                                    className={`p-3 font-sans font-semibold flex items-center w-full justify-between ${selectedRegency ? "bg-[#F4F4F4] cursor-pointer" : "bg-gray-200 cursor-not-allowed"
+                                                                        }`}
+                                                                >
+                                                                    <button
+                                                                        disabled={!selectedRegency}
+                                                                        className="w-full text-left"
+                                                                        type="button"
+                                                                        style={{ pointerEvents: !selectedRegency ? "none" : "auto" }}
+                                                                    >
                                                                         {field.value || "Select District"}
                                                                     </button>
                                                                     <ChevronDown />
                                                                 </div>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
-                                                                {loading ? (
-                                                                    <div>Loading...</div>
-                                                                ) : (
-                                                                    districts.map((district) => (
-                                                                        <DropdownMenuItem
-                                                                            key={district.id}
-                                                                            onSelect={() => {
-                                                                                field.onChange(district.name); // Store name instead of id
-                                                                                setSelectedDistrict(district.id); // Keep ID for fetching dependent data
-                                                                                formMerchant.setValue('merchantVillage', '');
-                                                                            }}
-                                                                        >
-                                                                            {district.name}
-                                                                        </DropdownMenuItem>
-                                                                    ))
-                                                                )}
-                                                            </DropdownMenuContent>
+                                                            {selectedRegency && (
+                                                                <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
+                                                                    {loading ? (
+                                                                        <div>Loading...</div>
+                                                                    ) : (
+                                                                        districts.map((district) => (
+                                                                            <DropdownMenuItem
+                                                                                key={district.id}
+                                                                                onSelect={() => {
+                                                                                    field.onChange(district.name);
+                                                                                    setSelectedDistrict(district.id);
+                                                                                    formMerchant.setValue('merchantVillage', '');
+                                                                                }}
+                                                                            >
+                                                                                {district.name}
+                                                                            </DropdownMenuItem>
+                                                                        ))
+                                                                    )}
+                                                                </DropdownMenuContent>
+                                                            )}
                                                         </DropdownMenu>
                                                     </FormControl>
                                                     <FormMessage />
@@ -802,33 +821,45 @@ const Signup = () => {
                                                     <FormControl>
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                    <button disabled={!selectedDistrict}>
+                                                                <div
+                                                                    className={`p-3 font-sans font-semibold flex items-center w-full justify-between ${selectedDistrict ? "bg-[#F4F4F4] cursor-pointer" : "bg-gray-200 cursor-not-allowed"
+                                                                        }`}
+                                                                >
+                                                                    <button
+                                                                        disabled={!selectedDistrict}
+                                                                        className="w-full text-left"
+                                                                        type="button"
+                                                                        style={{ pointerEvents: !selectedDistrict ? "none" : "auto" }}
+
+                                                                    >
                                                                         {field.value || "Select Village"}
                                                                     </button>
                                                                     <ChevronDown />
                                                                 </div>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
-                                                                {loading ? (
-                                                                    <div>Loading...</div>
-                                                                ) : (
-                                                                    villages.map((village) => (
-                                                                        <DropdownMenuItem
-                                                                            key={village.id}
-                                                                            onSelect={() => {
-                                                                                field.onChange(village.name); // Store name instead of id
-                                                                            }}
-                                                                        >
-                                                                            {village.name}
-                                                                        </DropdownMenuItem>
-                                                                    ))
-                                                                )}
-                                                            </DropdownMenuContent>
+                                                            {selectedDistrict && ( // Render menu content only if `selectedDistrict` is valid
+                                                                <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
+                                                                    {loading ? (
+                                                                        <div>Loading...</div>
+                                                                    ) : (
+                                                                        villages.map((village) => (
+                                                                            <DropdownMenuItem
+                                                                                key={village.id}
+                                                                                onSelect={() => {
+                                                                                    field.onChange(village.name); // Store name instead of id
+                                                                                }}
+                                                                            >
+                                                                                {village.name}
+                                                                            </DropdownMenuItem>
+                                                                        ))
+                                                                    )}
+                                                                </DropdownMenuContent>
+                                                            )}
                                                         </DropdownMenu>
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
+
                                             )}
                                         />
 
