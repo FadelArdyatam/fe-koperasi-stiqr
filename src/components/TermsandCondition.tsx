@@ -396,7 +396,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                 </div>
             </div>
 
-            <div className={`w-[90%] ${openItem ? 'fixed bottom-4 m-auto' : 'm-64'} z-10`}>
+            <div className={`w-[90%] ${openItem ? 'fixed bottom-4 m-auto' : 'm-64'} z-20`}>
                 <Button onClick={termsandConditionHandler} className="w-full bg-green-400">Lanjutkan</Button>
             </div>
 

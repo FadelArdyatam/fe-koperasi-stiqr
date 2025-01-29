@@ -63,6 +63,16 @@ interface ProductProps {
     setAddProduct: (addProduct: boolean) => void;
     setOpen: (open: { id: string; status: boolean }) => void;
     open: { id: string; status: boolean };
+    setEtalases: (etalases: Array<{
+        id: number;
+        showcase_id: string;
+        showcase_name: string;
+        created_at: string;
+        updated_at: string;
+        merchant_id: string;
+        showcase_product: ShowcaseProduct[],
+        merchant: Merchant,
+    }>) => void;
     etalases: Array<{
         id: number;
         showcase_id: string;
@@ -75,7 +85,7 @@ interface ProductProps {
     }>;
 }
 
-const Product: React.FC<ProductProps> = ({ products, setProducts, addProduct, setAddProduct, setOpen, open, etalases }) => {
+const Product: React.FC<ProductProps> = ({ products, setProducts, addProduct, setAddProduct, setOpen, open, etalases, setEtalases }) => {
     // Menangani perubahan status untuk masing-masing produk
     const handleSwitchChange = (id: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.stopPropagation();
@@ -109,22 +119,22 @@ const Product: React.FC<ProductProps> = ({ products, setProducts, addProduct, se
                     {products?.map((product) => (
                         <div
                             key={product.id}
-                            className="flex w-full justify-between items-center p-4 bg-white rounded-md shadow-sm mt-5"
+                            className="flex w-full justify-between items-center p-4 gap-2 bg-white rounded-md shadow-sm mt-5"
                             onClick={() => handleOpen(product.product_id)}
                         >
                             <button className="flex items-center">
-                                <div className="h-12 w-12 bg-gray-200 rounded-md mr-4">
+                                <div className="h-12 w-12 min-w-12 bg-gray-200 rounded-md mr-4">
                                     <img src={`${urlImage}/uploads/products/${product.product_image}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
                                 </div>
                                 <div className="flex flex-col items-start">
-                                    <h3 className="text-lg font-semibold">{product?.product_name}</h3>
+                                    <h3 className="text-lg font-semibold text-start text-wrap">{product?.product_name}</h3>
                                     <p className="text-sm text-gray-600">Rp {new Intl.NumberFormat('id-ID').format(Number(product?.product_price))}</p>
                                 </div>
                             </button>
 
                             {/* Custom Switch */}
                             <button
-                                className={`flex items-center justify-center w-14 h-8 p-1 rounded-full cursor-pointer 
+                                className={`flex items-center justify-center w-14 min-w-14 h-8 p-1 rounded-full cursor-pointer 
                                 ${product?.product_status ? 'bg-orange-500' : 'bg-gray-300'} transition-colors`}
                                 onClick={(event) => handleSwitchChange(product.id, event)}
                             >
@@ -142,7 +152,7 @@ const Product: React.FC<ProductProps> = ({ products, setProducts, addProduct, se
                 </Button>
             </div>
 
-            {addProduct && <AddProduct setAddProduct={setAddProduct} etalases={etalases} />}
+            {addProduct && <AddProduct setProducts={setProducts} products={products} setAddProduct={setAddProduct} setEtalases={setEtalases} etalases={etalases} />}
 
             {open.status && <EditProduct setOpen={setOpen} products={products} editIndex={open.id} open={open} etalases={etalases} />}
         </div>

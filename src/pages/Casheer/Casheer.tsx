@@ -178,9 +178,12 @@ const Casheer = () => {
         setSelectedProduct(products[index]);
     }
     console.log(error)
+
+    console.log("Basket:", basket);
+
     return (
         <>
-            <div className={`${showDetailProduct || showService.service !== null ? 'hidden' : 'flex'} w-full flex-col min-h-screen items-center bg-orange-50`}>
+            <div className={`${showDetailProduct || showService.service !== null ? 'hidden' : 'flex'} w-full pb-32 flex-col min-h-screen items-center bg-orange-50`}>
                 <div className={`p-5 w-full`}>
                     <div className="w-full flex items-center gap-5 justify-between">
                         <div className="flex items-center gap-5">
@@ -226,7 +229,7 @@ const Casheer = () => {
                 </div>
 
                 <div className="w-[90%] mt-5 flex flex-col items-center gap-5">
-                    {products.map((product, index) => (
+                    {products.length === 0 ? <Link to={"/catalog"} className="w-full bg-orange-500 rounded-lg text-center p-2 font-semibold text-white">Tambah Produk</Link> : products.map((product, index) => (
                         <div
                             key={index}
                             className="flex items-center gap-5 w-full p-5 bg-white rounded-lg justify-between"
@@ -262,21 +265,75 @@ const Casheer = () => {
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => removeQuantityHandler(index)}
-                                    className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
+                                    className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
                                 >
                                     -
                                 </button>
 
-                                <p className="text-center w-6">
-                                    {basket
-                                        .filter((item) => item.product === product.product_name) // Filter sesuai produk
-                                        .reduce((total, item) => total + item.quantity, 0)}{" "}
-                                    {/* Hitung quantity */}
-                                </p>
+                                <Input
+                                    type="number"
+                                    className="text-center w-10 border rounded-md"
+                                    value={
+                                        basket
+                                            .filter((item) => item.product === product.product_name)
+                                            .reduce((total, item) => total + item.quantity, 0) || "" // Tampilkan input kosong jika kuantitas 0
+                                    }
+                                    onChange={(e) => {
+                                        const inputValue = e.target.value;
+
+                                        // Validasi input hanya angka positif
+                                        if (inputValue === "" || (Number(inputValue) >= 0 && !isNaN(Number(inputValue)))) {
+                                            const newQuantity = inputValue === "" ? 0 : parseInt(inputValue, 10);
+
+                                            setBasket((prevBasket) => {
+                                                const existingProductIndex = prevBasket.findIndex(
+                                                    (item) => item.product === product.product_name
+                                                );
+
+                                                if (existingProductIndex >= 0) {
+                                                    // Jika kuantitas 0, hapus produk dari basket
+                                                    if (newQuantity === 0) {
+                                                        return prevBasket.filter((_, idx) => idx !== existingProductIndex);
+                                                    }
+
+                                                    // Update kuantitas jika produk ada di basket
+                                                    return prevBasket.map((item, idx) =>
+                                                        idx === existingProductIndex ? { ...item, quantity: newQuantity } : item
+                                                    );
+                                                } else if (newQuantity > 0) {
+                                                    // Tambahkan produk baru ke basket jika belum ada
+                                                    return [
+                                                        ...prevBasket,
+                                                        {
+                                                            product_id: product.product_id,
+                                                            product: product.product_name,
+                                                            quantity: newQuantity,
+                                                            price: product.product_price,
+                                                            notes: "",
+                                                            date: new Date().toLocaleString(),
+                                                            detail_variant: [],
+                                                            service: showService?.service,
+                                                        },
+                                                    ];
+                                                }
+                                                return prevBasket;
+                                            });
+                                        }
+                                    }}
+                                    onBlur={(e) => {
+                                        // Jika input kosong atau < 1, hapus dari basket
+                                        if (e.target.value === "" || Number(e.target.value) < 1) {
+                                            setBasket((prevBasket) =>
+                                                prevBasket.filter((item) => item.product !== product.product_name)
+                                            );
+                                        }
+                                    }}
+                                    min={0} // Mencegah angka negatif
+                                />
 
                                 <button
                                     onClick={() => addQuantityHandler(index)}
-                                    className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
+                                    className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
                                 >
                                     +
                                 </button>
@@ -285,13 +342,16 @@ const Casheer = () => {
                     ))}
                 </div>
 
-                {basket.length > 0 && (
-                    <Button onClick={() => setShowService({ show: true, service: null })} className="fixed w-[90%] bottom-5 rounded-full left-[50%] -translate-x-[50%] bg-blue-500 text-white px-5 py-[25px] flex items-center justify-between">
+                {basket.length > 0 && basket.some((item) => item.quantity > 0) && (
+                    <Button
+                        onClick={() => setShowService({ show: true, service: null })}
+                        className="fixed w-[90%] bottom-5 rounded-full left-[50%] -translate-x-[50%] bg-green-500 text-white px-5 py-[25px] flex items-center justify-between"
+                    >
                         <div className="flex items-center gap-5 justify-between w-full">
-                            <p className="text-base font-medium">{basket.length} Produk</p>
+                            <p className="text-base font-medium">{basket.reduce((total, item) => total + (item.quantity > 0 ? 1 : 0), 0)} Produk</p>
 
                             <div className="flex items-center gap-2">
-                                <ShoppingBasket />
+                                <ShoppingBasket className="scale-[1.5]" />
 
                                 <p className="text-lg font-bold">
                                     {basket

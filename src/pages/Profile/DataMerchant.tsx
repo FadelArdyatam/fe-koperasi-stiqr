@@ -12,16 +12,16 @@ import axiosInstance from "@/hooks/axiosInstance"
 
 
 interface MerchantData {
-  id: number;
-  name: string;
-  category: "Makanan & Minuman"| "Fashion & Aksesori"| "Elektronik & Gadget"| "Kesehatan & Kecantikan"| "Rumah & Dekorasi"| "Otomotif"| "Hobi & Hiburan"| "Jasa & Layanan"| "Bahan Pokok & Grosir"|"Teknologi & Digital"|"Lainnya"; 
-  phone_number: string;
-  address: string;
-  post_code: string;
-  province: string;
-  regency: string;
-  district: string;
-  village: string;
+    id: number;
+    name: string;
+    category: "Makanan & Minuman" | "Fashion & Aksesori" | "Elektronik & Gadget" | "Kesehatan & Kecantikan" | "Rumah & Dekorasi" | "Otomotif" | "Hobi & Hiburan" | "Jasa & Layanan" | "Bahan Pokok & Grosir" | "Teknologi & Digital" | "Lainnya";
+    phone_number: string;
+    address: string;
+    post_code: string;
+    province: string;
+    regency: string;
+    district: string;
+    village: string;
 }
 const DataMerchant = () => {
     const [showEdit, setShowEdit] = useState(false)
@@ -57,6 +57,8 @@ const DataMerchant = () => {
         }),
         postalCode: z.string().min(5, {
             message: "Postal code must be at least 5 characters.",
+        }).max(5, {
+            message: "Postal code must be at most 5 characters.",
         }),
     });
 
@@ -77,6 +79,8 @@ const DataMerchant = () => {
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         try {
+            console.log(data)
+
             const response = await axiosInstance.put(`/merchant/${merchantData?.id}/update`, {
                 name: data.merchantName,
                 category: data.merchantCategory,
@@ -115,15 +119,24 @@ const DataMerchant = () => {
         fetchMerchant();
     }, [isUpdate]);
 
-    const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
+    const [provinces, setProvinces] = useState<{ id: number; name: string }[]>([]);
+    const [regencies, setRegencies] = useState<{ id: number; province_id: string, name: string }[]>([]);
+    const [districts, setDistricts] = useState<{ id: number; regency_id: string, name: string }[]>([]);
+    const [villages, setVillages] = useState<{ id: number; district_id: string, name: string }[]>([]);
+
+    const [selectedProvince, setSelectedProvince] = useState<number | null>(null);
+    const [selectedRegency, setSelectedRegency] = useState<number | null>(null);
+    const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);
+
     const [loading, setLoading] = useState(false)
+
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await axiosInstance.get("/merchant/list/provinces");
-                setCities(response.data);
-            } catch (error:any) {
-                console.error("Error fetching cities:", error);
+                setProvinces(response.data);
+            } catch (error: any) {
+                console.error("Error fetching provinces:", error);
             } finally {
                 setLoading(false);
             }
@@ -131,6 +144,63 @@ const DataMerchant = () => {
 
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (selectedProvince) {
+            const fetchRegencies = async () => {
+                setLoading(true);
+                try {
+                    const response = await axiosInstance.get(
+                        `/merchant/list/regencies/${selectedProvince}`
+                    );
+                    setRegencies(response.data);
+                } catch (error) {
+                    console.error("Error fetching regencies:", error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchRegencies();
+        }
+    }, [selectedProvince]);
+
+    useEffect(() => {
+        if (selectedRegency) {
+            const fetchDistricts = async () => {
+                setLoading(true);
+                try {
+                    const response = await axiosInstance.get(
+                        `/merchant/list/districts/${selectedRegency}`
+                    );
+                    setDistricts(response.data);
+                } catch (error) {
+                    console.error("Error fetching districts:", error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchDistricts();
+        }
+    }, [selectedRegency]);
+
+    useEffect(() => {
+        if (selectedDistrict) {
+            const fetchVillages = async () => {
+                setLoading(true);
+                try {
+                    const response = await axiosInstance.get(
+                        `/merchant/list/villages/${selectedDistrict}`
+                    );
+                    setVillages(response.data);
+                } catch (error) {
+                    console.error("Error fetching villages:", error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchVillages();
+        }
+    }, [selectedDistrict]);
 
     const handleEditClick = () => {
         if (merchantData) {
@@ -334,6 +404,7 @@ const DataMerchant = () => {
                                         </FormItem>
                                     )}
                                 />
+
                                 <FormField
                                     control={form.control}
                                     name="merchantProvince"
@@ -344,24 +415,152 @@ const DataMerchant = () => {
                                                     <DropdownMenuTrigger asChild>
                                                         <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                             <button className="">
-                                                                {field.value || "Select City"}
+                                                                {field.value || "Select Province"}
                                                             </button>
                                                             <ChevronDown />
                                                         </div>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="w-full bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4">
+                                                    <DropdownMenuContent className="w-full bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4 max-h-96 overflow-y-auto">
                                                         <DropdownMenuLabel>City</DropdownMenuLabel>
                                                         <DropdownMenuSeparator />
                                                         {loading ? (
                                                             <div className="p-3">Loading...</div>
                                                         ) : (
-                                                            cities.map((city) => (
+                                                            provinces.map((province) => (
                                                                 <DropdownMenuItem
-                                                                    key={city?.id}
-                                                                    onSelect={() => field.onChange(city?.name)}
+                                                                    key={province?.id}
+                                                                    onSelect={() => {
+                                                                        field.onChange(province?.name)
+                                                                        setSelectedProvince(province.id)
+                                                                    }}
                                                                     className="w-full"
                                                                 >
-                                                                    {city?.name}
+                                                                    {province?.name}
+                                                                </DropdownMenuItem>
+                                                            ))
+                                                        )}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="merchantRegency"
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormControl>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                            <button className="">
+                                                                {field.value || "Select Regency"}
+                                                            </button>
+                                                            <ChevronDown />
+                                                        </div>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent className="w-full bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4 max-h-96 overflow-y-auto">
+                                                        <DropdownMenuLabel>Regency</DropdownMenuLabel>
+                                                        <DropdownMenuSeparator />
+                                                        {loading ? (
+                                                            <div className="p-3">Loading...</div>
+                                                        ) : (
+                                                            regencies.map((regency) => (
+                                                                <DropdownMenuItem
+                                                                    key={regency?.id}
+                                                                    onSelect={() => {
+                                                                        field.onChange(regency?.name)
+                                                                        setSelectedRegency(regency.id)
+                                                                    }}
+                                                                    className="w-full"
+                                                                >
+                                                                    {regency?.name}
+                                                                </DropdownMenuItem>
+                                                            ))
+                                                        )}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="merchantDistrict"
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormControl>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                            <button className="">
+                                                                {field.value || "Select District"}
+                                                            </button>
+                                                            <ChevronDown />
+                                                        </div>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent className="w-full bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4 max-h-96 overflow-y-auto">
+                                                        <DropdownMenuLabel>District</DropdownMenuLabel>
+                                                        <DropdownMenuSeparator />
+                                                        {loading ? (
+                                                            <div className="p-3">Loading...</div>
+                                                        ) : (
+                                                            districts.map((district) => (
+                                                                <DropdownMenuItem
+                                                                    key={district?.id}
+                                                                    onSelect={() => {
+                                                                        field.onChange(district?.name)
+                                                                        setSelectedDistrict(district.id)
+                                                                    }}
+                                                                    className="w-full"
+                                                                >
+                                                                    {district?.name}
+                                                                </DropdownMenuItem>
+                                                            ))
+                                                        )}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="merchantVillage"
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormControl>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                            <button className="">
+                                                                {field.value || "Select Village"}
+                                                            </button>
+                                                            <ChevronDown />
+                                                        </div>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent className="w-full bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4 max-h-96 overflow-y-auto">
+                                                        <DropdownMenuLabel>Village</DropdownMenuLabel>
+                                                        <DropdownMenuSeparator />
+                                                        {loading ? (
+                                                            <div className="p-3">Loading...</div>
+                                                        ) : (
+                                                            villages.map((village) => (
+                                                                <DropdownMenuItem
+                                                                    key={village?.id}
+                                                                    onSelect={() => {
+                                                                        field.onChange(village?.name)
+                                                                    }}
+                                                                    className="w-full"
+                                                                >
+                                                                    {village?.name}
                                                                 </DropdownMenuItem>
                                                             ))
                                                         )}
@@ -405,7 +604,19 @@ const DataMerchant = () => {
                                     render={({ field }) => (
                                         <FormItem className="w-full">
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="Postal Code" {...field} />
+                                                <Input
+                                                    className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                    type="number"
+                                                    placeholder="Postal Code"
+                                                    {...field}
+                                                    onInput={(e) => {
+                                                        const input = e.target as HTMLInputElement;
+                                                        if (input.value.length > 5) {
+                                                            input.value = input.value.slice(0, 5); // Membatasi input maksimal 5 karakter
+                                                        }
+                                                        field.onChange(input.value); // Memperbarui nilai di form
+                                                    }}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

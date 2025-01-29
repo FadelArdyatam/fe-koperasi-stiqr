@@ -78,7 +78,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
         });
     };
 
-    console.log(open)
+    console.log("variant", variants)
 
     return (
         <div className="mb-32 px-5">
@@ -89,7 +89,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                             <div
                                 className="flex w-full justify-between items-center p-4 bg-white rounded-md mt-3"
                             >
-                                <h3 className="text-lg font-semibold">{variant.variant_name}</h3>
+                                <h3 className="text-lg font-semibold">{variant?.variant_name}</h3>
 
                                 {/* Custom Switch */}
                                 <button
@@ -118,7 +118,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                 </Button>
             </div>
 
-            {addVariant && <AddVariant setAddVariant={setAddVariant} products={products} />}
+            {addVariant && <AddVariant setAddVariant={setAddVariant} products={products} variants={variants} setVariants={setVariants} />}
 
             {open.status && <EditVariant setOpen={setOpen} editIndex={open.id} open={open} />}
         </div>

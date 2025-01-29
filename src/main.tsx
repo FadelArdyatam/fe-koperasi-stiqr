@@ -123,7 +123,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/payment-success',
-    element: <PaymentSuccess />  
+    element: <PaymentSuccess />
   }
 ], {
   future: {
@@ -140,6 +140,6 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <RouterProvider router={router} />
-    <ModalExpired/>
+    <ModalExpired />
   </React.StrictMode>
 )

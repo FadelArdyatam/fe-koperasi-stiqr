@@ -31,6 +31,16 @@ const Signup = () => {
     const [allData, setAllData] = useState<{ ownerName?: string } & (z.infer<typeof FormSchemaUser> | z.infer<typeof FormSchemaMerchant>)[]>([])
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
+
+    useEffect(() => {
+        const registerID = localStorage.getItem("registerID")
+
+        if (registerID) {
+            setCurrentSection(2)
+            setShowTermsandConditions(false)
+        }
+    }, [])
+
     const FormSchemaUser = z.object({
         photo: z.union([z.instanceof(File), z.string().url()]),
         ownerName: z.string().min(2, {
@@ -85,6 +95,7 @@ const Signup = () => {
             gender: undefined,
             dateOfBirth: new Date(),
             email: "",
+            nik: "",
             phoneNumber: "",
             password: "",
             confirmPassword: "",
@@ -111,16 +122,16 @@ const Signup = () => {
         merchantName: z.string().min(2, {
             message: "Nama merchant harus terdiri dari minimal 2 karakter.",
         }),
-        merchantProvince: z.string().min(2, {
+        merchantProvince: z.string().min(1, {
             message: "Nama provinsi harus terdiri dari minimal 2 karakter.",
         }),
-        merchantRegency: z.string().min(2, {
+        merchantRegency: z.string().min(1, {
             message: "Nama kabupaten/kota harus terdiri dari minimal 2 karakter.",
         }),
-        merchantDistrict: z.string().min(2, {
+        merchantDistrict: z.string().min(1, {
             message: "Nama kecamatan harus terdiri dari minimal 2 karakter.",
         }),
-        merchantVillage: z.string().min(2, {
+        merchantVillage: z.string().min(1, {
             message: "Nama desa/kelurahan harus terdiri dari minimal 2 karakter.",
         }),
         merchantCategory: z.enum(
@@ -163,19 +174,19 @@ const Signup = () => {
     const formMerchant = useForm<z.infer<typeof FormSchemaMerchant>>({
         resolver: zodResolver(FormSchemaMerchant),
         defaultValues: {
-            typeBusinessEntity: undefined,
+            typeBusinessEntity: undefined, // Nilai default kosong
             merchantName: "",
-            merchantProvince: undefined,
-            merchantRegency: undefined,
-            merchantDistrict: undefined,
-            merchantVillage: undefined,
+            merchantProvince: "",
+            merchantRegency: "",
+            merchantDistrict: "",
+            merchantVillage: "",
             merchantCategory: undefined,
             postalCode: "",
             merchantAddress: "",
             phoneNumberMerchant: "",
             merchantEmail: "",
         },
-    })
+    });
 
     const onSubmitMerchant = async (data: z.infer<typeof FormSchemaMerchant>) => {
         const userDatas = allData[0] as z.infer<typeof FormSchemaUser>;
@@ -245,6 +256,10 @@ const Signup = () => {
             const result = await response.json();
             if (result.status) {
                 handleNext();
+
+                // If success, save the registered ID to localStorage, so we can use it later if user not deliberate refresh the page
+                localStorage.setItem("registerID", "12345")
+
                 setShowNotification(false)
             } else {
                 setShowNotification(true)
@@ -258,10 +273,16 @@ const Signup = () => {
         }
     };
 
-    const handleNext = () => {
-        const isCurrentSectionValid = validateSection(currentSection);
+    const handleNext = async () => {
+        let isValid = false;
 
-        if (isCurrentSectionValid) {
+        if (currentSection === 0) {
+            isValid = await formUser.trigger();
+        } else if (currentSection === 1) {
+            isValid = await formMerchant.trigger();
+        }
+
+        if (isValid) {
             const updatedSections = [...section];
             updatedSections[currentSection + 1] = true;
             setSection(updatedSections);
@@ -276,12 +297,6 @@ const Signup = () => {
         }
     };
 
-    const validateSection = (sectionIndex: number) => {
-        // Contoh logika validasi: Pastikan section ini memiliki input yang lengkap
-        // (Untuk simulasi, ini hanya mengembalikan true)
-        console.log(sectionIndex)
-        return true;
-    };
 
     const [provinces, setProvinces] = useState<{ id: number; name: string }[]>([]);
     const [regencies, setRegencies] = useState<{ id: number; province_id: string, name: string }[]>([]);
@@ -412,13 +427,9 @@ const Signup = () => {
                                             name="nik"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
-                                                    <div>
-                                                        <FormControl>
-                                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="Nomor Induk Kewarganegaraan" {...field} />
-                                                        </FormControl>
-
-                                                        {/* <p className="text-xs italic text-gray-500 mt-2">Pastikan </p> */}
-                                                    </div>
+                                                    <FormControl>
+                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="Nomor Induk Kewarganegaraan" {...field} />
+                                                    </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}

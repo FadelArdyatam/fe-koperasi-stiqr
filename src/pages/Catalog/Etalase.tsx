@@ -80,7 +80,7 @@ const Etalase: React.FC<EtalaseProps> = ({ etalases, setEtalases, addEtalase, se
     console.log(open)
 
     return (
-        <div className="w-full px-5">
+        <div className="w-full px-5 mb-32">
             <div className={`${addEtalase || open.status ? 'hidden' : 'block'} w-full`}>
                 <div>
                     {etalases?.map((etalase) => (

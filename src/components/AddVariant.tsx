@@ -38,9 +38,39 @@ interface AddVariantProps {
         updated_at: string,
         merchant_id: string,
     }>;
+    variants: Array<{
+        id: number;
+        variant_id: string;
+        variant_name: string;
+        product_id: string;
+        variant_description: string;
+        is_multiple: boolean;
+        merchant_id: string;
+        products: number[];
+        mustBeSelected: boolean;
+        methods: string;
+        choises: [];
+        showVariant: boolean;
+    }>;
+
+    setVariants: (variants: Array<{
+        id: number;
+        variant_id: string;
+        variant_name: string;
+        product_id: string;
+        variant_description: string;
+        is_multiple: boolean;
+        merchant_id: string;
+        products: number[];
+        mustBeSelected: boolean;
+        methods: string;
+        choises: [];
+        showVariant: boolean;
+    }>) => void;
+
 }
 
-const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products }) => {
+const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, variants, setVariants }) => {
     const [showChoisesInput, setShowChoisesInput] = useState(false);
     const [showEditChoisesInput, setShowEditChoisesInput] = useState({ status: false, index: -1 });
     const [newChoiceName, setNewChoiceName] = useState("");
@@ -76,6 +106,8 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products }) => {
         },
     });
 
+    console.log("variants", variants);
+
     const onSubmit = async (data: z.infer<typeof FormSchema>) => {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
@@ -98,6 +130,9 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products }) => {
             );
 
             if (response.status === 200 || response.status === 201) {
+                // Agar varian yang baru ditambahkan langsung muncul di halaman varian
+                setVariants([...variants, response.data.data]);
+
                 console.log("Varian berhasil ditambahkan:", response.data);
                 setShowNotification(true);
             } else {

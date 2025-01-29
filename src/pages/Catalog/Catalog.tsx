@@ -184,19 +184,19 @@ const Catalog = () => {
     // Validasi sebelum memanggil filter
     const filteredProducts = Array.isArray(products)
         ? products.filter(product =>
-            product?.product_name.toLowerCase().includes(searchTerm.toLowerCase())
+            product?.product_name?.toLowerCase().includes(searchTerm.toLowerCase())
         )
         : [];
 
     const filteredVariants = Array.isArray(variants)
         ? variants.filter(variant =>
-            variant?.variant_name.toLowerCase().includes(searchTerm.toLowerCase())
+            variant?.variant_name?.toLowerCase().includes(searchTerm.toLowerCase())
         )
         : [];
 
     const filteredEtalases = Array.isArray(etalases)
         ? etalases.filter(etalase =>
-            etalase?.showcase_name.toLowerCase().includes(searchTerm.toLowerCase())
+            etalase?.showcase_name?.toLowerCase().includes(searchTerm.toLowerCase())
         )
         : [];
 
@@ -278,7 +278,7 @@ const Catalog = () => {
             </div>
 
             <div className="w-full">
-                {show === 'Produk' && <Product products={searchTerm !== '' ? filteredProducts : products} setProducts={setProducts} addProduct={addProduct} setAddProduct={setAddProduct} setOpen={setOpen} open={open} etalases={etalases} />}
+                {show === 'Produk' && <Product products={searchTerm !== '' ? filteredProducts : products} setProducts={setProducts} addProduct={addProduct} setAddProduct={setAddProduct} setOpen={setOpen} open={open} setEtalases={setEtalases} etalases={etalases} />}
             </div>
 
             <div className="w-full">

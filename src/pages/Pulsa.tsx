@@ -25,6 +25,7 @@ const Pulsa = () => {
     const [balance, setBalance] = useState(0);
     const [products, setProducts] = useState<any[]>([]);
     const [category, setCategory] = useState("pulsa");
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const checkProfile = async () => {
@@ -118,11 +119,20 @@ const Pulsa = () => {
                     },
                 });
 
+            console.log("Products Response:", responseProducts.data);
+
             setProducts(responseProducts.data.data);
         } catch (err) {
             console.error("Error saat mengambil produk:", err);
         }
     };
+
+    // Validasi sebelum memanggil filter
+    const filteredProducts = Array.isArray(products)
+        ? products.filter(product =>
+            product?.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        : [];
 
     console.log("Selected Products:", selectedProduct);
 
@@ -151,7 +161,18 @@ const Pulsa = () => {
                 </div>
 
                 <div className="mt-10 w-[90%] m-auto flex flex-col items-center gap-5">
-                    <input onChange={(e) => setPhoneNumber(e.target.value)} type="number" placeholder="No Telphone" className="w-full p-5 bg-white shadow-lg" />
+                    <input
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^\d*$/.test(value) && value.length <= 15) {
+                                setPhoneNumber(value);
+                            }
+                        }}
+                        value={phoneNumber}
+                        type="text"
+                        placeholder="No Telephone"
+                        className="w-full p-5 bg-white shadow-lg"
+                    />
 
                     <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
                 </div>
@@ -166,13 +187,26 @@ const Pulsa = () => {
                     </Button>
                 </div>
 
-                <div className="mt-10 w-[90%] mb-10 m-auto flex flex-col items-center gap-5 shadow-lg">
+                <div className="mt-5 w-[90%] m-auto flex flex-col items-center gap-5">
+                    <input
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        type="text"
+                        placeholder="Search"
+                        className="w-full p-5 bg-white shadow-lg"
+                    />
+
+                    <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
+                </div>
+
+                <div className="mt-5 w-[90%] mb-10 m-auto flex flex-col items-center gap-5 shadow-lg">
                     <div className="w-full flex items-center justify-center">
                         <img src={telkomsel} className="w-[50%]" alt="" />
                     </div>
 
                     <div className="w-full flex flex-wrap">
-                        {products.map((product, index) => (
+                        {searchTerm !== '' ? filteredProducts.map((product, index) => (
+                            <button key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
+                        )) : products.map((product, index) => (
                             <button key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
                         ))}
                     </div>

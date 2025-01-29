@@ -11,6 +11,8 @@ import { jwtDecode } from "jwt-decode";
 import axiosInstance from "@/hooks/axiosInstance";
 import { formatRupiah } from "@/hooks/convertRupiah";
 import imgNoTransaction from "@/images/no-transaction.png";
+import { Button } from "@/components/ui/button";
+import DatePicker from "react-datepicker";
 
 export const admissionFees = [
     {
@@ -84,7 +86,7 @@ const Dashboard = () => {
     // const [field, setField] = useState({ value: "" });
     const navigate = useNavigate();
     // const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to track dropdown open status
-    const [showNotification, setShowNotification] = useState(true);
+    const [showNotification, setShowNotification] = useState(false);
     const [balance, setBalance] = useState(0);
     const [user, setUser] = useState<any>();
 
@@ -92,6 +94,10 @@ const Dashboard = () => {
 
     const [uangMasuk, setUangMasuk] = useState(0);
     const [uangKeluar, setUangKeluar] = useState(0);
+
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [showCalendar, setShowCalendar] = useState(false);
 
     // const toggleDropdown = () => {
     //     setIsDropdownOpen((prev) => !prev); 
@@ -190,6 +196,18 @@ const Dashboard = () => {
         }
         getTransaction()
     }, []);
+
+    const onChange = (dates: [any, any]) => {
+        const [start, end] = dates;
+        setStartDate(start);
+        setEndDate(end);
+    };
+
+    console.log("Histories: ", histories);
+
+    console.log("startDate: ", startDate);
+    console.log("endDate: ", endDate);
+
     return (
         <div className="w-full">
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -266,7 +284,10 @@ const Dashboard = () => {
 
                     <div className="flex items-center justify-center gap-2">
                         {showBalance ? (
-                            <p className="font-bold text-4xl mt-2 text-orange-400">
+                            <p
+                                className={`font-bold mt-2 text-orange-400 ${balance > 99999999 ? "text-3xl" : "text-4xl"
+                                    }`}
+                            >
                                 {Number(balance).toLocaleString("id-ID", {
                                     style: "currency",
                                     currency: "IDR",
@@ -368,36 +389,45 @@ const Dashboard = () => {
             </div>
 
             <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg p-5 bg-white shadow-lg">
-                <div className="flex items-center gap-5 justify-between">
-                    <p className="text-base font-semibold">
-                        Transaksi Terbaru -{' '}
-                        {new Date().toLocaleDateString('id-ID', {
-                            day: '2-digit',
-                            month: 'long',
-                            year: 'numeric',
-                        })}
-                    </p>
-
-                    <hr />
-                    {/* <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-                        <DropdownMenuTrigger asChild>
-                            <div
-                                className="flex items-center gap-5 border border-black rounded-lg p-2 justify-between cursor-pointer"
-                                onClick={toggleDropdown}
-                            >
-                                <button>{field.value || "- Pilih -"}</button>
-
-                                {isDropdownOpen ? <ChevronUp /> : <ChevronDown />}
-                            </div>
-                        </DropdownMenuTrigger>
-
-                        <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg flex flex-col gap-3">
-                            <DropdownMenuItem onClick={() => handleDropdownChange("Hari Ini")}>Hari Ini</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDropdownChange("Minggu Ini")}>Minggu Ini</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDropdownChange("Bulan Ini")}>Bulan Ini</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu> */}
+                <div className="flex flex-col items-center gap-5 justify-between">
+                    <Button
+                        onClick={() => setShowCalendar(!showCalendar)}
+                        className="text-sm bg-gray-200 border border-gray-400 text-gray-700 rounded-lg px-3 py-2"
+                    >
+                        {startDate && endDate
+                            ? `${startDate.toLocaleDateString("id-ID", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                            })} - ${endDate.toLocaleDateString("id-ID", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                            })}`
+                            : "Pilih Tanggal Transaksi"}
+                    </Button>
                 </div>
+
+                {/* Kalender DatePicker */}
+                {showCalendar && (
+                    <div className="flex flex-col items-center mt-5 border p-3 rounded-lg shadow-md">
+                        <DatePicker
+                            selected={startDate}
+                            onChange={onChange}
+                            startDate={startDate}
+                            endDate={endDate}
+                            selectsRange
+                            inline
+                            maxDate={startDate ? new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000) : undefined} // Maksimal 7 hari
+                        />
+                        <Button
+                            className="w-full mt-3 bg-orange-500 text-white rounded-lg"
+                            onClick={() => setShowCalendar(false)}
+                        >
+                            Pilih
+                        </Button>
+                    </div>
+                )}
 
                 <div className="mt-10 flex flex-col gap-5">
                     {
@@ -410,6 +440,7 @@ const Dashboard = () => {
                             </div>
                         )
                     }
+
                     {histories.map((history, index) => (
                         <div key={index}>
                             <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] mb-5 bg-gray-300 rounded-full`}></div>

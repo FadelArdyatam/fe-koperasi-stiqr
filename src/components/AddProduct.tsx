@@ -41,7 +41,48 @@ interface ShowcaseProduct {
 }
 
 interface AddProductProps {
+    setProducts: (products: Array<{
+        id: number,
+        product_id: string,
+        product_name: string,
+        product_sku: string,
+        product_weight: string,
+        product_category: string,
+        product_price: string,
+        product_status: boolean,
+        product_description: string,
+        product_image: string,
+        created_at: string,
+        updated_at: string,
+        merchant_id: string,
+    }>) => void;
+
+    products: Array<{
+        id: number,
+        product_id: string,
+        product_name: string,
+        product_sku: string,
+        product_weight: string,
+        product_category: string,
+        product_price: string,
+        product_status: boolean,
+        product_description: string,
+        product_image: string,
+        created_at: string,
+        updated_at: string,
+        merchant_id: string,
+    }>;
     setAddProduct: (value: boolean) => void;
+    setEtalases: (etalases: Array<{
+        id: number;
+        showcase_id: string;
+        showcase_name: string;
+        created_at: string;
+        updated_at: string;
+        merchant_id: string;
+        showcase_product: ShowcaseProduct[],
+        merchant: Merchant,
+    }>) => void;
     etalases: Array<{
         id: number;
         showcase_id: string;
@@ -54,11 +95,14 @@ interface AddProductProps {
     }>;
 }
 
-const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
+const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddProduct, etalases, setEtalases }) => {
     const [quantity, setQuantity] = useState('g');
     const [showNotification, setShowNotification] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
+    const [showPopUpAddEtalase, setShowPopUpAddEtalase] = useState(false);
+
+    console.log("Product", products)
 
     // Cleanup preview URL when component unmounts
     useEffect(() => {
@@ -117,7 +161,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
             console.log(data.photo)
         }
 
-
         try {
             const response = await axiosInstance.post(
                 "/product/create",
@@ -125,18 +168,21 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
             );
             console.log(selectedEtalase);
 
+            // Agar produk yang baru ditambahkan langsung muncul di halaman produk
+            setProducts([...products, response.data.data])
+
             // Ini untuk get etalase "Semua Produk"
-            const etalaseSemuaProduk = etalases.find((etalase) => etalase.showcase_name === "Semua Produk");
+            // const etalaseSemuaProduk = etalases.find((etalase) => etalase.showcase_name === "Semua Produk");
 
-            const response2 = await axiosInstance.post(
-                "/showcase-product/create",
-                {
-                    product_id: response?.data?.data?.product_id,
-                    showcase_id: etalaseSemuaProduk?.showcase_id,
-                },
-            )
+            // const response2 = await axiosInstance.post(
+            //     "/showcase-product/create",
+            //     {
+            //         product_id: response?.data?.data?.product_id,
+            //         showcase_id: etalaseSemuaProduk?.showcase_id,
+            //     },
+            // )
 
-            console.log(response2)
+            // console.log(response2)
 
             if (selectedEtalase) {
                 const response3 = await axiosInstance.post(
@@ -186,6 +232,39 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
             console.error("Error while adding product to API:", error);
         }
     }
+
+    const FormSchemaEtalase = z.object({
+        showcase_name: z.string().nonempty("Nama etalase wajib diisi").max(30, "Maksimal 30 karakter"),
+    });
+
+    const formEtalase = useForm<z.infer<typeof FormSchemaEtalase>>({
+        resolver: zodResolver(FormSchemaEtalase),
+        defaultValues: {
+            showcase_name: "",
+        },
+    });
+
+    async function onSubmitEtalase(data: z.infer<typeof FormSchemaEtalase>) {
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
+        try {
+            const requestBody = {
+                showcase_name: data.showcase_name,
+                merchant_id: userData?.merchant?.id,
+            };
+            const response = await axiosInstance.post(`showcase/create`, requestBody);
+
+            console.log("Etalase successfully added to API:", response.data);
+
+            // Agar etalase yang baru ditambahkan langsung muncul di halaman etalase
+            setEtalases([...etalases, response?.data?.data]);
+        } catch (error: any) {
+            console.error("Error while adding etalase to API:", error);
+        }
+    }
+
+    console.log("Etalase", etalases)
 
     return (
         <>
@@ -369,11 +448,15 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
                             name="etalase"
                             render={() => (
                                 <FormItem>
-                                    <FormLabel>Etalase</FormLabel>
+                                    <FormLabel className="flex items-center gap-5">
+                                        <p>Etalase</p>
+
+                                        <button onClick={() => setShowPopUpAddEtalase(true)} className="p-2 rounded-lg bg-orange-500 text-white" type="button">+ Add Etalase</button>
+                                    </FormLabel>
                                     {etalases
-                                        ?.filter((etalase) => etalase.showcase_name !== "Semua Produk") // Filter showcase "Semua Produk"
-                                        .map((etalase) => (
-                                            <label key={etalase.id} className="flex items-center mt-2 gap-2">
+                                        ?.filter((etalase) => etalase?.showcase_name !== "Semua Produk")
+                                        .map((etalase, index) => (
+                                            <label key={etalase.showcase_id || `etalase-${index}`} className="flex items-center mt-2 gap-2">
                                                 <input
                                                     type="radio"
                                                     name="etalase"
@@ -381,7 +464,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
                                                     checked={selectedEtalase === etalase.showcase_id}
                                                     onChange={() => setSelectedEtalase(etalase.showcase_id)}
                                                 />
-                                                {etalase.showcase_name}
+                                                {etalase?.showcase_name}
                                             </label>
                                         ))}
                                     <FormMessage />
@@ -395,6 +478,45 @@ const AddProduct: React.FC<AddProductProps> = ({ setAddProduct, etalases }) => {
                     </form>
                 </Form>
             </div>
+
+            {/* Add Etalase Pop Up */}
+            {showPopUpAddEtalase && (
+                <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-5 rounded-lg w-[90%]">
+                        <div className="flex items-center justify-between">
+                            <p className="font-semibold text-xl">Add Etalase</p>
+                            <button onClick={() => setShowPopUpAddEtalase(false)}>
+                                <ChevronLeft />
+                            </button>
+                        </div>
+
+                        <Form {...formEtalase}>
+                            <form onSubmit={formEtalase.handleSubmit(onSubmitEtalase)} className="space-y-10 mt-10">
+                                <FormField
+                                    control={formEtalase.control}
+                                    name="showcase_name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Nama Etalase</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Enter etalase name"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <Button type="submit" className="w-full bg-green-500 text-white">
+                                    Submit
+                                </Button>
+                            </form>
+                        </Form>
+                    </div>
+                </div>
+            )}
 
             {/* Success Notification */}
             {showNotification && (

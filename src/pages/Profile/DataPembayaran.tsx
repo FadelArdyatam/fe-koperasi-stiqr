@@ -9,6 +9,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import axiosInstance from "@/hooks/axiosInstance";
+import noDataPembayaranImage from "../../images/no-data-image/data-pembayaran.png"
 
 interface Account {
     account_id: string;
@@ -247,7 +248,7 @@ const DataPembayaran = () => {
             </div>
 
             <div className={`${showContent.show === false && !isAdding ? 'block' : 'hidden'} bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20`}>
-                {accounts.map((account, index) => (
+                {accounts.length === 0 ? <img src={noDataPembayaranImage} alt="" /> : accounts.map((account, index) => (
                     <div key={index}>
                         <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] my-5 bg-gray-200`}></div>
 

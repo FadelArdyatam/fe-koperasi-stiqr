@@ -18,7 +18,7 @@ const ForgotPassword = () => {
     // For form email
     const FormEmailSchema = z.object({
         email: z.string().email({
-            message: "Please enter a valid email address.",
+            message: "Silakan masukkan alamat email yang valid.",
         }),
     })
 

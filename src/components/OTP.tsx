@@ -44,21 +44,21 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ phoneNumber }),
+				body: JSON.stringify({ phoneNumber: "0" + phoneNumber }),
 			});
 
 			if (response.ok) {
 				const responseData = await response.json();
 				setOtpId(responseData.data.id);
 				setNotification({
-					message: `OTP Berhasil terkirim ke ${phoneNumber}`,
+					message: `OTP Berhasil terkirim ke 0${phoneNumber}`,
 					status: "success",
 				});
 				setCodeSent(true);
 				setTimeLeft(300);
 			} else {
 				setNotification({
-					message: "Masukkan Nomer dengan Format 08xxx",
+					message: "Masukkan Nomer dengan Format 8xxx",
 					status: "error",
 				});
 			}
@@ -88,7 +88,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 				body: JSON.stringify({
 					otp_id: otpId,
 					otp: value,
-					phoneNumber,
+					phoneNumber: "0" + phoneNumber,
 				}),
 			});
 
@@ -98,6 +98,10 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 					message: "OTP verified successfully!",
 					status: "success",
 				});
+
+				// Remove the registedID
+				localStorage.removeItem("registerID");
+
 				setCreatePin(true);
 			} else {
 				const errorData = await response.json();
@@ -156,7 +160,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 						<input
 							type=""
 							onChange={(e) => setPhoneNumber(e.target.value)}
-							placeholder="Masukkan No Hp Anda (0859...)"
+							placeholder="Masukkan No Hp Anda"
 							className="rounded-sm border border-black px-4 w-full py-3"
 						/>
 					</div>

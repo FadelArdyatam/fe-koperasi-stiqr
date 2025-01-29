@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { FormField, FormItem, FormControl, FormMessage, Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
@@ -15,6 +15,7 @@ const ResetPassword = () => {
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [notification, setNotification] = useState<{ message: string; type: "success" | "error" } | null>(null);
+    const [showPassword, setShowPassword] = useState<{ newPassword: boolean; confirmPassword: boolean }>({ newPassword: false, confirmPassword: false });
 
     const navigate = useNavigate();
 
@@ -147,12 +148,16 @@ const ResetPassword = () => {
                             render={({ field }) => (
                                 <FormItem className="w-full mt-10">
                                     <FormControl>
-                                        <input
-                                            type="password"
-                                            placeholder="Password Baru"
-                                            className="rounded-sm border border-black px-4 w-full py-3"
-                                            {...field}
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type={showPassword.newPassword ? "text" : "password"}
+                                                placeholder="Password Baru"
+                                                className="rounded-sm border border-black px-4 w-full py-3"
+                                                {...field}
+                                            />
+
+                                            <button type="button" onClick={() => setShowPassword({ newPassword: !showPassword.newPassword, confirmPassword: showPassword.confirmPassword })} className="absolute right-5 top-[13px]">{showPassword.newPassword ? <EyeOff /> : <Eye />}</button>
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -165,12 +170,16 @@ const ResetPassword = () => {
                             render={({ field }) => (
                                 <FormItem className="w-full mt-10">
                                     <FormControl>
-                                        <input
-                                            type="password"
-                                            placeholder="Konfirmasi Password Baru"
-                                            className="rounded-sm border border-black px-4 w-full py-3"
-                                            {...field}
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type={showPassword.confirmPassword ? "text" : "password"}
+                                                placeholder="Konfirmasi Password Baru"
+                                                className="rounded-sm border border-black px-4 w-full py-3"
+                                                {...field}
+                                            />
+
+                                            <button type="button" onClick={() => setShowPassword({ newPassword: showPassword.newPassword, confirmPassword: !showPassword.confirmPassword })} className="absolute right-5 top-[13px]">{showPassword.confirmPassword ? <EyeOff /> : <Eye />}</button>
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

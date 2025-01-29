@@ -1,6 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../../components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface DetailProductProps {
     product: any;
@@ -121,6 +122,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                     <p className="font-semibold text-xl">Total</p>
 
                     <div className="flex items-center gap-5 mt-5">
+                        {/* Tombol Kurangi */}
                         <button
                             onClick={() => {
                                 if (quantity > 1) {
@@ -133,8 +135,32 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                             -
                         </button>
 
-                        <p>{quantity}</p>
+                        {/* Input Kuantitas */}
+                        <Input
+                            type="number"
+                            className="text-center w-10 border rounded-md"
+                            value={quantity}
+                            onChange={(e) => {
+                                const inputValue = parseInt(e.target.value, 10);
 
+                                // Validasi input angka positif
+                                if (!isNaN(inputValue) && inputValue > 0) {
+                                    setQuantity(inputValue);
+                                    setPrice(product.product_price);
+                                } else if (e.target.value === "") {
+                                    setQuantity(1); // Default jika input kosong
+                                }
+                            }}
+                            onBlur={(e) => {
+                                // Jika input kosong atau kurang dari 1, kembalikan ke nilai default 1
+                                if (e.target.value === "" || parseInt(e.target.value, 10) < 1) {
+                                    setQuantity(1);
+                                }
+                            }}
+                            min={1} // Mencegah angka negatif melalui UI
+                        />
+
+                        {/* Tombol Tambah */}
                         <button
                             onClick={() => {
                                 setQuantity(quantity + 1);

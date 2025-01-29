@@ -3,7 +3,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import axiosInstance from "@/hooks/axiosInstance"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Check, ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, UserRound, FileText } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, UserRound, FileText, Eye, EyeOff } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
@@ -12,6 +12,7 @@ import { z } from "zod"
 const Keamanan = () => {
     const [showContent, setShowContent] = useState('')
     const [showNotification, setShowNotification] = useState(false)
+    const [showPIN, setShowPIN] = useState({ oldPIN: false, newPIN: false })
 
     const FormSchema = z.object({
         password: z.string().min(8),
@@ -32,7 +33,7 @@ const Keamanan = () => {
     })
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
-    const [errorPassword,setErrorPassword] = useState("")
+    const [errorPassword, setErrorPassword] = useState("")
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         try {
             const response = await axiosInstance.patch(`users/change-password`, {
@@ -40,12 +41,12 @@ const Keamanan = () => {
                 newPassword: data.newPassword,
                 confirmPassword: data.confirmPassword,
             })
-            if(response.data.statusCode === 200) {
+            if (response.data.statusCode === 200) {
                 setShowNotification(true)
                 setErrorPassword("")
                 form.reset({ password: '', newPassword: '', confirmPassword: '' });
             }
-        } catch (error:any) {
+        } catch (error: any) {
             setErrorPassword(error.response.data?.message || "Terjadi Kesalahan")
         }
     }
@@ -65,18 +66,18 @@ const Keamanan = () => {
         },
     })
 
-    const [errors,setErrors] = useState("")
+    const [errors, setErrors] = useState("")
     async function onSubmit2(data: z.infer<typeof FormSchema2>) {
         try {
             const response = await axiosInstance.patch(`/merchant/${userData.merchant.id}/updatepin`, {
                 oldPin: data.oldPin,
                 newPin: data.newPin
             })
-            if(response.data.success) {
+            if (response.data.success) {
                 setShowNotification(true)
             }
             setErrors("")
-        } catch (error:any) {
+        } catch (error: any) {
             if (error.response) {
                 setErrors(error.response.data.message)
             }
@@ -207,7 +208,6 @@ const Keamanan = () => {
                 </div>
             ) : showContent === 'PIN' ? (
                 <div className="w-[90%] bg-white p-5 shadow-lg rounded-lg -translate-y-20">
-                    {errors && <p className="text-red-500 text-sm">{errors}</p>}
                     <Form {...form2}>
                         <form onSubmit={form2.handleSubmit(onSubmit2)}>
                             <div className={'flex flex-col items-end w-full md:w-2/3 space-y-7'}>
@@ -219,7 +219,28 @@ const Keamanan = () => {
                                             <FormLabel className="text-gray-500">PIN Saat Ini</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" maxLength={6} {...field} />
+                                                <div className="relative w-full">
+                                                    <Input
+                                                        type={showPIN.oldPIN ? 'text' : 'password'}
+                                                        className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                        maxLength={6} // Membatasi jumlah karakter input maksimal
+                                                        {...field}
+                                                        onInput={(e) => {
+                                                            const input = e.target as HTMLInputElement;
+                                                            // Hanya mengizinkan angka dan membatasi maksimal 6 karakter
+                                                            input.value = input.value.replace(/\D/g, '').slice(0, 6);
+                                                            field.onChange(input.value); // Mengupdate nilai di form
+                                                        }}
+                                                    />
+
+                                                    <button
+                                                        onClick={() => setShowPIN({ oldPIN: !showPIN.oldPIN, newPIN: showPIN.newPIN })}
+                                                        className="block absolute top-2 right-5"
+                                                        type="button"
+                                                    >
+                                                        {showPIN.oldPIN ? <EyeOff /> : <Eye />}
+                                                    </button>
+                                                </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -234,7 +255,27 @@ const Keamanan = () => {
                                             <FormLabel className="text-gray-500">PIN Baru</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field} />
+                                                <div className="relative">
+                                                    <Input
+                                                        type={showPIN.newPIN ? 'text' : 'password'}
+                                                        className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                        maxLength={6} // Membatasi jumlah karakter input maksimal
+                                                        {...field}
+                                                        onInput={(e) => {
+                                                            const input = e.target as HTMLInputElement;
+                                                            // Hanya mengizinkan angka dan membatasi maksimal 6 karakter
+                                                            input.value = input.value.replace(/\D/g, '').slice(0, 6);
+                                                            field.onChange(input.value); // Mengupdate nilai di form
+                                                        }}
+                                                    />
+                                                    <button
+                                                        onClick={() => setShowPIN({ oldPIN: showPIN.oldPIN, newPIN: !showPIN.newPIN })}
+                                                        className="block absolute top-2 right-5"
+                                                        type="button"
+                                                    >
+                                                        {showPIN.newPIN ? <EyeOff /> : <Eye />}
+                                                    </button>
+                                                </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -245,6 +286,8 @@ const Keamanan = () => {
                             <Button type="submit" className="w-full bg-green-400 mt-7">Simpan Data</Button>
                         </form>
                     </Form>
+
+                    {errors && <p className="text-red-500 text-sm mt-5">{errors}</p>}
                 </div>
             ) : null}
 

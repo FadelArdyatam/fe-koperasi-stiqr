@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { admissionFees } from "../Dashboard";
 import html2canvas from "html2canvas";
 import axiosInstance from "@/hooks/axiosInstance";
+import noTransactionImage from "../../images/no-transaction.png"
 
 interface Purchase {
     refnumber: string;
@@ -130,7 +131,7 @@ const Riwayat = () => {
     console.log("Purchases: ", purchases);
 
     return (
-        <div className="relative h-screen">
+        <div className="relative h-screen overflow-y-hidden">
             {/* Header */}
             <div className={`${showDescription.status ? 'pb-32' : 'pb-0'} fixed w-full top-0 z-10 pt-5 flex flex-col items-center justify-center bg-orange-400`}>
                 <div className="flex items-center px-5 justify-center w-full">
@@ -199,14 +200,14 @@ const Riwayat = () => {
             </div>
 
             {/* Konten */}
-            <div className={`${showDescription.status ? 'hidden' : 'block'} relative mt-44 h-[calc(100%-14rem)] overflow-hidden`}>
+            <div className={`${showDescription.status ? 'hidden' : 'block'} relative mt-44 h-[calc(100%-14rem)] overflow-y-auto overflow-x-hidden`}>
                 {/* Konten Uang Masuk */}
                 <div
                     className={`absolute inset-0 ${type === "Uang Masuk" ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-full"} transition-all duration-500 ease-in-out`}
                 >
                     <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg">
-                        {typeSorting.show ? sortingAdmissionFees.map((admissionFee, index) => ( // Tampilkan data yang sudah diurutkan
-                            <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
+                        {admissionFees.length === 0 ? <img src={noTransactionImage} alt="" /> : typeSorting.show ? sortingAdmissionFees.map((admissionFee, index) => ( // Tampilkan data yang sudah diurutkan
+                            <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
                                 <div
                                     className={`${index === 0 ? "hidden" : "block"
                                         } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
@@ -249,7 +250,7 @@ const Riwayat = () => {
                                 </div>
                             </button>
                         )) : typeFilter.show ? filterAdmissionFees.map((admissionFee, index) => ( // Tampilkan data yang belum diurutkan
-                            <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
+                            <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
                                 <div
                                     className={`${index === 0 ? "hidden" : "block"
                                         } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
@@ -292,7 +293,7 @@ const Riwayat = () => {
                                 </div>
                             </button>
                         )) : admissionFees.map((admissionFee, index) => ( // Tampilkan data yang belum diurutkan
-                            <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
+                            <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === admissionFees.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
                                 <div
                                     className={`${index === 0 ? "hidden" : "block"
                                         } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
@@ -343,8 +344,8 @@ const Riwayat = () => {
                     className={`absolute inset-0 ${type === "Pembelian" ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"} transition-all duration-500 ease-in-out`}
                 >
                     <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg">
-                        {typeSorting.show ? sortingPurchases.map((purchase, index) => ( // Tampilkan data yang sudah diurutkan
-                            <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
+                        {purchases.length === 0 ? <img src={noTransactionImage} alt="" /> : typeSorting.show ? sortingPurchases.map((purchase, index) => ( // Tampilkan data yang sudah diurutkan
+                            <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
                                 <div
                                     className={`${index === 0 ? "hidden" : "block"
                                         } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
@@ -397,7 +398,7 @@ const Riwayat = () => {
                                 </div>
                             </button>
                         )) : typeFilter.show ? filterPurchases.map((purchase, index) => ( // Tampilkan data yang belum diurutkan
-                            <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
+                            <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
                                 <div
                                     className={`${index === 0 ? "hidden" : "block"
                                         } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
@@ -450,7 +451,7 @@ const Riwayat = () => {
                                 </div>
                             </button>
                         )) : purchases.map((purchase, index) => ( // Tampilkan data yang belum diurutkan
-                            <button onClick={() => setShowDescription({ status: true, index: index })} className="block" key={index}>
+                            <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
                                 <div
                                     className={`${index === 0 ? "hidden" : "block"
                                         } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}

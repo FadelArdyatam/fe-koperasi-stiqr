@@ -1,4 +1,4 @@
-import { ChevronLeft, X, Banknote, Calculator, ArrowLeftRight, CircleAlert } from "lucide-react";
+import { ChevronLeft, X, Banknote, Calculator, ArrowLeftRight, CircleAlert, CreditCard, FileText, Home, ScanQrCode, UserRound } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
 import { useRef, useState, useEffect } from "react";
@@ -17,6 +17,7 @@ import { getSocket } from "@/hooks/websocket";
 import axiosInstance from "@/hooks/axiosInstance";
 import { AlertDialogHeader, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@radix-ui/react-alert-dialog";
+import Notification from "@/components/Notification";
 
 const payments = [visa, masterCard, gopay, ovo, dana, linkAja];
 
@@ -39,6 +40,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
     const [dataForPaymentMethod, setDataForPaymentMethod] = useState<any>(null);
     const [showPaymentMehodComponent, setShowPaymentMethodComponent] = useState(false);
     // const [stringQR, setStringQR] = useState("");
+    const [error, setError] = useState({ show: false, message: "" });
     const [isLoading, setIsLoading] = useState(false); // State untuk loading
     const [timeLeft, setTimeLeft] = useState(300); // 5 menit dalam detik
     const navigate = useNavigate();
@@ -205,7 +207,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
     const [showQRInstant, setShowQRInstant] = useState<boolean | null>(null)
     const showShareLinkGenerator = async () => {
         if (!amount) {
-            alert("Silakan masukkan jumlah pembayaran terlebih dahulu!");
+            setError({ show: true, message: "Silakan masukkan jumlah pembayaran terlebih dahulu!" });
             return;
         }
 
@@ -388,6 +390,40 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </p>
                 </div>
 
+                <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
+                    <Link to={'/dashboard'} className="flex gap-3 flex-col items-center">
+                        <Home />
+
+                        <p className="uppercase">Home</p>
+                    </Link>
+
+                    <Link to={'/qr-code'} className="flex gap-3 flex-col text-orange-400 items-center">
+                        <ScanQrCode />
+
+                        <p className="uppercase">Qr Code</p>
+                    </Link>
+
+                    <Link to={'/settlement'} className="flex relative gap-3 flex-col items-center">
+                        <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
+                            <CreditCard />
+                        </div>
+
+                        <p className="uppercase">Penarikan</p>
+                    </Link>
+
+                    <Link to={'/catalog'} className="flex gap-3 flex-col items-center">
+                        <FileText />
+
+                        <p className="uppercase">Catalog</p>
+                    </Link>
+
+                    <Link to={'/profile'} className="flex gap-3 flex-col items-center">
+                        <UserRound />
+
+                        <p className="uppercase">Profile</p>
+                    </Link>
+                </div>
+
                 <div className="mt-28 w-[90%] shadow-lg m-auto p-5 rounded-lg bg-white">
                     <p className="text-gray-700 font-medium">Input Amount</p>
 
@@ -421,6 +457,9 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     <p className="text-white text-xl font-medium">Loading QR Code...</p>
                 </div>
             )}
+
+            {/* Error */}
+            {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
 
             {/* Metode Pembayaran Lain */}
             <div className={`${showOtherMethod ? "block" : "hidden"} fixed bg-black inset-0 bg-opacity-50 flex items-end justify-center`}>

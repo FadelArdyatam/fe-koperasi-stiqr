@@ -57,7 +57,7 @@ interface AddEtalaseProps {
     }>) => void;
 }
 
-const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase }) => {
+const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase, etalases, setEtalases }) => {
     const [showNotification, setShowNotification] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -82,6 +82,10 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase }) => {
                 merchant_id: userData?.merchant?.id,
             };
             const response = await axiosInstance.post(`showcase/create`, requestBody);
+
+            // Agar etalase yang baru ditambahkan langsung muncul di halaman etalase
+            setEtalases([...etalases, response.data.data]);
+
             console.log(response)
             setShowNotification(true);
         } catch (error: any) {
