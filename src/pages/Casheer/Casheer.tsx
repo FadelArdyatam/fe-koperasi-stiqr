@@ -87,7 +87,7 @@ const Casheer = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axiosInstance.get(`/product/${userData?.merchant?.id}`);
+                const response = await axiosInstance.get(`/product/${userData?.merchant?.id}?status=active`);
                 if (Array.isArray(response.data)) {
                     setProducts(response.data);
                 } else {

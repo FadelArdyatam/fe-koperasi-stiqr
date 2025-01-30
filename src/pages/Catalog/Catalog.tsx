@@ -2,11 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CreditCard, FileText, Home, ScanQrCode, Search, SlidersHorizontal, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
-import Product from "./Product";
 import Variant from './Variant';
 import Etalase from "./Etalase";
 import { Link } from "react-router-dom";
 import axiosInstance from "@/hooks/axiosInstance";
+import Product from "./Product";
 
 // const initialProducts = [
 //     { id: 1, photo: '', name: 'Ayam', SKU: 'GAG10131', price: '15000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },

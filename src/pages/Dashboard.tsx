@@ -73,12 +73,18 @@ interface IHistory {
     title: string;
     transaction_id: string;
     total_amount: number;
+    payment_method: string;
+    qr_transaction_id?: string;
+    sales_id?: string;
     date: string;
     time: string;
     transaction_status: "success" | "failed" | "pending";
     code: string;
-    payment: {
-        bank_name: string;
+    sales?: {
+        orderId: string;
+    }
+    qr_transaction?: {
+        orderId: string;
     }
 }
 
@@ -202,11 +208,6 @@ const Dashboard = () => {
         setStartDate(start);
         setEndDate(end);
     };
-
-    console.log("Histories: ", histories);
-
-    console.log("startDate: ", startDate);
-    console.log("endDate: ", endDate);
 
     return (
         <div className="w-full">
@@ -451,14 +452,14 @@ const Dashboard = () => {
 
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <p className="uppercase text-sm">{history.payment.bank_name}</p>
+                                            <p className="uppercase text-sm">{history.sales_id == null ? 'QRCode' : 'Penjualan'} | {history.payment_method}</p>
 
                                             <div className={`${history.transaction_status === 'success' ? 'bg-green-400' : history.transaction_status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
-                                                <p>{history.transaction_status}</p>
+                                                <p>{history.transaction_status} </p>
                                             </div>
                                         </div>
 
-                                        <p className="text-xs text-gray-400">{history.transaction_id}</p>
+                                        <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                     </div>
                                 </div>
 

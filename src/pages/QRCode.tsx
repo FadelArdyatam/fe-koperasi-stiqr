@@ -231,9 +231,18 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     orderId: generateOrderId
                 };
 
-                const response = await axiosInstance.post("/finpay/initiate", requestBody);
-                if (response.data) {
-                    setStringQRInstant(response.data.response.stringQr);
+                const paymentQR = {
+                    orderId: generateOrderId,
+                    amount: amount,
+                    merchant_id: userData.merchant.id,
+                }
+
+                const initiateHooks = await axiosInstance.post("/finpay/initiate", requestBody);
+                const paymentQRHooks = await axiosInstance.post('/sales/payment-qr', paymentQR)
+                console.log(initiateHooks)
+                console.log(paymentQRHooks)
+                if (initiateHooks.data) {
+                    setStringQRInstant(initiateHooks.data.response.stringQr);
                     setDataForPaymentMethod(requestBody);
                     setShowQRInstant(true);
                     setOrderIdInstant(generateOrderId)
@@ -273,10 +282,21 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
         setSelectedMethod(method);
     };
 
-    // const handleBack = () => {
-    //     setShowQRCode(false);
-    //     navigate('/dashboard')
-    // };
+    const handleCancelPayment = async () => {
+        try {
+            const response = await axiosInstance.post("/sales/cancel-payment", {
+                orderId: orderIdInstant ?? orderId
+            })
+            if (response.data.success) {
+                if (setShowQRCode) {
+                    setShowQRCode(false);
+                }
+                navigate('/dashboard')
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    };
 
     return (
         <>
@@ -306,12 +326,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                                 <AlertDialogFooter className="mt-5 flex flex-col gap-3">
                                     <AlertDialogAction
                                         className="w-full p-2 rounded-lg bg-green-500 text-white"
-                                        onClick={() => {
-                                            if (setShowQRCode) {
-                                                setShowQRCode(false);
-                                            }
-                                            navigate("/dashboard");
-                                        }}
+                                        onClick={handleCancelPayment}
                                     >
                                         Continue
                                     </AlertDialogAction>
