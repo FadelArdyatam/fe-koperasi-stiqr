@@ -7,6 +7,8 @@ import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { CircleCheck } from "lucide-react";
 import Notification from "../components/Notification"; // Import the custom Notification component
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface OTPProps {
 	currentSection: number;
@@ -26,6 +28,10 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 		message: string;
 		status: "success" | "error";
 	} | null>(null);
+
+	useEffect(() => {
+		AOS.init({ duration: 500, once: false });
+	}, []);
 
 	const sendCode = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
@@ -143,15 +149,15 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 				className={`${currentSection === 2 ? "block" : "hidden"
 					} flex flex-col items-end w-full md:w-2/3 space-y-7`}
 			>
-				<p className="font-semibold text-xl text-center">
+				<p data-aos="fade-up" className="font-semibold text-xl text-center">
 					Terima Kasih Telah Mendaftar Sebagai Merchant STIQR!
 				</p>
 
-				<p className="text-md text-gray-500 text-center">
+				<p data-aos="fade-up" data-aos-delay="100" className="text-md text-gray-500 text-center">
 					Untuk keamanan akun anda, mohon masukkan kode OTP yang telah kami kirimkan.
 				</p>
 
-				<form className="mt-10 w-full flex flex-col items-center gap-5">
+				<form data-aos="fade-up" data-aos-delay="200" className="mt-10 w-full flex flex-col items-center gap-5">
 					<div className="flex items-center gap-5">
 						<div className="w-12 min-w-12 h-12 rounded-sm border border-black flex items-center justify-center">
 							+62
@@ -174,7 +180,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 					</Button>
 				</form>
 
-				<div className="space-y-2 w-full flex flex-col items-center">
+				<div data-aos="fade-up" data-aos-delay="300" className="space-y-2 w-full flex flex-col items-center">
 					<InputOTP
 						maxLength={6}
 						value={value}

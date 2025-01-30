@@ -1,7 +1,9 @@
 import AddEtalase from "@/components/AddEtalase";
 import EditEtalase from "@/components/EditEtalase";
 import { Button } from "@/components/ui/button";
-
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
 interface Merchant {
     id: string;
     name: string;
@@ -70,6 +72,10 @@ interface EtalaseProps {
 }
 
 const Etalase: React.FC<EtalaseProps> = ({ etalases, setEtalases, addEtalase, setAddEtalase, setOpen, open, products }) => {
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true });
+    }, []);
+
     const handleOpen = (id: string) => {
         setOpen({
             id: id,
@@ -83,8 +89,8 @@ const Etalase: React.FC<EtalaseProps> = ({ etalases, setEtalases, addEtalase, se
         <div className="w-full px-5 mb-32">
             <div className={`${addEtalase || open.status ? 'hidden' : 'block'} w-full`}>
                 <div>
-                    {etalases?.map((etalase) => (
-                        <div key={etalase.id} onClick={() => handleOpen(etalase.showcase_id)} className="shadow-sm mt-5 bg-white p-5 rounded-lg">
+                    {etalases?.map((etalase, index) => (
+                        <div data-aos="fade-up" data-aos-delay={index * 100} key={etalase.id} onClick={() => handleOpen(etalase.showcase_id)} className="shadow-sm mt-5 bg-white p-5 rounded-lg">
                             <h3 className="text-lg font-semibold text-start">{etalase?.showcase_name}</h3>
 
                             <p className="text-sm text-gray-400">{etalase?.showcase_product?.length} Produk</p>

@@ -6,12 +6,18 @@ import { Button } from '@/components/ui/button'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import axios from 'axios'
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const ForgotPassword = () => {
     const [Notification, setNotification] = useState({ status: false, address: '', notificationSuccess: false })
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false });
+    }, []);
 
     const navigate = useNavigate();
 
@@ -133,13 +139,13 @@ const ForgotPassword = () => {
                     <ChevronLeft className='scale-[1.3] text-white' />
                 </Link>
 
-                <p className='font-semibold m-auto text-xl text-white text-center'>Lupa Password</p>
+                <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>Lupa Password</p>
             </div>
 
-            <img src={logo} className='w-[80%] mt-32' alt="" />
+            <img data-aos="fade-up" data-aos-delay="100" src={logo} className='w-[70%] mt-32' alt="" />
 
             <div className='mt-10 text-center p-10'>
-                <p className='text-gray-500'>Kami akan mengirimkan konfirmasi ke email Anda untuk mengatur ulang password Anda.</p>
+                <p className='text-gray-500' data-aos="fade-up" data-aos-delay="200">Kami akan mengirimkan konfirmasi ke email Anda untuk mengatur ulang password Anda.</p>
 
                 <>
                     <Form {...formEmail}>
@@ -151,6 +157,8 @@ const ForgotPassword = () => {
                                     <FormItem className="w-full mt-10">
                                         <FormControl>
                                             <Input
+                                                data-aos="fade-up"
+                                                data-aos-delay="300"
                                                 type="email"
                                                 placeholder="Masukkan Email Anda"
                                                 className="rounded-sm border border-black px-4 w-full py-3"
@@ -162,7 +170,7 @@ const ForgotPassword = () => {
                                 )}
                             />
 
-                            <Button type="submit" className="bg-[#7ED321] px-5 py-3 mt-10 w-full text-white rounded-lg">
+                            <Button data-aos="fade-up" data-aos-delay="400" type="submit" className="bg-[#7ED321] px-5 py-3 mt-10 w-full text-white rounded-lg">
                                 Kirim
                             </Button>
                         </form>

@@ -9,6 +9,8 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
 import imgNotification from "@/images/notification(404).png";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface INotification {
     id: number;
@@ -19,6 +21,11 @@ interface INotification {
 }
 const Inbox = () => {
     const [notifications, setNotifications] = useState<INotification[]>([]);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false });
+    }, []);
+
     useEffect(() => {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
@@ -35,7 +42,7 @@ const Inbox = () => {
     return (
         <div>
             <div className="p-5 w-full bg-orange-400">
-                <p className="text-white font-semibold uppercase text-center">Notifikasi</p>
+                <p data-aos="zoom-in" className="text-white font-semibold uppercase text-center">Notifikasi</p>
             </div>
 
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -78,14 +85,14 @@ const Inbox = () => {
             <div className={`mt-10 w-[90%] m-auto mb-32 ${notifications.length === 0 ? '' : 'border p-5 rounded-md'} `}>
                 {
                     notifications.length === 0 && (
-                        <div className="flex items-center flex-col justify-center gap-10">
+                        <div data-aos="fade-up" data-aos-delay="100" className="flex items-center flex-col justify-center gap-10">
                             <img src={imgNotification} className="md:w-5/12 11/12 mt-24" />
                             <p className="text-center text-orange-400 font-bold text-lg">Tidak ada notifikasi</p>
                         </div>
                     )
                 }
                 {notifications.map((notification, index) => (
-                    <div key={index}>
+                    <div data-aos="fade-up" data-aos-delay={index * 100} key={index}>
                         <div
                             className={`${index === 0 ? "hidden" : "block"
                                 } w-full h-[2px] my-5 bg-gray-300`}

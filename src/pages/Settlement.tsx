@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import notransaction from "../images/no-transaction.png";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Settlement = () => {
     // const [showCodePayment, setShowCodePayment] = useState(false);
@@ -18,6 +20,10 @@ const Settlement = () => {
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [showCalendar, setShowCalendar] = useState(false);
     const [showNotification, setShowNotification] = useState(true);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false });
+    }, []);
 
     useEffect(() => {
         // Ambil informasi user dari sessionStorage
@@ -56,7 +62,7 @@ const Settlement = () => {
                     <ChevronLeft className="scale-[1.3] text-white" />
                 </Link>
 
-                <p className="font-semibold m-auto text-xl text-white text-center uppercase">
+                <p data-aos="zoom-in" className="font-semibold m-auto text-xl text-white text-center uppercase">
                     Settlement
                 </p>
             </div>
@@ -93,7 +99,7 @@ const Settlement = () => {
 
             {/* Form Penarikan */}
             <div className="w-[90%] m-auto pb-10">
-                <div className={`${showNotification ? 'flex' : 'hidden'} items-start gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm`}>
+                <div data-aos="fade-up" data-aos-delay="100" className={`${showNotification ? 'flex' : 'hidden'} items-start gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm`}>
                     <div className="text-blue-500">
                         <Info className="w-5 h-5" />
                     </div>
@@ -107,7 +113,7 @@ const Settlement = () => {
                     </button>
                 </div>
 
-                <div className={`${showNotification ? 'mt-10' : 'mt-24'} w-full border border-gray-300 rounded-lg p-5`}>
+                <div data-aos="fade-up" data-aos-delay="200" className={`${showNotification ? 'mt-10' : 'mt-24'} w-full border border-gray-300 rounded-lg p-5`}>
                     <div>
                         <p className="font-semibold text-lg">Total Saldo Stiqr</p>
 
@@ -131,16 +137,16 @@ const Settlement = () => {
                     </div>
                 </div>
 
-                <div className="mt-5 flex flex-col gap-3">
+                <div data-aos="fade-up" data-aos-delay="300" className="mt-5 flex flex-col gap-3">
                     <p>Saldo Yang Ingin Ditarik</p>
 
                     <Input placeholder="Masukkan Jumlah Saldo" />
                 </div>
 
-                <Button className="mt-5 w-full text-base bg-orange-500">Tarik Saldo</Button>
+                <Button data-aos="fade-up" data-aos-delay="300" className="mt-5 w-full text-base bg-orange-500">Tarik Saldo</Button>
             </div>
 
-            <div className="pb-20 rounded-lg border border-gray-500">
+            <div data-aos="fade-up" data-aos-delay="400" className="pb-20 rounded-lg border border-gray-500">
                 {/* Button untuk Rentang Tanggal */}
                 <div className="p-5 bg-white rounded-t-lg w-[100%]">
                     <p className="font-semibold text-lg">Riwayat Transaksi</p>

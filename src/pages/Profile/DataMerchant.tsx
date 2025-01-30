@@ -9,7 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
 import axiosInstance from "@/hooks/axiosInstance"
-
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface MerchantData {
     id: number;
@@ -27,6 +28,16 @@ const DataMerchant = () => {
     const [showEdit, setShowEdit] = useState(false)
     const [showNotification, setShowNotification] = useState(false)
     const [merchantData, setMerchantData] = useState<MerchantData>();
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, [])
+
+    useEffect(() => {
+        setTimeout(() => {
+            AOS.refresh();
+        }, 100);
+    }, [showEdit]);
 
     const FormSchema = z.object({
         merchantName: z.string().min(2, {
@@ -232,7 +243,7 @@ const DataMerchant = () => {
                         <ChevronLeft className='scale-[1.3] text-white' />
                     </Link>
 
-                    <p className='font-semibold m-auto text-xl text-white text-center'>Data Merchant</p>
+                    <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>Data Merchant</p>
                 </div>
 
                 <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -270,7 +281,7 @@ const DataMerchant = () => {
                 </div>
 
                 <div className="bg-white w-[90%] -translate-y-20 p-5 flex flex-col items-center gap-5 rounded-lg shadow-lg z-0 mb-10">
-                    <div className="flex w-full items-center justify-between">
+                    <div data-aos="fade-up" data-aos-delay="100" className="flex w-full items-center justify-between">
                         <p className="text-sm text-gray-500">Nama Merchant</p>
 
                         <p className="text-sm font-semibold">{merchantData?.name}</p>
@@ -278,7 +289,7 @@ const DataMerchant = () => {
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="200" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Kategori Merchant</p>
 
                         <p className="text-sm font-semibold">{merchantData?.category}</p>
@@ -286,36 +297,39 @@ const DataMerchant = () => {
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="300" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Provinsi Merchant</p>
 
                         <p className="text-sm font-semibold">{merchantData?.province}</p>
                     </div>
+
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="400" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Kota Merchant</p>
 
                         <p className="text-sm font-semibold">{merchantData?.regency}</p>
                     </div>
+
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="500" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Kecamatan Merchant</p>
 
                         <p className="text-sm font-semibold">{merchantData?.district}</p>
                     </div>
+
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="600" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Kelurahan Merchant</p>
 
                         <p className="text-sm font-semibold">{merchantData?.village}</p>
                     </div>
+
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="700" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">No Hp</p>
 
                         <p className="text-sm font-semibold">{merchantData?.phone_number}</p>
@@ -323,7 +337,7 @@ const DataMerchant = () => {
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="800" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Alamat</p>
 
                         <p className="text-sm font-semibold">{merchantData?.address}</p>
@@ -331,23 +345,23 @@ const DataMerchant = () => {
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Kode Pos</p>
 
                         <p className="text-sm font-semibold">{merchantData?.post_code}</p>
                     </div>
                 </div>
 
-                <Button onClick={handleEditClick} className="w-[90%] block bg-green-400 -mt-24 mb-32">Edit</Button>
+                <Button data-aos="fade-up" onClick={handleEditClick} className="w-[90%] block bg-green-400 -mt-24 mb-32">Edit</Button>
             </div>
 
-            <div className={`${showEdit ? 'flex' : 'hidden'} w-full flex-col min-h-screen items-center`}>
+            <div key={showEdit ? "edit-mode" : "view-mode"} className={`${showEdit ? 'flex' : 'hidden'} w-full flex-col min-h-screen items-center`}>
                 <div className='w-full px-5 pt-5 pb-32 flex items-center justify-center bg-orange-400'>
                     <button onClick={() => setShowEdit(false)} className='absolute left-5 bg-transparent hover:bg-transparent'>
                         <ChevronLeft className='scale-[1.3] text-white' />
                     </button>
 
-                    <p className='font-semibold m-auto text-xl text-white text-center'>Edit Data Merchant</p>
+                    <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>Edit Data Merchant</p>
                 </div>
 
                 <div className="w-[90%] bg-white shadow-lg rounded-lg p-5 -translate-y-20">
@@ -358,7 +372,7 @@ const DataMerchant = () => {
                                     control={form.control}
                                     name="merchantName"
                                     render={({ field }) => (
-                                        <FormItem className="w-full">
+                                        <FormItem data-aos="fade-up" data-aos-delay="100" className="w-full">
                                             <FormControl>
                                                 <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Merchant" {...field} />
                                             </FormControl>
@@ -375,7 +389,7 @@ const DataMerchant = () => {
                                             <FormControl>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                        <div data-aos="fade-up" data-aos-delay="200" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                             <button className="">
                                                                 {field.value || "Select Category"} {/* Display selected value */}
                                                             </button>
@@ -413,7 +427,7 @@ const DataMerchant = () => {
                                             <FormControl>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                        <div data-aos="fade-up" data-aos-delay="300" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                             <button className="">
                                                                 {field.value || "Select Province"}
                                                             </button>
@@ -455,7 +469,7 @@ const DataMerchant = () => {
                                             <FormControl>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                        <div data-aos="fade-up" data-aos-delay="400" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                             <button className="">
                                                                 {field.value || "Select Regency"}
                                                             </button>
@@ -497,7 +511,7 @@ const DataMerchant = () => {
                                             <FormControl>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                        <div data-aos="fade-up" data-aos-delay="500" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                             <button className="">
                                                                 {field.value || "Select District"}
                                                             </button>
@@ -539,7 +553,7 @@ const DataMerchant = () => {
                                             <FormControl>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                        <div data-aos="fade-up" data-aos-delay="600" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                             <button className="">
                                                                 {field.value || "Select Village"}
                                                             </button>
@@ -578,7 +592,7 @@ const DataMerchant = () => {
                                     render={({ field }) => (
                                         <FormItem className="w-full">
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp Merchant" {...field} />
+                                                <Input data-aos="fade-up" data-aos-delay="700" className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp Merchant" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -591,7 +605,7 @@ const DataMerchant = () => {
                                     render={({ field }) => (
                                         <FormItem className="w-full">
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Merchant Address" {...field} />
+                                                <Input data-aos="fade-up" data-aos-delay="800" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Merchant Address" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -605,6 +619,7 @@ const DataMerchant = () => {
                                         <FormItem className="w-full">
                                             <FormControl>
                                                 <Input
+                                                    data-aos="fade-up"
                                                     className="w-full bg-[#F4F4F4] font-sans font-semibold"
                                                     type="number"
                                                     placeholder="Postal Code"

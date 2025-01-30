@@ -7,6 +7,8 @@ import Variant from './Variant';
 import Etalase from "./Etalase";
 import { Link } from "react-router-dom";
 import axiosInstance from "@/hooks/axiosInstance";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 // const initialProducts = [
 //     { id: 1, photo: '', name: 'Ayam', SKU: 'GAG10131', price: '15000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
@@ -115,6 +117,10 @@ const Catalog = () => {
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
     useEffect(() => {
+        AOS.init({ duration: 500, once: true });
+    }, []);
+
+    useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const response = await axiosInstance.get(`/product/${userData?.merchant?.id}`);
@@ -206,13 +212,13 @@ const Catalog = () => {
     return (
         <div className="w-full flex flex-col min-h-screen items-center bg-orange-50">
             <div className={`${addProduct || addVariant || addEtalase || open.status ? 'hidden' : 'block'} p-5 w-full`}>
-                <div className="w-full flex items-center gap-5 justify-between">
+                <div data-aos="zoom-in" className="w-full flex items-center gap-5 justify-between">
                     <p className="font-semibold text-2xl">Katalog</p>
 
                     <Button className={`${show === 'Produk' || show === 'Etalase' ? 'block' : 'hidden'} bg-orange-100 rounded-full text-orange-500`}>Impor Produk</Button>
                 </div>
 
-                <div className="mt-10 relative">
+                <div data-aos="zoom-in" data-aos-delay="100" className="mt-10 relative">
                     {/* Ikon Pencarian */}
                     <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500">
                         <Search />
@@ -232,7 +238,7 @@ const Catalog = () => {
                     </div>
                 </div>
 
-                <div className="mt-5 flex items-center gap-5 justify-between">
+                <div data-aos="zoom-in" data-aos-delay="200" className="mt-5 flex items-center gap-5 justify-between">
                     <Button onClick={() => setShow('Produk')} className={`${show === 'Produk' ? 'bg-orange-100' : 'bg-transparent'} transition-all text-orange-500 rounded-full w-full`}>Produk</Button>
 
                     <Button onClick={() => setShow('Varian')} className={`${show === 'Varian' ? 'bg-orange-100' : 'bg-transparent'} transition-all text-orange-500 rounded-full w-full`}>Varian</Button>

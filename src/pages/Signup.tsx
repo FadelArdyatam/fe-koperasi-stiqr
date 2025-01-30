@@ -20,6 +20,8 @@ import TermsandCondition from "@/components/TermsandCondition"
 import PinInput from "@/components/PinInput"
 import axiosInstance from "@/hooks/axiosInstance"
 import Notification from "@/components/Notification"
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Signup = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(true)
@@ -31,6 +33,14 @@ const Signup = () => {
     const [allData, setAllData] = useState<{ ownerName?: string } & (z.infer<typeof FormSchemaUser> | z.infer<typeof FormSchemaMerchant>)[]>([])
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false });
+    }, []);
+
+    useEffect(() => {
+        AOS.refresh();  // Refresh AOS setiap kali currentSection berubah
+    }, [currentSection]);
 
     useEffect(() => {
         const registerID = localStorage.getItem("registerID")
@@ -385,8 +395,8 @@ const Signup = () => {
         <div>
             {showTermsandConditions ? <TermsandCondition setShowTermsandConditions={setShowTermsandConditions} backToPageProfile={false} /> : (
                 <div>
-                    <div className={`${createPin ? 'hidden' : 'flex'} w-full flex-col p-10`}>
-                        <p className="uppercase text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : 'Kode Otp'}</p>
+                    <div key={currentSection} className={`${createPin ? 'hidden' : 'flex'} w-full flex-col p-10`}>
+                        <p data-aos="zoom-in" className="uppercase text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : 'Kode Otp'}</p>
 
                         <div className="mt-10 w-full flex items-center">
                             <div className={`${section[0] ? 'bg-orange-500' : 'bg-gray-500'} transition-all w-12 h-12 rounded-full flex items-center justify-center`}>
@@ -416,7 +426,7 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Pemilik" {...field} />
+                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Pemilik" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -428,7 +438,7 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="Nomor Induk Kewarganegaraan" {...field} />
+                                                        <Input data-aos="fade-up" data-aos-delay="100" className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="Nomor Induk Kewarganegaraan" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -445,6 +455,7 @@ const Signup = () => {
                                                             onValueChange={field.onChange}
                                                             defaultValue={field.value}
                                                             className="flex w-full space-x-7"
+                                                            data-aos="fade-up" data-aos-delay="200"
                                                         >
                                                             <FormItem className="flex items-center space-x-2 space-y-0">
                                                                 <FormControl>
@@ -476,6 +487,8 @@ const Signup = () => {
                                                 <FormItem className="w-full">
                                                     <FormControl>
                                                         <Input
+                                                            data-aos="fade-up"
+                                                            data-aos-delay="300"
                                                             className="w-full bg-[#F4F4F4] font-sans font-semibold"
                                                             type="date"
                                                             {...field}
@@ -492,7 +505,7 @@ const Signup = () => {
                                             name="email"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
-                                                    <div>
+                                                    <div data-aos="fade-up" data-aos-delay="400">
                                                         <FormControl>
                                                             <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Email" {...field} />
                                                         </FormControl>
@@ -510,7 +523,7 @@ const Signup = () => {
                                             name="phoneNumber"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
-                                                    <div>
+                                                    <div data-aos="fade-up" data-aos-delay="500">
                                                         <FormControl>
                                                             <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp" {...field} />
                                                         </FormControl>
@@ -527,7 +540,7 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <>
+                                                        <div data-aos="fade-up" data-aos-delay="600">
                                                             <p className="font-bold">
                                                                 Photo Profile
                                                             </p>
@@ -559,7 +572,7 @@ const Signup = () => {
                                                                 }}
                                                                 value=""
                                                             />
-                                                        </>
+                                                        </div>
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -572,7 +585,7 @@ const Signup = () => {
                                             name='password'
                                             render={({ field }) => (
                                                 <FormItem className='w-full'>
-                                                    <div className='flex items-center relative'>
+                                                    <div data-aos="fade-up" className='flex items-center relative'>
                                                         <FormControl>
                                                             <Input
                                                                 className='w-full font-sans font-semibold p-3 border bg-[#F4F4F4] border-gray-300 rounded-md'
@@ -595,7 +608,7 @@ const Signup = () => {
                                             name='confirmPassword'
                                             render={({ field }) => (
                                                 <FormItem className='w-full'>
-                                                    <div className='flex items-center relative'>
+                                                    <div data-aos="fade-up" className='flex items-center relative'>
                                                         <FormControl>
                                                             <Input
                                                                 className='w-full font-sans font-semibold p-3 border bg-[#F4F4F4] border-gray-300 rounded-md'
@@ -614,7 +627,7 @@ const Signup = () => {
                                         />
                                     </div>
 
-                                    <Button className={`${currentSection === 0 ? 'block' : 'hidden'} w-full md:w-max mt-10 font-sans font-semibold bg-[#7ED321] rounded-lg`}>NEXT</Button>
+                                    <Button data-aos="fade-up" className={`${currentSection === 0 ? 'block' : 'hidden'} w-full md:w-max mt-10 font-sans font-semibold bg-[#7ED321] rounded-lg`}>NEXT</Button>
                                 </form>
                             </Form>
 
@@ -629,7 +642,7 @@ const Signup = () => {
                                                     <FormControl>
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                                <div data-aos="fade-up" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                                     <button className="">
                                                                         {field.value || "Select Type of Business"} {/* Display selected value */}
                                                                     </button>
@@ -659,7 +672,7 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Merchant" {...field} />
+                                                        <Input data-aos="fade-up" data-aos-delay="100" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Merchant" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -674,7 +687,7 @@ const Signup = () => {
                                                     <FormControl>
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                                <div data-aos="fade-up" data-aos-delay="200" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                                     <button>
                                                                         {field.value || "Select Province"}
                                                                     </button>
@@ -719,6 +732,7 @@ const Signup = () => {
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <div
+                                                                    data-aos="fade-up" data-aos-delay="300"
                                                                     className={`p-3 font-sans font-semibold flex items-center w-full justify-between ${selectedProvince ? "bg-[#F4F4F4] cursor-pointer" : "bg-gray-200 cursor-not-allowed"
                                                                         }`}
                                                                 >
@@ -772,6 +786,7 @@ const Signup = () => {
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <div
+                                                                    data-aos="fade-up" data-aos-delay="400"
                                                                     className={`p-3 font-sans font-semibold flex items-center w-full justify-between ${selectedRegency ? "bg-[#F4F4F4] cursor-pointer" : "bg-gray-200 cursor-not-allowed"
                                                                         }`}
                                                                 >
@@ -822,6 +837,7 @@ const Signup = () => {
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <div
+                                                                    data-aos="fade-up" data-aos-delay="500"
                                                                     className={`p-3 font-sans font-semibold flex items-center w-full justify-between ${selectedDistrict ? "bg-[#F4F4F4] cursor-pointer" : "bg-gray-200 cursor-not-allowed"
                                                                         }`}
                                                                 >
@@ -871,7 +887,7 @@ const Signup = () => {
                                                     <FormControl>
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <div className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                                <div data-aos="fade-up" data-aos-delay="600" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                                     <button className="">
                                                                         {field.value || "Select Category"} {/* Display selected value */}
                                                                     </button>
@@ -908,6 +924,7 @@ const Signup = () => {
                                                 <FormItem className="w-full">
                                                     <FormControl>
                                                         <Input
+                                                            data-aos="fade-up"
                                                             className="w-full bg-[#F4F4F4] font-sans font-semibold"
                                                             type="number"
                                                             placeholder="Postal Code"
@@ -931,7 +948,7 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Merchant Address" {...field} />
+                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Merchant Address" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -944,7 +961,7 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp Merchant" {...field} />
+                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp Merchant" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -957,14 +974,14 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Email Merchant" {...field} />
+                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Email Merchant" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-5">
+                                    <div data-aos="fade-up" className="grid grid-cols-2 gap-5">
                                         <Button type="button" onClick={() => { setCurrentSection(0) }} className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>BACK</Button>
                                         <Button type="submit" className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>SUBMIT</Button>
                                     </div>

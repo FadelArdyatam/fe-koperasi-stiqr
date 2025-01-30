@@ -8,6 +8,8 @@ import { Link } from "react-router-dom"
 import takeAway from "../../images/take-away.png"
 import dineIn from "../../images/dine-in.png"
 import OrderSummary from "./OrderSummary"
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Casheer = () => {
     const [searchTerm, setSearchTerm] = useState('')
@@ -21,6 +23,10 @@ const Casheer = () => {
     const [basket, setBasket] = useState<any[]>([]);
     const [showService, setShowService] = useState<{ show: boolean, service: string | null }>({ show: false, service: null });
     const serviceRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false });
+    }, []);
 
     const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
@@ -189,13 +195,13 @@ const Casheer = () => {
                         <div className="flex items-center gap-5">
                             <Link to={"/dashboard"}><ArrowLeft /></Link>
 
-                            <p className="font-semibold text-2xl">Kasir</p>
+                            <p data-aos="zoom-in" className="font-semibold text-2xl">Kasir</p>
                         </div>
 
-                        <Link to={"/qr-code"} className={`bg-orange-100 rounded-full text-orange-500 p-2`}>+ Input Manual</Link>
+                        <Link data-aos="zoom-in" data-aos-delay="100" to={"/qr-code"} className={`bg-orange-100 rounded-full text-orange-500 p-2`}>+ Input Manual</Link>
                     </div>
 
-                    <div className="mt-10 relative">
+                    <div data-aos="zoom-in" data-aos-delay="200" className="mt-10 relative">
                         {/* Ikon Pencarian */}
                         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500">
                             <Search />
@@ -215,7 +221,7 @@ const Casheer = () => {
                         </div>
                     </div>
 
-                    <div className="mt-5 flex items-center gap-5 justify-between overflow-x-auto scrollbar-hide">
+                    <div data-aos="zoom-in" data-aos-delay="300" className="mt-5 flex items-center gap-5 overflow-x-auto scrollbar-hide">
                         {etalases.map((etalase, index) => (
                             <Button
                                 onClick={() => showProductByEtalaseHandler(etalase.showcase_id)}
@@ -229,8 +235,10 @@ const Casheer = () => {
                 </div>
 
                 <div className="w-[90%] mt-5 flex flex-col items-center gap-5">
-                    {products.length === 0 ? <Link to={"/catalog"} className="w-full bg-orange-500 rounded-lg text-center p-2 font-semibold text-white">Tambah Produk</Link> : products.map((product, index) => (
+                    {products.length === 0 ? <Link data-aos="fade-up" data-aos-delay="400" to={"/catalog"} className="w-full bg-orange-500 rounded-lg text-center p-2 font-semibold text-white">Tambah Produk</Link> : products.map((product, index) => (
                         <div
+                            data-aos="fade-up"
+                            data-aos-delay={index * 100}
                             key={index}
                             className="flex items-center gap-5 w-full p-5 bg-white rounded-lg justify-between"
                         >

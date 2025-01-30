@@ -18,9 +18,10 @@ import axiosInstance from "@/hooks/axiosInstance";
 import { AlertDialogHeader, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@radix-ui/react-alert-dialog";
 import Notification from "@/components/Notification";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const payments = [visa, masterCard, gopay, ovo, dana, linkAja];
-
 
 interface QRCodePageProps {
     type: string;
@@ -48,6 +49,10 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
     const [orderIdInstant, setOrderIdInstant] = useState<string | null>(null)
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false });
+    }, []);
 
     useEffect(() => {
         if (orderId || orderIdInstant) {
@@ -292,7 +297,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                         <AlertDialogContent
                             className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm"
                         >
-                            <div className="bg-white p-5 rounded-lg shadow-lg w-[90%]">
+                            <div data-aos="zoom-in" className="bg-white p-5 rounded-lg shadow-lg w-[90%]">
                                 <AlertDialogHeader>
                                     <AlertDialogTitle className="font-semibold text-lg">
                                         <CircleAlert />
@@ -329,16 +334,16 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                 </div>
 
                 <div className="mt-20 font-medium text-center">
-                    <p className="text-white">Pindai QR ini melalui Aplikasi Penerbit kamu.</p>
+                    <p className="text-white" data-aos="fade-up">Pindai QR ini melalui Aplikasi Penerbit kamu.</p>
 
-                    <p className="text-white font-semibold text-2xl">{formatTime(timeLeftOpenBill ?? timeLeft)}</p> {/* Countdown Timer */}
+                    <p className="text-white font-semibold text-2xl" data-aos="fade-up" data-aos-delay="100">{formatTime(timeLeftOpenBill ?? timeLeft)}</p> {/* Countdown Timer */}
 
                     <div className="mt-10 w-full p-5 bg-white shadow-lg rounded-t-lg">
-                        <img src={logo} className="w-10" alt="Logo Kedai Kopi" />
+                        <img src={logo} className="w-10" alt="Logo" data-aos="fade-up" data-aos-delay="150" />
 
-                        <p className="mt-5 text-xl font-semibold">{userData.merchant.name}</p>
+                        <p className="mt-5 text-xl font-semibold" data-aos="fade-up" data-aos-delay="200">{userData.merchant.name}</p>
 
-                        <div className="mt-10 w-full flex flex-col items-center p-5" ref={contentRef}>
+                        <div className="mt-10 w-full flex flex-col items-center p-5" data-aos="fade-up" data-aos-delay="250" ref={contentRef}>
                             {stringQR && <QRCode value={stringQR} size={200} />}
                             {stringQRInstant && <QRCode value={stringQRInstant} size={200} />}
                             <div className="mt-10">
@@ -385,7 +390,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                         <ChevronLeft className="scale-[1.3] text-white" />
                     </Link>
 
-                    <p className="font-semibold m-auto text-xl text-white text-center uppercase">
+                    <p data-aos="zoom-in" className="font-semibold m-auto text-xl text-white text-center uppercase">
                         QR Code
                     </p>
                 </div>
@@ -424,7 +429,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </Link>
                 </div>
 
-                <div className="mt-28 w-[90%] shadow-lg m-auto p-5 rounded-lg bg-white">
+                <div data-aos="fade-up" data-aos-delay="100" className="mt-28 w-[90%] shadow-lg m-auto p-5 rounded-lg bg-white">
                     <p className="text-gray-700 font-medium">Input Amount</p>
 
                     <div className="relative mt-5">
@@ -446,7 +451,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </div>
                 </div>
 
-                <Button onClick={showShareLinkGenerator} className="uppercase !mt-20 w-[90%] m-auto bg-green-400 block">
+                <Button onClick={showShareLinkGenerator} data-aos="fade-up" data-aos-delay="200" className="uppercase !mt-20 w-[90%] m-auto bg-green-400 block">
                     Buat
                 </Button>
             </div>

@@ -1,7 +1,9 @@
 import AddProduct from '@/components/AddProduct';
 import EditProduct from '@/components/EditProduct';
 import { Button } from '@/components/ui/button';
-import React from 'react';
+import React, { useEffect } from 'react';
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface Merchant {
     id: string;
@@ -86,6 +88,10 @@ interface ProductProps {
 }
 
 const Product: React.FC<ProductProps> = ({ products, setProducts, addProduct, setAddProduct, setOpen, open, etalases, setEtalases }) => {
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true });
+    }, []);
+
     // Menangani perubahan status untuk masing-masing produk
     const handleSwitchChange = (id: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.stopPropagation();
@@ -116,8 +122,10 @@ const Product: React.FC<ProductProps> = ({ products, setProducts, addProduct, se
         <div className='mb-32 px-5'>
             <div className={`${addProduct || open.status ? 'hidden' : 'block'}`}>
                 <div>
-                    {products?.map((product) => (
+                    {products?.map((product, index) => (
                         <div
+                            data-aos="fade-up"
+                            data-aos-delay={index * 100}
                             key={product.id}
                             className="flex w-full justify-between items-center p-4 gap-2 bg-white rounded-md shadow-sm mt-5"
                             onClick={() => handleOpen(product.product_id)}
