@@ -9,7 +9,6 @@ import {
     CookingPot,
     ReceiptText,
     Search,
-    SlidersHorizontal,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -190,11 +189,6 @@ const Booking = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-10 pr-12 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-orange-500"
                         />
-
-                        {/* Ikon Pengaturan */}
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-500">
-                            <SlidersHorizontal />
-                        </div>
                     </div>
                 </div>
 

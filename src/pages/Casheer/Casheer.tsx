@@ -22,6 +22,8 @@ const Casheer = () => {
     const [showDetailProduct, setShowDetailProduct] = useState(false);
     const [basket, setBasket] = useState<any[]>([]);
     const [showService, setShowService] = useState<{ show: boolean, service: string | null }>({ show: false, service: null });
+    const [showFilterSection, setShowFilterSection] = useState(false);
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'new' | 'highest' | 'lowest'>('asc');
     const serviceRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -140,6 +142,55 @@ const Casheer = () => {
         fetchVariants();
     }, [])
 
+    useEffect(() => {
+        const handleSortAll = () => {
+            const sortArray = (arr: any[], key: string) => {
+                return arr.sort((a, b) => {
+                    // Jika key adalah 'createdAt', urutkan berdasarkan tanggal
+                    if (key === 'created_at') {
+                        const dateA = new Date(a[key]);
+                        const dateB = new Date(b[key]);
+                        if (sortOrder === 'asc') {
+                            return dateA > dateB ? 1 : -1; // Urutkan berdasarkan tanggal lebih baru jika 'desc'
+                        } else {
+                            return dateA < dateB ? 1 : -1; // Urutkan berdasarkan tanggal lebih lama jika 'asc'
+                        }
+                    } else if (key === 'product_name') {
+                        // Pengurutan berdasarkan nama produk (A-Z atau Z-A)
+                        if (sortOrder === 'asc') {
+                            return a[key]?.toLowerCase() > b[key]?.toLowerCase() ? 1 : -1;
+                        } else {
+                            return a[key]?.toLowerCase() < b[key]?.toLowerCase() ? 1 : -1;
+                        }
+                    } else if (key === 'product_price') {
+                        // Pengurutan berdasarkan harga tertinggi
+                        if (sortOrder === 'highest') {
+                            return a[key] < b[key] ? 1 : -1;
+                        } else {
+                            return a[key] > b[key] ? 1 : -1;
+                        }
+                    }
+
+                    return 0; // Default return value
+                });
+            };
+
+            if (sortOrder === 'new') {
+                setProducts((prev) => [...sortArray(prev, 'created_at')]); // Sort berdasarkan tanggal terbaru
+            } else if (sortOrder === 'asc') {
+                setProducts((prev) => [...sortArray(prev, 'product_name')]); // Sort berdasarkan nama produk A-Z
+            } else if (sortOrder === 'desc') {
+                setProducts((prev) => [...sortArray(prev, 'product_name')]); // Sort berdasarkan nama produk Z-A
+            } else if (sortOrder === 'highest') {
+                setProducts((prev) => [...sortArray(prev, 'product_price')]); // Sort berdasarkan harga tertinggi
+            } else if (sortOrder === 'lowest') {
+                setProducts((prev) => [...sortArray(prev, 'product_price')]); // Sort berdasarkan harga terendah
+            }
+        };
+
+        handleSortAll();
+    }, [sortOrder]);
+
     // Show Product By Etalase Handler
     const showProductByEtalaseHandler = async (showcaseId: any) => {
         try {
@@ -175,6 +226,8 @@ const Casheer = () => {
     }, [showService.show]);
     // 
 
+    console.log(error)
+
     if (loading) {
         return <div>Loading...</div>
     }
@@ -183,7 +236,15 @@ const Casheer = () => {
         setShowDetailProduct(true);
         setSelectedProduct(products[index]);
     }
-    console.log(error)
+
+    // Validasi sebelum memanggil filter
+    const filteredProducts = Array.isArray(products)
+        ? products.filter(product =>
+            product?.product_name?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        : [];
+
+    console.log("Filtered Products:", filteredProducts);
 
     console.log("Basket:", basket);
 
@@ -216,7 +277,7 @@ const Casheer = () => {
                         />
 
                         {/* Ikon Pengaturan */}
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-500">
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-500" onClick={() => setShowFilterSection(true)}>
                             <SlidersHorizontal />
                         </div>
                     </div>
@@ -233,6 +294,90 @@ const Casheer = () => {
                         ))}
                     </div>
                 </div>
+
+                {/* Filter Section */}
+                {showFilterSection && (
+                    <div className="fixed w-full h-full bg-black bg-opacity-50 top-0 left-0 z-20 flex items-end">
+                        <div data-aos="fade-up" className="w-full bg-white rounded-t-xl p-5">
+                            <p className="font-semibold text-2xl">Urutkan Berdasarkan</p>
+
+                            <div className="mt-5 flex flex-col gap-3">
+                                {/* Produk Terbaru */}
+                                <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="new"
+                                        checked={sortOrder === 'new'}
+                                        onChange={() => setSortOrder('new')}
+                                        className="w-5 h-5 text-orange-500 focus:ring-orange-500"
+                                    />
+                                    <span className="text-orange-500 font-medium">Produk Terbaru</span>
+                                </label>
+
+                                {/* Abjad A-Z */}
+                                <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="asc"
+                                        checked={sortOrder === 'asc'}
+                                        onChange={() => setSortOrder('asc')}
+                                        className="w-5 h-5 text-orange-500 focus:ring-orange-500"
+                                    />
+                                    <span className="text-orange-500 font-medium">Abjad A-Z</span>
+                                </label>
+
+                                {/* Abjad Z-A */}
+                                <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="desc"
+                                        checked={sortOrder === 'desc'}
+                                        onChange={() => setSortOrder('desc')}
+                                        className="w-5 h-5 text-orange-500 focus:ring-orange-500"
+                                    />
+                                    <span className="text-orange-500 font-medium">Abjad Z-A</span>
+                                </label>
+
+                                {/* Highest Price */}
+                                <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="highest"
+                                        checked={sortOrder === 'highest'}
+                                        onChange={() => setSortOrder('highest')}
+                                        className="w-5 h-5 text-orange-500 focus:ring-orange-500"
+                                    />
+                                    <span className="text-orange-500 font-medium">Harga Tertinggi</span>
+                                </label>
+
+                                {/* Lowest Price */}
+                                <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="lowest"
+                                        checked={sortOrder === 'lowest'}
+                                        onChange={() => setSortOrder('lowest')}
+                                        className="w-5 h-5 text-orange-500 focus:ring-orange-500"
+                                    />
+                                    <span className="text-orange-500 font-medium">Harga Terendah</span>
+                                </label>
+                            </div>
+
+                            {/* Tombol Tutup */}
+                            <Button
+                                onClick={() => setShowFilterSection(false)}
+                                className="mt-5 w-full h-12 bg-orange-500 text-white rounded-xl"
+                            >
+                                Tampilkan
+                            </Button>
+                        </div>
+                    </div>
+                )}
 
                 <div className="w-[90%] mt-5 flex flex-col items-center gap-5">
                     {products.length === 0 ? <Link data-aos="fade-up" data-aos-delay="400" to={"/catalog"} className="w-full bg-orange-500 rounded-lg text-center p-2 font-semibold text-white">Tambah Produk</Link> : products.map((product, index) => (

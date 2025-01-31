@@ -1,7 +1,10 @@
+import Notification from "@/components/Notification";
 import { Button } from "@/components/ui/button";
+import axiosInstance from "@/hooks/axiosInstance";
 import { formatRupiah } from "@/hooks/convertRupiah";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface PaymentMethodProps {
     dataPayment: any;
@@ -13,6 +16,11 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
     const [paymentAmount, setPaymentAmount] = useState<string>(""); // Nominal pembayaran
     const [errorMessage, setErrorMessage] = useState(""); // Pesan error
     const [change, setChange] = useState(0); // Kembalian
+    const [showNotification, setShowNotification] = useState(false); // Tampilkan notifikasi
+
+    const navigate = useNavigate();
+
+    console.log("dataPayment", dataPayment);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/\D/g, ""); // Hanya angka
@@ -30,6 +38,28 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
             setErrorMessage(amount > 0 ? "Nominal pembayaran tidak boleh kurang dari total tagihan." : "");
         }
     };
+
+    const paymentHandler = async () => {
+        if (change < 0) {
+            setErrorMessage("Nominal pembayaran tidak boleh kurang dari total tagihan.");
+            return;
+        }
+
+        try {
+            const response = await axiosInstance.post("/sales/other-payment", {
+                sales_id: dataPayment.sales_id,
+                paymentType: selectedMethod,
+            });
+
+            console.log("Response other payment:", response);
+
+            setShowNotification(true);
+
+        } catch (error) {
+            console.error("Error:", error);
+        }
+        // Proses pembayaran
+    }
 
     return (
         <div className="flex w-full flex-col min-h-screen items-center bg-orange-50">
@@ -91,14 +121,15 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
                 </div>
 
                 <Button
-                    onClick={() => {
-                        /* Proses pembayaran tetap bisa dilakukan jika diperlukan */
-                    }}
+                    onClick={paymentHandler}
                     className="bg-orange-500 w-full text-white px-5 py-2 rounded-md hover:bg-orange-600"
                 >
                     Proses Pembayaran
                 </Button>
             </div>
+
+            {/* Notifikasi */}
+            {showNotification && <Notification message="Pembayaran Berhasil" onClose={() => { setShowNotification(false); navigate("/dashboard") }} status="success" />}
         </div>
     );
 };

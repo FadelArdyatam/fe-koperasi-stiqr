@@ -95,10 +95,15 @@ interface Variant {
     showVariant: boolean;
 }
 
+const options = ["Semua", "Aktif", "Non-aktif"];
 
 const Catalog = () => {
     const [show, setShow] = useState('Produk');
     const [products, setProducts] = useState<Product[]>([]);
+    // Untuk keperluan Filter
+    const [originalProducts, setOriginalProducts] = useState<Product[]>([]); // Semua data asli
+    const [allProducts, setAllProducts] = useState<Product[]>([]); // Menyimpan semua produk asli
+    // 
     const [variants, setVariants] = useState<Variant[]>([]);
     const [etalases, setEtalases] = useState<Etalase[]>([]);
     const [addProduct, setAddProduct] = useState(false);
@@ -114,7 +119,8 @@ const Catalog = () => {
 
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+    const [showFilterSection, setShowFilterSection] = useState(false);
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'new' | 'highest' | 'lowest' | 'Semua' | 'Aktif' | 'Non-aktif'>('asc');
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
@@ -126,6 +132,8 @@ const Catalog = () => {
                 const response = await axiosInstance.get(`/product/${userData?.merchant?.id}`);
                 if (Array.isArray(response.data)) {
                     setProducts(response.data);
+                    setAllProducts(response.data); // Simpan data awal
+                    setOriginalProducts(response.data); // Simpan data awal
                 } else {
                     console.error("Invalid response format for products:", response.data);
                 }
@@ -170,22 +178,77 @@ const Catalog = () => {
         fetchVariants();
     }, []);
 
-    const handleSortAll = () => {
-        const sortArray = (arr: any[], key: string) => {
-            return arr.sort((a, b) => {
-                if (sortOrder === 'asc') {
-                    return a[key]?.toLowerCase() > b[key]?.toLowerCase() ? 1 : -1;
-                } else {
-                    return a[key]?.toLowerCase() < b[key]?.toLowerCase() ? 1 : -1;
-                }
-            });
+    useEffect(() => {
+        const handleSortAll = () => {
+            const sortArray = (arr: any[], key: string) => {
+                return arr.sort((a, b) => {
+                    // Jika key adalah 'createdAt', urutkan berdasarkan tanggal
+                    if (key === 'created_at') {
+                        const dateA = new Date(a[key]);
+                        const dateB = new Date(b[key]);
+                        if (sortOrder === 'asc') {
+                            return dateA > dateB ? 1 : -1; // Urutkan berdasarkan tanggal lebih baru jika 'desc'
+                        } else {
+                            return dateA < dateB ? 1 : -1; // Urutkan berdasarkan tanggal lebih lama jika 'asc'
+                        }
+                    } else if (key === 'product_name' || key === 'variant_name' || key === 'showcase_name') {
+                        // Pengurutan berdasarkan nama produk (A-Z atau Z-A)
+                        if (sortOrder === 'asc') {
+                            return a[key]?.toLowerCase() > b[key]?.toLowerCase() ? 1 : -1;
+                        } else {
+                            return a[key]?.toLowerCase() < b[key]?.toLowerCase() ? 1 : -1;
+                        }
+                    } else if (key === 'product_price' || key === 'variant_price' || key === 'showcase_price') {
+                        // Pengurutan berdasarkan harga tertinggi
+                        if (sortOrder === 'highest') {
+                            return a[key] < b[key] ? 1 : -1;
+                        } else {
+                            return a[key] > b[key] ? 1 : -1;
+                        }
+                    } else if (key === 'product_status') {
+                        // Pengurutan berdasarkan status produk (Aktif atau Non-aktif)
+                        if (sortOrder === 'Aktif') {
+                            return a[key] ? 1 : -1;
+                        } else if (sortOrder === 'Non-aktif') {
+                            return !a[key] ? 1 : -1;
+                        }
+                    }
+
+                    return 0; // Default return value
+                });
+            };
+
+            if (sortOrder === 'new') {
+                setProducts((prev) => [...sortArray(prev, 'created_at')]); // Sort berdasarkan tanggal terbaru
+                setVariants((prev) => [...sortArray(prev, 'created_at')]); // Sort berdasarkan tanggal terbaru
+                setEtalases((prev) => [...sortArray(prev, 'created_at')]); // Sort berdasarkan tanggal terbaru
+            } else if (sortOrder === 'asc') {
+                setProducts((prev) => [...sortArray(prev, 'product_name')]); // Sort berdasarkan nama produk A-Z
+                setVariants((prev) => [...sortArray(prev, 'variant_name')]); // Sort berdasarkan nama varian A-Z
+                setEtalases((prev) => [...sortArray(prev, 'showcase_name')]); // Sort berdasarkan nama etalase A-Z
+            } else if (sortOrder === 'desc') {
+                setProducts((prev) => [...sortArray(prev, 'product_name')]); // Sort berdasarkan nama produk Z-A
+                setVariants((prev) => [...sortArray(prev, 'variant_name')]); // Sort berdasarkan nama varian Z-A
+                setEtalases((prev) => [...sortArray(prev, 'showcase_name')]); // Sort berdasarkan nama etalase Z-A
+            } else if (sortOrder === 'highest') {
+                setProducts((prev) => [...sortArray(prev, 'product_price')]); // Sort berdasarkan harga tertinggi
+                setVariants((prev) => [...sortArray(prev, 'variant_price')]); // Sort berdasarkan harga tertinggi
+                setEtalases((prev) => [...sortArray(prev, 'showcase_price')]); // Sort berdasarkan harga tertinggi
+            } else if (sortOrder === 'lowest') {
+                setProducts((prev) => [...sortArray(prev, 'product_price')]); // Sort berdasarkan harga terendah
+                setVariants((prev) => [...sortArray(prev, 'variant_price')]); // Sort berdasarkan harga terendah
+                setEtalases((prev) => [...sortArray(prev, 'showcase_price')]); // Sort berdasarkan harga terendah
+            } else if (sortOrder === 'Semua') {
+                setProducts([...originalProducts]); // Kembalikan ke semua data
+            } else if (sortOrder === 'Aktif') {
+                setProducts(allProducts.filter(product => product.product_status)); // Tampilkan produk yang aktif
+            } else if (sortOrder === 'Non-aktif') {
+                setProducts(allProducts.filter(product => !product.product_status)); // Tampilkan produk yang non-aktif
+            }
         };
 
-        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-        setProducts((prev) => [...sortArray(prev, 'product_name')]);
-        setVariants((prev) => [...sortArray(prev, 'variant_name')]);
-        setEtalases((prev) => [...sortArray(prev, 'showcase_name')]);
-    };
+        handleSortAll();
+    }, [sortOrder])
 
     // Validasi sebelum memanggil filter
     const filteredProducts = Array.isArray(products)
@@ -207,15 +270,15 @@ const Catalog = () => {
         : [];
 
     console.log(error)
+    console.log(products)
     console.log(variants)
+    console.log(etalases)
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center bg-orange-50">
             <div className={`${addProduct || addVariant || addEtalase || open.status ? 'hidden' : 'block'} p-5 w-full`}>
-                <div data-aos="zoom-in" className="w-full flex items-center gap-5 justify-between">
+                <div data-aos="zoom-in" className="w-full">
                     <p className="font-semibold text-2xl">Katalog</p>
-
-                    <Button className={`${show === 'Produk' || show === 'Etalase' ? 'block' : 'hidden'} bg-orange-100 rounded-full text-orange-500`}>Impor Produk</Button>
                 </div>
 
                 <div data-aos="zoom-in" data-aos-delay="100" className="mt-10 relative">
@@ -233,10 +296,113 @@ const Catalog = () => {
                     />
 
                     {/* Ikon Pengaturan */}
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-500" onClick={handleSortAll}>
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-500" onClick={() => setShowFilterSection(true)}>
                         <SlidersHorizontal />
                     </div>
                 </div>
+
+                {/* Filter Section */}
+                {showFilterSection && (
+                    <div className="fixed w-full h-full bg-black bg-opacity-50 top-0 left-0 z-20 flex items-end">
+                        <div data-aos="fade-up" className="w-full bg-white rounded-t-xl p-5">
+                            <p className="font-semibold text-2xl">Kondisi Produk</p>
+
+                            <div className="mt-5 flex flex-wrap gap-2">
+                                {options.map((option) => (
+                                    <button
+                                        key={option}
+                                        onClick={() => setSortOrder(option as 'Semua' | 'Aktif' | 'Non-aktif' | 'asc' | 'desc' | 'new' | 'highest' | 'lowest')}
+                                        className={`px-4 py-2 rounded-full border ${sortOrder === option
+                                            ? "bg-blue-100 text-blue-600 border-blue-500"
+                                            : "border-gray-300 text-gray-600 hover:bg-gray-100"
+                                            } transition`}
+                                    >
+                                        {option}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="my-5 w-full h-[1px] bg-gray-400"></div>
+
+                            <p className="font-semibold text-2xl">Urutkan Berdasarkan</p>
+
+                            <div className="mt-5 flex flex-col gap-3">
+                                {/* Produk Terbaru */}
+                                <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="new"
+                                        checked={sortOrder === 'new'}
+                                        onChange={() => setSortOrder('new')}
+                                        className="w-5 h-5 text-orange-500 focus:ring-orange-500"
+                                    />
+                                    <span className="text-orange-500 font-medium">Produk Terbaru</span>
+                                </label>
+
+                                {/* Abjad A-Z */}
+                                <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="asc"
+                                        checked={sortOrder === 'asc'}
+                                        onChange={() => setSortOrder('asc')}
+                                        className="w-5 h-5 text-orange-500 focus:ring-orange-500"
+                                    />
+                                    <span className="text-orange-500 font-medium">Abjad A-Z</span>
+                                </label>
+
+                                {/* Abjad Z-A */}
+                                <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="desc"
+                                        checked={sortOrder === 'desc'}
+                                        onChange={() => setSortOrder('desc')}
+                                        className="w-5 h-5 text-orange-500 focus:ring-orange-500"
+                                    />
+                                    <span className="text-orange-500 font-medium">Abjad Z-A</span>
+                                </label>
+
+                                {/* Highest Price */}
+                                <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="highest"
+                                        checked={sortOrder === 'highest'}
+                                        onChange={() => setSortOrder('highest')}
+                                        className="w-5 h-5 text-orange-500 focus:ring-orange-500"
+                                    />
+                                    <span className="text-orange-500 font-medium">Harga Tertinggi</span>
+                                </label>
+
+                                {/* Lowest Price */}
+                                <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="lowest"
+                                        checked={sortOrder === 'lowest'}
+                                        onChange={() => setSortOrder('lowest')}
+                                        className="w-5 h-5 text-orange-500 focus:ring-orange-500"
+                                    />
+                                    <span className="text-orange-500 font-medium">Harga Terendah</span>
+                                </label>
+                            </div>
+
+                            {/* Tombol Tutup */}
+                            <Button
+                                onClick={() => setShowFilterSection(false)}
+                                className="mt-5 w-full h-12 bg-orange-500 text-white rounded-xl"
+                            >
+                                Tampilkan
+                            </Button>
+                        </div>
+                    </div>
+                )}
 
                 <div data-aos="zoom-in" data-aos-delay="200" className="mt-5 flex items-center gap-5 justify-between">
                     <Button onClick={() => setShow('Produk')} className={`${show === 'Produk' ? 'bg-orange-100' : 'bg-transparent'} transition-all text-orange-500 rounded-full w-full`}>Produk</Button>

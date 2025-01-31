@@ -14,7 +14,7 @@ interface OrderProcessedProps {
     orderId?: string | null;
     tagih?: boolean;
     setTagih?: React.Dispatch<React.SetStateAction<boolean>>;
-
+    sales_id?: string
 }
 interface SalesDetail {
     product: {
@@ -30,7 +30,7 @@ interface ProductItem {
     quantity: number;
 }
 
-const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderProcess, type, orderId, tagih, setTagih }) => {
+const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderProcess, type, orderId, tagih, setTagih, sales_id }) => {
     const [showQRCode, setShowQRCode] = useState(false);
     // const [orderId, setOrderId] = useState<string>(null);
     const [stringQR, setStringQR] = useState<string | null>(null);
@@ -122,6 +122,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
         }
     }
 
+    console.log("Basket:", basket);
 
     return (
         <>
@@ -274,7 +275,10 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                     stringQR={stringQR}
                     showQRCode={showQRCode}
                     timeLeftOpenBill={timeLeft}
-                    setShowQRCode={setShowQRCode} />}
+                    setShowQRCode={setShowQRCode}
+                    dataAmount={calculateTotalAmount()}
+                    sales_id={basket.sales_id !== undefined ? basket.sales_id : sales_id}
+                />}
         </>
     )
 }

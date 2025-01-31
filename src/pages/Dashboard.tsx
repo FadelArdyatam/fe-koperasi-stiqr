@@ -69,7 +69,7 @@ type TokenPayload = {
     [key: string]: any; // Other possible fields
 };
 
-interface IHistory {
+interface History {
     image: string;
     transaction_date: string;
     title: string;
@@ -108,9 +108,33 @@ const Dashboard = () => {
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [showCalendar, setShowCalendar] = useState(false);
 
+    const [histories, setHistories] = useState<History[]>([]);
+    const [filteredHistories, setFilteredHistories] = useState<History[]>([]);
+
     useEffect(() => {
         AOS.init({ duration: 500, once: false });
     }, []);
+
+    useEffect(() => {
+        if (startDate && endDate) {
+            const filtered = histories.filter((history) => {
+                const transactionDate = new Date(history.transaction_date).getTime();
+                const start = new Date(startDate).setHours(0, 0, 0, 0);
+                const end = new Date(endDate).setHours(23, 59, 59, 999);
+
+                return transactionDate >= start && transactionDate <= end;
+            });
+            setFilteredHistories(filtered);
+        } else {
+            setFilteredHistories(histories);
+        }
+    }, [startDate, endDate, histories]);
+
+    const onChange = (dates: [any, any]) => {
+        const [start, end] = dates;
+        setStartDate(start);
+        setEndDate(end);
+    };
 
     // const toggleDropdown = () => {
     //     setIsDropdownOpen((prev) => !prev); 
@@ -181,8 +205,6 @@ const Dashboard = () => {
         getMoney();
     }, [navigate]);
 
-
-    const [histories, setHistories] = useState<IHistory[]>([]);
     useEffect(() => {
         // Ambil informasi user dari sessionStorage
         const userItem = sessionStorage.getItem("user");
@@ -202,12 +224,6 @@ const Dashboard = () => {
         }
         getTransaction()
     }, []);
-
-    const onChange = (dates: [any, any]) => {
-        const [start, end] = dates;
-        setStartDate(start);
-        setEndDate(end);
-    };
 
     return (
         <div className="w-full">
@@ -393,7 +409,7 @@ const Dashboard = () => {
                 <div className="flex flex-col items-center gap-5 justify-between">
                     <Button
                         onClick={() => setShowCalendar(!showCalendar)}
-                        className="text-sm bg-gray-200 border border-gray-400 text-gray-700 rounded-lg px-3 py-2"
+                        className="text-sm bg-gray-200 border w-full border-gray-400 text-gray-700 rounded-lg px-3 py-2"
                     >
                         {startDate && endDate
                             ? `${startDate.toLocaleDateString("id-ID", {
@@ -431,63 +447,128 @@ const Dashboard = () => {
                 )}
 
                 <div className="mt-10 flex flex-col gap-5">
-                    {
-                        histories.length === 0 && (
-                            <div className="w-full mb-10 flex flex-col items-center justify-center text-center text-gray-500 gap-10">
-                                <img src={imgNoTransaction} className="md:w-5/12 w-6/12" />
-                                <p className="text-center text-orange-400 font-bold text-lg">
-                                    Belum ada transaksi hari ini
-                                </p>
-                            </div>
-                        )
-                    }
+                    {histories.length === 0 ? (
+                        <div className="flex flex-col items-center gap-5">
+                            <img className="p-5" src={imgNoTransaction} alt="No transactions" />
+                            <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
+                        </div>
+                    ) : (
+                        <div className="mt-5">
+                            {filteredHistories.length > 0 ? (
+                                // Jika ada transaksi dalam rentang yang difilter
+                                filteredHistories.map((history, index) => (
+                                    <div key={index}>
+                                        <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
 
-                    {histories.map((history, index) => (
-                        <div key={index}>
-                            <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] mb-5 bg-gray-300 rounded-full`}></div>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-start gap-2">
+                                                <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
 
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-start gap-2">
-                                    <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
 
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <p className="uppercase text-sm">{history.sales_id == null ? 'QRCode' : 'Penjualan'} | {history.payment_method}</p>
+                                                        <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                            <p>{history.transaction_status} </p>
+                                                        </div>
+                                                    </div>
 
-                                            <div className={`${history.transaction_status === 'success' ? 'bg-green-400' : history.transaction_status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
-                                                <p>{history.transaction_status} </p>
+                                                    <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col items-end">
+                                                <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
+
+                                                <div className="flex items-center">
+                                                    <p className="text-xs">
+                                                        {new Date(history.transaction_date).toLocaleDateString("id-ID", {
+                                                            day: "2-digit",
+                                                            month: "long",
+                                                            year: "numeric",
+                                                        })}
+                                                    </p>
+
+                                                    <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                                    <p className="text-xs">
+                                                        {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                        })}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
-
-                                        <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                     </div>
-                                </div>
-
-                                <div className="flex flex-col items-end">
-                                    <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
-
-                                    <div className="flex items-center">
-                                        <p className="text-xs">
-                                            {new Date(history.transaction_date).toLocaleDateString('id-ID', {
-                                                day: '2-digit',
-                                                month: 'long',
-                                                year: 'numeric',
-                                            })}
-                                        </p>
-
-                                        <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-
-                                        <p className="text-xs">
-                                            {new Date(history.transaction_date).toLocaleTimeString('id-ID', {
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                            })}
-                                        </p>
+                                ))
+                            ) : (
+                                // Jika tidak ada transaksi dalam rentang filter
+                                startDate && endDate ? (
+                                    <div className="flex flex-col items-center gap-5 text-center">
+                                        <img className="p-5" src={imgNoTransaction} alt="No transactions" />
+                                        <p className="font-semibold text-lg text-orange-500">Tidak ada transaksi dalam rentang waktu ini</p>
                                     </div>
-                                </div>
-                            </div>
+                                ) : (
+                                    // Jika tidak ada filter aktif, tampilkan semua transaksi
+                                    histories.length > 0 ? (
+                                        histories.map((history, index) => (
+                                            <div key={index}>
+                                                <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
+
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-start gap-2">
+                                                        <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
+
+                                                        <div>
+                                                            <div className="flex items-center gap-2">
+                                                                <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
+
+                                                                <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                                    <p>{history.transaction_status} </p>
+                                                                </div>
+                                                            </div>
+
+                                                            <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex flex-col items-end">
+                                                        <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
+
+                                                        <div className="flex items-center">
+                                                            <p className="text-xs">
+                                                                {new Date(history.transaction_date).toLocaleDateString("id-ID", {
+                                                                    day: "2-digit",
+                                                                    month: "long",
+                                                                    year: "numeric",
+                                                                })}
+                                                            </p>
+
+                                                            <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                                            <p className="text-xs">
+                                                                {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
+                                                                    hour: "2-digit",
+                                                                    minute: "2-digit",
+                                                                })}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        // Jika tidak ada transaksi sama sekali
+                                        <div className="flex flex-col items-center gap-5">
+                                            <img className="p-5" src={imgNoTransaction} alt="No transactions" />
+                                            <p className="font-semibold text-lg text-orange-500">Belum ada transaksi</p>
+                                        </div>
+                                    )
+                                )
+                            )}
                         </div>
-                    ))}
+                    )}
                 </div>
             </div>
         </div>

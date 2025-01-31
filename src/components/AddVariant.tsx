@@ -14,6 +14,7 @@ import { Button } from "./ui/button";
 import { ChevronLeft, CircleCheck } from "lucide-react";
 import { useState } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
+import Notification from "./Notification";
 
 interface Choice {
     name: string;
@@ -78,6 +79,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
     const [showChoice, setShowChoice] = useState(false);
     const [displayChoises, setDisplayChoises] = useState<Choice[]>([]);
     const [showNotification, setShowNotification] = useState(false);
+    const [showError, setShowError] = useState(false);
 
     const FormSchema = z.object({
         name: z.string().nonempty("Nama varian wajib diisi"),
@@ -145,6 +147,11 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
 
     const addNewChoice = () => {
         if (newChoiceName && newChoicePrice) {
+            if (newChoicePrice < 0) {
+                setShowError(true);
+                return;
+            }
+
             const newChoice = {
                 name: newChoiceName,
                 price: Number(newChoicePrice),
@@ -260,6 +267,8 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                                             value={newChoicePrice}
                                             onChange={(e) => setNewChoicePrice(Number(e.target.value))}
                                         />
+
+                                        {showError && <p className="text-red-500 text-sm">Harga harus positif</p>}
                                     </div>
 
                                     <div className="mt-5">
@@ -296,6 +305,9 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                                 </div>
                             </div>
                         )}
+
+                        {/* Notification */}
+                        {showError && <Notification message="Harga harus positif" onClose={() => setShowError(false)} status={"error"} />}
 
                         {/* Popup untuk Edit Harga dan Nama */}
                         {showEditChoisesInput.status && (

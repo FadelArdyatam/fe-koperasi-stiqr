@@ -20,6 +20,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
     const [mergedBasket, setMergedBasket] = useState<any[]>([]);
     const [showOrderProcess, setShowOrderProcess] = useState(false);
     const [noMeja, setNoMeja] = useState("");
+    const [responseSalesCreate, setResponseSalesCreate] = useState<any>(null);
 
     console.log("Total Quantity: ", mergedBasket.reduce((acc, curr) => acc + curr.quantity, 0))
     console.log("Total Price: ", mergedBasket.reduce((acc, curr) => acc + curr.price * curr.quantity, 0))
@@ -70,9 +71,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 .filter((item) => item.quantity > 0)
         );
     };
-    const [orderId,setOrderId] = useState<string|null>(null)
-    const [tagih,setTagih] = useState<boolean>(false)
-    const openBillHandler = async (status:any) => {
+    const [orderId, setOrderId] = useState<string | null>(null)
+    const [tagih, setTagih] = useState<boolean>(false)
+    const openBillHandler = async (status: any) => {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
         try {
@@ -104,12 +105,16 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 salesDetails: modifyBasket,
                 orderId: generateOrderId,
             };
-            await axiosInstance.post('/sales/create', requestBody);
-            if(status == 'tagih') {
+            const response = await axiosInstance.post('/sales/create', requestBody);
+            if (status == 'tagih') {
                 setTagih(true)
-            } 
+            }
             setShowOrderProcess(true);
             bookingDatas.push(mergedBasket);
+
+            console.log("Response create order:", response);
+
+            setResponseSalesCreate(response.data.data.sales_id);
 
         } catch (error: any) {
             console.error('Error creating order:', error);
@@ -230,14 +235,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     <div className="w-full mt-10 flex items-center gap-5 justify-between">
                         <Button onClick={() => setBasket([])} className="rounded-full w-14 h-14 min-w-14 min-h-14 bg-orange-100 text-orange-400 font-semibold"><Trash2 className="scale-[1.5]" /></Button>
 
-                        <Button onClick={()=> openBillHandler('open')} className={`${showService.service === "Take Away" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
+                        <Button onClick={() => openBillHandler('open')} className={`${showService.service === "Take Away" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
 
-                        <Button onClick={()=> openBillHandler('tagih')}  className="bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold">Tagih</Button>
+                        <Button onClick={() => openBillHandler('tagih')} className="bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold">Tagih</Button>
                     </div>
                 </div>
             </div>
 
-            {showOrderProcess && <OrderProcessed setShowOrderProcess={setShowOrderProcess} basket={mergedBasket} type="" orderId={orderId} tagih={tagih} setTagih={setTagih}/>}
+            {showOrderProcess && <OrderProcessed setShowOrderProcess={setShowOrderProcess} basket={mergedBasket} type="" sales_id={responseSalesCreate} orderId={orderId} tagih={tagih} setTagih={setTagih} />}
         </div>
     )
 }

@@ -20,6 +20,7 @@ import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, 
 import Notification from "@/components/Notification";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { formatRupiah } from "@/hooks/convertRupiah";
 
 const payments = [visa, masterCard, gopay, ovo, dana, linkAja];
 
@@ -30,9 +31,11 @@ interface QRCodePageProps {
     showQRCode?: boolean;
     setShowQRCode?: React.Dispatch<React.SetStateAction<boolean>>;
     timeLeftOpenBill?: number;
+    dataAmount?: any;
+    sales_id?: string;
 }
 
-const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQRCode, setShowQRCode, timeLeftOpenBill }) => {
+const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQRCode, setShowQRCode, timeLeftOpenBill, dataAmount, sales_id }) => {
     const contentRef = useRef<HTMLDivElement>(null);
     // const [showQRCode, setShowQRCode] = useState(false);
     const [amount, setAmount] = useState("");
@@ -56,6 +59,11 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
 
     useEffect(() => {
         if (orderId || orderIdInstant) {
+            setDataForPaymentMethod({
+                sales_id: sales_id,
+                amount: dataAmount,
+            })
+
             const socket = getSocket();
             const handlePaymentSuccess = (data: { orderId: string; status: string; amount?: number }) => {
                 if ((orderId === data.orderId || orderIdInstant === data.orderId) && data.status === 'PAID') {
@@ -163,6 +171,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
     //     fetchQRCode();
     // }, [orderId]);
 
+    console.log("dataForPaymentMethod", dataForPaymentMethod);
 
     const shareContent = async () => {
         try {
@@ -210,6 +219,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
 
     const [stringQRInstant, setStringQRInstant] = useState<string | null>(null)
     const [showQRInstant, setShowQRInstant] = useState<boolean | null>(null)
+
     const showShareLinkGenerator = async () => {
         if (!amount) {
             setError({ show: true, message: "Silakan masukkan jumlah pembayaran terlebih dahulu!" });
@@ -244,8 +254,10 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
 
                 const initiateHooks = await axiosInstance.post("/finpay/initiate", requestBody);
                 const paymentQRHooks = await axiosInstance.post('/sales/payment-qr', paymentQR)
+
                 console.log(initiateHooks)
                 console.log(paymentQRHooks)
+
                 if (initiateHooks.data) {
                     setStringQRInstant(initiateHooks.data.response.stringQr);
                     setDataForPaymentMethod(requestBody);
@@ -448,19 +460,16 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     <p className="text-gray-700 font-medium">Input Amount</p>
 
                     <div className="relative mt-5">
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                            Rp
-                        </span>
                         <Input
                             type="text"
-                            className="pl-10 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                            className="pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                             onChange={(e) => {
                                 const value = e.target.value.replace(/\D/g, ''); // Hanya angka
                                 if (value.length <= 12) {
                                     setAmount(value); // Simpan nilai hingga 12 digit
                                 }
                             }}
-                            value={amount} // Pastikan hanya 12 digit yang ditampilkan
+                            value={formatRupiah(amount)} // Pastikan hanya 12 digit yang ditampilkan
                             placeholder="0.00"
                         />
                     </div>

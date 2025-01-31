@@ -38,6 +38,8 @@ const Settlement = () => {
     const [message, setMessage] = useState<string>('');
     const [accounts, setAccounts] = useState<BankAccount[]>([])
     const [balance, setBalance] = useState<string | null>(null)
+    const [histories, setHistories] = useState<any[]>([]);
+    const [filteredHistories, setFilteredHistories] = useState<any[]>([]);
     const navigate = useNavigate();
 
     const FormSchema = z.object({
@@ -73,7 +75,7 @@ const Settlement = () => {
                 setMessage("Berhasil melakukan penarikan")
                 setIsSuccess(true)
             }
-        } catch (error:any) {
+        } catch (error: any) {
             setErrorNotification(true);
             setMessage(error.response.data.message);
             setIsSuccess(false)
@@ -82,7 +84,7 @@ const Settlement = () => {
     }
 
     useEffect(() => {
-        AOS.init({ duration: 500, once: false });
+        AOS.init({ duration: 500, once: true, offset: 100 });
     }, []);
 
     useEffect(() => {
@@ -102,6 +104,7 @@ const Settlement = () => {
                 console.error("Error saat mengambil profile:", err);
             }
         };
+
         const getMoney = async () => {
             try {
                 const uangMasuk = await axiosInstance.get(`/balance/in/${userData?.merchant?.id}`);
@@ -124,16 +127,43 @@ const Settlement = () => {
             }
         }
 
+        const getTransaction = async () => {
+            try {
+                const response = await axiosInstance.get(
+                    `/transactions/${userData.merchant.id}`,
+                );
+
+                setHistories(response.data);
+            } catch (err: any) {
+                console.log(err)
+            }
+        }
+
+        getTransaction();
         getMoney();
         getAccount();
         getSaldo()
     }, []);
+
+    useEffect(() => {
+        if (startDate || endDate) {
+            const filtered = histories.filter((history) => {
+                const transactionDate = new Date(history.transaction_date);
+                return startDate && endDate && transactionDate >= new Date(startDate) && transactionDate <= new Date(endDate);
+            });
+            setFilteredHistories(filtered);
+        }
+    }, [startDate, endDate, histories]);
 
     const onChange = (dates: [Date | null, Date | null]) => {
         const [start, end] = dates;
         setStartDate(start);
         setEndDate(end);
     };
+
+    console.log("histories", histories);
+
+    console.log("filteredHistories", filteredHistories);
 
     return (
         <div>
@@ -150,10 +180,12 @@ const Settlement = () => {
             <div className="w-[90%] m-auto pb-10">
                 {showNotification && (
                     <div data-aos="fade-up" data-aos-delay="100" className="flex items-start gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
-                        <Info className="w-5 h-5 text-blue-500" />
+                        <Info className="w-5 min-w-5 h-5 text-blue-500" />
+
                         <p className="text-sm text-black">
                             Penarikan dana pada malam hari antara 21.00 s/d 06.00 membutuhkan proses yang lebih lama. Stiqr menganjurkan penarikan dana di luar jam tersebut.
                         </p>
+
                         <button onClick={() => setShowNotification(false)} className="text-gray-400 hover:text-gray-600">
                             <XCircle className="w-5 h-5" />
                         </button>
@@ -235,7 +267,7 @@ const Settlement = () => {
             </div>
 
             {/* Transaction History */}
-            <div className="pb-20">
+            <div className="pb-32">
                 <div className="p-5 bg-white w-full">
                     <p className="font-semibold text-lg">Riwayat Transaksi</p>
                     <Button
@@ -277,10 +309,129 @@ const Settlement = () => {
                     )}
                 </div>
 
-                <div className="flex flex-col items-center gap-5">
-                    <img className="p-5" src={notransaction} alt="No transactions" />
-                    <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
-                </div>
+                {histories.length === 0 ? (
+                    <div className="flex flex-col items-center gap-5">
+                        <img className="p-5" src={notransaction} alt="No transactions" />
+                        <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
+                    </div>
+                ) : (
+                    <div className="mt-5 p-5">
+                        {filteredHistories.length > 0 ? (
+                            // Jika ada transaksi dalam rentang yang difilter
+                            filteredHistories.map((history, index) => (
+                                <div key={index}>
+                                    <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
+
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-start gap-2">
+                                            <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
+
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
+
+                                                    <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                        <p>{history.transaction_status} </p>
+                                                    </div>
+                                                </div>
+
+                                                <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col items-end">
+                                            <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
+
+                                            <div className="flex items-center">
+                                                <p className="text-xs">
+                                                    {new Date(history.transaction_date).toLocaleDateString("id-ID", {
+                                                        day: "2-digit",
+                                                        month: "long",
+                                                        year: "numeric",
+                                                    })}
+                                                </p>
+
+                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                                <p className="text-xs">
+                                                    {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
+                                                        hour: "2-digit",
+                                                        minute: "2-digit",
+                                                    })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            // Jika tidak ada transaksi dalam rentang filter
+                            startDate && endDate ? (
+                                <div className="flex flex-col items-center gap-5 text-center">
+                                    <img className="p-5" src={notransaction} alt="No transactions" />
+                                    <p className="font-semibold text-lg text-orange-500">Tidak ada transaksi dalam rentang waktu ini</p>
+                                </div>
+                            ) : (
+                                // Jika tidak ada filter aktif, tampilkan semua transaksi
+                                histories.length > 0 ? (
+                                    histories.map((history, index) => (
+                                        <div key={index}>
+                                            <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
+
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-start gap-2">
+                                                    <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
+
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
+
+                                                            <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                                <p>{history.transaction_status} </p>
+                                                            </div>
+                                                        </div>
+
+                                                        <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex flex-col items-end">
+                                                    <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
+
+                                                    <div className="flex items-center">
+                                                        <p className="text-xs">
+                                                            {new Date(history.transaction_date).toLocaleDateString("id-ID", {
+                                                                day: "2-digit",
+                                                                month: "long",
+                                                                year: "numeric",
+                                                            })}
+                                                        </p>
+
+                                                        <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                                        <p className="text-xs">
+                                                            {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
+                                                                hour: "2-digit",
+                                                                minute: "2-digit",
+                                                            })}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    // Jika tidak ada transaksi sama sekali
+                                    <div className="flex flex-col items-center gap-5">
+                                        <img className="p-5" src={notransaction} alt="No transactions" />
+                                        <p className="font-semibold text-lg text-orange-500">Belum ada transaksi</p>
+                                    </div>
+                                )
+                            )
+                        )}
+                    </div>
+                )}
+
             </div>
 
             {errorNotification && (
@@ -297,6 +448,7 @@ const Settlement = () => {
                     />
                 </div>
             )}
+
             {/* Navigation */}
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
                 <Link to="/dashboard" className="flex gap-3 flex-col items-center">
@@ -326,107 +478,6 @@ const Settlement = () => {
                     <p className="uppercase">Profile</p>
                 </Link>
             </div>
-
-            {/* Form Penarikan */}
-            <div className="w-[90%] m-auto pb-10">
-                <div data-aos="fade-up" data-aos-delay="100" className={`${showNotification ? 'flex' : 'hidden'} items-start gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm`}>
-                    <div className="text-blue-500">
-                        <Info className="w-5 h-5" />
-                    </div>
-
-                    <div className="text-sm text-black">
-                        <p>Penarikan dana pada malam hari antara 21.00 s/d 06.00 membutuhkan proses yang lebih lama. Stiqr menganjurkan penarikan dana di luar jam tersebut.</p>
-                    </div>
-
-                    <button onClick={() => setShowNotification(false)} className="text-gray-400 hover:text-gray-600">
-                        <XCircle className="w-5 h-5" />
-                    </button>
-                </div>
-
-                <div data-aos="fade-up" data-aos-delay="200" className={`${showNotification ? 'mt-10' : 'mt-24'} w-full border border-gray-300 rounded-lg p-5`}>
-                    <div>
-                        <p className="font-semibold text-lg">Total Saldo Stiqr</p>
-
-                        <p className="mt-2 font-semibold text-3xl">{formatRupiah(uangMasuk)}</p>
-                    </div>
-
-                    <div className="w-full h-[1px] bg-gray-300 my-5"></div>
-
-                    <div className="w-full flex flex-col gap-5">
-                        <div className="w-full flex items-center gap-5 justify-between">
-                            <p className="text-gray-500">Saldo Pemasukan</p>
-
-                            <p className="font-semibold text-lg">{formatRupiah(uangMasuk)}</p>
-                        </div>
-
-                        <div className="w-full flex items-center gap-5 justify-between">
-                            <p className="text-gray-500">Saldo Pengeluaran</p>
-
-                            <p className="font-semibold text-lg">{formatRupiah(uangKeluar)}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div data-aos="fade-up" data-aos-delay="300" className="mt-5 flex flex-col gap-3">
-                    <p>Saldo Yang Ingin Ditarik</p>
-
-                    <Input placeholder="Masukkan Jumlah Saldo" />
-                </div>
-
-                <Button data-aos="fade-up" data-aos-delay="300" className="mt-5 w-full text-base bg-orange-500">Tarik Saldo</Button>
-            </div>
-
-            <div data-aos="fade-up" data-aos-delay="400" className="pb-20 rounded-lg border border-gray-500">
-                {/* Button untuk Rentang Tanggal */}
-                <div className="p-5 bg-white rounded-t-lg w-[100%]">
-                    <p className="font-semibold text-lg">Riwayat Transaksi</p>
-
-                    <Button
-                        className="w-full mt-3 text-base font-medium bg-gray-200 text-gray-700 border border-gray-400 rounded-lg flex justify-center items-center px-3 py-2"
-                        onClick={() => setShowCalendar(!showCalendar)}
-                    >
-                        {startDate && endDate
-                            ? `${startDate.toLocaleDateString("id-ID", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                            })} - ${endDate.toLocaleDateString("id-ID", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                            })}`
-                            : "Pilih Rentang Tanggal"}
-                    </Button>
-
-                    {/* Kalender DatePicker */}
-                    {showCalendar && (
-                        <div className="mt-3 border flex flex-col items-center p-2 border-gray-300 rounded-lg shadow-md">
-                            <DatePicker
-                                selected={startDate}
-                                onChange={onChange}
-                                startDate={startDate}
-                                endDate={endDate}
-                                selectsRange
-                                inline
-                            />
-                            <Button
-                                className="w-full mt-2 bg-orange-500 text-white rounded-lg py-2"
-                                onClick={() => setShowCalendar(false)}
-                            >
-                                Pilih
-                            </Button>
-                        </div>
-                    )}
-                </div>
-
-                <div className="flex flex-col items-center gap-5">
-                    <img className="p-5" src={notransaction} alt="" />
-
-                    <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
-                </div>
-            </div>
-
-            {/* {showCodePayment && <CodePayment />} */}
         </div>
     );
 };
