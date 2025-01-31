@@ -1,10 +1,16 @@
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@radix-ui/react-accordion";
 import { ChevronLeft, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const TermsandConditionInProfile = () => {
     const [openItem, setOpenItem] = useState<string | null>(null);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false });
+    }, []);
 
     const handleAccordionChange = (value: string) => {
         setOpenItem((prev) => (prev === value ? null : value));
@@ -17,7 +23,7 @@ const TermsandConditionInProfile = () => {
                     <ChevronLeft className="scale-[1.3] text-white" />
                 </Link>
 
-                <p className="font-semibold m-auto text-xl text-white text-center">Syarat dan Ketentuan</p>
+                <p data-aos="zoom-in" className="font-semibold m-auto text-xl text-white text-center">Syarat dan Ketentuan</p>
             </div>
 
             <div className="fixed w-full h-[calc(100vh-64px)] top-16 overflow-y-auto pb-24">
@@ -29,7 +35,7 @@ const TermsandConditionInProfile = () => {
                         value={openItem || ""}
                         onValueChange={handleAccordionChange}
                     >
-                        <AccordionItem value="item-1" className="w-full border-b pb-2">
+                        <AccordionItem value="item-1" data-aos="fade-up" className="w-full border-b pb-2">
                             <AccordionTrigger className="flex items-center text-start justify-between w-full py-2 px-4 gap-5">
                                 <span>Ketentuan Umum</span>
 
@@ -62,7 +68,7 @@ const TermsandConditionInProfile = () => {
                             </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="item-2" className="w-full border-b pb-2">
+                        <AccordionItem value="item-2" data-aos="fade-up" data-aos-delay="100" className="w-full border-b pb-2">
                             <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
                                 <span>Ketentuan Akun Stiqr</span>
 
@@ -101,7 +107,7 @@ const TermsandConditionInProfile = () => {
                             </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="item-3" className="w-full border-b pb-2">
+                        <AccordionItem value="item-3" data-aos="fade-up" data-aos-delay="200" className="w-full border-b pb-2">
                             <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
                                 <span>Perangkat Lunak Aplikasi Stiqr</span>
 
@@ -125,7 +131,7 @@ const TermsandConditionInProfile = () => {
                             </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="item-4" className="w-full border-b pb-2">
+                        <AccordionItem value="item-4" data-aos="fade-up" data-aos-delay="300" className="w-full border-b pb-2">
                             <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
                                 <span>Pencarian Saldo STIQR</span>
 
@@ -180,7 +186,7 @@ const TermsandConditionInProfile = () => {
                             </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="item-5" className="w-full border-b pb-2">
+                        <AccordionItem value="item-5" data-aos="fade-up" data-aos-delay="400" className="w-full border-b pb-2">
                             <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
                                 <span>Tindakan Kecurangan</span>
 
@@ -238,7 +244,7 @@ const TermsandConditionInProfile = () => {
                             </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="item-6" className="w-full pb-2">
+                        <AccordionItem value="item-6" data-aos="fade-up" data-aos-delay="500" className="w-full pb-2">
                             <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
                                 <span>Kerahasiaan</span>
 

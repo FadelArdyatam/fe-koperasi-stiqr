@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import Bill from "@/components/Bill";
 import { Input } from "@/components/ui/input";
 import axiosInstance from "@/hooks/axiosInstance";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface BillData {
     product: string;
@@ -32,6 +34,10 @@ const Listrik = () => {
     const [showBill, setShowBill] = useState(false);
     const [products, setProducts] = useState<any[]>([]);
     const [selectedProduct, setSelecteProduct] = useState<any>(null);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false, offset: 100 });
+    }, []);
 
     useEffect(() => {
         const checkProfile = async () => {
@@ -104,6 +110,7 @@ const Listrik = () => {
 
     const handleRadioChange = (value: string) => {
         setType(value);
+        AOS.refresh();
         if (value === "Tagihan Listrik") {
             setNominal(""); // Reset nominal jika tipe "Tagihan Listrik" dipilih
         }
@@ -118,18 +125,20 @@ const Listrik = () => {
                     <ChevronLeft className="scale-[1.3] text-white" />
                 </Link>
 
-                <p className="font-semibold m-auto text-xl text-white text-center uppercase">
+                <p data-aos="zoom-in" className="font-semibold m-auto text-xl text-white text-center uppercase">
                     Listrik
                 </p>
             </div>
 
             <div className={`${showBill ? "hidden" : "block"}`}>
                 <div className="bg-white w-[90%] -translate-y-[100px] p-10 shadow-lg rounded-md m-auto">
-                    <p className="font-semibold m-auto text-xl text-center">
+                    <p data-aos="fade-up" data-aos-delay="100" className="font-semibold m-auto text-xl text-center">
                         Beli Token Atau Bayar Listrik
                     </p>
 
                     <RadioGroup
+                        data-aos="fade-up"
+                        data-aos-delay="200"
                         defaultValue=""
                         onValueChange={handleRadioChange}
                         className="mt-10 w-full flex items-center gap-5 justify-center"
@@ -144,7 +153,7 @@ const Listrik = () => {
                         </div>
                     </RadioGroup>
 
-                    <div className="mt-10">
+                    <div data-aos="fade-up" data-aos-delay="300" className="mt-10">
                         <p>No. Meter/ID Pel</p>
 
                         <Input
@@ -158,7 +167,7 @@ const Listrik = () => {
                     {type === "Token Listrik" && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <div className="mt-10">
+                                <div data-aos="fade-up" className="mt-10">
                                     <p>Nominal</p>
 
                                     <div className="flex items-center gap-5 border mt-2 text-gray-400 border-black rounded-lg p-2 justify-between">

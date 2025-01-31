@@ -4,20 +4,54 @@ import { Input } from "@/components/ui/input"
 import axiosInstance from "@/hooks/axiosInstance"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Check, ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, UserRound, FileText, Eye, EyeOff } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import { z } from "zod"
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Keamanan = () => {
     const [showContent, setShowContent] = useState('')
     const [showNotification, setShowNotification] = useState(false)
     const [showPIN, setShowPIN] = useState({ oldPIN: false, newPIN: false })
+    const [showPassword, setShowPassword] = useState({ oldPassword: false, newPassword: false, confirmPassword: false })
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false, offset: 100 });
+    }, [])
+
+    useEffect(() => {
+        AOS.refresh();
+    }, [showContent])
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false, offset: 100 });
+    }, [])
+
+    useEffect(() => {
+        AOS.refresh();
+    }, [showContent])
 
     const FormSchema = z.object({
-        password: z.string().min(8),
-        newPassword: z.string().min(8),
-        confirmPassword: z.string().min(8)
+        password: z
+            .string()
+            .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
+            .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
+            .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
+            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
+        newPassword: z.
+            string()
+            .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
+            .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
+            .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
+            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
+        confirmPassword: z
+            .string()
+            .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
+            .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
+            .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
+            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
     }).refine((data) => data.newPassword === data.confirmPassword, {
         message: 'Passwords do not match.',
         path: ['confirmPassword'], // Fokuskan error pada confirmPassword
@@ -54,8 +88,12 @@ const Keamanan = () => {
 
     // For PIN form
     const FormSchema2 = z.object({
-        oldPin: z.string().min(6),
-        newPin: z.string().min(6),
+        oldPin: z.string().length(6, {
+            "message": "Masukkan PIN Saat Ini"
+        }),
+        newPin: z.string().length(6, {
+            "message": "Masukkan PIN Baru 6 Digit"
+        }),
     })
 
     const form2 = useForm<z.infer<typeof FormSchema2>>({
@@ -97,7 +135,7 @@ const Keamanan = () => {
                     <ChevronLeft className='scale-[1.3] text-white' />
                 </Link>
 
-                <p className='font-semibold m-auto text-xl text-white text-center'>{showContent === 'Password' ? 'Edit Password' : showContent === 'PIN' ? 'Edit PIN' : 'Keamanan'}</p>
+                <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>{showContent === 'Password' ? 'Edit Password' : showContent === 'PIN' ? 'Edit PIN' : 'Keamanan'}</p>
             </div>
 
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -135,7 +173,7 @@ const Keamanan = () => {
             </div>
 
             <div className={`${showContent === '' ? 'block' : 'hidden'} bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20`}>
-                <button onClick={() => setShowContent('Password')} className="flex w-full items-center gap-5 justify-between">
+                <button data-aos="fade-up" data-aos-delay="100" onClick={() => setShowContent('Password')} className="flex w-full items-center gap-5 justify-between">
                     <p>Password</p>
 
                     <ChevronRight />
@@ -143,7 +181,7 @@ const Keamanan = () => {
 
                 <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                <button onClick={() => setShowContent('PIN')} className="flex w-full items-center gap-5 justify-between">
+                <button data-aos="fade-up" data-aos-delay="200" onClick={() => setShowContent('PIN')} className="flex w-full items-center gap-5 justify-between">
                     <p>PIN</p>
 
                     <ChevronRight />
@@ -160,11 +198,21 @@ const Keamanan = () => {
                                     control={form.control}
                                     name="password"
                                     render={({ field }) => (
-                                        <FormItem className="w-full">
+                                        <FormItem data-aos="fade-up" className="w-full">
                                             <FormLabel className="text-gray-500">Password Saat Ini</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                                <div className="relative w-full">
+                                                    <Input type={showPassword.oldPassword ? 'text' : 'password'} className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+
+                                                    <button
+                                                        onClick={() => setShowPassword({ oldPassword: !showPassword.oldPassword, newPassword: showPassword.newPassword, confirmPassword: showPassword.confirmPassword })}
+                                                        className="block absolute top-2 right-5"
+                                                        type="button"
+                                                    >
+                                                        {showPassword.oldPassword ? <EyeOff /> : <Eye />}
+                                                    </button>
+                                                </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -175,11 +223,21 @@ const Keamanan = () => {
                                     control={form.control}
                                     name="newPassword"
                                     render={({ field }) => (
-                                        <FormItem className="w-full">
+                                        <FormItem data-aos="fade-up" data-aos-delay="100" className="w-full">
                                             <FormLabel className="text-gray-500">Password Baru</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                                <div className="relative w-full">
+                                                    <Input type={showPassword.newPassword ? 'text' : 'password'} className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+
+                                                    <button
+                                                        onClick={() => setShowPassword({ oldPassword: showPassword.oldPassword, newPassword: !showPassword.newPassword, confirmPassword: showPassword.confirmPassword })}
+                                                        className="block absolute top-2 right-5"
+                                                        type="button"
+                                                    >
+                                                        {showPassword.newPassword ? <EyeOff /> : <Eye />}
+                                                    </button>
+                                                </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -190,11 +248,21 @@ const Keamanan = () => {
                                     control={form.control}
                                     name="confirmPassword"
                                     render={({ field }) => (
-                                        <FormItem className="w-full">
+                                        <FormItem data-aos="fade-up" data-aos-delay="200" className="w-full">
                                             <FormLabel className="text-gray-500">Retype Password Baru</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                                <div className="relative w-full">
+                                                    <Input type={showPassword.confirmPassword ? 'text' : 'password'} className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+
+                                                    <button
+                                                        onClick={() => setShowPassword({ oldPassword: showPassword.oldPassword, newPassword: showPassword.newPassword, confirmPassword: !showPassword.confirmPassword })}
+                                                        className="block absolute top-2 right-5"
+                                                        type="button"
+                                                    >
+                                                        {showPassword.confirmPassword ? <EyeOff /> : <Eye />}
+                                                    </button>
+                                                </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -202,7 +270,7 @@ const Keamanan = () => {
                                 />
                             </div>
 
-                            <Button type="submit" className="w-full bg-green-400 mt-7">Simpan Data</Button>
+                            <Button data-aos="fade-up" data-aos-delay="300" type="submit" className="w-full bg-green-400 mt-7">Simpan Data</Button>
                         </form>
                     </Form>
                 </div>
@@ -215,7 +283,7 @@ const Keamanan = () => {
                                     control={form2.control}
                                     name="oldPin"
                                     render={({ field }) => (
-                                        <FormItem className="w-full">
+                                        <FormItem data-aos="fade-up" className="w-full">
                                             <FormLabel className="text-gray-500">PIN Saat Ini</FormLabel>
 
                                             <FormControl>
@@ -251,7 +319,7 @@ const Keamanan = () => {
                                     control={form2.control}
                                     name="newPin"
                                     render={({ field }) => (
-                                        <FormItem className="w-full">
+                                        <FormItem data-aos="fade-up" data-aos-delay="100" className="w-full">
                                             <FormLabel className="text-gray-500">PIN Baru</FormLabel>
 
                                             <FormControl>
@@ -283,7 +351,7 @@ const Keamanan = () => {
                                 />
                             </div>
 
-                            <Button type="submit" className="w-full bg-green-400 mt-7">Simpan Data</Button>
+                            <Button data-aos="fade-up" data-aos-delay="200" type="submit" className="w-full bg-green-400 mt-7">Simpan Data</Button>
                         </form>
                     </Form>
 

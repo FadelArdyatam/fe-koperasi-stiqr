@@ -239,202 +239,204 @@ const EditProduct: React.FC<EditProductProps> = ({
             )}
 
             {!loading && !error && (
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-10 bg-white p-5 rounded-lg">
-                        {/* Form fields tetap sama */}
-                        {/* Photo */}
-                        <FormField
-                            control={form.control}
-                            name="photo"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Foto Produk (Optional)</FormLabel>
-                                    <FormControl>
-                                        <Input type="file" onChange={(e) => field.onChange(e.target.files?.[0])} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                <div className=" bg-white rounded-lg p-5  mt-10 ">
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+                            {/* Form fields tetap sama */}
+                            {/* Photo */}
+                            <FormField
+                                control={form.control}
+                                name="photo"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Foto Produk (Optional)</FormLabel>
+                                        <FormControl>
+                                            <Input type="file" onChange={(e) => field.onChange(e.target.files?.[0])} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                        {/* Name */}
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Nama Produk</FormLabel>
-                                    <FormControl>
-                                        <div className="relative">
-                                            <Input
-                                                placeholder="Enter product name"
-                                                {...field}
-                                                onChange={(e) => {
-                                                    field.onChange(e);
-                                                }}
-                                            />
-                                            {/* Counter */}
-                                            <p className="absolute right-2 -bottom-7 text-sm text-gray-500">
-                                                {/* {field.value.length}/50 */}
-                                            </p>
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* SKU */}
-                        <FormField
-                            control={form.control}
-                            name="SKU"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>SKU Produk</FormLabel>
-                                    <FormControl>
-                                        <div className="relative">
-                                            <Input
-                                                placeholder="Enter SKU"
-                                                {...field}
-                                                onChange={(e) => {
-                                                    field.onChange(e);
-                                                }}
-                                                disabled={true}
-                                            />
-                                            <p className="absolute right-2 -bottom-5 text-sm text-gray-500">
-                                                {/* {field.value.length}/20 */}
-                                            </p>
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Price */}
-                        <FormField
-                            control={form.control}
-                            name="price"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Harga</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            placeholder="Enter price"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Weight */}
-                        <FormField
-                            control={form.control}
-                            name="weight"
-                            render={({ field }) => (
-                                <FormItem className="w-full">
-                                    <FormLabel>Berat</FormLabel>
-                                    <FormControl className="w-full">
-                                        <div className="flex items-center space-x-2">
-                                            {/* Input untuk nilai berat */}
-                                            <input
-                                                type="number"
-                                                placeholder="Masukkan berat"
-                                                {...field}
-                                                className="p-2 border border-gray-300 w-full rounded-md"
-                                            />
-                                            {/* Dropdown untuk memilih satuan */}
-                                            <select
-                                                className="h-10 border border-gray-300 w-full rounded-md"
-                                            >
-                                                <option value="" disabled>
-                                                    Pilih satuan
-                                                </option>
-                                                <option onClick={() => setQuantity('g')}>Gram (g)</option>
-                                                <option onClick={() => setQuantity('kg')}>Kilogram (kg)</option>
-                                            </select>
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Description */}
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Deskripsi (Optional)</FormLabel>
-                                    <FormControl>
-                                        <div className="relative">
-                                            <textarea
-                                                className="block w-full border rounded-lg p-3"
-                                                placeholder="Jelaskan apa yang spesial dari produkmu"
-                                                {...field}
-                                                onChange={(e) => {
-                                                    field.onChange(e);
-                                                }}
-                                            />
-                                            <p className="absolute right-2 -bottom-5 text-sm text-gray-500">
-                                                {/* {(field.value?.length ?? 0)}/100 */}
-                                            </p>
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Etalase */}
-                        <FormField
-                            control={form.control}
-                            name="etalase"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Pilih Etalase</FormLabel>
-                                    <div className="space-y-2 mt-2">
-                                        {etalases.map((etalase) => (
-                                            <div key={etalase.showcase_id} className="flex items-center gap-2">
-                                                <input
-                                                    type="radio"
-                                                    id={`etalase-${etalase.showcase_id}`}
-                                                    name="etalase"
-                                                    value={etalase.showcase_id}
-                                                    checked={field.value.includes(etalase.showcase_id)}
+                            {/* Name */}
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Nama Produk</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <Input
+                                                    placeholder="Enter product name"
+                                                    {...field}
                                                     onChange={(e) => {
-                                                        field.onChange([e.target.value]); // Perbarui nilai dalam form
-                                                        setSelectedEtalase(e.target.value); // Perbarui state etalase yang dipilih
+                                                        field.onChange(e);
                                                     }}
-                                                    className="h-4 w-4 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                                                 />
-                                                <label
-                                                    htmlFor={`etalase-${etalase.showcase_id}`}
-                                                    className="text-sm font-medium text-gray-700"
-                                                >
-                                                    {etalase.showcase_name}
-                                                </label>
+                                                {/* Counter */}
+                                                <p className="absolute right-2 -bottom-7 text-sm text-gray-500">
+                                                    {/* {field.value.length}/50 */}
+                                                </p>
                                             </div>
-                                        ))}
-                                    </div>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                        {/* ... */}
-                        <Button type="submit" className="w-full bg-blue-500 text-white">
-                            Update
-                        </Button>
-                    </form>
-                </Form>
+                            {/* SKU */}
+                            <FormField
+                                control={form.control}
+                                name="SKU"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>SKU Produk</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <Input
+                                                    placeholder="Enter SKU"
+                                                    {...field}
+                                                    onChange={(e) => {
+                                                        field.onChange(e);
+                                                    }}
+                                                    disabled={true}
+                                                />
+                                                <p className="absolute right-2 -bottom-5 text-sm text-gray-500">
+                                                    {/* {field.value.length}/20 */}
+                                                </p>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Price */}
+                            <FormField
+                                control={form.control}
+                                name="price"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Harga</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                placeholder="Enter price"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Weight */}
+                            <FormField
+                                control={form.control}
+                                name="weight"
+                                render={({ field }) => (
+                                    <FormItem className="w-full">
+                                        <FormLabel>Berat</FormLabel>
+                                        <FormControl className="w-full">
+                                            <div className="flex items-center space-x-2">
+                                                {/* Input untuk nilai berat */}
+                                                <input
+                                                    type="number"
+                                                    placeholder="Masukkan berat"
+                                                    {...field}
+                                                    className="p-2 border border-gray-300 w-full rounded-md"
+                                                />
+                                                {/* Dropdown untuk memilih satuan */}
+                                                <select
+                                                    className="h-10 border border-gray-300 w-full rounded-md"
+                                                >
+                                                    <option value="" disabled>
+                                                        Pilih satuan
+                                                    </option>
+                                                    <option onClick={() => setQuantity('g')}>Gram (g)</option>
+                                                    <option onClick={() => setQuantity('kg')}>Kilogram (kg)</option>
+                                                </select>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Description */}
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Deskripsi (Optional)</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <textarea
+                                                    className="block w-full border rounded-lg p-3"
+                                                    placeholder="Jelaskan apa yang spesial dari produkmu"
+                                                    {...field}
+                                                    onChange={(e) => {
+                                                        field.onChange(e);
+                                                    }}
+                                                />
+                                                <p className="absolute right-2 -bottom-5 text-sm text-gray-500">
+                                                    {/* {(field.value?.length ?? 0)}/100 */}
+                                                </p>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Etalase */}
+                            <FormField
+                                control={form.control}
+                                name="etalase"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Pilih Etalase</FormLabel>
+                                        <div className="space-y-2 mt-2">
+                                            {etalases.map((etalase) => (
+                                                <div key={etalase.showcase_id} className="flex items-center gap-2">
+                                                    <input
+                                                        type="radio"
+                                                        id={`etalase-${etalase.showcase_id}`}
+                                                        name="etalase"
+                                                        value={etalase.showcase_id}
+                                                        checked={field.value.includes(etalase.showcase_id)}
+                                                        onChange={(e) => {
+                                                            field.onChange([e.target.value]); // Perbarui nilai dalam form
+                                                            setSelectedEtalase(e.target.value); // Perbarui state etalase yang dipilih
+                                                        }}
+                                                        className="h-4 w-4 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                                                    />
+                                                    <label
+                                                        htmlFor={`etalase-${etalase.showcase_id}`}
+                                                        className="text-sm font-medium text-gray-700"
+                                                    >
+                                                        {etalase.showcase_name}
+                                                    </label>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* ... */}
+                            <Button type="submit" className="w-full bg-blue-500 text-white">
+                                Update
+                            </Button>
+                        </form>
+                    </Form>
+                    <Button onClick={deleteHandler} className="w-full mt-5 bg-red-500 text-white">Delete</Button>
+                </div>
             )}
 
-            <Button onClick={deleteHandler} className="w-[90%] m-auto block bg-red-500 text-white">Delete</Button>
         </div>
     );
 };

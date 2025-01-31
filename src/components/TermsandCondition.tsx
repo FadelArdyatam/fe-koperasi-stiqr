@@ -1,8 +1,10 @@
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@radix-ui/react-accordion";
 import { ChevronDown, ChevronLeft, Info } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface TermsandConditionProps {
     setShowTermsandConditions: (show: boolean) => void;
@@ -21,6 +23,10 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
     });
     const [showNotification, setShowNotification] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false });
+    }, []);
 
     const handleAccordionChange = (value: string) => {
         setOpenItem((prev) => (prev === value ? null : value));
@@ -44,7 +50,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
 
     const termsandConditionHandler = () => {
         const uncheckedItems = Object.keys(checkedItems).filter((key) => !checkedItems[key]);
-    
+
         if (uncheckedItems.length > 0) {
             const errorList = uncheckedItems.map((key) => termsTitles[key]);
             const formattedMessage = `Untuk melanjutkan ke tahap selanjutnya dimohon untuk menyetujui syarat ${errorList.join(", ").replace(/, ([^,]*)$/, " dan $1")}`;
@@ -56,8 +62,6 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
             setShowTermsandConditions(false); // Asumsi fungsi ini sudah ada
         }
     };
-    
-
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center">
@@ -72,7 +76,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                     </Link>
                 )}
 
-                <p className="font-semibold m-auto text-xl text-white text-center">Syarat dan Ketentuan</p>
+                <p data-aos="zoom-in" className="font-semibold m-auto text-xl text-white text-center">Syarat dan Ketentuan</p>
             </div>
 
             <div className="fixed w-full h-[calc(100vh-64px)] top-16 overflow-y-auto pb-24">
@@ -84,7 +88,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                         value={openItem || ""}
                         onValueChange={handleAccordionChange}
                     >
-                        <AccordionItem value="item-1" className="w-full border-b pb-2">
+                        <AccordionItem value="item-1" data-aos="fade-up" className="w-full border-b pb-2">
                             <AccordionTrigger className="flex items-center text-start justify-between w-full py-2 px-4 gap-5">
                                 <span>Ketentuan Umum</span>
 
@@ -129,7 +133,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="item-2" className="w-full border-b pb-2">
+                        <AccordionItem value="item-2" data-aos="fade-up" data-aos-delay="100" className="w-full border-b pb-2">
                             <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
                                 <span>Ketentuan Akun STIQR</span>
 
@@ -180,7 +184,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="item-3" className="w-full border-b pb-2">
+                        <AccordionItem value="item-3" data-aos="fade-up" data-aos-delay="200" className="w-full border-b pb-2">
                             <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
                                 <span>Perangkat Lunak Aplikasi STIQR</span>
 
@@ -216,7 +220,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="item-4" className="w-full border-b pb-2">
+                        <AccordionItem value="item-4" data-aos="fade-up" data-aos-delay="300" className="w-full border-b pb-2">
                             <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
                                 <span>Pencarian Saldo STIQR</span>
 
@@ -283,7 +287,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="item-5" className="w-full border-b pb-2">
+                        <AccordionItem value="item-5" data-aos="fade-up" data-aos-delay="400" className="w-full border-b pb-2">
                             <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
                                 <span>Tindakan Kecurangan</span>
 
@@ -353,7 +357,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="item-6" className="w-full pb-2">
+                        <AccordionItem value="item-6" data-aos="fade-up" data-aos-delay="500" className="w-full pb-2">
                             <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
                                 <span>Kerahasiaan</span>
 
@@ -410,16 +414,16 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
             </div>
 
             <div className={`w-[90%] ${openItem ? 'fixed bottom-4 m-auto' : 'm-64'} z-20`}>
-                <Button onClick={termsandConditionHandler} className="w-full bg-green-400">Lanjutkan</Button>
+                <Button data-aos="fade-up" data-aos-delay="600" onClick={termsandConditionHandler} className="w-full bg-green-400">Lanjutkan</Button>
             </div>
 
             {showNotification && (
                 <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 z-20 flex items-center justify-center">
-                    <div className="bg-white w-[90%] rounded-lg m-auto p-5">
+                    <div data-aos="zoom-in" className="bg-white w-[90%] rounded-lg m-auto p-5">
                         <div className="flex justify-center p-5">
-                    <Info className="text-red-500" size={60} />
+                            <Info className="text-red-500" size={60} />
                         </div>
-                    <p className="text-red-500 text-sm">{errorMessage}</p>
+                        <p className="text-red-500 text-sm">{errorMessage}</p>
                         <div className="flex items-center gap-5 mt-5">
                             <Button onClick={() => setShowNotification(false)} className="w-full bg-red-400">Tutup</Button>
                         </div>

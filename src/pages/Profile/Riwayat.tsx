@@ -206,136 +206,141 @@ const Riwayat = () => {
                     className={`absolute inset-0 ${type === "Uang Masuk" ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-full"} transition-all duration-500 ease-in-out`}
                 >
                     <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg">
-                        {admissionFees.length === 0 ? <img src={noTransactionImage} alt="" /> : typeSorting.show ? sortingAdmissionFees.map((admissionFee, index) => ( // Tampilkan data yang sudah diurutkan
-                            <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
-                                <div
-                                    className={`${index === 0 ? "hidden" : "block"
-                                        } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
-                                ></div>
+                        {admissionFees.length === 0 ? (
+                            <div>
+                                <img src={noTransactionImage} alt="" />
 
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <img
-                                            src={admissionFee.image}
-                                            className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
-                                            alt=""
-                                        />
+                                <p className="mt-5 font-semibold text-orange-500 text-center">Belum ada transaksi pembelian</p>
+                            </div>) : typeSorting.show ? sortingAdmissionFees.map((admissionFee, index) => ( // Tampilkan data yang sudah diurutkan
+                                <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
+                                    <div
+                                        className={`${index === 0 ? "hidden" : "block"
+                                            } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
+                                    ></div>
 
-                                        <div className="flex flex-col items-start">
-                                            <div className="flex items-center gap-2">
-                                                <p className="uppercase text-sm">{admissionFee.title}</p>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <img
+                                                src={admissionFee.image}
+                                                className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
+                                                alt=""
+                                            />
 
-                                                <div className={`${admissionFee.status === 'success' ? 'bg-green-400' : admissionFee.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
-                                                    <p>{admissionFee.status}</p>
+                                            <div className="flex flex-col items-start">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="uppercase text-sm">{admissionFee.title}</p>
+
+                                                    <div className={`${admissionFee.status === 'success' ? 'bg-green-400' : admissionFee.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
+                                                        <p>{admissionFee.status}</p>
+                                                    </div>
                                                 </div>
+
+                                                <p className="text-xs text-gray-400">{admissionFee.code}</p>
                                             </div>
+                                        </div>
 
-                                            <p className="text-xs text-gray-400">{admissionFee.code}</p>
+                                        <div className="flex flex-col items-end">
+                                            <p className="text-md font-semibold">
+                                                Rp {new Intl.NumberFormat("id-ID").format(Number(admissionFee.amount))}
+                                            </p>
+
+                                            <div className="flex items-center">
+                                                <p className="text-xs">{admissionFee.date}</p>
+
+                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                                <p className="text-xs">{admissionFee.time}</p>
+                                            </div>
                                         </div>
                                     </div>
+                                </button>
+                            )) : typeFilter.show ? filterAdmissionFees.map((admissionFee, index) => ( // Tampilkan data yang belum diurutkan
+                                <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
+                                    <div
+                                        className={`${index === 0 ? "hidden" : "block"
+                                            } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
+                                    ></div>
 
-                                    <div className="flex flex-col items-end">
-                                        <p className="text-md font-semibold">
-                                            Rp {new Intl.NumberFormat("id-ID").format(Number(admissionFee.amount))}
-                                        </p>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <img
+                                                src={admissionFee.image}
+                                                className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
+                                                alt=""
+                                            />
 
-                                        <div className="flex items-center">
-                                            <p className="text-xs">{admissionFee.date}</p>
+                                            <div className="flex flex-col items-start">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="uppercase text-sm">{admissionFee.title}</p>
 
-                                            <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-
-                                            <p className="text-xs">{admissionFee.time}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </button>
-                        )) : typeFilter.show ? filterAdmissionFees.map((admissionFee, index) => ( // Tampilkan data yang belum diurutkan
-                            <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
-                                <div
-                                    className={`${index === 0 ? "hidden" : "block"
-                                        } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
-                                ></div>
-
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <img
-                                            src={admissionFee.image}
-                                            className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
-                                            alt=""
-                                        />
-
-                                        <div className="flex flex-col items-start">
-                                            <div className="flex items-center gap-2">
-                                                <p className="uppercase text-sm">{admissionFee.title}</p>
-
-                                                <div className={`${admissionFee.status === 'success' ? 'bg-green-400' : admissionFee.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
-                                                    <p>{admissionFee.status}</p>
+                                                    <div className={`${admissionFee.status === 'success' ? 'bg-green-400' : admissionFee.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
+                                                        <p>{admissionFee.status}</p>
+                                                    </div>
                                                 </div>
+
+                                                <p className="text-xs text-gray-400">{admissionFee.code}</p>
                                             </div>
+                                        </div>
 
-                                            <p className="text-xs text-gray-400">{admissionFee.code}</p>
+                                        <div className="flex flex-col items-end">
+                                            <p className="text-md font-semibold">
+                                                Rp {new Intl.NumberFormat("id-ID").format(Number(admissionFee.amount))}
+                                            </p>
+
+                                            <div className="flex items-center">
+                                                <p className="text-xs">{admissionFee.date}</p>
+
+                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                                <p className="text-xs">{admissionFee.time}</p>
+                                            </div>
                                         </div>
                                     </div>
+                                </button>
+                            )) : admissionFees.map((admissionFee, index) => ( // Tampilkan data yang belum diurutkan
+                                <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === admissionFees.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
+                                    <div
+                                        className={`${index === 0 ? "hidden" : "block"
+                                            } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
+                                    ></div>
 
-                                    <div className="flex flex-col items-end">
-                                        <p className="text-md font-semibold">
-                                            Rp {new Intl.NumberFormat("id-ID").format(Number(admissionFee.amount))}
-                                        </p>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <img
+                                                src={admissionFee.image}
+                                                className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
+                                                alt=""
+                                            />
 
-                                        <div className="flex items-center">
-                                            <p className="text-xs">{admissionFee.date}</p>
+                                            <div className="flex flex-col items-start">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="uppercase text-sm">{admissionFee.title}</p>
 
-                                            <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-
-                                            <p className="text-xs">{admissionFee.time}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </button>
-                        )) : admissionFees.map((admissionFee, index) => ( // Tampilkan data yang belum diurutkan
-                            <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === admissionFees.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
-                                <div
-                                    className={`${index === 0 ? "hidden" : "block"
-                                        } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
-                                ></div>
-
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <img
-                                            src={admissionFee.image}
-                                            className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
-                                            alt=""
-                                        />
-
-                                        <div className="flex flex-col items-start">
-                                            <div className="flex items-center gap-2">
-                                                <p className="uppercase text-sm">{admissionFee.title}</p>
-
-                                                <div className={`${admissionFee.status === 'success' ? 'bg-green-400' : admissionFee.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
-                                                    <p>{admissionFee.status}</p>
+                                                    <div className={`${admissionFee.status === 'success' ? 'bg-green-400' : admissionFee.status === 'pending' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5]`}>
+                                                        <p>{admissionFee.status}</p>
+                                                    </div>
                                                 </div>
+
+                                                <p className="text-xs text-gray-400">{admissionFee.code}</p>
                                             </div>
+                                        </div>
 
-                                            <p className="text-xs text-gray-400">{admissionFee.code}</p>
+                                        <div className="flex flex-col items-end">
+                                            <p className="text-md font-semibold">
+                                                Rp {new Intl.NumberFormat("id-ID").format(Number(admissionFee.amount))}
+                                            </p>
+
+                                            <div className="flex items-center">
+                                                <p className="text-xs">{admissionFee.date}</p>
+
+                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                                <p className="text-xs">{admissionFee.time}</p>
+                                            </div>
                                         </div>
                                     </div>
-
-                                    <div className="flex flex-col items-end">
-                                        <p className="text-md font-semibold">
-                                            Rp {new Intl.NumberFormat("id-ID").format(Number(admissionFee.amount))}
-                                        </p>
-
-                                        <div className="flex items-center">
-                                            <p className="text-xs">{admissionFee.date}</p>
-
-                                            <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-
-                                            <p className="text-xs">{admissionFee.time}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </button>
-                        ))}
+                                </button>
+                            ))}
                     </div>
                 </div>
 
@@ -344,166 +349,171 @@ const Riwayat = () => {
                     className={`absolute inset-0 ${type === "Pembelian" ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"} transition-all duration-500 ease-in-out`}
                 >
                     <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg">
-                        {purchases.length === 0 ? <img src={noTransactionImage} alt="" /> : typeSorting.show ? sortingPurchases.map((purchase, index) => ( // Tampilkan data yang sudah diurutkan
-                            <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
-                                <div
-                                    className={`${index === 0 ? "hidden" : "block"
-                                        } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
-                                ></div>
+                        {purchases.length === 0 ? (
+                            <div>
+                                <img src={noTransactionImage} alt="" />
 
-                                <div className="flex md:items-center md:justify-between md:flex-row flex-col">
-                                    <div className="flex md:items-start items-center gap-5">
-                                        <img
-                                            src={purchase.image}
-                                            className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
-                                            alt=""
-                                        />
+                                <p className="mt-5 font-semibold text-orange-500 text-center">Belum ada transaksi pembelian</p>
+                            </div>) : typeSorting.show ? sortingPurchases.map((purchase, index) => ( // Tampilkan data yang sudah diurutkan
+                                <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
+                                    <div
+                                        className={`${index === 0 ? "hidden" : "block"
+                                            } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
+                                    ></div>
 
-                                        <div className="flex md:flex-row flex-col items-start gap-5">
-                                            <div className="flex flex-col gap-2">
-                                                <p className="uppercase text-sm">{purchase.type}</p>
-                                                <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
+                                    <div className="flex md:items-center md:justify-between md:flex-row flex-col">
+                                        <div className="flex md:items-start items-center gap-5">
+                                            <img
+                                                src={purchase.image}
+                                                className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
+                                                alt=""
+                                            />
+
+                                            <div className="flex md:flex-row flex-col items-start gap-5">
+                                                <div className="flex flex-col gap-2">
+                                                    <p className="uppercase text-sm">{purchase.type}</p>
+                                                    <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
+                                                </div>
+                                                <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
+                                                    <p>{purchase.status}</p>
+                                                </div>
+
                                             </div>
-                                            <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
-                                                <p>{purchase.status}</p>
-                                            </div>
-
                                         </div>
-                                    </div>
 
-                                    <div className="flex md:mt-0 mt-5 flex-col items-end">
-                                        <p className="text-md font-semibold">
-                                            Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
-                                        </p>
-
-                                        <div className="flex items-center">
-                                            <p className="text-xs">
-                                                {new Date(purchase.date).toLocaleDateString('id-ID', {
-                                                    day: '2-digit',
-                                                    month: 'long',
-                                                    year: 'numeric',
-                                                })}
+                                        <div className="flex md:mt-0 mt-5 flex-col items-end">
+                                            <p className="text-md font-semibold">
+                                                Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
                                             </p>
 
-                                            <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+                                            <div className="flex items-center">
+                                                <p className="text-xs">
+                                                    {new Date(purchase.date).toLocaleDateString('id-ID', {
+                                                        day: '2-digit',
+                                                        month: 'long',
+                                                        year: 'numeric',
+                                                    })}
+                                                </p>
 
-                                            <p className="text-xs">
-                                                {new Date(purchase.date).toLocaleTimeString('id-ID', {
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                })}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </button>
-                        )) : typeFilter.show ? filterPurchases.map((purchase, index) => ( // Tampilkan data yang belum diurutkan
-                            <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
-                                <div
-                                    className={`${index === 0 ? "hidden" : "block"
-                                        } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
-                                ></div>
+                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
 
-                                <div className="flex md:items-center md:justify-between md:flex-row flex-col">
-                                    <div className="flex md:items-start items-center gap-5">
-                                        <img
-                                            src={purchase.image}
-                                            className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
-                                            alt=""
-                                        />
-
-                                        <div className="flex md:flex-row flex-col items-start gap-5">
-                                            <div className="flex flex-col gap-2">
-                                                <p className="uppercase text-sm">{purchase.type}</p>
-                                                <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
+                                                <p className="text-xs">
+                                                    {new Date(purchase.date).toLocaleTimeString('id-ID', {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit',
+                                                    })}
+                                                </p>
                                             </div>
-                                            <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
-                                                <p>{purchase.status}</p>
+                                        </div>
+                                    </div>
+                                </button>
+                            )) : typeFilter.show ? filterPurchases.map((purchase, index) => ( // Tampilkan data yang belum diurutkan
+                                <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
+                                    <div
+                                        className={`${index === 0 ? "hidden" : "block"
+                                            } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
+                                    ></div>
+
+                                    <div className="flex md:items-center md:justify-between md:flex-row flex-col">
+                                        <div className="flex md:items-start items-center gap-5">
+                                            <img
+                                                src={purchase.image}
+                                                className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
+                                                alt=""
+                                            />
+
+                                            <div className="flex md:flex-row flex-col items-start gap-5">
+                                                <div className="flex flex-col gap-2">
+                                                    <p className="uppercase text-sm">{purchase.type}</p>
+                                                    <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
+                                                </div>
+                                                <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
+                                                    <p>{purchase.status}</p>
+                                                </div>
+
                                             </div>
-
                                         </div>
-                                    </div>
 
-                                    <div className="flex md:mt-0 mt-5 flex-col items-end">
-                                        <p className="text-md font-semibold">
-                                            Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
-                                        </p>
-
-                                        <div className="flex items-center">
-                                            <p className="text-xs">
-                                                {new Date(purchase.date).toLocaleDateString('id-ID', {
-                                                    day: '2-digit',
-                                                    month: 'long',
-                                                    year: 'numeric',
-                                                })}
+                                        <div className="flex md:mt-0 mt-5 flex-col items-end">
+                                            <p className="text-md font-semibold">
+                                                Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
                                             </p>
 
-                                            <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+                                            <div className="flex items-center">
+                                                <p className="text-xs">
+                                                    {new Date(purchase.date).toLocaleDateString('id-ID', {
+                                                        day: '2-digit',
+                                                        month: 'long',
+                                                        year: 'numeric',
+                                                    })}
+                                                </p>
 
-                                            <p className="text-xs">
-                                                {new Date(purchase.date).toLocaleTimeString('id-ID', {
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                })}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </button>
-                        )) : purchases.map((purchase, index) => ( // Tampilkan data yang belum diurutkan
-                            <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
-                                <div
-                                    className={`${index === 0 ? "hidden" : "block"
-                                        } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
-                                ></div>
+                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
 
-                                <div className="flex md:items-center md:justify-between md:flex-row flex-col">
-                                    <div className="flex md:items-start items-center gap-5">
-                                        <img
-                                            src={purchase.image}
-                                            className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
-                                            alt=""
-                                        />
-
-                                        <div className="flex md:flex-row flex-col items-start gap-5">
-                                            <div className="flex flex-col gap-2">
-                                                <p className="uppercase text-sm">{purchase.type}</p>
-                                                <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
+                                                <p className="text-xs">
+                                                    {new Date(purchase.date).toLocaleTimeString('id-ID', {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit',
+                                                    })}
+                                                </p>
                                             </div>
-                                            <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
-                                                <p>{purchase.status}</p>
+                                        </div>
+                                    </div>
+                                </button>
+                            )) : purchases.map((purchase, index) => ( // Tampilkan data yang belum diurutkan
+                                <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
+                                    <div
+                                        className={`${index === 0 ? "hidden" : "block"
+                                            } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
+                                    ></div>
+
+                                    <div className="flex md:items-center md:justify-between md:flex-row flex-col">
+                                        <div className="flex md:items-start items-center gap-5">
+                                            <img
+                                                src={purchase.image}
+                                                className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
+                                                alt=""
+                                            />
+
+                                            <div className="flex md:flex-row flex-col items-start gap-5">
+                                                <div className="flex flex-col gap-2">
+                                                    <p className="uppercase text-sm">{purchase.type}</p>
+                                                    <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
+                                                </div>
+                                                <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
+                                                    <p>{purchase.status}</p>
+                                                </div>
+
                                             </div>
-
                                         </div>
-                                    </div>
 
-                                    <div className="flex md:mt-0 mt-5 flex-col items-end">
-                                        <p className="text-md font-semibold">
-                                            Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
-                                        </p>
-
-                                        <div className="flex items-center">
-                                            <p className="text-xs">
-                                                {new Date(purchase.date).toLocaleDateString('id-ID', {
-                                                    day: '2-digit',
-                                                    month: 'long',
-                                                    year: 'numeric',
-                                                })}
+                                        <div className="flex md:mt-0 mt-5 flex-col items-end">
+                                            <p className="text-md font-semibold">
+                                                Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
                                             </p>
 
-                                            <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+                                            <div className="flex items-center">
+                                                <p className="text-xs">
+                                                    {new Date(purchase.date).toLocaleDateString('id-ID', {
+                                                        day: '2-digit',
+                                                        month: 'long',
+                                                        year: 'numeric',
+                                                    })}
+                                                </p>
 
-                                            <p className="text-xs">
-                                                {new Date(purchase.date).toLocaleTimeString('id-ID', {
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                })}
-                                            </p>
+                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                                <p className="text-xs">
+                                                    {new Date(purchase.date).toLocaleTimeString('id-ID', {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit',
+                                                    })}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </button>
-                        ))}
+                                </button>
+                            ))}
                     </div>
                 </div>
             </div>

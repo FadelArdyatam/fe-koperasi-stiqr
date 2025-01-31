@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { CircleCheck, AlertCircle } from "lucide-react"; // Tambahkan ikon untuk error jika diperlukan
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface NotificationProps {
     message: string;
@@ -9,9 +11,13 @@ interface NotificationProps {
 }
 
 const Notification: React.FC<NotificationProps> = ({ message, onClose, status }) => {
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false });
+    }, []);
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20 flex items-center justify-center">
-            <div className="bg-white w-[90%] max-w-sm rounded-lg shadow-lg p-5">
+            <div data-aos="zoom-in" className="bg-white w-[90%] max-w-sm rounded-lg shadow-lg p-5">
                 {status === "success" ? (
                     <CircleCheck className="text-green-500 scale-150 mx-auto mt-5" />
                 ) : (

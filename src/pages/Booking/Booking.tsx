@@ -17,6 +17,8 @@ import OrderProcessed from "../Casheer/OrderProcessed";
 import { formatRupiah } from "../../hooks/convertRupiah";
 import { convertDate, convertTime } from "@/hooks/convertDate";
 import Receipt from "@/components/Receipt";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const bookingDatas: any[] = [
     [
@@ -89,6 +91,10 @@ export interface IVariant {
     updated_at: string;
 }
 const Booking = () => {
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false });
+    }, []);
+
     const LabelStatus = ({ status }: { status: string }) => {
         switch (status) {
             case "inprogress":
@@ -127,7 +133,7 @@ const Booking = () => {
     const [datas, setDatas] = useState<ISales[]>([]); // Disesuaikan sesuai tipe data response
     const [showReceipt, setShowReceipt] = useState({ type: "", show: false, index: index });
 
-    const [tagih,setTagih] = useState(false)
+    const [tagih, setTagih] = useState(false)
 
     const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
@@ -167,11 +173,11 @@ const Booking = () => {
                                 <ArrowLeft />
                             </Link>
 
-                            <p className="font-semibold text-2xl">Pesanan</p>
+                            <p data-aos="zoom-in" className="font-semibold text-2xl">Pesanan</p>
                         </div>
                     </div>
 
-                    <div className="mt-10 relative">
+                    <div data-aos="zoom-in" data-aos-delay="100" className="mt-10 relative">
                         {/* Ikon Pencarian */}
                         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500">
                             <Search />
@@ -192,7 +198,7 @@ const Booking = () => {
                     </div>
                 </div>
 
-                <div className=" w-[90%] flex flex-col gap-5">
+                <div data-aos="zoom-in" data-aos-delay="200" className="w-[90%] flex flex-col gap-5">
                     <div className="flex gap-3">
                         {statuses.map((status) => (
                             <div key={status.value} className="flex items-center gap-5 justify-between">
@@ -208,7 +214,7 @@ const Booking = () => {
                 </div>
 
                 {datas.length == 0 && (
-                    <div className="mt-20 flex justify-center flex-col items-center gap-5">
+                    <div data-aos="fade-up" data-aos-delay="300" className="mt-20 flex justify-center flex-col items-center gap-5">
                         <img src={noDataImg} className="md:w-9/12 w-8/12" />
                         <p className="text-orange-500 font-bold text-xl">
                             Belum ada Pemesanan
@@ -216,7 +222,7 @@ const Booking = () => {
                     </div>
                 )}
                 {datas.map((data, index) => (
-                    <div key={data.sales_id} className="mt-5 w-[90%] bg-white p-5 rounded-lg shadow-lg">
+                    <div data-aos="zoom-in" data-aos-delay={index * 100} key={data.sales_id} className="mt-5 w-[90%] bg-white p-5 rounded-lg shadow-lg">
                         <div className="w-full">
                             <div className="w-full">
                                 <div className="w-full flex items-center gap-5 justify-between">

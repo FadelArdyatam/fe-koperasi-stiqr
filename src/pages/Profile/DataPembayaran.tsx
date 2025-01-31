@@ -45,9 +45,11 @@ const DataPembayaran = () => {
 
     const [accounts, setAccounts] = useState<Account[]>([]);
 
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
     async function fetchData() {
         try {
-            const response = await axiosInstance.get('/account');
+            const response = await axiosInstance.get(`/account/${userData.merchant.id}`);
             setAccounts(response.data);
         } catch (error: any) {
             console.error("Failed to fetch data:", error.message);
@@ -60,7 +62,8 @@ const DataPembayaran = () => {
 
     async function getAccountForEdit(accountId: string) {
         try {
-            const response = await axiosInstance.get(`/account/${accountId}/detail`);
+            const response = await axiosInstance.get(`/account/${accountId}/detail/${userData.merchant.id}`);
+            console.log(response)
 
             const account = response.data;
 
@@ -84,26 +87,6 @@ const DataPembayaran = () => {
     }, [showContent.show])
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log("Form data:", data);
-
-        // Ambil informasi user dari sessionStorage
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
-
-        if (!userData || !userData.id) {
-            console.error("User data is missing or invalid.");
-            alert("Failed to retrieve user information. Please login again.");
-            return;
-        }
-
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-            console.error("Authorization token is missing.");
-            alert("Failed to retrieve authorization token. Please login again.");
-            return;
-        }
-
         const formData = new FormData();
         formData.append("bank_name", data.bankName);
         formData.append("account_number", data.accountNumber);
@@ -115,7 +98,7 @@ const DataPembayaran = () => {
             console.warn("No file provided for savingBook.");
         }
 
-        formData.append("user_id", userData.id);
+        formData.append("merchant_id", userData.merchant.id);
 
         try {
             const response = await axiosInstance.post(
@@ -138,26 +121,7 @@ const DataPembayaran = () => {
     }
 
     async function onSubmitForEdit(data: z.infer<typeof FormSchema>) {
-        console.log("Form data:", data);
-
-        // Ambil informasi user dari sessionStorage
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
-
-        if (!userData || !userData.id) {
-            console.error("User data is missing or invalid.");
-            alert("Failed to retrieve user information. Please login again.");
-            return;
-        }
-
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-            console.error("Authorization token is missing.");
-            alert("Failed to retrieve authorization token. Please login again.");
-            return;
-        }
-
+        
         const formData = new FormData();
         formData.append("bank_name", data.bankName);
         formData.append("account_number", data.accountNumber);
@@ -195,7 +159,6 @@ const DataPembayaran = () => {
         setIsAdding(false)
     }
 
-    console.log(dataForEdit)
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center">
@@ -248,21 +211,26 @@ const DataPembayaran = () => {
             </div>
 
             <div className={`${showContent.show === false && !isAdding ? 'block' : 'hidden'} bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20`}>
-                {accounts.length === 0 ? <img src={noDataPembayaranImage} alt="" /> : accounts.map((account, index) => (
-                    <div key={index}>
-                        <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] my-5 bg-gray-200`}></div>
+                {accounts.length === 0 ? (
+                    <div>
+                        <img src={noDataPembayaranImage} alt="" />
 
-                        <button onClick={() => setShowContent({ show: true, index: account.account_id })} className="flex w-full items-center gap-5 justify-between">
-                            <div className="flex flex-col items-start">
-                                <p>{account.bank_name}</p>
+                        <p className="text-center text-orange-500 mt-5 font-semibold">Belum ada data pembayaran yang terdaftar</p>
+                    </div>) : accounts.map((account, index) => (
+                        <div key={index}>
+                            <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] my-5 bg-gray-200`}></div>
 
-                                <p className="text-sm text-gray-500">{account.owner_name}, {account.account_number}</p>
-                            </div>
+                            <button onClick={() => setShowContent({ show: true, index: account.account_id })} className="flex w-full items-center gap-5 justify-between">
+                                <div className="flex flex-col items-start">
+                                    <p>{account.bank_name}</p>
 
-                            <ChevronRight />
-                        </button>
-                    </div>
-                ))}
+                                    <p className="text-sm text-gray-500">{account.owner_name}, {account.account_number}</p>
+                                </div>
+
+                                <ChevronRight />
+                            </button>
+                        </div>
+                    ))}
             </div>
 
             <Button onClick={() => setIsAdding(true)} className={`${isAdding || showEdit ? 'hidden' : 'block'} w-[90%] bg-green-400`}>Tambah Bank</Button>

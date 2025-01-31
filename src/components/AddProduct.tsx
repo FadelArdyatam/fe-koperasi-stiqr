@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { ChevronLeft, CircleCheck } from "lucide-react";
+import Notification from "./Notification";
 import { useState, useEffect } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
 
@@ -98,6 +99,7 @@ interface AddProductProps {
 const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddProduct, etalases, setEtalases }) => {
     const [quantity, setQuantity] = useState('g');
     const [showNotification, setShowNotification] = useState(false);
+    const [showNotificationEtalase, setShowNotificationEtalase] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
     const [showPopUpAddEtalase, setShowPopUpAddEtalase] = useState(false);
@@ -168,21 +170,8 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             );
             console.log(selectedEtalase);
 
-            // Agar produk yang baru ditambahkan langsung muncul di halaman produk
             setProducts([...products, response.data.data])
 
-            // Ini untuk get etalase "Semua Produk"
-            // const etalaseSemuaProduk = etalases.find((etalase) => etalase.showcase_name === "Semua Produk");
-
-            // const response2 = await axiosInstance.post(
-            //     "/showcase-product/create",
-            //     {
-            //         product_id: response?.data?.data?.product_id,
-            //         showcase_id: etalaseSemuaProduk?.showcase_id,
-            //     },
-            // )
-
-            // console.log(response2)
 
             if (selectedEtalase) {
                 const response3 = await axiosInstance.post(
@@ -196,36 +185,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                 console.log(response3)
             }
 
-            // // Add to local state with the returned image URL
-            // const newProduct = {
-            //     id: products.length + 1,
-            //     product_id: response.data.product_id || "",
-            //     product_name: data.name,
-            //     product_sku: data.SKU,
-            //     product_weight: `${data.weight + quantity}`,
-            //     product_category: 'Kain',
-            //     product_price: data.price,
-            //     product_status: true,
-            //     product_description: data.description || "",
-            //     product_image: response.data.photo_url || "",
-            //     created_at: response.data.created_at || "",
-            //     updated_at: response.data.updated_at || "",
-            //     merchant_id: userData?.merchant?.id || 'Unknown',
-            // };
-
-            // setProducts([...products, newProduct]);
-
-            // // Update each selected etalase
-            // data.etalase.forEach((selectedEtalase) => {
-            //     etalases.forEach((etalase) => {
-            //         if (etalase.name === selectedEtalase || etalase.name === "semua produk") {
-            //             etalase.products.push(newProduct.id);
-            //         }
-            //     });
-            // });
-
             console.log("Product successfully added to API:", response.data);
-            // console.log("Showcase Product successfully added to API:", response2.data);
             setShowNotification(true);
 
         } catch (error) {
@@ -259,6 +219,10 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
             // Agar etalase yang baru ditambahkan langsung muncul di halaman etalase
             setEtalases([...etalases, response?.data?.data]);
+
+            setShowPopUpAddEtalase(false);
+
+            setShowNotificationEtalase(true);
         } catch (error: any) {
             console.error("Error while adding etalase to API:", error);
         }
@@ -453,6 +417,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
                                         <button onClick={() => setShowPopUpAddEtalase(true)} className="p-2 rounded-lg bg-orange-500 text-white" type="button">+ Add Etalase</button>
                                     </FormLabel>
+
                                     {etalases
                                         ?.filter((etalase) => etalase?.showcase_name !== "Semua Produk")
                                         .map((etalase, index) => (
@@ -517,6 +482,9 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                     </div>
                 </div>
             )}
+
+            {/* Success Notification for Etalase */}
+            {showNotificationEtalase && <Notification message="Etalase berhasil ditambahkan!" onClose={() => setShowNotificationEtalase(false)} status="success" />}
 
             {/* Success Notification */}
             {showNotification && (

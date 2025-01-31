@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
 import { ChevronLeft, ChevronDown } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface BillData {
     product: string;
@@ -24,6 +26,10 @@ const BPJS = () => {
     const [KTP, setKTP] = useState("")
     const [dataBill, setDataBill] = useState<BillData | null>(null)
     const [showBill, setShowBill] = useState(false)
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false, offset: 100 });
+    }, [])
 
     const sendBill = () => {
         const data = {
@@ -55,14 +61,16 @@ const BPJS = () => {
                     <ChevronLeft className='scale-[1.3] text-white' />
                 </Link>
 
-                <p className='font-semibold m-auto text-xl text-white text-center'>BPJS Kesehatan</p>
+                <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>BPJS Kesehatan</p>
             </div>
 
             <div className={`${showBill ? 'hidden' : 'block'}`}>
                 <div className="bg-white w-[90%] -translate-y-[100px] p-10 shadow-lg rounded-md m-auto">
-                    <p className="font-semibold m-auto text-xl text-center">Bayar BPJS</p>
+                    <p data-aos="fade-up" data-aos-delay="100" className="font-semibold m-auto text-xl text-center">Bayar BPJS</p>
 
                     <RadioGroup
+                        data-aos="fade-up"
+                        data-aos-delay="200"
                         defaultValue=""
                         onValueChange={handleRadioChange}
                         className="mt-10 w-full flex items-center gap-5 justify-center"
@@ -77,7 +85,7 @@ const BPJS = () => {
                         </div>
                     </RadioGroup>
 
-                    <div className="mt-5">
+                    <div data-aos="fade-up" data-aos-delay="300" className="mt-5">
                         <p>Nomor KTP</p>
 
                         <Input onChange={(e) => setKTP(e.target.value)} type="number" className="mt-3 border border-black" />
@@ -85,7 +93,7 @@ const BPJS = () => {
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <div className="mt-10">
+                            <div data-aos="fade-up" data-aos-delay="400" className="mt-10">
                                 <p>Bayar untuk</p>
 
                                 <div className="flex items-center gap-5 border mt-2 text-gray-400 border-black rounded-lg p-2 justify-between">

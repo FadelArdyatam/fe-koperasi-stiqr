@@ -5,6 +5,8 @@ import { Link } from "react-router-dom"
 import telkomsel from '../images/telkomsel.png'
 import Bill from "@/components/Bill"
 import axiosInstance from "@/hooks/axiosInstance"
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface BillData {
     product: string;
@@ -26,6 +28,10 @@ const Pulsa = () => {
     const [products, setProducts] = useState<any[]>([]);
     const [category, setCategory] = useState("pulsa");
     const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false, offset: 100 });
+    }, []);
 
     useEffect(() => {
         const checkProfile = async () => {
@@ -143,7 +149,7 @@ const Pulsa = () => {
                     <ChevronLeft className='scale-[1.3] text-white' />
                 </Link>
 
-                <p className='font-semibold m-auto text-xl text-white text-center'>Beli Pulsa</p>
+                <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>Beli Pulsa</p>
 
                 <Button className="bg-transparent absolute right-5 hover:bg-transparent">
                     <Mail className="scale-[1.5]" />
@@ -151,7 +157,7 @@ const Pulsa = () => {
             </div>
 
             <div className={`${showBill ? 'hidden' : 'block'}`}>
-                <div className="relative mt-[105px] w-full p-8 shadow-lg flex items-center gap-5 justify-center">
+                <div data-aos="fade-up" data-aos-delay="100" className="relative mt-[105px] w-full p-8 shadow-lg flex items-center gap-5 justify-center">
                     <p className="absolute left-5">Saldo</p>
 
                     <p className="font-semibold text-orange-500 m-auto">{Number(balance).toLocaleString("id-ID", {
@@ -160,7 +166,18 @@ const Pulsa = () => {
                     })}</p>
                 </div>
 
-                <div className="mt-10 w-[90%] m-auto flex flex-col items-center gap-5">
+                <div data-aos="fade-up" data-aos-delay="400" className="mt-10 w-[90%] m-auto flex flex-col items-center gap-5">
+                    <input
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        type="text"
+                        placeholder="Search"
+                        className="w-full p-5 bg-white shadow-lg"
+                    />
+
+                    <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
+                </div>
+
+                <div data-aos="fade-up" data-aos-delay="200" className="mt-5 w-[90%] m-auto flex flex-col items-center gap-5">
                     <input
                         onChange={(e) => {
                             const value = e.target.value;
@@ -177,7 +194,7 @@ const Pulsa = () => {
                     <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
                 </div>
 
-                <div className="mt-10 w-[90%] m-auto flex flex-row items-center justify-center gap-5">
+                <div data-aos="fade-up" data-aos-delay="300" className="mt-10 w-[90%] m-auto flex flex-row items-center justify-center gap-5">
                     <Button onClick={() => setCategoryHandler("pulsa")} className="bg-orange-400 text-white w-full">
                         Pulsa
                     </Button>
@@ -187,27 +204,16 @@ const Pulsa = () => {
                     </Button>
                 </div>
 
-                <div className="mt-5 w-[90%] m-auto flex flex-col items-center gap-5">
-                    <input
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        type="text"
-                        placeholder="Search"
-                        className="w-full p-5 bg-white shadow-lg"
-                    />
-
-                    <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
-                </div>
-
                 <div className="mt-5 w-[90%] mb-10 m-auto flex flex-col items-center gap-5 shadow-lg">
-                    <div className="w-full flex items-center justify-center">
+                    <div data-aos="fade-up" data-aos-delay="500" className="w-full flex items-center justify-center">
                         <img src={telkomsel} className="w-[50%]" alt="" />
                     </div>
 
                     <div className="w-full flex flex-wrap">
                         {searchTerm !== '' ? filteredProducts.map((product, index) => (
-                            <button key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
+                            <button data-aos="fade-up" data-aos-delay={index * 100} key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
                         )) : products.map((product, index) => (
-                            <button key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
+                            <button data-aos="fade-up" data-aos-delay={index * 100} key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
                         ))}
                     </div>
                 </div>

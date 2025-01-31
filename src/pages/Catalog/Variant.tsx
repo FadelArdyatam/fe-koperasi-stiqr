@@ -2,6 +2,9 @@ import AddVariant from "@/components/AddVariant";
 import EditVariant from "@/components/EditVariant";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
 
 interface VariantProps {
     variants: Array<{
@@ -54,6 +57,10 @@ interface VariantProps {
 }
 
 const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, setAddVariant, setOpen, open, products }) => {
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true });
+    }, []);
+
     const handleSwitchChange = (id: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.stopPropagation();
 
@@ -84,8 +91,8 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
         <div className="mb-32 px-5">
             <div className={`${addVariant || open.status ? 'hidden' : 'block'}`}>
                 <div>
-                    {variants.map((variant) => (
-                        <div key={variant.id} className="shadow-sm">
+                    {variants.map((variant, index) => (
+                        <div data-aos="fade-up" data-aos-delay={index * 100} key={variant.id} className="shadow-sm">
                             <div
                                 className="flex w-full justify-between items-center p-4 bg-white rounded-md mt-3"
                             >

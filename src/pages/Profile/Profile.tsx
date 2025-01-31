@@ -4,12 +4,19 @@ import axios from "axios"
 import { ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, User, UserRound, FileText } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Profile = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(false)
     const [data, setData] = useState<any>()
     const urlImage = import.meta.env.VITE_API_URL.replace('/api', '');
     console.log(`${urlImage}/uploads/photos/${data?.photo}`)
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
+
     useEffect(() => {
         setData(JSON.parse(sessionStorage.getItem('user') || '{}'))
     }, [])
@@ -42,7 +49,7 @@ const Profile = () => {
                         <ChevronLeft className='scale-[1.3] text-white' />
                     </Link>
 
-                    <p className='font-semibold m-auto text-xl text-white text-center'>Settings</p>
+                    <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>Settings</p>
                 </div>
 
                 <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -81,7 +88,7 @@ const Profile = () => {
 
                 <div className="bg-white w-[90%] -translate-y-20 p-5 rounded-lg shadow-lg z-20">
                     <div className="flex gap-5 items-center">
-                        <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+                        <div data-aos="fade-up" className="w-20 h-20 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
                             {data?.photo ? (
                                 <img
                                     src={`${urlImage}/uploads/photos/${data?.photo}`}
@@ -93,20 +100,20 @@ const Profile = () => {
                             )}
                         </div>
 
-                        <div className="flex flex-col gap-3">
+                        <div data-aos="fade-up" data-aos-delay="100" className="flex flex-col gap-3">
                             <p className="text-xl font-semibold">{data?.username || data?.name}</p>
                             <p className="text-sm text-gray-500">{data?.email}</p>
                         </div>
                     </div>
 
-                    <Button onClick={handleSignOut} className="w-full mt-5 bg-orange-400">
+                    <Button data-aos="fade-up" data-aos-delay="300" onClick={handleSignOut} className="w-full mt-5 bg-orange-400">
                         Sign Out
                     </Button>
                 </div>
 
 
                 <div className="bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20 mb-10">
-                    <Link to={"/profile/security"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-delay="400" to={"/profile/security"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Keamanan</p>
 
@@ -118,7 +125,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link to={"/profile/owner-data"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-delay="500" to={"/profile/owner-data"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Data Pemilik</p>
 
@@ -130,7 +137,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link to={"/profile/merchant-data"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-delay="600" to={"/profile/merchant-data"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Data Merchant</p>
 
@@ -142,7 +149,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link to={"/profile/payment-data"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-delay="700" to={"/profile/payment-data"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Data Pembayaran</p>
 
@@ -154,7 +161,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <button onClick={() => setShowTermsandConditions(true)} className="flex items-center w-full gap-5 justify-between">
+                    <button data-aos="fade-up" data-aos-delay="800" onClick={() => setShowTermsandConditions(true)} className="flex items-center w-full gap-5 justify-between">
                         <div className="flex flex-col items-start">
                             <p>Syarat & Ketentuan</p>
 
@@ -166,7 +173,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link to={"/profile/history"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" to={"/profile/history"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Riwayat</p>
 
@@ -178,7 +185,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link to={"/profile/employee"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" to={"/profile/employee"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Pegawai</p>
 
@@ -190,7 +197,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link to={"/profile/printer"} className="flex items-center gap-5 justify-between ">
+                    <Link data-aos="fade-up" to={"/profile/printer"} className="flex items-center gap-5 justify-between ">
                         <div>
                             <p>Printer</p>
 

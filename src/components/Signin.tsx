@@ -1,10 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import logo from "../images/logo.png";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import axios from "axios";
 import Notification from "./Notification";
 import { Eye, EyeOff } from "lucide-react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Signin = () => {
 	const [email, setEmail] = useState("");
@@ -13,6 +15,10 @@ const Signin = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		AOS.init({ duration: 500, once: true });
+	}, []);
 
 	const handleSignin = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault(); // Pastikan form tidak refresh
@@ -52,7 +58,7 @@ const Signin = () => {
 
 	return (
 		<div className="p-10 flex flex-col items-center justify-center w-full min-h-screen">
-			<img src={logo} className="md:w-64 w-full" alt="Logo" />
+			<img src={logo} data-aos="zoom-in" className="md:w-64 w-full" alt="Logo" />
 
 			<form
 				action=""
@@ -65,6 +71,8 @@ const Signin = () => {
 				)}
 
 				<input
+					data-aos="fade-up"
+					data-aos-delay="100"
 					type="text"
 					value={email}
 					onChange={(e) => setEmail(e.target.value)}
@@ -72,7 +80,7 @@ const Signin = () => {
 					className="w-full border border-black px-4 py-3 rounded-lg"
 				/>
 
-				<div className="w-full relative flex items-center">
+				<div data-aos="fade-up" data-aos-delay="200" className="w-full relative flex items-center">
 					<input
 						type={showPassword ? "text" : "password"}
 						value={password}
@@ -84,11 +92,13 @@ const Signin = () => {
 					<button onClick={() => setShowPassword(!showPassword)} type="button" className="absolute right-5">{showPassword ? <EyeOff /> : <Eye />}</button>
 				</div>
 
-				<Link to="/forgot-password" className="text-gray-500 text-sm">
+				<Link data-aos="fade-up" data-aos-delay="300" to="/forgot-password" className="text-gray-500 text-sm">
 					Lupa Password?
 				</Link>
 
 				<Button
+					data-aos="fade-up"
+					data-aos-delay="300"
 					type="submit"
 					disabled={loading}
 					className={`uppercase px-5 py-3 w-full rounded-lg ${loading
@@ -100,7 +110,7 @@ const Signin = () => {
 				</Button>
 			</form>
 
-			<p className="mt-5 text-gray-500">
+			<p data-aos="fade-up" data-aos-delay="300" className="mt-5 text-gray-500">
 				Saya belum memiliki{" "}
 				<Link to="/signup" className="underline">
 					akun

@@ -8,11 +8,23 @@ import { z } from "zod"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import axiosInstance from "@/hooks/axiosInstance"
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const DataPemilik = () => {
     const [showEdit, setShowEdit] = useState(false)
     const [showNotification, setShowNotification] = useState(false)
     const [user, setUser] = useState<any>()
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false, offset: 100 });
+    }, [])
+
+    useEffect(() => {
+        setTimeout(() => {
+            AOS.refresh();
+        }, 100);
+    }, [showEdit]);
 
     const FormSchema = z.object({
         NIK: z.string().min(2, {
@@ -105,6 +117,7 @@ const DataPemilik = () => {
                 dateOfBirth: formatDateForInput(user.dob) || "",
             });
         }
+
         setIsUpdate(false)
         setShowEdit(true);
     };
@@ -135,7 +148,7 @@ const DataPemilik = () => {
                         <ChevronLeft className='scale-[1.3] text-white' />
                     </Link>
 
-                    <p className='font-semibold m-auto text-xl text-white text-center'>Data Pemilik</p>
+                    <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>Data Pemilik</p>
                 </div>
 
                 <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -173,7 +186,7 @@ const DataPemilik = () => {
                 </div>
 
                 <div className="bg-white w-[90%] -translate-y-20 p-5 flex flex-col items-center gap-5 rounded-lg shadow-lg z-0">
-                    <div className="flex w-full items-center justify-between">
+                    <div data-aos="fade-up" data-aos-delay="100" className="flex w-full items-center justify-between">
                         <p className="text-sm text-gray-500">NIK</p>
 
                         <p className="text-sm font-semibold">{user?.nik}</p>
@@ -181,7 +194,7 @@ const DataPemilik = () => {
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="200" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Nama</p>
 
                         <p className="text-sm font-semibold">{user?.username || user?.name}</p>
@@ -189,7 +202,7 @@ const DataPemilik = () => {
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="300" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Email</p>
 
                         <p className="text-sm font-semibold">{user?.email}</p>
@@ -197,7 +210,7 @@ const DataPemilik = () => {
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="400" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">No Hp</p>
 
                         <p className="text-sm font-semibold">{user?.phone_number}</p>
@@ -205,7 +218,7 @@ const DataPemilik = () => {
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="500" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Tanggal Lahir</p>
 
                         <FormatDate dateString={user?.dob} />
@@ -213,23 +226,23 @@ const DataPemilik = () => {
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="600" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Photo</p>
 
                         <Image />
                     </div>
                 </div>
-                <Button onClick={handleEditClick} className="w-[90%] bg-green-400 -mt-16 md:mb-20">Edit</Button>
 
+                <Button data-aos="fade-up" data-aos-delay="700" onClick={handleEditClick} className="w-[90%] bg-green-400 -mt-16 md:mb-20">Edit</Button>
             </div>
 
-            <div className={`${showEdit ? 'flex' : 'hidden'} w-full flex-col min-h-screen items-center`}>
+            <div key={showEdit ? "edit-mode" : "view-mode"} className={`${showEdit ? 'flex' : 'hidden'} w-full flex-col min-h-screen items-center`}>
                 <div className='w-full px-5 pt-5 pb-32 flex items-center justify-center bg-orange-400'>
                     <button onClick={() => setShowEdit(false)} className='absolute left-5 bg-transparent hover:bg-transparent'>
                         <ChevronLeft className='scale-[1.3] text-white' />
                     </button>
 
-                    <p className='font-semibold m-auto text-xl text-white text-center'>Edit Data Pemilik</p>
+                    <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>Edit Data Pemilik</p>
                 </div>
 
                 <div className="w-[90%] bg-white shadow-lg rounded-lg p-5 -translate-y-20">
@@ -240,7 +253,7 @@ const DataPemilik = () => {
                                     control={form.control}
                                     name="NIK"
                                     render={({ field }) => (
-                                        <FormItem className="w-full">
+                                        <FormItem data-aos="fade-up" data-aos-delay="100" className="w-full">
                                             <FormLabel className="text-gray-500">NIK</FormLabel>
 
                                             <FormControl>
@@ -255,7 +268,7 @@ const DataPemilik = () => {
                                     control={form.control}
                                     name="ownerName"
                                     render={({ field }) => (
-                                        <FormItem className="w-full">
+                                        <FormItem data-aos="fade-up" data-aos-delay="200" className="w-full">
                                             <FormLabel className="text-gray-500">Name</FormLabel>
 
                                             <FormControl>
@@ -270,7 +283,7 @@ const DataPemilik = () => {
                                     control={form.control}
                                     name="email"
                                     render={({ field }) => (
-                                        <FormItem className="w-full">
+                                        <FormItem data-aos="fade-up" data-aos-delay="300" className="w-full">
                                             <FormLabel className="text-gray-500">Email</FormLabel>
 
                                             <FormControl>
@@ -285,7 +298,7 @@ const DataPemilik = () => {
                                     control={form.control}
                                     name="phoneNumber"
                                     render={({ field }) => (
-                                        <FormItem className="w-full">
+                                        <FormItem data-aos="fade-up" data-aos-delay="400" className="w-full">
                                             <FormLabel className="text-gray-500">Phone</FormLabel>
 
                                             <FormControl>
@@ -300,7 +313,7 @@ const DataPemilik = () => {
                                     control={form.control}
                                     name="dateOfBirth"
                                     render={({ field }) => (
-                                        <FormItem className="w-full">
+                                        <FormItem data-aos="fade-up" data-aos-delay="500" className="w-full">
                                             <FormLabel className="text-gray-500">Date of Birth</FormLabel>
                                             <FormControl>
                                                 <Input
@@ -318,7 +331,7 @@ const DataPemilik = () => {
                                     control={form.control}
                                     name="photo"
                                     render={({ field }) => (
-                                        <FormItem className="w-full">
+                                        <FormItem data-aos="fade-up" data-aos-delay="600" className="w-full">
                                             <FormLabel className="text-gray-500">Photo</FormLabel>
                                             <FormControl>
                                                 <Input

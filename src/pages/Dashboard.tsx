@@ -13,6 +13,8 @@ import { formatRupiah } from "@/hooks/convertRupiah";
 import imgNoTransaction from "@/images/no-transaction.png";
 import { Button } from "@/components/ui/button";
 import DatePicker from "react-datepicker";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 export const admissionFees = [
     {
@@ -80,6 +82,7 @@ interface IHistory {
     time: string;
     transaction_status: "success" | "failed" | "pending";
     code: string;
+    channel?: number;
     sales?: {
         orderId: string;
     }
@@ -104,6 +107,10 @@ const Dashboard = () => {
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [showCalendar, setShowCalendar] = useState(false);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: false });
+    }, []);
 
     // const toggleDropdown = () => {
     //     setIsDropdownOpen((prev) => !prev); 
@@ -146,13 +153,6 @@ const Dashboard = () => {
         };
 
         const checkProfile = async () => {
-            const token = localStorage.getItem("token");
-
-            if (!token) {
-                console.warn("Token tidak ditemukan untuk otorisasi.");
-                return;
-            }
-
             try {
                 const response = await axiosInstance.get(
                     `/balance/${userData.merchant.id}`,
@@ -267,23 +267,23 @@ const Dashboard = () => {
 
             <div className="w-full relative px-10 pt-10 pb-32 bg-orange-400">
                 <div className="flex items-center gap-5">
-                    <p className="text-2xl m-auto uppercase font-semibold text-center text-white">Home</p>
+                    <p className="text-2xl m-auto uppercase font-semibold text-center text-white" data-aos="zoom-in">Home</p>
 
                     <Link to={'/inbox'} className="bg-transparent text-white absolute right-5 hover:bg-transparent">
                         <Mail className="scale-[1.3]" />
                     </Link>
                 </div>
 
-                <p className="text-center text-white mt-16 font-semibold text-xl">Hi, {user?.merchant?.name}</p>
+                <p className="text-center text-white mt-16 font-semibold text-xl" data-aos="zoom-in" data-aos-delay="50">Hi, {user?.merchant?.name}</p>
             </div>
 
             <div className="w-[90%] m-auto -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
-                <img src={logo} className="w-[50px]" alt="" />
+                <img src={logo} className="w-[50px]" data-aos="fade-up" data-aos-delay="100" alt="" />
 
                 <div className="w-full text-center">
-                    <p className="font-semibold text-lg">Saldo Anda</p>
+                    <p className="font-semibold text-lg" data-aos="fade-up" data-aos-delay="150">Saldo Anda</p>
 
-                    <div className="flex items-center justify-center gap-2">
+                    <div data-aos="fade-up" data-aos-delay="200" className="flex items-center justify-center gap-2">
                         {showBalance ? (
                             <p
                                 className={`font-bold mt-2 text-orange-400 ${balance > 99999999 ? "text-3xl" : "text-4xl"
@@ -309,7 +309,7 @@ const Dashboard = () => {
                 </div>
 
                 <div className="mt-10 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                    <div data-aos="fade-up" data-aos-delay="250" className="flex items-center gap-3">
                         <div className="w-10 min-w-10 min-h-10 h-10 flex items-center justify-center text-black bg-orange-400 rounded-full">
                             <HandCoins />
                         </div>
@@ -323,7 +323,7 @@ const Dashboard = () => {
 
                     <div className="w-10 h-[2px] bg-gray-300 rotate-90"></div>
 
-                    <div className="flex items-center gap-3">
+                    <div data-aos="fade-up" data-aos-delay="300" className="flex items-center gap-3">
                         <div className="w-10 min-w-10 min-h-10 h-10 flex items-center justify-center text-black bg-orange-400 rounded-full">
                             <CircleDollarSign />
                         </div>
@@ -338,7 +338,7 @@ const Dashboard = () => {
             </div>
 
             <div className="w-[90%] flex items-center gap-10 justify-center m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
-                <Link to={"/booking"} className="flex flex-col gap-2 items-center justify-center">
+                <Link data-aos="fade-up" data-aos-delay="350" to={"/booking"} className="flex flex-col gap-2 items-center justify-center">
                     <div className="flex items-center justify-center p-3 bg-orange-400 rounded-full">
                         <ClipboardList className="text-white scale-[1.1]" />
                     </div>
@@ -346,7 +346,7 @@ const Dashboard = () => {
                     <p className="text-sm uppercase">Pemesanan</p>
                 </Link>
 
-                <Link to={"/casheer"} className="flex flex-col gap-2 items-center justify-center">
+                <Link data-aos="fade-up" data-aos-delay="400" to={"/casheer"} className="flex flex-col gap-2 items-center justify-center">
                     <div className="flex items-center justify-center p-3 bg-orange-400 rounded-full">
                         <CirclePercent className="text-white scale-[1.1]" />
                     </div>
@@ -357,7 +357,7 @@ const Dashboard = () => {
 
             <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
                 <div className="flex items-center justify-between">
-                    <Link to={'/pulsa'} className="flex flex-col items-center gap-3">
+                    <Link data-aos="fade-up" data-aos-delay="450" to={'/pulsa'} className="flex flex-col items-center gap-3">
                         <Smartphone className="text-orange-400" />
 
                         <p className="uppercase text-center text-sm">Pulsa</p>
@@ -365,7 +365,7 @@ const Dashboard = () => {
 
                     <div className="w-10 min-w-10 h-[2px] min-h-[2px] bg-gray-300 rotate-90"></div>
 
-                    <Link to={'/pam'} className="flex flex-col items-center gap-3">
+                    <Link data-aos="fade-up" data-aos-delay="500" to={'/pam'} className="flex flex-col items-center gap-3">
                         <Droplet className="text-orange-400" />
 
                         <p className="uppercase text-center text-sm">PAM</p>
@@ -373,7 +373,7 @@ const Dashboard = () => {
 
                     <div className="w-10 min-w-10 h-[2px] min-h-[2px] bg-gray-300 rotate-90"></div>
 
-                    <Link to={'/listrik'} className="flex flex-col items-center gap-3">
+                    <Link data-aos="fade-up" data-aos-delay="550" to={'/listrik'} className="flex flex-col items-center gap-3">
                         <Zap className="text-orange-400" />
 
                         <p className="uppercase text-center text-sm">Listrik</p>
@@ -381,7 +381,7 @@ const Dashboard = () => {
 
                     <div className="w-10 min-w-10 h-[2px] min-h-[2px] bg-gray-300 rotate-90"></div>
 
-                    <Link to={'/bpjs'} className="flex flex-col items-center gap-3">
+                    <Link data-aos="fade-up" data-aos-delay="600" to={'/bpjs'} className="flex flex-col items-center gap-3">
                         <ShieldCheck className="text-orange-400" />
 
                         <p className="uppercase text-center text-sm">BPJS</p>
@@ -448,7 +448,7 @@ const Dashboard = () => {
 
                             <div className="flex items-center justify-between">
                                 <div className="flex items-start gap-2">
-                                    <img src={history.image} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
+                                    <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
 
                                     <div>
                                         <div className="flex items-center gap-2">
@@ -484,7 +484,6 @@ const Dashboard = () => {
                                             })}
                                         </p>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
