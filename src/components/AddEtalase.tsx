@@ -7,6 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import axiosInstance from "@/hooks/axiosInstance";
+import Notification from "./Notification";
 
 interface Merchant {
     id: string;
@@ -59,6 +60,7 @@ interface AddEtalaseProps {
 
 const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase, etalases, setEtalases }) => {
     const [showNotification, setShowNotification] = useState(false);
+    const [showError, setShowError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
     const FormSchema = z.object({
@@ -89,6 +91,7 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase, etalases, setEta
             console.log(response)
             setShowNotification(true);
         } catch (error: any) {
+            setShowError(true);
             setErrorMessage("Showcase dengan nama yang sama sudah ada.");
         }
     };
@@ -128,10 +131,6 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase, etalases, setEta
                             )}
                         />
 
-                        {errorMessage && (
-                            <p className="text-red-500 text-sm">{errorMessage}</p>
-                        )}
-
                         <Button type="submit" className="w-full bg-green-500 text-white">
                             Submit
                         </Button>
@@ -139,11 +138,15 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase, etalases, setEta
                 </Form>
             </div>
 
+            {/* Error */}
+            {showError && <Notification message={errorMessage} onClose={() => setShowError(false)} status={"error"} />}
+
             {/* Notification */}
             {showNotification && (
                 <div className="p-10">
                     <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
                     <p className="mt-10 font-semibold text-xl text-center">Etalase berhasil ditambahkan!</p>
+
                     <Button onClick={() => setAddEtalase(false)} className="w-full bg-green-500 text-white mt-10">
                         Selesai
                     </Button>

@@ -15,6 +15,7 @@ const Keamanan = () => {
     const [showContent, setShowContent] = useState('')
     const [showNotification, setShowNotification] = useState(false)
     const [showPIN, setShowPIN] = useState({ oldPIN: false, newPIN: false })
+    const [showPassword, setShowPassword] = useState({ oldPassword: false, newPassword: false, confirmPassword: false })
 
     useEffect(() => {
         AOS.init({ duration: 500, once: false, offset: 100 });
@@ -25,9 +26,24 @@ const Keamanan = () => {
     }, [showContent])
 
     const FormSchema = z.object({
-        password: z.string().min(8),
-        newPassword: z.string().min(8),
-        confirmPassword: z.string().min(8)
+        password: z
+            .string()
+            .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
+            .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
+            .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
+            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
+        newPassword: z.
+            string()
+            .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
+            .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
+            .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
+            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
+        confirmPassword: z
+            .string()
+            .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
+            .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
+            .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
+            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
     }).refine((data) => data.newPassword === data.confirmPassword, {
         message: 'Passwords do not match.',
         path: ['confirmPassword'], // Fokuskan error pada confirmPassword
@@ -64,8 +80,12 @@ const Keamanan = () => {
 
     // For PIN form
     const FormSchema2 = z.object({
-        oldPin: z.string().min(6),
-        newPin: z.string().min(6),
+        oldPin: z.string().length(6, {
+            "message": "Masukkan PIN Saat Ini"
+        }),
+        newPin: z.string().length(6, {
+            "message": "Masukkan PIN Baru 6 Digit"
+        }),
     })
 
     const form2 = useForm<z.infer<typeof FormSchema2>>({
@@ -174,7 +194,17 @@ const Keamanan = () => {
                                             <FormLabel className="text-gray-500">Password Saat Ini</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                                <div className="relative w-full">
+                                                    <Input type={showPassword.oldPassword ? 'text' : 'password'} className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+
+                                                    <button
+                                                        onClick={() => setShowPassword({ oldPassword: !showPassword.oldPassword, newPassword: showPassword.newPassword, confirmPassword: showPassword.confirmPassword })}
+                                                        className="block absolute top-2 right-5"
+                                                        type="button"
+                                                    >
+                                                        {showPassword.oldPassword ? <EyeOff /> : <Eye />}
+                                                    </button>
+                                                </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -189,7 +219,17 @@ const Keamanan = () => {
                                             <FormLabel className="text-gray-500">Password Baru</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                                <div className="relative w-full">
+                                                    <Input type={showPassword.newPassword ? 'text' : 'password'} className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+
+                                                    <button
+                                                        onClick={() => setShowPassword({ oldPassword: showPassword.oldPassword, newPassword: !showPassword.newPassword, confirmPassword: showPassword.confirmPassword })}
+                                                        className="block absolute top-2 right-5"
+                                                        type="button"
+                                                    >
+                                                        {showPassword.newPassword ? <EyeOff /> : <Eye />}
+                                                    </button>
+                                                </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -204,7 +244,17 @@ const Keamanan = () => {
                                             <FormLabel className="text-gray-500">Retype Password Baru</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                                <div className="relative w-full">
+                                                    <Input type={showPassword.confirmPassword ? 'text' : 'password'} className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+
+                                                    <button
+                                                        onClick={() => setShowPassword({ oldPassword: showPassword.oldPassword, newPassword: showPassword.newPassword, confirmPassword: !showPassword.confirmPassword })}
+                                                        className="block absolute top-2 right-5"
+                                                        type="button"
+                                                    >
+                                                        {showPassword.confirmPassword ? <EyeOff /> : <Eye />}
+                                                    </button>
+                                                </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

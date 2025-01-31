@@ -235,6 +235,10 @@ const DataMerchant = () => {
         setIsUpdate(true)
     }
 
+    console.log("Selected Province:", selectedProvince);
+    console.log("Selected Regency:", selectedRegency);
+    console.log("Selected District:", selectedDistrict);
+
     return (
         <>
             <div className={`${showEdit ? 'hidden' : 'flex'} w-full flex-col min-h-screen items-center`}>
@@ -397,7 +401,7 @@ const DataMerchant = () => {
                                                             <ChevronDown />
                                                         </div>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="w-full bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4">
+                                                    <DropdownMenuContent className="z-10 w-full bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4">
                                                         <DropdownMenuLabel>Category</DropdownMenuLabel>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem onSelect={() => field.onChange("Makanan & Minuman")} className="w-full">Makanan & Minuman</DropdownMenuItem>
@@ -428,13 +432,13 @@ const DataMerchant = () => {
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <div data-aos="fade-up" data-aos-delay="300" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                            <button className="">
+                                                            <button type="button" className="">
                                                                 {field.value || "Select Province"}
                                                             </button>
                                                             <ChevronDown />
                                                         </div>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="w-full bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4 max-h-96 overflow-y-auto">
+                                                    <DropdownMenuContent className="w-full z-10 bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4 max-h-96 overflow-y-auto">
                                                         <DropdownMenuLabel>City</DropdownMenuLabel>
                                                         <DropdownMenuSeparator />
                                                         {loading ? (
@@ -470,13 +474,13 @@ const DataMerchant = () => {
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <div data-aos="fade-up" data-aos-delay="400" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                            <button className="">
+                                                            <button type="button" className={`${selectedProvince === null ? 'opacity-50 pointer-events-none' : 'opacity-100 pointer-events-auto'} transition-all`}>
                                                                 {field.value || "Select Regency"}
                                                             </button>
                                                             <ChevronDown />
                                                         </div>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="w-full bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4 max-h-96 overflow-y-auto">
+                                                    <DropdownMenuContent className={`${selectedProvince === null ? 'hidden' : 'flex'} z-10 w-full bg-white shadow-lg p-5 rounded-lg flex-col gap-4 max-h-96 overflow-y-auto`}>
                                                         <DropdownMenuLabel>Regency</DropdownMenuLabel>
                                                         <DropdownMenuSeparator />
                                                         {loading ? (
@@ -512,13 +516,13 @@ const DataMerchant = () => {
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <div data-aos="fade-up" data-aos-delay="500" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                            <button className="">
+                                                            <button type="button" className={`${selectedRegency === null ? 'opacity-50 pointer-events-none' : 'opacity-100 pointer-events-auto'} transition-all`}>
                                                                 {field.value || "Select District"}
                                                             </button>
                                                             <ChevronDown />
                                                         </div>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="w-full bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4 max-h-96 overflow-y-auto">
+                                                    <DropdownMenuContent className={`${selectedRegency === null ? 'hidden' : 'flex'} z-10 w-full bg-white shadow-lg p-5 rounded-lg flex-col gap-4 max-h-96 overflow-y-auto`}>
                                                         <DropdownMenuLabel>District</DropdownMenuLabel>
                                                         <DropdownMenuSeparator />
                                                         {loading ? (
@@ -554,13 +558,13 @@ const DataMerchant = () => {
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <div data-aos="fade-up" data-aos-delay="600" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                            <button className="">
+                                                            <button type="button" className={`${selectedDistrict === null ? 'opacity-50 pointer-events-none' : 'opacity-100 pointer-events-auto'} transition-all`}>
                                                                 {field.value || "Select Village"}
                                                             </button>
                                                             <ChevronDown />
                                                         </div>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="w-full bg-white shadow-lg p-5 rounded-lg flex flex-col gap-4 max-h-96 overflow-y-auto">
+                                                    <DropdownMenuContent className={`${selectedDistrict === null ? 'hidden' : 'flex'} z-10 w-full bg-white shadow-lg p-5 rounded-lg flex-col gap-4 max-h-96 overflow-y-auto`}>
                                                         <DropdownMenuLabel>Village</DropdownMenuLabel>
                                                         <DropdownMenuSeparator />
                                                         {loading ? (

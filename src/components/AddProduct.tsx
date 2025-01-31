@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { ChevronLeft, CircleCheck } from "lucide-react";
+import Notification from "./Notification";
 import { useState, useEffect } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
 
@@ -98,6 +99,7 @@ interface AddProductProps {
 const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddProduct, etalases, setEtalases }) => {
     const [quantity, setQuantity] = useState('g');
     const [showNotification, setShowNotification] = useState(false);
+    const [showNotificationEtalase, setShowNotificationEtalase] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
     const [showPopUpAddEtalase, setShowPopUpAddEtalase] = useState(false);
@@ -259,6 +261,10 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
             // Agar etalase yang baru ditambahkan langsung muncul di halaman etalase
             setEtalases([...etalases, response?.data?.data]);
+
+            setShowPopUpAddEtalase(false);
+
+            setShowNotificationEtalase(true);
         } catch (error: any) {
             console.error("Error while adding etalase to API:", error);
         }
@@ -453,6 +459,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
                                         <button onClick={() => setShowPopUpAddEtalase(true)} className="p-2 rounded-lg bg-orange-500 text-white" type="button">+ Add Etalase</button>
                                     </FormLabel>
+
                                     {etalases
                                         ?.filter((etalase) => etalase?.showcase_name !== "Semua Produk")
                                         .map((etalase, index) => (
@@ -517,6 +524,9 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                     </div>
                 </div>
             )}
+
+            {/* Success Notification for Etalase */}
+            {showNotificationEtalase && <Notification message="Etalase berhasil ditambahkan!" onClose={() => setShowNotificationEtalase(false)} status="success" />}
 
             {/* Success Notification */}
             {showNotification && (

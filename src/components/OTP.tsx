@@ -164,7 +164,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 						</div>
 
 						<input
-							type=""
+							type="number"
 							onChange={(e) => setPhoneNumber(e.target.value)}
 							placeholder="Masukkan No Hp Anda"
 							className="rounded-sm border border-black px-4 w-full py-3"

@@ -248,21 +248,26 @@ const DataPembayaran = () => {
             </div>
 
             <div className={`${showContent.show === false && !isAdding ? 'block' : 'hidden'} bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20`}>
-                {accounts.length === 0 ? <img src={noDataPembayaranImage} alt="" /> : accounts.map((account, index) => (
-                    <div key={index}>
-                        <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] my-5 bg-gray-200`}></div>
+                {accounts.length === 0 ? (
+                    <div>
+                        <img src={noDataPembayaranImage} alt="" />
 
-                        <button onClick={() => setShowContent({ show: true, index: account.account_id })} className="flex w-full items-center gap-5 justify-between">
-                            <div className="flex flex-col items-start">
-                                <p>{account.bank_name}</p>
+                        <p className="text-center text-orange-500 mt-5 font-semibold">Belum ada data pembayaran yang terdaftar</p>
+                    </div>) : accounts.map((account, index) => (
+                        <div key={index}>
+                            <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] my-5 bg-gray-200`}></div>
 
-                                <p className="text-sm text-gray-500">{account.owner_name}, {account.account_number}</p>
-                            </div>
+                            <button onClick={() => setShowContent({ show: true, index: account.account_id })} className="flex w-full items-center gap-5 justify-between">
+                                <div className="flex flex-col items-start">
+                                    <p>{account.bank_name}</p>
 
-                            <ChevronRight />
-                        </button>
-                    </div>
-                ))}
+                                    <p className="text-sm text-gray-500">{account.owner_name}, {account.account_number}</p>
+                                </div>
+
+                                <ChevronRight />
+                            </button>
+                        </div>
+                    ))}
             </div>
 
             <Button onClick={() => setIsAdding(true)} className={`${isAdding || showEdit ? 'hidden' : 'block'} w-[90%] bg-green-400`}>Tambah Bank</Button>

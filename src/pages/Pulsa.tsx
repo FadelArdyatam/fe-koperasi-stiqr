@@ -166,7 +166,18 @@ const Pulsa = () => {
                     })}</p>
                 </div>
 
-                <div data-aos="fade-up" data-aos-delay="200" className="mt-10 w-[90%] m-auto flex flex-col items-center gap-5">
+                <div data-aos="fade-up" data-aos-delay="400" className="mt-10 w-[90%] m-auto flex flex-col items-center gap-5">
+                    <input
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        type="text"
+                        placeholder="Search"
+                        className="w-full p-5 bg-white shadow-lg"
+                    />
+
+                    <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
+                </div>
+
+                <div data-aos="fade-up" data-aos-delay="200" className="mt-5 w-[90%] m-auto flex flex-col items-center gap-5">
                     <input
                         onChange={(e) => {
                             const value = e.target.value;
@@ -191,17 +202,6 @@ const Pulsa = () => {
                     <Button onClick={() => setCategoryHandler("paket data")} className="bg-orange-400 text-white w-full">
                         Paket Data
                     </Button>
-                </div>
-
-                <div data-aos="fade-up" data-aos-delay="400" className="mt-5 w-[90%] m-auto flex flex-col items-center gap-5">
-                    <input
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        type="text"
-                        placeholder="Search"
-                        className="w-full p-5 bg-white shadow-lg"
-                    />
-
-                    <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
                 </div>
 
                 <div className="mt-5 w-[90%] mb-10 m-auto flex flex-col items-center gap-5 shadow-lg">
