@@ -21,7 +21,7 @@ const Onboarding = ({ setShowOnboarding }: OnboardingProps) => {
     const [animateKey, setAnimateKey] = useState(0); // Key untuk trigger ulang animasi
 
     useEffect(() => {
-        AOS.init({ duration: 1000, once: false });
+        AOS.init({ duration: 1000, once: true });
     }, []);
 
     useEffect(() => {
@@ -63,13 +63,13 @@ const Onboarding = ({ setShowOnboarding }: OnboardingProps) => {
                         className={`absolute inset-0 flex items-center justify-center transition-transform duration-500 ${slide === index ? "translate-x-0" : slide > index ? "-translate-x-full" : "translate-x-full"
                             }`}
                     >
-                        <img data-aos="zoom-in" key={animateKey} src={item.image} alt="" />
+                        <img className="h-min" data-aos="zoom-in" key={animateKey} src={item.image} alt="" />
                     </div>
                 ))}
             </div>
 
             {/* Text & Animasi */}
-            <div className="mt-10 text-center" key={animateKey}>
+            <div className="text-center" key={animateKey}>
                 <h2 className="font-semibold text-2xl" data-aos="fade-up" data-aos-delay="300">{slides[slide].title}</h2>
                 <p className="mt-4 text-gray-700" data-aos="fade-up" data-aos-delay="600">{slides[slide].description}</p>
             </div>

@@ -54,7 +54,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
     const [orderIdInstant, setOrderIdInstant] = useState<string | null>(null)
 
     useEffect(() => {
-        AOS.init({ duration: 500, once: false });
+        AOS.init({ duration: 500, once: true });
     }, []);
 
     useEffect(() => {
@@ -396,7 +396,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                             Bagikan
                         </Button>
 
-                        <Button onClick={() => setShowOtherMethod(true)} className="mt-5">Pilih Metode Pembayaran Lain</Button>
+                        <Button onClick={() => setShowOtherMethod(true)} className={`${sales_id !== undefined ? 'block w-full' : 'hidden'} mt-5`}>Pilih Metode Pembayaran Lain</Button>
                     </div>
 
                     <div className="relative rotate-180">

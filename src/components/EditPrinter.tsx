@@ -6,7 +6,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface EditPrinterProps {
     setOpen: (open: { id: number; status: boolean }) => void;
@@ -19,6 +21,10 @@ interface EditPrinterProps {
 const EditPrinter: React.FC<EditPrinterProps> = ({ printers, setPrinters, setOpen, editIndex }) => {
     const printerToEdit = printers[editIndex]; // Produk yang sedang diedit
     console.log("Printer to edit:", printerToEdit);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
 
     // Validasi schema untuk form
     const FormSchema = z.object({
@@ -96,7 +102,8 @@ const EditPrinter: React.FC<EditPrinterProps> = ({ printers, setPrinters, setOpe
                 <button onClick={() => setOpen({ id: -1, status: false })}>
                     <ChevronLeft />
                 </button>
-                <p className="font-semibold text-xl text-center uppercase">Ubah Data Printer</p>
+
+                <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Ubah Data Printer</p>
             </div>
 
             <Form {...form}>
@@ -106,7 +113,7 @@ const EditPrinter: React.FC<EditPrinterProps> = ({ printers, setPrinters, setOpe
                         control={form.control}
                         name="type"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay="100">
                                 <FormLabel>Tipe Koneksi</FormLabel>
                                 <FormControl>
                                     <Input disabled {...field} />
@@ -121,7 +128,7 @@ const EditPrinter: React.FC<EditPrinterProps> = ({ printers, setPrinters, setOpe
                         control={form.control}
                         name="macAddress"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay="200">
                                 <FormLabel>Mac Address</FormLabel>
                                 <FormControl>
                                     <div className="flex items-center w-full justify-center">
@@ -155,7 +162,7 @@ const EditPrinter: React.FC<EditPrinterProps> = ({ printers, setPrinters, setOpe
                         control={form.control}
                         name="name"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay="300">
                                 <FormLabel>Nama Produk</FormLabel>
                                 <FormControl>
                                     <div className="relative">
@@ -179,7 +186,7 @@ const EditPrinter: React.FC<EditPrinterProps> = ({ printers, setPrinters, setOpe
                         control={form.control}
                         name="paperSize"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay="400">
                                 <FormLabel>Ukuran Kertas</FormLabel>
                                 <FormControl>
                                     <select
@@ -201,7 +208,7 @@ const EditPrinter: React.FC<EditPrinterProps> = ({ printers, setPrinters, setOpe
                         control={form.control}
                         name="receiptType"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay="500">
                                 <FormLabel>Tipe Receipt</FormLabel>
                                 <div className="space-y-2">
                                     {["Pembayaran", "Checker", "Tagihan", "Dapur"].map((type) => (
@@ -242,7 +249,7 @@ const EditPrinter: React.FC<EditPrinterProps> = ({ printers, setPrinters, setOpe
                         )}
                     />
 
-                    <Button type="submit" className="w-full bg-green-500 text-white">
+                    <Button data-aos="fade-up" data-aos-delay="600" type="submit" className="w-full bg-green-500 text-white">
                         Submit
                     </Button>
                 </form>

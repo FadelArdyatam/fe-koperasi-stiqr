@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import AddPrinter from "@/components/AddPrinter";
 import EditPrinter from "@/components/EditPrinter";
 import axiosInstance from "@/hooks/axiosInstance";
+import noPrinter from "@/images/no-data-image/no-printer.png";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const initialPrinter: any[] | (() => any[]) = [];
 
@@ -18,9 +21,19 @@ const Printer = () => {
         status: false,
     });
 
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, [])
+
+    useEffect(() => {
+        setTimeout(() => {
+            AOS.refresh();
+        }, 100);
+    }, [showOption])
+
     async function fetchPrinters() {
         try {
-            const response = await axiosInstance("/printer"); 
+            const response = await axiosInstance("/printer");
             const data = await response.data.data;
             console.log(data)
             setPrinters(data);
@@ -42,17 +55,17 @@ const Printer = () => {
             console.log("Requesting Bluetooth Device...");
             const device = await (navigator as any).bluetooth.requestDevice({
                 acceptAllDevices: true,
-                optionalServices: ["printer"], 
+                optionalServices: ["printer"],
             });
 
             console.log("Connecting to GATT Server...");
             const server = await device.gatt.connect();
 
             console.log("Getting Printer Service...");
-            const service = await server.getPrimaryService("printer"); 
+            const service = await server.getPrimaryService("printer");
 
             console.log("Getting Characteristics...");
-            const characteristic = await service.getCharacteristic("characteristic-uuid"); 
+            const characteristic = await service.getCharacteristic("characteristic-uuid");
 
             console.log("Sending Data...");
             const encoder = new TextEncoder();
@@ -83,7 +96,8 @@ const Printer = () => {
                     <Link to={"/profile"} className="absolute left-5 bg-transparent hover:bg-transparent">
                         <ChevronLeft className="scale-[1.3] text-black" />
                     </Link>
-                    <p className="font-semibold m-auto text-xl text-black text-center">Pengaturan Perangkat</p>
+
+                    <p data-aos="zoom-in" className="font-semibold m-auto text-xl text-black text-center">Pengaturan Perangkat</p>
                 </div>
 
                 <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -91,20 +105,24 @@ const Printer = () => {
                         <Home />
                         <p className="uppercase">Home</p>
                     </Link>
+
                     <Link to={"/qr-code"} className="flex gap-3 flex-col items-center">
                         <ScanQrCode />
                         <p className="uppercase">Qr Code</p>
                     </Link>
+
                     <Link to={"/settlement"} className="flex relative gap-3 flex-col items-center">
                         <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
                             <CreditCard />
                         </div>
                         <p className="uppercase">Penarikan</p>
                     </Link>
+
                     <Link to={"/catalog"} className="flex gap-3 flex-col items-center">
                         <FileText />
                         <p className="uppercase">Catalog</p>
                     </Link>
+
                     <Link to={"/profile"} className="flex gap-3 flex-col text-orange-400 items-center">
                         <UserRound />
                         <p className="uppercase">Profile</p>
@@ -113,11 +131,11 @@ const Printer = () => {
 
                 <div className="w-full flex items-center p-5">
                     {printers.length === 0 ? (
-                        <PrinterCheck className="block scale-[5] mt-32 m-auto" />
+                        <img data-aos="fade-up" data-aos-delay='100' className="mt-10" src={noPrinter} alt="" />
                     ) : (
                         <div className="w-full bg-orange-50 p-5 mt-10 rounded-lg flex flex-col gap-5">
                             {printers.map((printer, index) => (
-                                <div key={index} onClick={() => handleOpen(printer.id)} className="flex items-center gap-5">
+                                <div data-aos="fade-up" data-aos-delay={index * 100} key={index} onClick={() => handleOpen(printer.id)} className="flex items-center gap-5">
                                     <div className="p-5 bg-orange-200 rounded-lg flex items-center justify-center">
                                         <PrinterCheck className="block scale-[1.5] text-gray-500" />
                                     </div>
@@ -131,8 +149,8 @@ const Printer = () => {
                 </div>
 
                 {showOption && (
-                    <div className="fixed bg-black bg-opacity-50 inset-0 z-20 -translate-y-10">
-                        <div className="bg-white p-4 rounded-lg mt-10 translate-y-10 absolute bottom-0 w-full">
+                    <div className="fixed bg-black bg-opacity-50 inset-0 z-20">
+                        <div data-aos="fade-up" className="bg-white p-4 rounded-t-lg mt-10 translate-y-10 absolute bottom-0 w-full">
                             <div className="flex mb-3 items-center gap-5 justify-between">
                                 <p className="text-lg font-semibold">Tambah Perangkat Baru</p>
                                 <button onClick={() => setShowOption(false)}><X /></button>

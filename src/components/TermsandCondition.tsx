@@ -25,7 +25,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
     const [errorMessage, setErrorMessage] = useState<string>("");
 
     useEffect(() => {
-        AOS.init({ duration: 500, once: false });
+        AOS.init({ duration: 500, once: true });
     }, []);
 
     const handleAccordionChange = (value: string) => {

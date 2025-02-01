@@ -28,7 +28,7 @@ const PAM = () => {
     const [selectedProduct, setSelecteProduct] = useState<any>(null)
 
     useEffect(() => {
-        AOS.init({ duration: 500, once: false, offset: 100 });
+        AOS.init({ duration: 500, once: true, offset: 100 });
     }, []);
 
     useEffect(() => {

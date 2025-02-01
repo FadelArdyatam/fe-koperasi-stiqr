@@ -91,7 +91,7 @@ export interface IVariant {
 }
 const Booking = () => {
     useEffect(() => {
-        AOS.init({ duration: 500, once: false });
+        AOS.init({ duration: 500, once: true });
     }, []);
 
     const LabelStatus = ({ status }: { status: string }) => {
@@ -164,7 +164,7 @@ const Booking = () => {
     console.log(datas);
     return (
         <div>
-            <div className={`${showOrderProcess || !showReceipt.show && showReceipt.type !== "" ? "hidden" : "flex"} w-full flex-col min-h-screen items-center bg-orange-50`}>
+            <div className={`${showOrderProcess || !showReceipt.show && showReceipt.type !== "" ? "hidden" : "flex"} pb-10 w-full flex-col min-h-screen items-center bg-orange-50`}>
                 <div className={`p-5 w-full`}>
                     <div className="w-full flex items-center gap-5 justify-between">
                         <div className="flex items-center gap-5">
@@ -215,6 +215,7 @@ const Booking = () => {
                         </p>
                     </div>
                 )}
+
                 {datas.map((data, index) => (
                     <div data-aos="zoom-in" data-aos-delay={index * 100} key={data.sales_id} className="mt-5 w-[90%] bg-white p-5 rounded-lg shadow-lg">
                         <div className="w-full">
@@ -226,6 +227,7 @@ const Booking = () => {
                                         </p>
                                         <LabelStatus status={status} />
                                     </div>
+
                                     <div className="flex items-center gap-2">
                                         <Computer />
                                         <p className="font-semibold">Kasir</p>
@@ -266,6 +268,7 @@ const Booking = () => {
                                             ({data.quantity} produk)
                                         </p>
                                     </div>
+
                                     <div className="w-full mt-5">
                                         <div className="w-full flex items-center gap-5">
                                             <Button className="w-full rounded-full bg-transparent border border-orange-500 text-orange-500">

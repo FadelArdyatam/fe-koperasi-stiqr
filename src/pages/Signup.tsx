@@ -35,7 +35,7 @@ const Signup = () => {
     const [errorMessage, setErrorMessage] = useState<string>('');
 
     useEffect(() => {
-        AOS.init({ duration: 500, once: false });
+        AOS.init({ duration: 500, once: true });
     }, []);
 
     useEffect(() => {
@@ -688,7 +688,7 @@ const Signup = () => {
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <div data-aos="fade-up" data-aos-delay="200" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                    <button>
+                                                                    <button type="button">
                                                                         {field.value || "Select Province"}
                                                                     </button>
                                                                     <ChevronDown />
@@ -733,8 +733,7 @@ const Signup = () => {
                                                             <DropdownMenuTrigger asChild>
                                                                 <div
                                                                     data-aos="fade-up" data-aos-delay="300"
-                                                                    className={`p-3 font-sans font-semibold flex items-center w-full justify-between ${selectedProvince ? "bg-[#F4F4F4] cursor-pointer" : "bg-gray-200 cursor-not-allowed"
-                                                                        }`}
+                                                                    className={`p-3 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4]`}
                                                                 >
                                                                     <button
                                                                         disabled={!selectedProvince}
@@ -787,8 +786,7 @@ const Signup = () => {
                                                             <DropdownMenuTrigger asChild>
                                                                 <div
                                                                     data-aos="fade-up" data-aos-delay="400"
-                                                                    className={`p-3 font-sans font-semibold flex items-center w-full justify-between ${selectedRegency ? "bg-[#F4F4F4] cursor-pointer" : "bg-gray-200 cursor-not-allowed"
-                                                                        }`}
+                                                                    className={`p-3 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4]`}
                                                                 >
                                                                     <button
                                                                         disabled={!selectedRegency}
@@ -838,8 +836,7 @@ const Signup = () => {
                                                             <DropdownMenuTrigger asChild>
                                                                 <div
                                                                     data-aos="fade-up" data-aos-delay="500"
-                                                                    className={`p-3 font-sans font-semibold flex items-center w-full justify-between ${selectedDistrict ? "bg-[#F4F4F4] cursor-pointer" : "bg-gray-200 cursor-not-allowed"
-                                                                        }`}
+                                                                    className={`p-3 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4]`}
                                                                 >
                                                                     <button
                                                                         disabled={!selectedDistrict}
@@ -888,7 +885,7 @@ const Signup = () => {
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <div data-aos="fade-up" data-aos-delay="600" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                    <button className="">
+                                                                    <button type="button" className="">
                                                                         {field.value || "Select Category"} {/* Display selected value */}
                                                                     </button>
 

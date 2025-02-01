@@ -14,6 +14,8 @@ import { Button } from "./ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface EditVariantProps {
     setOpen: (open: { id: string; status: boolean }) => void;
@@ -25,6 +27,10 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex }) => {
     const [variantToEdit, setVariantToEdit] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
 
     const token = localStorage.getItem("token");
 
@@ -103,7 +109,8 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex }) => {
                 <button onClick={() => setOpen({ id: "", status: false })}>
                     <ChevronLeft />
                 </button>
-                <p className="font-semibold text-xl text-center uppercase">Edit Varian</p>
+
+                <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Edit Varian</p>
             </div>
 
             {loading && <p className="text-center text-gray-500 mt-5">Loading variant details...</p>}
@@ -124,7 +131,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex }) => {
                             control={form.control}
                             name="name"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay={100}>
                                     <FormLabel>Nama Varian</FormLabel>
                                     <FormControl>
                                         <Input
@@ -141,7 +148,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex }) => {
                             control={form.control}
                             name="description"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay={200}>
                                     <FormLabel>Deskripsi (Opsional)</FormLabel>
                                     <FormControl>
                                         <Input
@@ -158,7 +165,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex }) => {
                             control={form.control}
                             name="is_multiple"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay={300}>
                                     <div className="flex items-center gap-5 justify-between">
                                         <FormLabel>Bisa Memilih Lebih dari Satu?</FormLabel>
                                         <FormControl>
@@ -183,7 +190,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex }) => {
                             control={form.control}
                             name="multiple_value"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay={400}>
                                     <FormLabel>Nilai Pilihan (Pisahkan dengan koma)</FormLabel>
                                     <FormControl>
                                         <Input
@@ -196,7 +203,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex }) => {
                             )}
                         />
 
-                        <Button type="submit" className="w-full bg-green-500 text-white">
+                        <Button data-aos="fade-up" data-aos-delay={500} type="submit" className="w-full bg-green-500 text-white">
                             Simpan Perubahan
                         </Button>
                     </form>

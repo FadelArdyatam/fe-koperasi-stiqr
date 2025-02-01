@@ -11,8 +11,9 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
-import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, Key } from "react";
-
+import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, Key, useEffect } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface EditEmployeeProps {
     setOpen: (open: { id: number; status: boolean }) => void;
@@ -42,6 +43,10 @@ interface EditEmployeeProps {
 
 const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmployees, editIndex }) => {
     const employeeToEdit = employees[editIndex];
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
 
     // Validasi schema untuk form
     const FormSchema = z.object({
@@ -101,7 +106,8 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
                 <button onClick={() => setOpen({ id: -1, status: false })}>
                     <ChevronLeft />
                 </button>
-                <p className="font-semibold text-xl text-center uppercase">Ubah Data Pegawai</p>
+
+                <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Ubah Data Pegawai</p>
             </div>
 
             <Form {...form}>
@@ -111,7 +117,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
                         control={form.control}
                         name="name"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay={100}>
                                 <FormLabel>Nama Pegawai</FormLabel>
                                 <FormControl>
                                     <div className="relative">
@@ -134,7 +140,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
                         control={form.control}
                         name="phone_number"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay={200}>
                                 <FormLabel>Nomor Telepon</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Enter phone number" {...field} disabled={true} />
@@ -149,7 +155,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
                         control={form.control}
                         name="email"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay={300}>
                                 <FormLabel>Alamat Email</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Enter email" {...field} disabled={true} />
@@ -164,7 +170,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
                         control={form.control}
                         name="password"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay={400}>
                                 <FormLabel>Password</FormLabel>
                                 <FormControl>
                                     <Input
@@ -183,7 +189,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
                         control={form.control}
                         name="role_name"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay={500}>
                                 <FormLabel>Peran Pegawai</FormLabel>
                                 <FormControl>
                                     <div className="space-y-2">
@@ -235,7 +241,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
                         )}
                     />
 
-                    <Button type="submit" className="w-full bg-blue-500 text-white">
+                    <Button data-aos="fade-up" data-aos-delay={600} type="submit" className="w-full bg-blue-500 text-white">
                         Update
                     </Button>
                 </form>

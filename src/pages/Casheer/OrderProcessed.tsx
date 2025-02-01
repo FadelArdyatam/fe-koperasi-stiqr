@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { formatRupiah } from "@/hooks/convertRupiah";
 import { ArrowLeft, Computer, Image } from "lucide-react"
-import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, Key, useState, useEffect } from "react";
+import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, useState, useEffect } from "react";
 import QRCodePage from "../QRCode";
 import axiosInstance from "@/hooks/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import AOS from "aos";
+import "aos/dist/aos.css";
 // import { ISales } from "../Booking/Booking";
 
 interface OrderProcessedProps {
@@ -34,7 +36,13 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
     const [showQRCode, setShowQRCode] = useState(false);
     // const [orderId, setOrderId] = useState<string>(null);
     const [stringQR, setStringQR] = useState<string | null>(null);
+
     const navigate = useNavigate()
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true });
+    }, []);
+
     const calculateTotalAmount = () => {
         if (Array.isArray((basket as { sales_details?: SalesDetail[] }).sales_details)) {
             const salesDetails = (basket as { sales_details: SalesDetail[] }).sales_details;
@@ -68,7 +76,9 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
 
         return [];
     };
+
     const [timeLeft, setTimeLeft] = useState(300)
+
     useEffect(() => {
         if (!tagih) {
             return
@@ -132,13 +142,13 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                         <div className="flex items-center gap-5">
                             <button onClick={() => setShowOrderProcess(false)}><ArrowLeft /></button>
 
-                            <p className="font-semibold text-2xl">Pesanan Diproses</p>
+                            <p data-aos="zoom-in" className="font-semibold text-2xl">Pesanan Diproses</p>
                         </div>
                     </div>
                 </div>
 
                 <div className="w-[90%] flex flex-col items-center mt-5 bg-white p-5 shadow-lg rounded-md">
-                    <div className="w-full flex items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="100" className="w-full flex items-center gap-5 justify-between">
                         <p className="font-semibold text-xl">Informasi Pesanan</p>
 
                         <div className="bg-orange-100 text-orange-400 text-sm p-2 rounded-full text-center">
@@ -146,13 +156,13 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                         </div>
                     </div>
 
-                    <div className="w-full p-5 bg-orange-300 rounded-lg mt-5 flex items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="200" className="w-full p-5 bg-orange-300 rounded-lg mt-5 flex items-center gap-5 justify-between">
                         <p className="font-semibold">No. Antrian</p>
 
                         <p className="font-semibold">{basket.queue_number}</p>
                     </div>
 
-                    <div className="w-full mt-5">
+                    <div data-aos="fade-up" data-aos-delay="300" className="w-full mt-5">
                         <div className="flex items-center gap-5 w-full justify-between">
                             <p className="font-semibold text-gray-500">Pesanan</p>
 
@@ -171,14 +181,14 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                     </div>
                 </div>
 
-                <div className="w-full rounded-t-xl p-5 min-h-full bg-white mt-5 flex flex-col items-center gap-5">
-                    <div className="w-full flex items-center gap-5 justify-between bg-white shadow-lg p-3 rounded-lg">
+                <div className="w-[90%] rounded-xl p-5 min-h-full bg-white mt-5 flex flex-col items-center gap-5">
+                    <div data-aos="fade-up" data-aos-delay="400" className="w-full flex items-center gap-5 justify-between bg-white shadow-lg p-3 rounded-lg">
                         <p className="font-semibold">Ada lagi pesanannya?</p>
 
                         <Button onClick={() => setShowOrderProcess(false)} className="bg-orange-400">+ Tambah</Button>
                     </div>
 
-                    <div className="w-full mt-5 bg-white rounded-lg shadow-lg p-3">
+                    <div data-aos="fade-up" data-aos-delay="500" className="w-full mt-5 bg-white rounded-lg shadow-lg p-3">
                         <div className="w-full flex items-center gap-5 justify-between">
                             <p className="text-xl font-semibold">Daftar Pesanan</p>
 
@@ -189,8 +199,8 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
 
                         <div className="w-full flex flex-col items-start gap-5 px-3">
                             {type === 'detail' ? <>
-                                {basket?.sales_details?.map((item: { product: { product_name: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; product_price: any; }; quantity: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; }, index: Key | null | undefined) => (
-                                    <div key={index}>
+                                {basket?.sales_details?.map((item: { product: { product_name: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; product_price: any; }; quantity: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; }, index: number) => (
+                                    <div data-aos="fade-up" data-aos-delay={index * 100} key={index}>
                                         <div className="flex items-center gap-5">
                                             <Image className="scale-[2]" />
 
@@ -214,7 +224,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                                 ))}
                             </> : <>
                                 {Array.isArray(basket) && basket.map((item, index) => (
-                                    <div key={index} className="flex items-center gap-5">
+                                    <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="flex items-center gap-5">
                                         <Image className="scale-[2]" />
 
                                         <div>
@@ -234,12 +244,11 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                                     </div>
                                 ))}
                             </>}
-
                         </div>
                     </div>
                 </div>
 
-                <div className="fixed bottom-0 w-full bg-white p-5 flex flex-col items-center justify-between">
+                <div data-aos="fade-up" data-aos-delay="600" className="fixed bottom-0 w-full bg-white p-5 flex flex-col items-center justify-between">
                     <div className="flex w-full items-center justify-between gap-5">
                         <p className="font-semibold text-xl">Total Tagihan</p>
 
@@ -262,6 +271,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                     </div>
                 </div>
             </div>
+
             {
                 tagih && (<div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-orange-400 z-50">
                     <p className="text-white text-xl font-medium">Loading QR Code...</p>

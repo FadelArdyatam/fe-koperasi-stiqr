@@ -27,7 +27,7 @@ const Casheer = () => {
     const serviceRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
-        AOS.init({ duration: 500, once: false });
+        AOS.init({ duration: 500, once: true });
     }, []);
 
     const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
@@ -395,7 +395,9 @@ const Casheer = () => {
                                 <img src={`${urlImage}/uploads/products/${product.product_image}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
 
                                 <div className="flex flex-col justify-start items-start">
-                                    <p className="font-semibold">{product.product_name}</p>
+                                    <p className="font-semibold">{product.product_name.length > 10
+                                        ? product.product_name.slice(0, 10) + "..."
+                                        : product.product_name}</p>
 
                                     <p className="font-semibold text-wrap">
                                         {/* Format angka dengan pemotongan */}
@@ -524,7 +526,7 @@ const Casheer = () => {
 
                 {showService.show && (
                     <div className="fixed w-full h-full bg-black bg-opacity-50 top-0 left-0 z-20 flex items-end justify-center">
-                        <div ref={serviceRef} className="w-full bg-white rounded-t-xl p-5">
+                        <div ref={serviceRef} data-aos="fade-up" className="w-full bg-white rounded-t-xl p-5">
                             <p className="font-semibold text-2xl">Pilih Layanan</p>
 
                             <div className="mt-5 flex gap-5">

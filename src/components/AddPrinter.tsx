@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -16,6 +16,8 @@ import { Input } from "./ui/input";
 import { Checkbox } from "./ui/checkbox";
 import axiosInstance from "@/hooks/axiosInstance";
 import axios from "axios";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface AddPrinterProps {
     setShowManualInputPrinter: (showManualInputPrinter: boolean) => void;
@@ -24,6 +26,10 @@ interface AddPrinterProps {
 }
 
 const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setPrinters, printers }) => {
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
+
     // Validasi schema untuk form
     const FormSchema = z.object({
         type: z.literal("bluetooth"),
@@ -75,7 +81,7 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
     }
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
-     
+
         // User information from sessionStorage
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
@@ -84,7 +90,7 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
             name: data.name,
             mac_address: data.macAddress,
             is_active: true,
-            merchant_id: userData?.merchant?.id || "", 
+            merchant_id: userData?.merchant?.id || "",
         };
 
         try {
@@ -106,7 +112,7 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
 
             // Hide the manual input modal
             setShowManualInputPrinter(false);
-        } catch (error:any) {
+        } catch (error: any) {
             console.error("Error while adding printer:", error);
 
             if (axios.isAxiosError(error) && error.response) {
@@ -123,7 +129,8 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
                 <button onClick={() => setShowManualInputPrinter(false)}>
                     <ChevronLeft />
                 </button>
-                <p className="font-semibold text-xl text-center uppercase">
+
+                <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">
                     Tambah Perangkat Manual
                 </p>
             </div>
@@ -135,7 +142,7 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
                         control={form.control}
                         name="type"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay="100">
                                 <FormLabel>Tipe Koneksi</FormLabel>
                                 <FormControl>
                                     <Input disabled {...field} />
@@ -150,7 +157,7 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
                         control={form.control}
                         name="macAddress"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay="200">
                                 <FormLabel>Mac Address</FormLabel>
                                 <FormControl>
                                     <div className="flex items-center w-full justify-center">
@@ -184,7 +191,7 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
                         control={form.control}
                         name="name"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay="300">
                                 <FormLabel>Nama Printer</FormLabel>
                                 <FormControl>
                                     <div className="relative">
@@ -208,7 +215,7 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
                         control={form.control}
                         name="paperSize"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay="400">
                                 <FormLabel>Ukuran Kertas</FormLabel>
                                 <FormControl>
                                     <select
@@ -230,7 +237,7 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
                         control={form.control}
                         name="receiptType"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem data-aos="fade-up" data-aos-delay="500">
                                 <FormLabel>Tipe Receipt</FormLabel>
                                 <div className="space-y-2">
                                     {["Pembayaran", "Checker", "Tagihan", "Dapur"].map((type) => (
@@ -265,7 +272,7 @@ const AddPrinter: React.FC<AddPrinterProps> = ({ setShowManualInputPrinter, setP
                         )}
                     />
 
-                    <Button type="submit" className="w-full bg-green-500 text-white">
+                    <Button data-aos="fade-up" data-aos-delay="600" type="submit" className="w-full bg-green-500 text-white">
                         Submit
                     </Button>
                 </form>

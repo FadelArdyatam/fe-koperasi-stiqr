@@ -18,15 +18,7 @@ const Keamanan = () => {
     const [showPassword, setShowPassword] = useState({ oldPassword: false, newPassword: false, confirmPassword: false })
 
     useEffect(() => {
-        AOS.init({ duration: 500, once: false, offset: 100 });
-    }, [])
-
-    useEffect(() => {
-        AOS.refresh();
-    }, [showContent])
-
-    useEffect(() => {
-        AOS.init({ duration: 500, once: false, offset: 100 });
+        AOS.init({ duration: 500, once: true, offset: 100 });
     }, [])
 
     useEffect(() => {

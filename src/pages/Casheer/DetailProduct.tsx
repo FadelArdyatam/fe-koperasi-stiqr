@@ -1,7 +1,9 @@
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "@/components/ui/input";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface DetailProductProps {
     product: any;
@@ -17,6 +19,10 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
     const [price, setPrice] = useState(product.product_price);
     const [notes, setNotes] = useState("");
     const [detailVariant, setDetailVariant] = useState<any[]>([]);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true });
+    }, []);
 
     const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
@@ -56,23 +62,27 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                 <div className="w-full flex items-center gap-5 justify-between">
                     <div className="flex items-center gap-5">
                         <button onClick={() => setShowDetailProduct(false)}><ArrowLeft /></button>
-                        <p className="font-semibold text-2xl">Detail Produk</p>
+
+                        <p data-aos="zoom-in" className="font-semibold text-2xl">Detail Produk</p>
                     </div>
                 </div>
             </div>
 
-            <div className="w-[90%] flex flex-col items-end mt-5 bg-white p-5 shadow-lg rounded-md">
+            <div data-aos="fade-up" data-aos-delay="100" className="w-[90%] flex flex-col items-end mt-5 bg-white p-5 shadow-lg rounded-md">
                 <div className="w-full">
                     <div className="flex items-center gap-5">
                         <img src={`${urlImage}/uploads/products/${product.product_image}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
 
                         <p className="font-semibold text-lg">{product.product_name}</p>
                     </div>
+
                     <div className="mt-5">
                         <p className="text-base">Deskripsi Produk</p>
+
                         <p className="text-gray-500 text-sm">{product.product_description}</p>
                     </div>
                 </div>
+
                 <div className="mt-5">
                     <p className="text-orange-400 text-xl font-semibold">{Number(product.product_price).toLocaleString("id-ID", {
                         style: "currency",
@@ -81,7 +91,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                 </div>
             </div>
 
-            <div className="w-[90%] mt-5 p-5 rounded-lg bg-white shadow-lg">
+            <div data-aos="fade-up" data-aos-delay="200" className="w-[90%] mt-5 p-5 rounded-lg bg-white shadow-lg">
                 {variants.map((variant, index) => (
                     <div key={index} className="mt-5">
                         <p className="font-semibold">{variant.variant_name}</p>
@@ -111,13 +121,13 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                 ))}
             </div>
 
-            <div className="w-[90%] bg-white p-5 rounded-lg shadow-lg mt-5">
+            <div data-aos="fade-up" data-aos-delay="300" className="w-[90%] bg-white p-5 rounded-lg shadow-lg mt-5">
                 <p className="font-semibold">Catatan Pesanan</p>
 
                 <textarea onChange={(e) => setNotes(e.target.value)} className="w-full border border-gray-500 mt-5 rounded-lg p-2" placeholder="Tulis catatan untuk pesananmu" />
             </div>
 
-            <div className="fixed bottom-0 w-full bg-white p-5 flex items-center justify-between">
+            <div data-aos="fade-up" data-aos-delay="400" className="fixed bottom-0 w-full bg-white p-5 flex items-center justify-between">
                 <div>
                     <p className="font-semibold text-xl">Total</p>
 

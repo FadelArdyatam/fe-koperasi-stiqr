@@ -30,7 +30,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 	} | null>(null);
 
 	useEffect(() => {
-		AOS.init({ duration: 500, once: false });
+		AOS.init({ duration: 500, once: true });
 	}, []);
 
 	const sendCode = async (e: React.MouseEvent<HTMLButtonElement>) => {

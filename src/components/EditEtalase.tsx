@@ -7,6 +7,8 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface EditEtalaseProps {
     setOpen: (open: { id: string; status: boolean }) => void;
@@ -45,6 +47,10 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products 
     const [etalaseToEdit, setEtalaseToEdit] = useState<Showcase | null>(null);
     const [showSetProductInput, setShowSetProductInput] = useState(false);
     // const [searchTerm, setSearchTerm] = useState("");
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
 
     const FormSchema = z.object({
         name: z.string().min(1, { message: "Name is required." }).max(50, { message: "Name must be less than 50 characters." }),
@@ -134,7 +140,8 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products 
                     <button onClick={() => setOpen({ id: "", status: false })}>
                         <ChevronLeft />
                     </button>
-                    <p className="font-semibold text-xl text-center uppercase">Edit Etalase</p>
+
+                    <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Edit Etalase</p>
                 </div>
 
                 <Form {...form}>
@@ -143,7 +150,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products 
                             control={form.control}
                             name="name"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="100">
                                     <FormLabel>Nama Produk</FormLabel>
                                     <FormControl>
                                         <Input placeholder="Enter Showcase Name" {...field} />
@@ -154,11 +161,13 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products 
                         />
 
                         <div>
-                            <div className="flex items-start gap-5 justify-between">
+                            <div data-aos="fade-up" data-aos-delay="200" className="flex items-start gap-5 justify-between">
                                 <div>
                                     <p>Daftar Produk</p>
+
                                     <p className="text-sm text-gray-400">{etalaseToEdit?.showcase_product?.length} Produk</p>
                                 </div>
+
                                 <button
                                     type="button"
                                     onClick={() => setShowSetProductInput(true)}
@@ -170,16 +179,18 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products 
 
                             <div className="mt-5 space-y-5">
                                 {etalaseToEdit?.showcase_product?.map((item, index) => (
-                                    <div key={index} className="flex items-center gap-4 p-2 border rounded-md">
+                                    <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="flex items-center gap-4 p-2 border rounded-md">
                                         <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-md">
                                             <Package className="text-gray-500" />
                                         </div>
+
                                         <div className="flex-1">
                                             <p className="text-lg font-medium">{item.product.product_name}</p>
                                             <p className="text-sm text-gray-500">
                                                 Rp {new Intl.NumberFormat("id-ID").format(Number(item.product.product_price))}
                                             </p>
                                         </div>
+
                                         <input
                                             type="checkbox"
                                             checked={watchedProducts.includes(item.product.id)}
@@ -190,15 +201,15 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products 
                             </div>
                         </div>
 
-                        <Button type="submit" className="w-full bg-blue-500 text-white">
+                        <Button data-aos="fade-up" data-aos-delay="300" type="submit" className="w-full bg-blue-500 text-white">
                             Update
+                        </Button>
+
+                        <Button data-aos="fade-up" data-aos-delay="400" type="button" onClick={deleteHandler} className="w-full m-auto block bg-red-500 text-white">
+                            Delete
                         </Button>
                     </form>
                 </Form>
-
-                <Button onClick={deleteHandler} className="w-[90%] m-auto block bg-red-500 text-white">
-                    Delete
-                </Button>
             </div>
 
             {showSetProductInput && (
@@ -207,21 +218,24 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products 
                         <button onClick={() => setShowSetProductInput(false)}>
                             <ChevronLeft />
                         </button>
-                        <p className="font-semibold text-xl text-center uppercase">Atur Produk</p>
+
+                        <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Atur Produk</p>
                     </div>
 
                     <div className="mt-5 space-y-5">
-                        {products.map((product) => (
-                            <label key={product.id} className="flex items-center gap-4 p-2 border rounded-md">
+                        {products.map((product, index) => (
+                            <label data-aos="fade-up" data-aos-delay={index * 100} key={product.id} className="flex items-center gap-4 p-2 border rounded-md">
                                 <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-md">
                                     <Package className="text-gray-500" />
                                 </div>
+
                                 <div className="flex-1">
                                     <p className="text-lg font-medium">{product.product_name}</p>
                                     <p className="text-sm text-gray-500">
                                         Rp {new Intl.NumberFormat("id-ID").format(Number(product.product_price))}
                                     </p>
                                 </div>
+
                                 <input
                                     type="checkbox"
                                     checked={watchedProducts.includes(product.id)}
@@ -232,6 +246,8 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products 
                     </div>
 
                     <Button
+                        data-aos="fade-up"
+                        data-aos-delay="300"
                         className="mt-5 w-full bg-blue-500 text-white"
                         onClick={() => setShowSetProductInput(false)}
                     >

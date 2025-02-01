@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft, CircleCheck } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
@@ -8,6 +8,8 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import axiosInstance from "@/hooks/axiosInstance";
 import Notification from "./Notification";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface Merchant {
     id: string;
@@ -63,6 +65,10 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase, etalases, setEta
     const [showError, setShowError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
+
     const FormSchema = z.object({
         showcase_name: z.string().nonempty("Nama etalase wajib diisi").max(30, "Maksimal 30 karakter"),
     });
@@ -104,7 +110,8 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase, etalases, setEta
                     <button onClick={() => setAddEtalase(false)}>
                         <ChevronLeft />
                     </button>
-                    <p className="font-semibold text-xl uppercase">Tambah Etalase</p>
+
+                    <p data-aos="zoom-in" className="font-semibold text-xl uppercase">Tambah Etalase</p>
                 </div>
 
                 <Form {...form}>
@@ -113,7 +120,7 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase, etalases, setEta
                             control={form.control}
                             name="showcase_name"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay={100}>
                                     <FormLabel>Nama Etalase</FormLabel>
                                     <FormControl>
                                         <div className="relative">
@@ -131,7 +138,7 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase, etalases, setEta
                             )}
                         />
 
-                        <Button type="submit" className="w-full bg-green-500 text-white">
+                        <Button data-aos="fade-up" data-aos-delay={200} type="submit" className="w-full bg-green-500 text-white">
                             Submit
                         </Button>
                     </form>
@@ -145,9 +152,10 @@ const AddEtalase: React.FC<AddEtalaseProps> = ({ setAddEtalase, etalases, setEta
             {showNotification && (
                 <div className="p-10">
                     <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
-                    <p className="mt-10 font-semibold text-xl text-center">Etalase berhasil ditambahkan!</p>
 
-                    <Button onClick={() => setAddEtalase(false)} className="w-full bg-green-500 text-white mt-10">
+                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Etalase berhasil ditambahkan!</p>
+
+                    <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setAddEtalase(false)} className="w-full bg-green-500 text-white mt-10">
                         Selesai
                     </Button>
                 </div>

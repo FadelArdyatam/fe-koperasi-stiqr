@@ -15,6 +15,8 @@ import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import axiosInstance from "@/hooks/axiosInstance";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface Merchant {
     id: string;
@@ -82,6 +84,10 @@ const EditProduct: React.FC<EditProductProps> = ({
     const [loading, setLoading] = useState(true); // State untuk mengelola status loading
     const [error, setError] = useState<string | null>(); // State untuk mengelola
     const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
 
     console.log(editIndex)
 
@@ -223,7 +229,8 @@ const EditProduct: React.FC<EditProductProps> = ({
                 <button onClick={() => setOpen({ id: "", status: false })}>
                     <ChevronLeft />
                 </button>
-                <p className="font-semibold text-xl text-center uppercase">Edit Product</p>
+
+                <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Edit Product</p>
             </div>
 
             {/* Indikator loading */}
@@ -248,7 +255,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                 control={form.control}
                                 name="photo"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem data-aos="fade-up" data-aos-delay="100">
                                         <FormLabel>Foto Produk (Optional)</FormLabel>
                                         <FormControl>
                                             <Input type="file" onChange={(e) => field.onChange(e.target.files?.[0])} />
@@ -263,7 +270,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                 control={form.control}
                                 name="name"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem data-aos="fade-up" data-aos-delay="200">
                                         <FormLabel>Nama Produk</FormLabel>
                                         <FormControl>
                                             <div className="relative">
@@ -290,7 +297,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                 control={form.control}
                                 name="SKU"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem data-aos="fade-up" data-aos-delay="300">
                                         <FormLabel>SKU Produk</FormLabel>
                                         <FormControl>
                                             <div className="relative">
@@ -317,7 +324,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                 control={form.control}
                                 name="price"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem data-aos="fade-up" data-aos-delay="400">
                                         <FormLabel>Harga</FormLabel>
                                         <FormControl>
                                             <Input
@@ -336,7 +343,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                 control={form.control}
                                 name="weight"
                                 render={({ field }) => (
-                                    <FormItem className="w-full">
+                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="500">
                                         <FormLabel>Berat</FormLabel>
                                         <FormControl className="w-full">
                                             <div className="flex items-center space-x-2">
@@ -369,7 +376,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                 control={form.control}
                                 name="description"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem data-aos="fade-up" data-aos-delay="600">
                                         <FormLabel>Deskripsi (Optional)</FormLabel>
                                         <FormControl>
                                             <div className="relative">
@@ -396,7 +403,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                 control={form.control}
                                 name="etalase"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem data-aos="fade-up">
                                         <FormLabel>Pilih Etalase</FormLabel>
                                         <div className="space-y-2 mt-2">
                                             {etalases.map((etalase) => (
@@ -428,12 +435,13 @@ const EditProduct: React.FC<EditProductProps> = ({
                             />
 
                             {/* ... */}
-                            <Button type="submit" className="w-full bg-blue-500 text-white">
+                            <Button data-aos="fade-up" type="submit" className="w-full bg-blue-500 text-white">
                                 Update
                             </Button>
                         </form>
                     </Form>
-                    <Button onClick={deleteHandler} className="w-full mt-5 bg-red-500 text-white">Delete</Button>
+
+                    <Button data-aos="fade-up" onClick={deleteHandler} className="w-full mt-5 bg-red-500 text-white">Delete</Button>
                 </div>
             )}
 

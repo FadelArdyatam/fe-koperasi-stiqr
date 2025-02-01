@@ -30,7 +30,7 @@ const Pulsa = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        AOS.init({ duration: 500, once: false, offset: 100 });
+        AOS.init({ duration: 500, once: true, offset: 100 });
     }, []);
 
     useEffect(() => {
@@ -166,18 +166,7 @@ const Pulsa = () => {
                     })}</p>
                 </div>
 
-                <div data-aos="fade-up" data-aos-delay="400" className="mt-10 w-[90%] m-auto flex flex-col items-center gap-5">
-                    <input
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        type="text"
-                        placeholder="Search"
-                        className="w-full p-5 bg-white shadow-lg"
-                    />
-
-                    <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
-                </div>
-
-                <div data-aos="fade-up" data-aos-delay="200" className="mt-5 w-[90%] m-auto flex flex-col items-center gap-5">
+                <div data-aos="fade-up" data-aos-delay="300" className="mt-5 w-[90%] m-auto flex flex-col items-center gap-5">
                     <input
                         onChange={(e) => {
                             const value = e.target.value;
@@ -194,7 +183,7 @@ const Pulsa = () => {
                     <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
                 </div>
 
-                <div data-aos="fade-up" data-aos-delay="300" className="mt-10 w-[90%] m-auto flex flex-row items-center justify-center gap-5">
+                <div data-aos="fade-up" data-aos-delay="400" className="mt-10 w-[90%] m-auto flex flex-row items-center justify-center gap-5">
                     <Button onClick={() => setCategoryHandler("pulsa")} className="bg-orange-400 text-white w-full">
                         Pulsa
                     </Button>
@@ -202,6 +191,21 @@ const Pulsa = () => {
                     <Button onClick={() => setCategoryHandler("paket data")} className="bg-orange-400 text-white w-full">
                         Paket Data
                     </Button>
+                </div>
+
+                <div data-aos="fade-up" data-aos-delay="200" className="mt-10 w-[90%] m-auto flex flex-col gap-5">
+                    <div>
+                        <p className="text-gray-500 font-semibold">Provider</p>
+
+                        <input
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            type="text"
+                            placeholder="Search"
+                            className="w-full mt-2 p-5 bg-white shadow-lg"
+                        />
+                    </div>
+
+                    <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
                 </div>
 
                 <div className="mt-5 w-[90%] mb-10 m-auto flex flex-col items-center gap-5 shadow-lg">

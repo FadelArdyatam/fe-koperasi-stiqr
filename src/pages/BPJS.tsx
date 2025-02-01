@@ -28,7 +28,7 @@ const BPJS = () => {
     const [showBill, setShowBill] = useState(false)
 
     useEffect(() => {
-        AOS.init({ duration: 500, once: false, offset: 100 });
+        AOS.init({ duration: 500, once: true, offset: 100 });
     }, [])
 
     const sendBill = () => {

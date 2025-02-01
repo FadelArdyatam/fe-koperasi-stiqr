@@ -10,6 +10,8 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import axiosInstance from "@/hooks/axiosInstance";
 import noDataPembayaranImage from "../../images/no-data-image/data-pembayaran.png"
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface Account {
     account_id: string;
@@ -25,6 +27,16 @@ const DataPembayaran = () => {
     const [showEdit, setShowEdit] = useState(false)
     const [showNotification, setShowNotification] = useState(false)
     const [dataForEdit, setDataForEdit] = useState<Account | null>(null);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, [])
+
+    useEffect(() => {
+        setTimeout(() => {
+            AOS.refresh();
+        }, 100);
+    }, [showEdit, isAdding, showContent.show]);
 
     const FormSchema = z.object({
         bankName: z.string().min(3),
@@ -121,8 +133,8 @@ const DataPembayaran = () => {
     }
 
     async function onSubmitForEdit(data: z.infer<typeof FormSchema>) {
-        
         const formData = new FormData();
+
         formData.append("bank_name", data.bankName);
         formData.append("account_number", data.accountNumber);
         formData.append("owner_name", data.ownerName);
@@ -159,7 +171,6 @@ const DataPembayaran = () => {
         setIsAdding(false)
     }
 
-
     return (
         <div className="w-full flex flex-col min-h-screen items-center">
             <div className='w-full px-5 pt-5 pb-32 flex items-center justify-center bg-orange-400'>
@@ -173,7 +184,7 @@ const DataPembayaran = () => {
                     </button>
                 )}
 
-                <p className='font-semibold m-auto text-xl text-white text-center'>{isAdding ? 'Tambah Data Pembayaran' : showEdit ? 'Edit Data Pembayaran' : 'Data Pembayaran'}</p>
+                <p key={isAdding ? 'adding-mode' : showEdit ? 'edit-mode' : 'view-mode'} data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>{isAdding ? 'Tambah Data Pembayaran' : showEdit ? 'Edit Data Pembayaran' : 'Data Pembayaran'}</p>
             </div>
 
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -212,12 +223,12 @@ const DataPembayaran = () => {
 
             <div className={`${showContent.show === false && !isAdding ? 'block' : 'hidden'} bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20`}>
                 {accounts.length === 0 ? (
-                    <div>
+                    <div data-aos="fade-up" data-aos-delay="100">
                         <img src={noDataPembayaranImage} alt="" />
 
                         <p className="text-center text-orange-500 mt-5 font-semibold">Belum ada data pembayaran yang terdaftar</p>
                     </div>) : accounts.map((account, index) => (
-                        <div key={index}>
+                        <div key={index} data-aos="fade-up" data-aos-delay={index * 100}>
                             <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] my-5 bg-gray-200`}></div>
 
                             <button onClick={() => setShowContent({ show: true, index: account.account_id })} className="flex w-full items-center gap-5 justify-between">
@@ -233,11 +244,11 @@ const DataPembayaran = () => {
                     ))}
             </div>
 
-            <Button onClick={() => setIsAdding(true)} className={`${isAdding || showEdit ? 'hidden' : 'block'} w-[90%] bg-green-400`}>Tambah Bank</Button>
+            <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setIsAdding(true)} className={`${isAdding || showEdit ? 'hidden' : 'block'} w-[90%] bg-green-400`}>Tambah Bank</Button>
 
-            <div className={`${showContent.show === true && !showEdit ? 'block' : 'hidden'} w-[90%] bg-white -translate-y-20 p-5 rounded-lg shadow-lg`}>
+            <div key={showContent.show ? "showContent-mode" : "noShowContent-mode"} className={`${showContent.show === true && !showEdit ? 'block' : 'hidden'} w-[90%] bg-white -translate-y-20 p-5 rounded-lg shadow-lg`}>
                 <div className="flex flex-col gap-5">
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Nama Bank</p>
 
                         <p className="text-sm font-semibold">{dataForEdit?.bank_name}</p>
@@ -245,7 +256,7 @@ const DataPembayaran = () => {
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="100" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Nomor Rekening</p>
 
                         <p className="text-sm font-semibold">{dataForEdit?.account_number}</p>
@@ -253,7 +264,7 @@ const DataPembayaran = () => {
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="200" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Nama Pemilik</p>
 
                         <p className="text-sm font-semibold">{dataForEdit?.owner_name}</p>
@@ -261,27 +272,26 @@ const DataPembayaran = () => {
 
                     <div className="w-full h-[2px] my-2 bg-gray-200"></div>
 
-                    <div className="flex w-full items-center gap-5 justify-between">
+                    <div data-aos="fade-up" data-aos-delay="300" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Buku Tabungan</p>
 
                         <Image />
                     </div>
                 </div>
 
-                <Button onClick={() => setShowEdit(true)} className="mt-7 w-full bg-green-400">Edit</Button>
+                <Button data-aos="fade-up" data-aos-delay="400" onClick={() => setShowEdit(true)} className="mt-7 w-full bg-green-400">Edit</Button>
             </div>
 
             {/* Add new Bank */}
-            <div className={`${isAdding ? 'block' : 'hidden'} w-[90%] p-5 bg-white -translate-y-20 rounded-lg shadow-lg`}>
+            <div key={isAdding ? 'adding-mode' : 'noAdding-mode'} className={`${isAdding ? 'block' : 'hidden'} w-[90%] p-5 bg-white -translate-y-20 rounded-lg shadow-lg`}>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)}>
                         <div className={'flex flex-col items-end w-full md:w-2/3 space-y-7'}>
-
                             <FormField
                                 control={form.control}
                                 name="bankName"
                                 render={({ field }) => (
-                                    <FormItem className="w-full">
+                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="100">
                                         <FormLabel className="text-gray-500">Nama Bank</FormLabel>
 
                                         <FormControl>
@@ -296,7 +306,7 @@ const DataPembayaran = () => {
                                 control={form.control}
                                 name="accountNumber"
                                 render={({ field }) => (
-                                    <FormItem className="w-full">
+                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="200">
                                         <FormLabel className="text-gray-500">Nomor Rekening</FormLabel>
 
                                         <FormControl>
@@ -311,7 +321,7 @@ const DataPembayaran = () => {
                                 control={form.control}
                                 name="ownerName"
                                 render={({ field }) => (
-                                    <FormItem className="w-full">
+                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="300">
                                         <FormLabel className="text-gray-500">Nama Pemilik Rekening</FormLabel>
 
                                         <FormControl>
@@ -326,7 +336,7 @@ const DataPembayaran = () => {
                                 control={form.control}
                                 name="savingBook"
                                 render={({ field }) => (
-                                    <FormItem className="w-full">
+                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="400">
                                         <FormLabel className="text-gray-500">Upload Scan Buku Tabungan</FormLabel>
                                         <FormControl>
                                             <Input
@@ -347,14 +357,14 @@ const DataPembayaran = () => {
                             />
                         </div>
 
-                        <Button type="submit" className="w-full bg-green-400 mt-7">Simpan Data</Button>
+                        <Button data-aos="fade-up" data-aos-delay="500" type="submit" className="w-full bg-green-400 mt-7">Simpan Data</Button>
                     </form>
                 </Form>
             </div>
             {/*  */}
 
             {/* Edit Bank */}
-            <div className={`${showEdit ? 'block' : 'hidden'} w-[90%] p-5 bg-white -translate-y-20 rounded-lg shadow-lg`}>
+            <div key={showEdit ? 'edit-mode' : 'NoEdit-mode'} className={`${showEdit ? 'block' : 'hidden'} w-[90%] p-5 bg-white -translate-y-20 rounded-lg shadow-lg`}>
                 <Form {...form}>
                     <form
                         onSubmit={form.handleSubmit(onSubmitForEdit)}
@@ -366,7 +376,7 @@ const DataPembayaran = () => {
                                 name="bankName"
                                 defaultValue={dataForEdit?.bank_name}
                                 render={({ field }) => (
-                                    <FormItem className="w-full">
+                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="100">
                                         <FormLabel className="text-gray-500">Nama Bank</FormLabel>
                                         <FormControl>
                                             <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
@@ -381,7 +391,7 @@ const DataPembayaran = () => {
                                 name="accountNumber"
                                 defaultValue={dataForEdit?.account_number}
                                 render={({ field }) => (
-                                    <FormItem className="w-full">
+                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="200">
                                         <FormLabel className="text-gray-500">Nomor Rekening</FormLabel>
                                         <FormControl>
                                             <Input
@@ -400,7 +410,7 @@ const DataPembayaran = () => {
                                 name="ownerName"
                                 defaultValue={dataForEdit?.owner_name}
                                 render={({ field }) => (
-                                    <FormItem className="w-full">
+                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="300">
                                         <FormLabel className="text-gray-500">Nama Pemilik Rekening</FormLabel>
                                         <FormControl>
                                             <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
@@ -414,7 +424,7 @@ const DataPembayaran = () => {
                                 control={form.control}
                                 name="savingBook"
                                 render={({ field }) => (
-                                    <FormItem className="w-full">
+                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="400">
                                         <FormLabel className="text-gray-500">Upload Scan Buku Tabungan</FormLabel>
                                         <FormControl>
                                             <Input
@@ -435,7 +445,7 @@ const DataPembayaran = () => {
                             />
                         </div>
 
-                        <Button type="submit" className="w-full bg-green-400 mt-7">Simpan Perubahan</Button>
+                        <Button data-aos="fade-up" data-aos-delay="500" type="submit" className="w-full bg-green-400 mt-7">Simpan Perubahan</Button>
                     </form>
                 </Form>
             </div>

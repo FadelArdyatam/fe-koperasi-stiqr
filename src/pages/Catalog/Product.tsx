@@ -135,8 +135,11 @@ const Product: React.FC<ProductProps> = ({
                                 </div>
                                 <div className="flex flex-col items-start">
                                     <h3 className="text-lg font-semibold text-start text-wrap">
-                                        {product.product_name}
+                                        {product.product_name.length > 15
+                                            ? product.product_name.slice(0, 15) + "..."
+                                            : product.product_name}
                                     </h3>
+
                                     <p className="text-sm text-gray-600">
                                         Rp {new Intl.NumberFormat('id-ID').format(Number(product.product_price))}
                                     </p>

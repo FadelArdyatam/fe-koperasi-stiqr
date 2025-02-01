@@ -12,7 +12,7 @@ interface NotificationProps {
 
 const Notification: React.FC<NotificationProps> = ({ message, onClose, status }) => {
     useEffect(() => {
-        AOS.init({ duration: 500, once: false });
+        AOS.init({ duration: 500, once: true });
     }, []);
 
     return (

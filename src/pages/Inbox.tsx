@@ -23,7 +23,7 @@ const Inbox = () => {
     const [notifications, setNotifications] = useState<INotification[]>([]);
 
     useEffect(() => {
-        AOS.init({ duration: 500, once: false });
+        AOS.init({ duration: 500, once: true });
     }, []);
 
     useEffect(() => {

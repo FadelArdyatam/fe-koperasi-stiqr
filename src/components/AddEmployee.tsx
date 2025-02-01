@@ -8,6 +8,8 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 // import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@radix-ui/react-accordion";
 import axiosInstance from "@/hooks/axiosInstance";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface AddEmployeeProps {
     setAddEmployee: (value: boolean) => void;
@@ -21,6 +23,10 @@ interface Role {
 }
 const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess }) => {
     const [showNotification, setShowNotification] = useState(false);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
 
     const FormSchema = z.object({
         name: z.string().min(3).max(50),
@@ -98,7 +104,8 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                     <button onClick={handleAddEmployee}>
                         <ChevronLeft />
                     </button>
-                    <p className="font-semibold text-xl text-center uppercase">Add Employee</p>
+
+                    <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Add Employee</p>
                 </div>
 
                 <Form {...form}>
@@ -108,7 +115,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                             control={form.control}
                             name="name"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="100">
                                     <FormLabel>Nama Pegawai</FormLabel>
                                     <FormControl>
                                         <div className="relative">
@@ -135,7 +142,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                             control={form.control}
                             name="phone_number"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="200">
                                     <FormLabel>Phone</FormLabel>
                                     <FormControl>
                                         <Input
@@ -157,7 +164,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                             control={form.control}
                             name="email"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="300">
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
                                         <Input
@@ -178,7 +185,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                             control={form.control}
                             name="password"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="400">
                                     <FormLabel>Password</FormLabel>
                                     <FormControl>
                                         <Input
@@ -200,7 +207,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                             control={form.control}
                             name="role_name"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="500">
                                     <FormLabel>Peran Pegawai</FormLabel>
                                     <FormControl>
                                         <div className="space-y-2">
@@ -250,7 +257,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                             )}
                         />
 
-                        <Button type="submit" className="w-full bg-green-500 text-white">
+                        <Button data-aos="fade-up" data-aos-delay="600" type="submit" className="w-full bg-green-500 text-white">
                             Submit
                         </Button>
                     </form>

@@ -16,7 +16,7 @@ const ForgotPassword = () => {
     const [Notification, setNotification] = useState({ status: false, address: '', notificationSuccess: false })
 
     useEffect(() => {
-        AOS.init({ duration: 500, once: false });
+        AOS.init({ duration: 500, once: true });
     }, []);
 
     const navigate = useNavigate();

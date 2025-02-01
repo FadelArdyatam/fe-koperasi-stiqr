@@ -12,9 +12,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { ChevronLeft, CircleCheck } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
 import Notification from "./Notification";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface Choice {
     name: string;
@@ -80,6 +82,10 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
     const [displayChoises, setDisplayChoises] = useState<Choice[]>([]);
     const [showNotification, setShowNotification] = useState(false);
     const [showError, setShowError] = useState(false);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
 
     const FormSchema = z.object({
         name: z.string().nonempty("Nama varian wajib diisi"),
@@ -185,7 +191,8 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                     <button onClick={() => setAddVariant(false)}>
                         <ChevronLeft />
                     </button>
-                    <p className="font-semibold text-xl uppercase">Tambah Varian</p>
+
+                    <p data-aos="zoom-in" className="font-semibold text-xl uppercase">Tambah Varian</p>
                 </div>
 
                 <Form {...form}>
@@ -195,7 +202,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                             control={form.control}
                             name="name"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="100">
                                     <FormLabel>Nama Varian</FormLabel>
                                     <FormControl>
                                         <Input
@@ -208,12 +215,12 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                             )}
                         />
 
-                        <Button type="button" onClick={() => setShowChoisesInput(true)} className="bg-transparent hover:bg-transparent border-2 border-orange-400 w-full text-orange-400">Tambah Pilihan</Button>
+                        <Button data-aos="fade-up" data-aos-delay="200" type="button" onClick={() => setShowChoisesInput(true)} className="bg-transparent hover:bg-transparent border-2 border-orange-400 w-full text-orange-400">Tambah Pilihan</Button>
 
                         {/* Choises */}
                         <div className="mt-5">
                             {displayChoises.map((choise, index) => (
-                                <div key={index} className="mt-5">
+                                <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="mt-5">
                                     <p>Pilihan {index + 1}</p>
 
                                     <div className="border border-gray-500 p-5 rounded-lg mt-3">
@@ -242,8 +249,8 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
 
                         {/* Popup untuk Input Harga dan Nama */}
                         {showChoisesInput && (
-                            <div className="fixed bg-black bg-opacity-50 inset-0 z-20 -translate-y-10">
-                                <div className="bg-white p-4 rounded-lg mt-10 translate-y-10 absolute bottom-0 w-full">
+                            <div className="fixed bg-black bg-opacity-50 inset-0 z-20 h-screen -translate-y-8">
+                                <div data-aos="fade-up" className="bg-white p-4 rounded-t-lg mt-10 absolute bottom-0 w-full">
                                     <p className="text-center mb-10 text-lg font-semibold">Tambah Pilihan</p>
 
                                     <div>
@@ -311,8 +318,8 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
 
                         {/* Popup untuk Edit Harga dan Nama */}
                         {showEditChoisesInput.status && (
-                            <div className="fixed bg-black bg-opacity-50 inset-0 z-20 -translate-y-10">
-                                <div className="bg-white p-4 rounded-lg mt-10 translate-y-10 absolute bottom-0 w-full">
+                            <div className="fixed bg-black bg-opacity-50 inset-0 z-20 h-screen -translate-y-8">
+                                <div data-aos="fade-up" className="bg-white p-4 rounded-t-lg mt-10 translate-y-10 absolute bottom-0 w-full">
                                     <p className="text-center mb-10 text-lg font-semibold">Ubah Pilihan</p>
 
                                     <div>
@@ -397,7 +404,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                             control={form.control}
                             name="mustBeSelected"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="300">
                                     <div className="flex items-center gap-5 justify-between">
                                         <FormLabel>Wajib Dipilih?</FormLabel>
                                         <FormControl>
@@ -426,7 +433,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                             control={form.control}
                             name="methods"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="400">
                                     <FormLabel>Metode</FormLabel>
                                     <FormControl>
                                         <div>
@@ -463,7 +470,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                             control={form.control}
                             name="products"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="500">
                                     <FormLabel>Produk</FormLabel>
                                     <FormControl>
                                         <div>
@@ -494,7 +501,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                             )}
                         />
 
-                        <Button type="submit" className="w-full bg-green-500 text-white">
+                        <Button data-aos="fade-up" data-aos-delay="600" type="submit" className="w-full bg-green-500 text-white">
                             Simpan Varian
                         </Button>
                     </form>
@@ -506,9 +513,9 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                 <div className="p-10">
                     <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
 
-                    <p className="mt-10 font-semibold text-xl text-center">Variant added successfully!</p>
+                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Variant added successfully!</p>
 
-                    <Button onClick={() => setAddVariant(false)} className="w-full bg-green-500 text-white mt-10">
+                    <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setAddVariant(false)} className="w-full bg-green-500 text-white mt-10">
                         Done
                     </Button>
                 </div>

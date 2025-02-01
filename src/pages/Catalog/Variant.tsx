@@ -96,7 +96,10 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                             <div
                                 className="flex w-full justify-between items-center p-4 bg-white rounded-md mt-3"
                             >
-                                <h3 className="text-lg font-semibold">{variant?.variant_name}</h3>
+                                <h3 className="text-lg font-semibold">{variant.variant_name.length > 25
+                                    ? variant.variant_name.slice(0, 25) + "..."
+                                    : variant.variant_name}
+                                </h3>
 
                                 {/* Custom Switch */}
                                 <button

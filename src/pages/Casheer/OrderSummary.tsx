@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import OrderProcessed from "./OrderProcessed";
 import { bookingDatas } from '@/pages/Booking/Booking';
 import axiosInstance from "@/hooks/axiosInstance";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface OrderSummaryProps {
     basket: any[];
@@ -21,6 +23,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
     const [showOrderProcess, setShowOrderProcess] = useState(false);
     const [noMeja, setNoMeja] = useState("");
     const [responseSalesCreate, setResponseSalesCreate] = useState<any>(null);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true });
+    }, []);
 
     console.log("Total Quantity: ", mergedBasket.reduce((acc, curr) => acc + curr.quantity, 0))
     console.log("Total Price: ", mergedBasket.reduce((acc, curr) => acc + curr.price * curr.quantity, 0))
@@ -138,7 +144,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                         <div className="flex items-center gap-5">
                             <button onClick={() => setShowService({ show: false, service: null })}><ArrowLeft /></button>
 
-                            <p className="font-semibold text-2xl">Ringkasan Pesanan</p>
+                            <p data-aos="zoom-in" className="font-semibold text-2xl">Ringkasan Pesanan</p>
                         </div>
 
                         <div className="flex items-center justify-center p-3 bg-orange-100 rounded-full">
@@ -147,7 +153,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     </div>
                 </div>
 
-                <div className="w-[90%] flex items-center justify-between gap-5 mt-5 bg-white p-5 shadow-lg rounded-md">
+                <div data-aos="fade-up" data-aos-delay="100" className="w-[90%] flex items-center justify-between gap-5 mt-5 bg-white p-5 shadow-lg rounded-md">
                     <img className="w-10" src={showService.service === "Dine In" ? dineIn : takeAway} alt="" />
 
                     <p className="font-semibold text-lg">{showService.service === "Dine In" ? "Makan di Tempat" : "Bawa Pulang"}</p>
@@ -156,7 +162,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 </div>
 
                 <div className="mt-10 w-[90%]">
-                    <div className="flex items-center gap-5">
+                    <div data-aos="fade-up" data-aos-delay="200" className="flex items-center gap-5">
                         <div className="w-[65%]">
                             <p className="font-semibold">Nama Pesanan (Opsional)</p>
 
@@ -170,13 +176,13 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                         </div>
                     </div>
 
-                    <div className="mt-5">
+                    <div data-aos="fade-up" data-aos-delay="300" className="mt-5">
                         <p className="font-semibold">No. Telephone</p>
 
                         <Input placeholder="No. Telphone" className="w-full bg-white p-3 rounded-lg mt-2" />
                     </div>
 
-                    <div className="mt-5 w-full flex items-center gap-5 justify-between bg-white p-5 rounded-lg">
+                    <div data-aos="fade-up" data-aos-delay="400" className="mt-5 w-full flex items-center gap-5 justify-between bg-white p-5 rounded-lg">
                         <p className="font-semibold">Ada lagi pesanannya?</p>
 
                         <Button onClick={() => setShowService({ show: false, service: null })} className="bg-orange-400">+ Tambah</Button>
@@ -185,7 +191,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
 
                 <div className="mt-5 w-[90%]">
                     {mergedBasket.map((item, index) => (
-                        <div key={index} className="w-full mt-5 p-5 rounded-lg bg-white shadow-lg">
+                        <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="w-full mt-5 p-5 rounded-lg bg-white shadow-lg">
                             <div className="flex items-start gap-5 justify-between">
                                 <div className="flex items-center gap-5">
                                     <Image className="scale-[2]" />
@@ -222,7 +228,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     ))}
                 </div>
 
-                <div className="fixed bottom-0 w-full bg-white p-5 flex flex-col items-center justify-between">
+                <div data-aos="fade-up" data-aos-delay="500" className="fixed bottom-0 w-full bg-white p-5 flex flex-col items-center justify-between">
                     <div className="flex w-full items-center justify-between gap-5">
                         <p className="font-semibold text-xl">Total Tagihan</p>
 

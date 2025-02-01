@@ -4,6 +4,9 @@ import axiosInstance from "@/hooks/axiosInstance";
 import { ChevronLeft, ChevronRight, CreditCard, FileText, Home, ScanQrCode, User, UserRound } from "lucide-react"
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom"
+import noPegawai from "@/images/no-data-image/no-pegawai.png";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 // const initialEmployees = [
 //     {
@@ -68,7 +71,6 @@ interface Employee {
 }
 
 const Employee = () => {
-
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [addEmployee, setAddEmployee] = useState(false);
     const [open, setOpen] = useState({
@@ -76,6 +78,11 @@ const Employee = () => {
         status: false,
     });
     const [isSuccess, setIsSuccess] = useState(false);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -104,7 +111,7 @@ const Employee = () => {
                         <ChevronLeft className='scale-[1.3] text-black' />
                     </Link>
 
-                    <p className='font-semibold m-auto text-xl text-black text-center'>Pegawai</p>
+                    <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-black text-center'>Pegawai</p>
                 </div>
 
                 <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -142,8 +149,10 @@ const Employee = () => {
                 </div>
 
                 <div className="mt-10 w-[90%] flex flex-col gap-5 mb-24">
-                    {employees?.map((employee, index) => (
-                        <div key={index} onClick={() => handleOpen(employee?.id)} className="bg-white w-full p-5 flex items-center gap-5 rounded-lg justify-between shadow-lg hover:cursor-pointer">
+                    {employees.length === 0 ? (
+                        <img data-aos="fade-up" data-aos-delay="100" src={noPegawai} alt="" />
+                    ) : employees?.map((employee, index) => (
+                        <div data-aos="fade-up" data-aos-delay={index * 100} key={index} onClick={() => handleOpen(employee?.id)} className="bg-white w-full p-5 flex items-center gap-5 rounded-lg justify-between shadow-lg hover:cursor-pointer">
                             <div className="flex items-center gap-5">
                                 <div className="w-14 h-14 rounded-lg flex items-center bg-gray-300 justify-center">
                                     <User className="scale-[1.2]" />

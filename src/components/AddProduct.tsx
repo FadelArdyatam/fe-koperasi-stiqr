@@ -15,6 +15,8 @@ import { ChevronLeft, CircleCheck } from "lucide-react";
 import Notification from "./Notification";
 import { useState, useEffect } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface Merchant {
     id: string;
@@ -103,6 +105,10 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
     const [showPopUpAddEtalase, setShowPopUpAddEtalase] = useState(false);
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
 
     console.log("Product", products)
 
@@ -237,7 +243,8 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                     <button onClick={() => setAddProduct(false)}>
                         <ChevronLeft />
                     </button>
-                    <p className="font-semibold text-xl text-center uppercase">Add Product</p>
+
+                    <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Add Product</p>
                 </div>
 
                 <Form {...form}>
@@ -247,7 +254,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                             control={form.control}
                             name="photo"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="100">
                                     <FormLabel>Foto Produk (Optional)</FormLabel>
                                     <FormControl>
                                         <div>
@@ -283,7 +290,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                             control={form.control}
                             name="name"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="200">
                                     <FormLabel>Nama Produk</FormLabel>
                                     <FormControl>
                                         <div className="relative">
@@ -309,7 +316,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                             control={form.control}
                             name="SKU"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="300">
                                     <FormLabel>SKU Produk</FormLabel>
                                     <FormControl>
                                         <div className="relative">
@@ -335,7 +342,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                             control={form.control}
                             name="price"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="400">
                                     <FormLabel>Harga</FormLabel>
                                     <FormControl>
                                         <Input
@@ -354,7 +361,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                             control={form.control}
                             name="weight"
                             render={({ field }) => (
-                                <FormItem className="w-full">
+                                <FormItem className="w-full" data-aos="fade-up" data-aos-delay="500">
                                     <FormLabel>Berat</FormLabel>
                                     <FormControl className="w-full">
                                         <div className="flex items-center space-x-2">
@@ -384,7 +391,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                             control={form.control}
                             name="description"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up" data-aos-delay="600">
                                     <FormLabel>Deskripsi (Optional)</FormLabel>
                                     <FormControl>
                                         <div className="relative">
@@ -411,7 +418,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                             control={form.control}
                             name="etalase"
                             render={() => (
-                                <FormItem>
+                                <FormItem data-aos="fade-up">
                                     <FormLabel className="flex items-center gap-5">
                                         <p>Etalase</p>
 
@@ -437,7 +444,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                             )}
                         />
 
-                        <Button type="submit" className="w-full bg-green-500 text-white">
+                        <Button data-aos="fade-up" type="submit" className="w-full bg-green-500 text-white">
                             Submit
                         </Button>
                     </form>
@@ -447,7 +454,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             {/* Add Etalase Pop Up */}
             {showPopUpAddEtalase && (
                 <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-5 rounded-lg w-[90%]">
+                    <div data-aos="fade-up" className="bg-white p-5 rounded-lg w-[90%]">
                         <div className="flex items-center justify-between">
                             <p className="font-semibold text-xl">Add Etalase</p>
                             <button onClick={() => setShowPopUpAddEtalase(false)}>
@@ -490,8 +497,10 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             {showNotification && (
                 <div className="p-10">
                     <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
-                    <p className="mt-10 font-semibold text-xl text-center">Product added successfully!</p>
-                    <Button onClick={() => setAddProduct(false)} className="w-full bg-green-500 text-white mt-10">
+
+                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Product added successfully!</p>
+
+                    <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setAddProduct(false)} className="w-full bg-green-500 text-white mt-10">
                         Done
                     </Button>
                 </div>
