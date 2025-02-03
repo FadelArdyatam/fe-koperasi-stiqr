@@ -120,7 +120,7 @@ const Catalog = () => {
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
     const [showFilterSection, setShowFilterSection] = useState(false);
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'new' | 'highest' | 'lowest' | 'Semua' | 'Aktif' | 'Non-aktif'>('asc');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'new' | 'highest' | 'lowest' | 'Semua' | 'Aktif' | 'Non-aktif'>('new');
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
@@ -178,77 +178,109 @@ const Catalog = () => {
         fetchVariants();
     }, []);
 
+    // useEffect(() => {
+    //     const handleSortAll = () => {
+    //         const sortArray = (arr: any[], key: string) => {
+    //             return arr.sort((a, b) => {
+    //                 // Jika key adalah 'createdAt', urutkan berdasarkan tanggal
+    //                 if (key === 'created_at') {
+    //                     const dateA = new Date(a[key]);
+    //                     const dateB = new Date(b[key]);
+    //                     if (sortOrder === 'asc') {
+    //                         return dateA > dateB ? 1 : -1; // Urutkan berdasarkan tanggal lebih baru jika 'desc'
+    //                     } else {
+    //                         return dateA < dateB ? 1 : -1; // Urutkan berdasarkan tanggal lebih lama jika 'asc'
+    //                     }
+    //                 } else if (key === 'product_name' || key === 'variant_name' || key === 'showcase_name') {
+    //                     // Pengurutan berdasarkan nama produk (A-Z atau Z-A)
+    //                     if (sortOrder === 'asc') {
+    //                         return a[key]?.toLowerCase() > b[key]?.toLowerCase() ? 1 : -1;
+    //                     } else {
+    //                         return a[key]?.toLowerCase() < b[key]?.toLowerCase() ? 1 : -1;
+    //                     }
+    //                 } else if (key === 'product_price' || key === 'variant_price' || key === 'showcase_price') {
+    //                     // Pengurutan berdasarkan harga tertinggi
+    //                     if (sortOrder === 'highest') {
+    //                         return a[key] < b[key] ? 1 : -1;
+    //                     } else {
+    //                         return a[key] > b[key] ? 1 : -1;
+    //                     }
+    //                 } else if (key === 'product_status') {
+    //                     // Pengurutan berdasarkan status produk (Aktif atau Non-aktif)
+    //                     if (sortOrder === 'Aktif') {
+    //                         return a[key] ? 1 : -1;
+    //                     } else if (sortOrder === 'Non-aktif') {
+    //                         return !a[key] ? 1 : -1;
+    //                     }
+    //                 }
+
+    //                 return 0; // Default return value
+    //             });
+    //         };
+
+    //         if (sortOrder === 'new') {
+    //             setProducts((prev) => [...sortArray(prev, 'created_at')]); // Sort berdasarkan tanggal terbaru
+    //             setVariants((prev) => [...sortArray(prev, 'created_at')]); // Sort berdasarkan tanggal terbaru
+    //             setEtalases((prev) => [...sortArray(prev, 'created_at')]); // Sort berdasarkan tanggal terbaru
+    //         } else if (sortOrder === 'asc') {
+    //             setProducts((prev) => [...sortArray(prev, 'product_name')]); // Sort berdasarkan nama produk A-Z
+    //             setVariants((prev) => [...sortArray(prev, 'variant_name')]); // Sort berdasarkan nama varian A-Z
+    //             setEtalases((prev) => [...sortArray(prev, 'showcase_name')]); // Sort berdasarkan nama etalase A-Z
+    //         } else if (sortOrder === 'desc') {
+    //             setProducts((prev) => [...sortArray(prev, 'product_name')]); // Sort berdasarkan nama produk Z-A
+    //             setVariants((prev) => [...sortArray(prev, 'variant_name')]); // Sort berdasarkan nama varian Z-A
+    //             setEtalases((prev) => [...sortArray(prev, 'showcase_name')]); // Sort berdasarkan nama etalase Z-A
+    //         } else if (sortOrder === 'highest') {
+    //             setProducts((prev) => [...sortArray(prev, 'product_price')]); // Sort berdasarkan harga tertinggi
+    //             setVariants((prev) => [...sortArray(prev, 'variant_price')]); // Sort berdasarkan harga tertinggi
+    //             setEtalases((prev) => [...sortArray(prev, 'showcase_price')]); // Sort berdasarkan harga tertinggi
+    //         } else if (sortOrder === 'lowest') {
+    //             setProducts((prev) => [...sortArray(prev, 'product_price')]); // Sort berdasarkan harga terendah
+    //             setVariants((prev) => [...sortArray(prev, 'variant_price')]); // Sort berdasarkan harga terendah
+    //             setEtalases((prev) => [...sortArray(prev, 'showcase_price')]); // Sort berdasarkan harga terendah
+    //         } else if (sortOrder === 'Semua') {
+    //             setProducts([...originalProducts]); // Kembalikan ke semua data
+    //         } else if (sortOrder === 'Aktif') {
+    //             setProducts(allProducts.filter(product => product.product_status)); // Tampilkan produk yang aktif
+    //         } else if (sortOrder === 'Non-aktif') {
+    //             setProducts(allProducts.filter(product => !product.product_status)); // Tampilkan produk yang non-aktif
+    //         }
+    //     };
+
+    //     handleSortAll();
+    // }, [sortOrder])
     useEffect(() => {
-        const handleSortAll = () => {
-            const sortArray = (arr: any[], key: string) => {
-                return arr.sort((a, b) => {
-                    // Jika key adalah 'createdAt', urutkan berdasarkan tanggal
-                    if (key === 'created_at') {
-                        const dateA = new Date(a[key]);
-                        const dateB = new Date(b[key]);
-                        if (sortOrder === 'asc') {
-                            return dateA > dateB ? 1 : -1; // Urutkan berdasarkan tanggal lebih baru jika 'desc'
-                        } else {
-                            return dateA < dateB ? 1 : -1; // Urutkan berdasarkan tanggal lebih lama jika 'asc'
-                        }
-                    } else if (key === 'product_name' || key === 'variant_name' || key === 'showcase_name') {
-                        // Pengurutan berdasarkan nama produk (A-Z atau Z-A)
-                        if (sortOrder === 'asc') {
-                            return a[key]?.toLowerCase() > b[key]?.toLowerCase() ? 1 : -1;
-                        } else {
-                            return a[key]?.toLowerCase() < b[key]?.toLowerCase() ? 1 : -1;
-                        }
-                    } else if (key === 'product_price' || key === 'variant_price' || key === 'showcase_price') {
-                        // Pengurutan berdasarkan harga tertinggi
-                        if (sortOrder === 'highest') {
-                            return a[key] < b[key] ? 1 : -1;
-                        } else {
-                            return a[key] > b[key] ? 1 : -1;
-                        }
-                    } else if (key === 'product_status') {
-                        // Pengurutan berdasarkan status produk (Aktif atau Non-aktif)
-                        if (sortOrder === 'Aktif') {
-                            return a[key] ? 1 : -1;
-                        } else if (sortOrder === 'Non-aktif') {
-                            return !a[key] ? 1 : -1;
-                        }
-                    }
+        fetchProducts();
+    }, [sortOrder]);
 
-                    return 0; // Default return value
-                });
-            };
+    const fetchProducts = async () => {
+        setLoading(true);
+        try {
+            // Convert UI sort/filter values to API parameters
+            let status = undefined;
+            if (sortOrder === 'Aktif') status = 'active';
+            if (sortOrder === 'Non-aktif') status = 'inactive';
 
-            if (sortOrder === 'new') {
-                setProducts((prev) => [...sortArray(prev, 'created_at')]); // Sort berdasarkan tanggal terbaru
-                setVariants((prev) => [...sortArray(prev, 'created_at')]); // Sort berdasarkan tanggal terbaru
-                setEtalases((prev) => [...sortArray(prev, 'created_at')]); // Sort berdasarkan tanggal terbaru
-            } else if (sortOrder === 'asc') {
-                setProducts((prev) => [...sortArray(prev, 'product_name')]); // Sort berdasarkan nama produk A-Z
-                setVariants((prev) => [...sortArray(prev, 'variant_name')]); // Sort berdasarkan nama varian A-Z
-                setEtalases((prev) => [...sortArray(prev, 'showcase_name')]); // Sort berdasarkan nama etalase A-Z
-            } else if (sortOrder === 'desc') {
-                setProducts((prev) => [...sortArray(prev, 'product_name')]); // Sort berdasarkan nama produk Z-A
-                setVariants((prev) => [...sortArray(prev, 'variant_name')]); // Sort berdasarkan nama varian Z-A
-                setEtalases((prev) => [...sortArray(prev, 'showcase_name')]); // Sort berdasarkan nama etalase Z-A
-            } else if (sortOrder === 'highest') {
-                setProducts((prev) => [...sortArray(prev, 'product_price')]); // Sort berdasarkan harga tertinggi
-                setVariants((prev) => [...sortArray(prev, 'variant_price')]); // Sort berdasarkan harga tertinggi
-                setEtalases((prev) => [...sortArray(prev, 'showcase_price')]); // Sort berdasarkan harga tertinggi
-            } else if (sortOrder === 'lowest') {
-                setProducts((prev) => [...sortArray(prev, 'product_price')]); // Sort berdasarkan harga terendah
-                setVariants((prev) => [...sortArray(prev, 'variant_price')]); // Sort berdasarkan harga terendah
-                setEtalases((prev) => [...sortArray(prev, 'showcase_price')]); // Sort berdasarkan harga terendah
-            } else if (sortOrder === 'Semua') {
-                setProducts([...originalProducts]); // Kembalikan ke semua data
-            } else if (sortOrder === 'Aktif') {
-                setProducts(allProducts.filter(product => product.product_status)); // Tampilkan produk yang aktif
-            } else if (sortOrder === 'Non-aktif') {
-                setProducts(allProducts.filter(product => !product.product_status)); // Tampilkan produk yang non-aktif
-            }
-        };
+        // Only pass sort parameter if it's a sorting option
+            const sortParam = ['asc', 'desc', 'new', 'highest', 'lowest'].includes(sortOrder)
+                ? sortOrder
+                : undefined;
 
-        handleSortAll();
-    }, [sortOrder])
+            const response = await axiosInstance.get(`/product/${userData?.merchant?.id}`, {
+                params: {
+                    sort: sortParam,
+                    status: status
+                }
+            });
+
+            setProducts(response.data);
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data produk.");
+            console.error("Error saat mengambil data produk:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Validasi sebelum memanggil filter
     const filteredProducts = Array.isArray(products)
@@ -268,11 +300,6 @@ const Catalog = () => {
             etalase?.showcase_name?.toLowerCase().includes(searchTerm.toLowerCase())
         )
         : [];
-
-    console.log(error)
-    console.log(products)
-    console.log(variants)
-    console.log(etalases)
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center bg-orange-50">

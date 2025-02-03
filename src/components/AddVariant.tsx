@@ -17,6 +17,7 @@ import axiosInstance from "@/hooks/axiosInstance";
 import Notification from "./Notification";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { formatRupiah } from '../hooks/convertRupiah';
 
 interface Choice {
     name: string;
@@ -114,8 +115,6 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
         },
     });
 
-    console.log("variants", variants);
-
     const onSubmit = async (data: z.infer<typeof FormSchema>) => {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
@@ -125,11 +124,9 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
             product_id: data.products.join(","), // Konversi array ke string dengan koma
             variant_description: "Deskripsi untuk variant", // Bisa diambil dari form jika diperlukan
             is_multiple: data.methods === "more",
-            multiple_value: displayChoises.map((choice) => choice.name).join(", "), // Semua pilihan nama
+            multiple_value: displayChoises, // Semua pilihan nama
             merchant_id: userData?.merchant?.id, // ID merchant
         };
-
-        console.log(data);
 
         try {
             const response = await axiosInstance.post(
@@ -138,7 +135,6 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
             );
 
             if (response.status === 200 || response.status === 201) {
-                // Agar varian yang baru ditambahkan langsung muncul di halaman varian
                 setVariants([...variants, response.data.data]);
 
                 console.log("Varian berhasil ditambahkan:", response.data);
@@ -231,7 +227,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                                         </div>
 
                                         <div className="mt-3 flex items-center gap-5 justify-between">
-                                            <p className="text-gray-500">{choise.price}</p>
+                                            <p className="text-gray-500">{formatRupiah(choise.price)}</p>
 
                                             <div
                                                 onClick={() => updateShowChoises(index)}
@@ -466,7 +462,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                         />
 
                         {/* Products */}
-                        <FormField
+                        {/* <FormField
                             control={form.control}
                             name="products"
                             render={({ field }) => (
@@ -499,7 +495,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                                     <FormMessage />
                                 </FormItem>
                             )}
-                        />
+                        /> */}
 
                         <Button data-aos="fade-up" data-aos-delay="600" type="submit" className="w-full bg-green-500 text-white">
                             Simpan Varian
