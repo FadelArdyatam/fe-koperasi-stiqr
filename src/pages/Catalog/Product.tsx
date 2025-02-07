@@ -38,13 +38,17 @@ interface ProductType {
     product_sku: string;
     product_weight: string;
     product_category: string;
-    product_price: string;
+    product_price: number;
     product_status: boolean;
     product_description: string;
     product_image: string;
     created_at: string;
     updated_at: string;
     merchant_id: string;
+    product_variant: Array<{
+        variant: any;
+        variant_id: string;
+    }> & { product_variant: Array<{ variant_id: string }> };
 }
 
 interface Etalase {
@@ -58,6 +62,22 @@ interface Etalase {
     merchant: Merchant;
 }
 
+interface Variant {
+    product_variant: any;
+    id: number;
+    variant_id: string;
+    variant_name: string;
+    product_id: string;
+    variant_description: string;
+    is_multiple: boolean;
+    merchant_id: string;
+    products: number[];
+    mustBeSelected: boolean;
+    methods: string;
+    choises: [];
+    showVariant: boolean;
+}
+
 interface ProductProps {
     products: ProductType[];
     setProducts: (products: ProductType[]) => void;
@@ -67,6 +87,9 @@ interface ProductProps {
     open: { id: string; status: boolean };
     setEtalases: (etalases: Etalase[]) => void;
     etalases: Etalase[];
+    variants: Variant[];
+    setVariants: React.Dispatch<React.SetStateAction<Variant[]>>;
+    setReset: (reset: boolean) => void;
 }
 
 const Product: React.FC<ProductProps> = ({
@@ -77,7 +100,10 @@ const Product: React.FC<ProductProps> = ({
     setOpen,
     open,
     etalases,
-    setEtalases
+    setEtalases,
+    variants,
+    setVariants,
+    setReset
 }) => {
 
     useEffect(() => {
@@ -161,7 +187,7 @@ const Product: React.FC<ProductProps> = ({
                 </div>
 
                 <Button
-                    onClick={() => setAddProduct(true)}
+                    onClick={() => { setAddProduct(true); setReset(false) }}
                     className="fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500"
                 >
                     Tambah Produk
@@ -175,6 +201,8 @@ const Product: React.FC<ProductProps> = ({
                     setAddProduct={setAddProduct}
                     setEtalases={setEtalases}
                     etalases={etalases}
+                    setVariants={setVariants}
+                    variants={variants}
                 />
             )}
 
@@ -185,6 +213,9 @@ const Product: React.FC<ProductProps> = ({
                     editIndex={open.id}
                     open={open}
                     etalases={etalases}
+                    setVariants={setVariants}
+                    variants={variants}
+                    setReset={setReset}
                 />
             )}
         </div>

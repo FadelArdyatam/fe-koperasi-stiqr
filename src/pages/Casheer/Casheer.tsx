@@ -54,6 +54,7 @@ const Casheer = () => {
                         ...prevBasket,
                         {
                             product_id: product.product_id,
+                            product_image: product.product_image,
                             product: product.product_name,
                             quantity: 1,
                             price: product.product_price,
@@ -68,6 +69,8 @@ const Casheer = () => {
         },
         [products]
     );
+
+    console.log("Products", products)
 
     const removeQuantityHandler = useCallback(
         (index: number) => {
@@ -113,7 +116,8 @@ const Casheer = () => {
             try {
                 const response = await axiosInstance.get(`/showcase/${userData?.merchant?.id}`);
                 if (Array.isArray(response.data)) {
-                    setEtalases(response.data);
+                    setEtalases([{ showcase_id: null, showcase_name: "Semua Produk" }, ...(Array.isArray(response.data) ? response.data : [])]);
+
                 } else {
                     console.error("Invalid response format for etalases:", response.data);
                 }
@@ -194,12 +198,22 @@ const Casheer = () => {
     // Show Product By Etalase Handler
     const showProductByEtalaseHandler = async (showcaseId: any) => {
         try {
-            const response = await axiosInstance.get(`/product/${userData?.merchant?.id}?showcase_id=${showcaseId}`);
-            if (Array.isArray(response.data)) {
-                setProducts(response.data);
+            if (showcaseId !== null) {
+                const response = await axiosInstance.get(`/product/${userData?.merchant?.id}?showcase_id=${showcaseId}`);
+                if (Array.isArray(response.data)) {
+                    setProducts(response.data);
+                } else {
+                    console.error("Invalid response format for products:", response.data);
+                }
             } else {
-                console.error("Invalid response format for products:", response.data);
+                const response = await axiosInstance.get(`/product/${userData?.merchant?.id}?status=active`);
+                if (Array.isArray(response.data)) {
+                    setProducts(response.data);
+                } else {
+                    console.error("Invalid response format for products:", response.data);
+                }
             }
+
         } catch (err: any) {
             setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data produk.");
         } finally {
@@ -380,7 +394,7 @@ const Casheer = () => {
                 )}
 
                 <div className="w-[90%] mt-5 flex flex-col items-center gap-5">
-                    {products.length === 0 ? <Link data-aos="fade-up" data-aos-delay="400" to={"/catalog"} className="w-full bg-orange-500 rounded-lg text-center p-2 font-semibold text-white">Tambah Produk</Link> : products.map((product, index) => (
+                    {products.length === 0 ? <Link data-aos="fade-up" data-aos-delay="400" to={"/catalog"} className="w-full bg-orange-500 rounded-lg text-center p-2 font-semibold text-white">Tambah Produk</Link> : searchTerm !== "" ? filteredProducts.map((product, index) => (
                         <div
                             data-aos="fade-up"
                             data-aos-delay={index * 100}
@@ -397,7 +411,8 @@ const Casheer = () => {
                                 <div className="flex flex-col justify-start items-start">
                                     <p className="font-semibold">{product.product_name.length > 10
                                         ? product.product_name.slice(0, 10) + "..."
-                                        : product.product_name}</p>
+                                        : product.product_name}
+                                    </p>
 
                                     <p className="font-semibold text-wrap">
                                         {/* Format angka dengan pemotongan */}
@@ -427,7 +442,7 @@ const Casheer = () => {
 
                                 <Input
                                     type="number"
-                                    className="text-center w-10 border rounded-md"
+                                    className="text-center w-10 border rounded-md appearance-none"
                                     value={
                                         basket
                                             .filter((item) => item.product === product.product_name)
@@ -461,6 +476,122 @@ const Casheer = () => {
                                                         ...prevBasket,
                                                         {
                                                             product_id: product.product_id,
+                                                            product: product.product_name,
+                                                            quantity: newQuantity,
+                                                            price: product.product_price,
+                                                            notes: "",
+                                                            date: new Date().toLocaleString(),
+                                                            detail_variant: [],
+                                                            service: showService?.service,
+                                                        },
+                                                    ];
+                                                }
+                                                return prevBasket;
+                                            });
+                                        }
+                                    }}
+                                    onBlur={(e) => {
+                                        // Jika input kosong atau < 1, hapus dari basket
+                                        if (e.target.value === "" || Number(e.target.value) < 1) {
+                                            setBasket((prevBasket) =>
+                                                prevBasket.filter((item) => item.product !== product.product_name)
+                                            );
+                                        }
+                                    }}
+                                    min={0} // Mencegah angka negatif
+                                />
+
+                                <button
+                                    onClick={() => addQuantityHandler(index)}
+                                    className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                    )) : products.map((product, index) => (
+                        <div
+                            data-aos="fade-up"
+                            data-aos-delay={index * 100}
+                            key={index}
+                            className="flex items-center gap-5 w-full p-5 bg-white rounded-lg justify-between"
+                        >
+                            {/* Detail Produk */}
+                            <div
+                                onClick={() => detailProductHandler(index)}
+                                className="flex items-center gap-5 w-full cursor-pointer"
+                            >
+                                <img src={`${urlImage}/uploads/products/${product.product_image}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
+
+                                <div className="flex flex-col justify-start items-start">
+                                    <p className="font-semibold">{product.product_name.length > 10
+                                        ? product.product_name.slice(0, 10) + "..."
+                                        : product.product_name}
+                                    </p>
+
+                                    <p className="font-semibold text-wrap">
+                                        {/* Format angka dengan pemotongan */}
+                                        {String(product.product_price).length > 5
+                                            ? `${Number(product.product_price)
+                                                .toLocaleString("id-ID", {
+                                                    style: "currency",
+                                                    currency: "IDR",
+                                                })
+                                                .slice(0, 10)}...`
+                                            : Number(product.product_price).toLocaleString("id-ID", {
+                                                style: "currency",
+                                                currency: "IDR",
+                                            })}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Tombol Tambah dan Kurangi Kuantitas */}
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => removeQuantityHandler(index)}
+                                    className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
+                                >
+                                    -
+                                </button>
+
+                                <Input
+                                    type="number"
+                                    className="text-center w-10 md:w-20 border rounded-md appearance-none"
+                                    value={
+                                        basket
+                                            .filter((item) => item.product === product.product_name)
+                                            .reduce((total, item) => total + item.quantity, 0) || "" // Tampilkan input kosong jika kuantitas 0
+                                    }
+                                    onChange={(e) => {
+                                        const inputValue = e.target.value;
+
+                                        // Validasi input hanya angka positif
+                                        if (inputValue === "" || (Number(inputValue) >= 0 && !isNaN(Number(inputValue)))) {
+                                            const newQuantity = inputValue === "" ? 0 : parseInt(inputValue, 10);
+
+                                            setBasket((prevBasket) => {
+                                                const existingProductIndex = prevBasket.findIndex(
+                                                    (item) => item.product === product.product_name
+                                                );
+
+                                                if (existingProductIndex >= 0) {
+                                                    // Jika kuantitas 0, hapus produk dari basket
+                                                    if (newQuantity === 0) {
+                                                        return prevBasket.filter((_, idx) => idx !== existingProductIndex);
+                                                    }
+
+                                                    // Update kuantitas jika produk ada di basket
+                                                    return prevBasket.map((item, idx) =>
+                                                        idx === existingProductIndex ? { ...item, quantity: newQuantity } : item
+                                                    );
+                                                } else if (newQuantity > 0) {
+                                                    // Tambahkan produk baru ke basket jika belum ada
+                                                    return [
+                                                        ...prevBasket,
+                                                        {
+                                                            product_id: product.product_id,
+                                                            product_image: product.product_image,
                                                             product: product.product_name,
                                                             quantity: newQuantity,
                                                             price: product.product_price,

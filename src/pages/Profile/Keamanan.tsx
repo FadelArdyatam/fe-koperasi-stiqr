@@ -185,7 +185,7 @@ const Keamanan = () => {
                     {errorPassword && <p className="text-red-500 text-sm">{errorPassword}</p>}
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
-                            <div className={'flex flex-col items-end w-full md:w-2/3 space-y-7'}>
+                            <div className={'flex flex-col items-end w-full space-y-7'}>
                                 <FormField
                                     control={form.control}
                                     name="password"
@@ -270,7 +270,7 @@ const Keamanan = () => {
                 <div className="w-[90%] bg-white p-5 shadow-lg rounded-lg -translate-y-20">
                     <Form {...form2}>
                         <form onSubmit={form2.handleSubmit(onSubmit2)}>
-                            <div className={'flex flex-col items-end w-full md:w-2/3 space-y-7'}>
+                            <div className={'flex flex-col items-end w-full space-y-7'}>
                                 <FormField
                                     control={form2.control}
                                     name="oldPin"

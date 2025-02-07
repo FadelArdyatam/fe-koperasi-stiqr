@@ -27,6 +27,7 @@ import Casheer from './pages/Casheer/Casheer.tsx'
 import Booking from './pages/Booking/Booking.tsx'
 import PaymentSuccess from './components/PaymentSuccess.tsx'
 import ModalExpired from './components/ModalExpired.tsx'
+import DataCustomer from './pages/Profile/DataCustomer.tsx'
 
 const router = createBrowserRouter([
   {
@@ -92,6 +93,10 @@ const router = createBrowserRouter([
   {
     path: '/profile/merchant-data',
     element: <DataMerchant />
+  },
+  {
+    path: '/profile/customer-data',
+    element: <DataCustomer />
   },
   {
     path: '/profile/payment-data',

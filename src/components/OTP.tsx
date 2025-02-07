@@ -147,7 +147,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 		<div className="mt-10">
 			<div
 				className={`${currentSection === 2 ? "block" : "hidden"
-					} flex flex-col items-end w-full md:w-2/3 space-y-7`}
+					} flex flex-col w-full space-y-7`}
 			>
 				<p data-aos="fade-up" className="font-semibold text-xl text-center">
 					Terima Kasih Telah Mendaftar Sebagai Merchant STIQR!

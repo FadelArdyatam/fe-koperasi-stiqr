@@ -59,6 +59,7 @@ import "aos/dist/aos.css";
 // ]
 
 interface Employee {
+    employee_id: string;
     role: any;
     role_id: string;
     id: number;
@@ -74,7 +75,7 @@ const Employee = () => {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [addEmployee, setAddEmployee] = useState(false);
     const [open, setOpen] = useState({
-        id: -1,
+        id: "",
         status: false,
     });
     const [isSuccess, setIsSuccess] = useState(false);
@@ -96,9 +97,9 @@ const Employee = () => {
         fetchData();
     }, [isSuccess])
 
-    const handleOpen = (id: number) => {
+    const handleOpen = (id: string) => {
         setOpen({
-            id: id - 1,
+            id: id,
             status: true,
         });
     };
@@ -150,9 +151,13 @@ const Employee = () => {
 
                 <div className="mt-10 w-[90%] flex flex-col gap-5 mb-24">
                     {employees.length === 0 ? (
-                        <img data-aos="fade-up" data-aos-delay="100" src={noPegawai} alt="" />
+                        <div data-aos="fade-up" data-aos-delay="100" className="flex flex-col items-center justify-center">
+                            <img src={noPegawai} className="md:max-w-max max-w-[300px]" alt="" />
+
+                            <p className="font-semibold text-orange-500 text-xl">Tidak ada Pegawai yang terdaftar</p>
+                        </div>
                     ) : employees?.map((employee, index) => (
-                        <div data-aos="fade-up" data-aos-delay={index * 100} key={index} onClick={() => handleOpen(employee?.id)} className="bg-white w-full p-5 flex items-center gap-5 rounded-lg justify-between shadow-lg hover:cursor-pointer">
+                        <div data-aos="fade-up" data-aos-delay={index * 100} key={index} onClick={() => handleOpen(employee?.employee_id)} className="bg-white w-full p-5 flex items-center gap-5 rounded-lg justify-between shadow-lg hover:cursor-pointer">
                             <div className="flex items-center gap-5">
                                 <div className="w-14 h-14 rounded-lg flex items-center bg-gray-300 justify-center">
                                     <User className="scale-[1.2]" />

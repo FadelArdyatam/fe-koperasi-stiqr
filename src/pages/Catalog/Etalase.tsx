@@ -55,23 +55,28 @@ interface EtalaseProps {
     setOpen: (open: { id: string; status: boolean }) => void;
     open: { id: string; status: boolean };
     products: Array<{
-        id: number,
-        product_id: string,
-        product_name: string,
-        product_sku: string,
-        product_weight: string,
-        product_category: string,
-        product_price: string,
-        product_status: boolean,
-        product_description: string,
-        product_image: string,
-        created_at: string,
-        updated_at: string,
-        merchant_id: string
+        id: number;
+        product_id: string;
+        product_name: string;
+        product_sku: string;
+        product_weight: string;
+        product_category: string;
+        product_price: number;
+        product_status: boolean;
+        product_description: string;
+        product_image: string;
+        created_at: string;
+        updated_at: string;
+        merchant_id: string;
+        product_variant: Array<{
+            variant: any;
+            variant_id: string;
+        }> & { product_variant: Array<{ variant_id: string }> };
     }>;
+    setReset: (reset: boolean) => void;
 }
 
-const Etalase: React.FC<EtalaseProps> = ({ etalases, setEtalases, addEtalase, setAddEtalase, setOpen, open, products }) => {
+const Etalase: React.FC<EtalaseProps> = ({ etalases, setEtalases, addEtalase, setAddEtalase, setOpen, open, products, setReset }) => {
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
@@ -81,6 +86,8 @@ const Etalase: React.FC<EtalaseProps> = ({ etalases, setEtalases, addEtalase, se
             id: id,
             status: true,
         });
+
+        setReset(false)
     };
 
     console.log(open)
@@ -98,14 +105,14 @@ const Etalase: React.FC<EtalaseProps> = ({ etalases, setEtalases, addEtalase, se
                     ))}
                 </div>
 
-                <Button onClick={() => setAddEtalase(true)} className="fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500">
+                <Button onClick={() => { setAddEtalase(true); setReset(false) }} className="fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500">
                     Tambah Etalase
                 </Button>
             </div>
 
             {addEtalase && <AddEtalase setAddEtalase={setAddEtalase} etalases={etalases} setEtalases={setEtalases} />}
 
-            {open.status && <EditEtalase setOpen={setOpen} editIndex={open.id} open={open} products={products} />}
+            {open.status && <EditEtalase setOpen={setOpen} editIndex={open.id} open={open} products={products} setReset={setReset} />}
         </div>
     )
 }

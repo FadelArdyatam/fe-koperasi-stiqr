@@ -131,7 +131,11 @@ const Printer = () => {
 
                 <div className="w-full flex items-center p-5">
                     {printers.length === 0 ? (
-                        <img data-aos="fade-up" data-aos-delay='100' className="mt-10" src={noPrinter} alt="" />
+                        <div data-aos="fade-up" data-aos-delay='100' className="flex flex-col items-center justify-center gap-10 w-full">
+                            <img className="mt-10" src={noPrinter} alt="" />
+
+                            <p className="font-semibold text-orange-500 text-xl">Tidak ada Printer yang terdaftar</p>
+                        </div>
                     ) : (
                         <div className="w-full bg-orange-50 p-5 mt-10 rounded-lg flex flex-col gap-5">
                             {printers.map((printer, index) => (

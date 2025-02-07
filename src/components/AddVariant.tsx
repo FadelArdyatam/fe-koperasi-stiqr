@@ -17,7 +17,7 @@ import axiosInstance from "@/hooks/axiosInstance";
 import Notification from "./Notification";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { formatRupiah } from '../hooks/convertRupiah';
+import { formatRupiah } from "@/hooks/convertRupiah";
 
 interface Choice {
     name: string;
@@ -28,19 +28,23 @@ interface Choice {
 interface AddVariantProps {
     setAddVariant: (value: boolean) => void;
     products: Array<{
-        id: number,
-        product_id: string,
-        product_name: string,
-        product_sku: string,
-        product_weight: string,
-        product_category: string,
-        product_price: string,
-        product_status: boolean,
-        product_description: string,
-        product_image: string,
-        created_at: string,
-        updated_at: string,
-        merchant_id: string,
+        id: number;
+        product_id: string;
+        product_name: string;
+        product_sku: string;
+        product_weight: string;
+        product_category: string;
+        product_price: number;
+        product_status: boolean;
+        product_description: string;
+        product_image: string;
+        created_at: string;
+        updated_at: string;
+        merchant_id: string;
+        product_variant: Array<{
+            variant: any;
+            variant_id: string;
+        }> & { product_variant: Array<{ variant_id: string }> };
     }>;
     variants: Array<{
         id: number;
@@ -58,6 +62,7 @@ interface AddVariantProps {
     }>;
 
     setVariants: (variants: Array<{
+        product_variant: any;
         id: number;
         variant_id: string;
         variant_name: string;
@@ -71,10 +76,9 @@ interface AddVariantProps {
         choises: [];
         showVariant: boolean;
     }>) => void;
-
 }
 
-const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, variants, setVariants }) => {
+const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVariants }) => {
     const [showChoisesInput, setShowChoisesInput] = useState(false);
     const [showEditChoisesInput, setShowEditChoisesInput] = useState({ status: false, index: -1 });
     const [newChoiceName, setNewChoiceName] = useState("");
@@ -471,7 +475,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                                     <FormControl>
                                         <div>
                                             {products.map((product) => (
-                                                <label key={product.id} className="flex items-center mb-2">
+                                                <label key={product.id} className="flex items-center mb-5">
                                                     <input
                                                         type="checkbox"
                                                         value={product.product_id}
@@ -487,7 +491,24 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, products, varian
                                                         }}
                                                         className="mr-2"
                                                     />
-                                                    <span>{product.product_name}</span>
+
+                                                    <div className="flex items-center gap-5">
+                                                        <div className="h-20 w-20 flex items-center justify-center bg-gray-200 rounded-md">
+                                                            <Package className="scale-[1.5] text-gray-500" />
+                                                        </div>
+
+                                                        <div className="flex flex-col items-start gap-1">
+                                                            <p className="font-semibold">{product.product_name.length > 20
+                                                                ? product.product_name.slice(0, 20) + "..."
+                                                                : product.product_name}</p>
+
+                                                            <p className="font-semibold text-gray-500">{formatRupiah(product.product_price)}</p>
+
+                                                            <div className={`${product.product_status ? 'bg-green-100 text-green-500' : 'bg-red-100 text-red-500'} py-1 px-3 rounded-full text-center`}>
+                                                                <p className="text-sm">{product.product_status ? 'stok tersedia' : 'stok tidak tersedia'}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </label>
                                             ))}
                                         </div>

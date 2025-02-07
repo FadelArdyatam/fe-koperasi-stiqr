@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Notification from "@/components/Notification"
 
 interface BillData {
     product: string;
@@ -26,6 +27,8 @@ const BPJS = () => {
     const [KTP, setKTP] = useState("")
     const [dataBill, setDataBill] = useState<BillData | null>(null)
     const [showBill, setShowBill] = useState(false)
+    // Sementara ini, karena feature ini belum diimplementasikan
+    const [showNotification, setShowNotification] = useState(true);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -118,6 +121,8 @@ const BPJS = () => {
             </div>
 
             {showBill && dataBill && <Bill data={dataBill} marginTop={false} />}
+
+            {showNotification && <Notification message={"Sementara Fitur ini belum tersedia"} onClose={() => setShowNotification(false)} status={"error"} />}
         </>
     )
 }

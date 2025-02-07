@@ -40,9 +40,12 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
         });
     };
 
+    console.log("detail variant: ", detailVariant);
+
     const addBasketHandler = () => {
         const payload = {
             product_id: product.product_id,
+            product_image: product.product_image,
             product: product.product_name,
             quantity: quantity,
             price: price,
@@ -96,23 +99,23 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                     <div key={index} className="mt-5">
                         <p className="font-semibold">{variant.variant_name}</p>
 
-                        <p className="text-gray-500">Optional - pilih maksimum {variant.multiple_value.split(",").map((value: string) => value.trim()).length}</p>
+                        <p className="text-gray-500">Optional - pilih maksimum {variant.detail_variant.length}</p>
 
                         <div className="w-full h-[1px] bg-gray-300 my-5"></div>
 
                         <div className="flex flex-col w-full gap-5">
-                            {variant.multiple_value.split(",").map((value: string, valueIndex: number) => (
+                            {variant.detail_variant.map((value: { name: string }, valueIndex: number) => (
                                 <div key={valueIndex} className="flex items-center gap-2">
                                     <input
                                         type="checkbox"
                                         id={`checkbox-${index}-${valueIndex}`}
-                                        value={value.trim()}
+                                        value={value.name}
                                         className="w-4 h-4 border-gray-300 rounded"
-                                        onChange={(e) => handleVariantChange(variant.variant_id, variant.variant_name, value.trim(), e.target.checked)}
+                                        onChange={(e) => handleVariantChange(variant.variant_id, variant.variant_name, value.name, e.target.checked)}
                                     />
 
                                     <label htmlFor={`checkbox-${index}-${valueIndex}`} className="text-gray-700">
-                                        {value.trim()}
+                                        {value.name}
                                     </label>
                                 </div>
                             ))}

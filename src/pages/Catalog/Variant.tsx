@@ -1,13 +1,14 @@
 import AddVariant from "@/components/AddVariant";
+import EditVarianProduct from "@/components/EditVarianProduct";
 import EditVariant from "@/components/EditVariant";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
 
 interface VariantProps {
     variants: Array<{
+        product_variant: any;
         id: number;
         variant_id: string;
         variant_name: string;
@@ -22,6 +23,7 @@ interface VariantProps {
         showVariant: boolean;
     }>;
     setVariants: (variants: Array<{
+        product_variant: any;
         id: number;
         variant_id: string;
         variant_name: string;
@@ -40,23 +42,30 @@ interface VariantProps {
     setOpen: (open: { id: string; status: boolean }) => void;
     open: { id: string; status: boolean };
     products: Array<{
-        id: number,
-        product_id: string,
-        product_name: string,
-        product_sku: string,
-        product_weight: string,
-        product_category: string,
-        product_price: string,
-        product_status: boolean,
-        product_description: string,
-        product_image: string,
-        created_at: string,
-        updated_at: string,
-        merchant_id: string,
+        id: number;
+        product_id: string;
+        product_name: string;
+        product_sku: string;
+        product_weight: string;
+        product_category: string;
+        product_price: number;
+        product_status: boolean;
+        product_description: string;
+        product_image: string;
+        created_at: string;
+        updated_at: string;
+        merchant_id: string;
+        product_variant: Array<{
+            variant: any;
+            variant_id: string;
+        }> & { product_variant: Array<{ variant_id: string }> };
     }>;
+    setShowVariantProductHandler: (showVariantProductHandler: { id: string; status: boolean }) => void;
+    showVariantProductHandler: { id: string; status: boolean };
+    setReset: (reset: boolean) => void;
 }
 
-const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, setAddVariant, setOpen, open, products }) => {
+const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, setAddVariant, setOpen, open, products, setShowVariantProductHandler, showVariantProductHandler, setReset }) => {
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
@@ -83,23 +92,25 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
             id: id,
             status: true,
         });
+
+        setReset(false);
     };
 
     console.log("variant", variants)
 
     return (
         <div className="mb-32 px-5">
-            <div className={`${addVariant || open.status ? 'hidden' : 'block'}`}>
+            <div className={`${addVariant || open.status || showVariantProductHandler.status ? 'hidden' : 'block'}`}>
                 <div>
                     {variants.map((variant, index) => (
                         <div data-aos="fade-up" data-aos-delay={index * 100} key={variant.id} className="shadow-sm">
                             <div
                                 className="flex w-full justify-between items-center p-4 bg-white rounded-md mt-3"
                             >
-                                <h3 className="text-lg font-semibold">{variant?.variant_name?.length > 25
+                                <button type="button" onClick={() => handleOpen(variant.variant_id)} className="text-lg font-semibold">{variant?.variant_name?.length > 25
                                     ? variant?.variant_name?.slice(0, 25) + "..."
                                     : variant.variant_name}
-                                </h3>
+                                </button>
 
                                 {/* Custom Switch */}
                                 <button
@@ -114,23 +125,25 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                                 </button>
                             </div>
 
-                            <div onClick={() => handleOpen(variant.variant_id)} className="w-full flex p-4 bg-white rounded-md items-center gap-5 justify-between">
-                                <p>1 Pilihan Aktif</p>
+                            <div onClick={() => { setShowVariantProductHandler({ id: variant.variant_id, status: true }); setReset(false) }} className="w-full flex p-4 bg-white rounded-md items-center gap-5 justify-between">
+                                <p>Diterapkan ke {variant?.product_variant?.length} produk</p>
 
-                                <ChevronRight />
+                                <p className="text-orange-500">Atur Produk</p>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <Button onClick={() => setAddVariant(true)} className="fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500">
+                <Button onClick={() => { setAddVariant(true); setReset(false) }} className="fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500">
                     Tambah Varian
                 </Button>
             </div>
 
             {addVariant && <AddVariant setAddVariant={setAddVariant} products={products} variants={variants} setVariants={setVariants} />}
 
-            {open.status && <EditVariant setOpen={setOpen} editIndex={open.id} open={open} />}
+            {open.status && <EditVariant setOpen={setOpen} editIndex={open.id} open={open} products={products} setReset={setReset} />}
+
+            {showVariantProductHandler.status && <EditVarianProduct setShowVariantProductHandler={setShowVariantProductHandler} variantId={showVariantProductHandler.id} products={products} setReset={setReset} />}
         </div>
     )
 }

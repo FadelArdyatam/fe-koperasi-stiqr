@@ -29,11 +29,17 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
     }, []);
 
     const FormSchema = z.object({
-        name: z.string().min(3).max(50),
-        phone_number: z.string().min(10).max(13),
+        name: z.string().min(3, {
+            message: "Nama Tidak boleh kurang dari 3 karakter",
+        }).max(50),
+        phone_number: z.string().min(10, {
+            message: "Nomor telepon tidak boleh kurang dari 10 karakter",
+        }).max(13),
         email: z.string().email(),
         role_name: z.string().min(2).max(50),
-        password: z.string().min(6).max(50),
+        password: z.string().min(6, {
+            message: "Password tidak boleh kurang dari 6 karakter",
+        }).max(50),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -48,6 +54,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
     });
 
     const [roles, setRoles] = useState<Role[]>([]);
+
     useEffect(() => {
         const fetchRoles = async () => {
             try {
@@ -71,6 +78,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
         setIsSuccess(false),
             setAddEmployee(false)
     }
+
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
@@ -87,10 +95,9 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
 
         try {
             const response = await axiosInstance.post("/employee/create", newEmployeeToAPI);
-            if (response.data.status) {
-                setShowNotification(true);
-                setIsSuccess(true);
-            }
+            console.log("Employee added successfully:", response.data);
+            setShowNotification(true);
+            setIsSuccess(true);
         } catch (error) {
             console.error("Error while adding employee:", error);
             alert("Failed to add employee. Please try again.");
@@ -221,7 +228,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                                                                 value={role.role_id}
                                                                 checked={field.value === role.role_id}
                                                                 onChange={() => field.onChange(role.role_id)}
-                                                                className="form-radio"
+                                                                className="form-radio scale-125 md:scale-[1.5]"
                                                             />
                                                         </label>
 

@@ -371,7 +371,7 @@ const DataMerchant = () => {
                 <div className="w-[90%] bg-white shadow-lg rounded-lg p-5 -translate-y-20">
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
-                            <div className={'flex flex-col items-end w-full md:w-2/3 space-y-7'}>
+                            <div className={'flex flex-col items-end w-full space-y-7'}>
                                 <FormField
                                     control={form.control}
                                     name="merchantName"

@@ -21,17 +21,22 @@ interface EditEtalaseProps {
         product_sku: string;
         product_weight: string;
         product_category: string;
-        product_price: string;
+        product_price: number;
         product_status: boolean;
         product_description: string;
         product_image: string;
         created_at: string;
         updated_at: string;
         merchant_id: string;
+        product_variant: Array<{
+            variant: any;
+            variant_id: string;
+        }> & { product_variant: Array<{ variant_id: string }> };
     }>;
+    setReset: (reset: boolean) => void;
 }
 
-const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products }) => {
+const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products, setReset }) => {
     interface Showcase {
         showcase_id: any;
         showcase_name: string;
@@ -105,6 +110,8 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products 
             }
 
             setOpen({ id: "", status: false });
+
+            setReset(true);
         } catch (error) {
             console.error("Error updating showcase:", error);
             alert("Failed to update showcase. Please try again.");
@@ -116,6 +123,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products 
             const response = await axiosInstance.delete(`/showcase/${editIndex}/delete`);
             console.log(response.data.message);
             setOpen({ id: "", status: false });
+            setReset(true);
         } catch (error: any) {
             console.error("Error deleting showcase:", error.message);
         }

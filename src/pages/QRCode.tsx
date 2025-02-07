@@ -354,10 +354,6 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                             </div>
                         </AlertDialogContent>
                     </AlertDialog>
-
-                    <Link to={"/"} className="w-7 h-7 text-xl bg-white rounded-full flex items-center justify-center">
-                        ?
-                    </Link>
                 </div>
 
                 <div className="mt-20 font-medium text-center">

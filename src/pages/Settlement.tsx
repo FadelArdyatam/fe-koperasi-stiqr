@@ -42,12 +42,28 @@ const Settlement = () => {
     const [filteredHistories, setFilteredHistories] = useState<any[]>([]);
     const navigate = useNavigate();
 
+    const [months, setMonths] = useState(2); // Default 2 bulan
+
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setMonths(window.innerWidth < 768 ? 1 : 2); // Jika kurang dari 768px, tampilkan 1 bulan
+        };
+
+        handleResize(); // Jalankan saat pertama kali load
+        window.addEventListener("resize", handleResize); // Deteksi perubahan ukuran layar
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     const FormSchema = z.object({
-        amount: z.string().min(5, {
-            message: "Penarikan minimal Rp 10.000",
+        amount: z.number().min(10000, {
+            message: "Minimal Penarikan Rp 10.000",
         }),
         account_id: z.string().min(2, {
-            message: "Minimal 2 Karakter",
+            message: "Tidak Boleh Kosong",
         }),
     });
 
@@ -56,7 +72,7 @@ const Settlement = () => {
     const form = useForm<FormData>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            amount: "",
+            amount: 0,
             account_id: ""
         },
     });
@@ -64,7 +80,7 @@ const Settlement = () => {
     async function onSubmit(data: FormData) {
         try {
             const response = await axiosInstance.post(`/settlement/create`, {
-                amount: data.amount,
+                amount: data.amount.toString(),
                 account_id: data.account_id,
             });
 
@@ -82,10 +98,6 @@ const Settlement = () => {
             console.error(error);
         }
     }
-
-    useEffect(() => {
-        AOS.init({ duration: 500, once: true, offset: 100 });
-    }, []);
 
     useEffect(() => {
         // Ambil informasi user dari sessionStorage
@@ -223,12 +235,22 @@ const Settlement = () => {
                                 render={({ field }) => (
                                     <FormItem className="w-full">
                                         <FormControl>
-                                            <Input type="number" placeholder="Masukkan Jumlah Saldo" {...field} />
+                                            <Input
+                                                type="text" // Menggunakan text agar bisa menampilkan format Rupiah
+                                                value={formatRupiah(String(field.value) || "0")} // Pastikan formatRupiah menerima string
+                                                placeholder="Masukkan Jumlah Saldo"
+                                                onChange={(e) => {
+                                                    let value = e.target.value.replace(/\D/g, ""); // Hanya angka
+                                                    value = value.slice(0, 7); // Batasi 10 digit
+                                                    field.onChange(value ? Number(value) : ""); // Simpan angka, kosongkan jika tidak ada input
+                                                }}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
+
                             <p>Pilih Bank</p>
                             <FormField
                                 control={form.control}
@@ -297,6 +319,8 @@ const Settlement = () => {
                                 endDate={endDate}
                                 selectsRange
                                 inline
+                                className="w-full"
+                                monthsShown={months}
                             />
                             <Button
                                 type="button"

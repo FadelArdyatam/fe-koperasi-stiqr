@@ -70,3 +70,15 @@ input[type="radio"] {
   height: 10px !important;
   opacity: 1 !important;
 }
+
+/* Hapus spinner di Webkit (Chrome, Safari, Edge) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hapus spinner di Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}

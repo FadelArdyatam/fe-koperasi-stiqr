@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import axiosInstance from "@/hooks/axiosInstance";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { formatRupiah } from "@/hooks/convertRupiah";
 
 interface BillData {
     product: string;
@@ -171,7 +172,7 @@ const Listrik = () => {
                                     <p>Nominal</p>
 
                                     <div className="flex items-center gap-5 border mt-2 text-gray-400 border-black rounded-lg p-2 justify-between">
-                                        <button>{nominal || "Nominal"}</button>
+                                        <button>{formatRupiah(nominal) || "Nominal"}</button>
 
                                         <ChevronDown />
                                     </div>

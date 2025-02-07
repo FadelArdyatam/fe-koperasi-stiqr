@@ -399,19 +399,19 @@ const Signup = () => {
                         <p data-aos="zoom-in" className="uppercase text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : 'Kode Otp'}</p>
 
                         <div className="mt-10 w-full flex items-center">
-                            <div className={`${section[0] ? 'bg-orange-500' : 'bg-gray-500'} transition-all w-12 h-12 rounded-full flex items-center justify-center`}>
+                            <div className={`${section[0] ? 'bg-orange-500' : 'bg-gray-500'} transition-all w-12 min-w-12 h-12 rounded-full flex items-center justify-center`}>
                                 <UserRound className="text-white" />
                             </div>
 
-                            <div className="w-20 h-[2px] bg-black"></div>
+                            <div className="w-full h-[2px] bg-black"></div>
 
-                            <div className={`${section[1] ? 'bg-blue-500' : 'bg-gray-500'} transition-all w-12 h-12 rounded-full flex items-center justify-center`}>
+                            <div className={`${section[1] ? 'bg-blue-500' : 'bg-gray-500'} transition-all w-12 min-w-12 h-12 rounded-full flex items-center justify-center`}>
                                 <Store className="text-white" />
                             </div>
 
-                            <div className="w-20 h-[2px] bg-black"></div>
+                            <div className="w-full h-[2px] bg-black"></div>
 
-                            <div className={`${section[2] ? 'bg-green-500' : 'bg-gray-500'} transition-all w-12 h-12 rounded-full flex items-center justify-center`}>
+                            <div className={`${section[2] ? 'bg-green-500' : 'bg-gray-500'} transition-all w-12 min-w-12 h-12 rounded-full flex items-center justify-center`}>
                                 <Smartphone className="text-white" />
                             </div>
                         </div>
@@ -419,7 +419,7 @@ const Signup = () => {
                         <div className="w-full mt-10">
                             <Form {...formUser}>
                                 <form onSubmit={formUser.handleSubmit(onSubmitUser)}>
-                                    <div className={`${currentSection === 0 ? 'block' : 'hidden'} flex flex-col items-end w-full md:w-2/3 space-y-7`}>
+                                    <div className={`${currentSection === 0 ? 'block' : 'hidden'} flex flex-col items-end w-full space-y-7`}>
                                         <FormField
                                             control={formUser.control}
                                             name="ownerName"
@@ -633,7 +633,7 @@ const Signup = () => {
 
                             <Form {...formMerchant}>
                                 <form onSubmit={formMerchant.handleSubmit(onSubmitMerchant)}>
-                                    <div className={`${currentSection === 1 ? 'block' : 'hidden'} flex flex-col items-end w-full md:w-2/3 space-y-7`}>
+                                    <div className={`${currentSection === 1 ? 'block' : 'hidden'} flex flex-col items-end w-full space-y-7`}>
                                         <FormField
                                             control={formMerchant.control}
                                             name="typeBusinessEntity"
@@ -978,7 +978,8 @@ const Signup = () => {
                                             )}
                                         />
                                     </div>
-                                    <div data-aos="fade-up" className="grid grid-cols-2 gap-5">
+
+                                    <div data-aos="fade-up" className="flex items-center w-full justify-between gap-5">
                                         <Button type="button" onClick={() => { setCurrentSection(0) }} className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>BACK</Button>
                                         <Button type="submit" className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>SUBMIT</Button>
                                     </div>

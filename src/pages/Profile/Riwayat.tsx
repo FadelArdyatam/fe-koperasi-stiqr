@@ -350,10 +350,10 @@ const Riwayat = () => {
                 >
                     <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg">
                         {purchases.length === 0 ? (
-                            <div>
-                                <img src={noTransactionImage} alt="" />
+                            <div className="flex items-center flex-col justify-center gap-10">
+                                <img className="" src={noTransactionImage} alt="" />
 
-                                <p className="mt-5 font-semibold text-orange-500 text-center">Belum ada transaksi pembelian</p>
+                                <p className="font-semibold text-orange-500 text-center">Belum ada transaksi pembelian</p>
                             </div>) : typeSorting.show ? sortingPurchases.map((purchase, index) => ( // Tampilkan data yang sudah diurutkan
                                 <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-20' : 'mb-0'} block`} key={index}>
                                     <div

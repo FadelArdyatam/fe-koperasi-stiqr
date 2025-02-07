@@ -111,8 +111,20 @@ const Dashboard = () => {
     const [histories, setHistories] = useState<History[]>([]);
     const [filteredHistories, setFilteredHistories] = useState<History[]>([]);
 
+    const [months, setMonths] = useState(2); // Default 2 bulan
+
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
+    }, []);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setMonths(window.innerWidth < 768 ? 1 : 2); // Jika kurang dari 768px, tampilkan 1 bulan
+        };
+
+        handleResize(); // Jalankan saat pertama kali load
+        window.addEventListener("resize", handleResize); // Deteksi perubahan ukuran layar
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     useEffect(() => {
@@ -435,8 +447,11 @@ const Dashboard = () => {
                             endDate={endDate}
                             selectsRange
                             inline
-                            maxDate={startDate ? new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000) : undefined} // Maksimal 7 hari
+                            maxDate={startDate ? new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000) : undefined}
+                            className="w-full"
+                            monthsShown={months}
                         />
+
                         <Button
                             className="w-full mt-3 bg-orange-500 text-white rounded-lg"
                             onClick={() => setShowCalendar(false)}

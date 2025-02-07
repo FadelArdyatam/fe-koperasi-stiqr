@@ -1,4 +1,4 @@
-import { ArrowLeft, Save, Image, Trash2, Pencil } from "lucide-react";
+import { ArrowLeft, Trash2, Pencil, Search } from "lucide-react";
 import takeAway from "../../images/take-away.png"
 import dineIn from "../../images/dine-in.png"
 import { Button } from "@/components/ui/button";
@@ -23,10 +23,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
     const [showOrderProcess, setShowOrderProcess] = useState(false);
     const [noMeja, setNoMeja] = useState("");
     const [responseSalesCreate, setResponseSalesCreate] = useState<any>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [dataCustomer, setDataCustomer] = useState({ name: "", phone: "", email: "", other_number: "" });
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
+
+    const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
     console.log("Total Quantity: ", mergedBasket.reduce((acc, curr) => acc + curr.quantity, 0))
     console.log("Total Price: ", mergedBasket.reduce((acc, curr) => acc + curr.price * curr.quantity, 0))
@@ -77,8 +81,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 .filter((item) => item.quantity > 0)
         );
     };
+
     const [orderId, setOrderId] = useState<string | null>(null)
     const [tagih, setTagih] = useState<boolean>(false)
+
     const openBillHandler = async (status: any) => {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
@@ -98,10 +104,18 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
                 return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
             };
+
             const generateOrderId = generateRandomString(15);
+
             setOrderId(generateOrderId)
+
             const requestBody = {
-                customer_name: userData.username,
+                customer: {
+                    name: dataCustomer.name,
+                    phone: dataCustomer.phone,
+                    email: dataCustomer.email,
+                    other_number: dataCustomer.other_number,
+                },
                 status: "inprogress",
                 order_type: showService.service === "Dine In" ? "dinein" : "takeaway",
                 table_number: noMeja,
@@ -111,17 +125,20 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 salesDetails: modifyBasket,
                 orderId: generateOrderId,
             };
+
             const response = await axiosInstance.post('/sales/create', requestBody);
+
             if (status == 'tagih') {
                 setTagih(true)
             }
+
             setShowOrderProcess(true);
+
             bookingDatas.push(mergedBasket);
 
             console.log("Response create order:", response);
 
             setResponseSalesCreate(response.data.data.sales_id);
-
         } catch (error: any) {
             console.error('Error creating order:', error);
             if (error.response) {
@@ -134,7 +151,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         }
     };
 
-    console.log()
+    console.log("Merged Basket: ", mergedBasket);
 
     return (
         <div ref={references}>
@@ -146,10 +163,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
 
                             <p data-aos="zoom-in" className="font-semibold text-2xl">Ringkasan Pesanan</p>
                         </div>
-
-                        <div className="flex items-center justify-center p-3 bg-orange-100 rounded-full">
-                            <Save />
-                        </div>
                     </div>
                 </div>
 
@@ -158,15 +171,29 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
 
                     <p className="font-semibold text-lg">{showService.service === "Dine In" ? "Makan di Tempat" : "Bawa Pulang"}</p>
 
-                    <Button type="button" className="block bg-orange-100 text-orange-400 rounded-full">Ubah</Button>
+                    <Button type="button" onClick={() => setShowService({ show: false, service: null })} className="block bg-orange-100 text-orange-400 rounded-full">Ubah</Button>
                 </div>
 
-                <div className="mt-10 w-[90%]">
-                    <div data-aos="fade-up" data-aos-delay="200" className="flex items-center gap-5">
-                        <div className="w-[65%]">
-                            <p className="font-semibold">Nama Pesanan (Opsional)</p>
+                <div className="mt-10 relative w-[90%]" data-aos="fade-up" data-aos-delay="200">
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500">
+                        <Search />
+                    </div>
 
-                            <Input type="text" placeholder="Nama Pesanan" className="w-full bg-white p-3 rounded-lg mt-2" />
+                    {/* Input */}
+                    <Input
+                        placeholder="Cari Pelanggan"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 pr-12 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-orange-500"
+                    />
+                </div>
+
+                <div className="mt-5 w-[90%]">
+                    <div data-aos="fade-up" data-aos-delay="300" className="flex items-center gap-5">
+                        <div className="w-[65%]">
+                            <p className="font-semibold">Nama Pemesan (Opsional)</p>
+
+                            <Input onChange={(e) => setDataCustomer({ name: e.target.value, phone: dataCustomer.phone, email: dataCustomer.email, other_number: dataCustomer.other_number })} type="text" placeholder="Nama Pemesan" className="w-full bg-white p-3 rounded-lg mt-2" />
                         </div>
 
                         <div className="w-[35%]">
@@ -176,13 +203,25 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                         </div>
                     </div>
 
-                    <div data-aos="fade-up" data-aos-delay="300" className="mt-5">
+                    <div data-aos="fade-up" data-aos-delay="400" className="mt-5">
                         <p className="font-semibold">No. Telephone</p>
 
-                        <Input placeholder="No. Telphone" className="w-full bg-white p-3 rounded-lg mt-2" />
+                        <Input onChange={(e) => setDataCustomer({ name: dataCustomer.name, phone: e.target.value, email: dataCustomer.email, other_number: dataCustomer.other_number })} placeholder="No. Telphone" type="number" className="w-full bg-white p-3 rounded-lg mt-2" />
                     </div>
 
-                    <div data-aos="fade-up" data-aos-delay="400" className="mt-5 w-full flex items-center gap-5 justify-between bg-white p-5 rounded-lg">
+                    <div data-aos="fade-up" data-aos-delay="500" className="mt-5">
+                        <p className="font-semibold">Email</p>
+
+                        <Input onChange={(e) => setDataCustomer({ name: dataCustomer.name, phone: dataCustomer.phone, email: e.target.value, other_number: dataCustomer.other_number })} placeholder="Email" type="email" className="w-full bg-white p-3 rounded-lg mt-2" />
+                    </div>
+
+                    <div data-aos="fade-up" data-aos-delay="600" className="mt-5">
+                        <p className="font-semibold">Other Number</p>
+
+                        <Input onChange={(e) => setDataCustomer({ name: dataCustomer.name, phone: dataCustomer.phone, email: dataCustomer.email, other_number: e.target.value })} placeholder="Other Number" className="w-full bg-white p-3 rounded-lg mt-2" />
+                    </div>
+
+                    <div data-aos="fade-up" className="mt-5 w-full flex items-center gap-5 justify-between bg-white p-5 rounded-lg">
                         <p className="font-semibold">Ada lagi pesanannya?</p>
 
                         <Button onClick={() => setShowService({ show: false, service: null })} className="bg-orange-400">+ Tambah</Button>
@@ -191,10 +230,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
 
                 <div className="mt-5 w-[90%]">
                     {mergedBasket.map((item, index) => (
-                        <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="w-full mt-5 p-5 rounded-lg bg-white shadow-lg">
+                        <div data-aos="fade-up" key={index} className="w-full mt-5 p-5 rounded-lg bg-white shadow-lg">
                             <div className="flex items-start gap-5 justify-between">
                                 <div className="flex items-center gap-5">
-                                    <Image className="scale-[2]" />
+                                    <img className="w-10" src={`${urlImage}/uploads/products/${item.product_image}`} alt="" />
 
                                     <div>
                                         <p className="text-lg font-semibold">{item.product}</p>
@@ -210,7 +249,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                             </div>
 
                             <div className="mt-10 flex items-center justify-between gap-5">
-                                <button className="flex items-center gap-3 font-semibold text-orange-400 rounded-lg">
+                                <button onClick={() => setShowService({ show: false, service: null })} className="flex items-center gap-3 font-semibold text-orange-400 rounded-lg">
                                     <Pencil />
 
                                     <p>Edit</p>
@@ -228,7 +267,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     ))}
                 </div>
 
-                <div data-aos="fade-up" data-aos-delay="500" className="fixed bottom-0 w-full bg-white p-5 flex flex-col items-center justify-between">
+                <div data-aos="fade-up" data-aos-delay="700" className="fixed bottom-0 w-full bg-white p-5 flex flex-col items-center justify-between">
                     <div className="flex w-full items-center justify-between gap-5">
                         <p className="font-semibold text-xl">Total Tagihan</p>
 

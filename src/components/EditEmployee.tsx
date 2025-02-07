@@ -11,14 +11,16 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
-import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, Key, useEffect } from "react";
+import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, Key, useEffect, useState } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import axiosInstance from "@/hooks/axiosInstance";
 
 interface EditEmployeeProps {
-    setOpen: (open: { id: number; status: boolean }) => void;
-    open: { id: number; status: boolean };
+    setOpen: (open: { id: string; status: boolean }) => void;
+    open: { id: string; status: boolean };
     employees: Array<{
+        employee_id: string;
         role_id: string;
         id: number;
         name: string;
@@ -29,6 +31,7 @@ interface EditEmployeeProps {
         role: any;
     }>;
     setEmployees: (employee: Array<{
+        employee_id: string;
         role: any;
         role_id: string;
         id: number;
@@ -38,33 +41,69 @@ interface EditEmployeeProps {
         password: string;
         role_description: string;
     }>) => void;
-    editIndex: number;
+    editIndex: string;
 }
 
-const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmployees, editIndex }) => {
-    const employeeToEdit = employees[editIndex];
+const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, editIndex }) => {
+    const [employeeToEdit, setEmployeeToEdit] = useState<{
+        employee_id: string;
+        role_id: string;
+        id: number;
+        name: string;
+        phone_number: string;
+        email: string;
+        password: string;
+        role_description: string;
+    } | null>(null);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
     }, []);
+
+    console.log("editIndex", editIndex);
+
+    useEffect(() => {
+        const fetchDetailEmployee = async () => {
+            try {
+                const response = await axiosInstance.get(`/employee/${editIndex}`);
+                const data = response.data;
+
+                setEmployeeToEdit(data);
+
+                form.reset({
+                    name: data.name,
+                    phone_number: data.phone_number,
+                    email: data.email,
+                    role_name: data.role_id,
+                    password: data.password
+                });
+            } catch (error: any) {
+                console.error("Failed to fetch Employee details:", error.message);
+            }
+        };
+
+        fetchDetailEmployee();
+    }, [])
+
+    console.log("employeeToEdit", employeeToEdit);
 
     // Validasi schema untuk form
     const FormSchema = z.object({
         name: z.string().min(3).max(50),
         phone_number: z.string().min(10).max(13),
         email: z.string().email(),
-        role_name: z.enum(["Manager", "Kasir"], { required_error: "Please select a position." }),
+        role_name: z.string().min(3).max(50),
         password: z.string().min(6).max(50),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            name: employeeToEdit.name,
-            phone_number: employeeToEdit.phone_number,
-            email: employeeToEdit.email,
-            role_name: employeeToEdit.role_description.includes("Manager") ? "Manager" : "Kasir",
-            password: employeeToEdit.password,
+            name: employeeToEdit?.name,
+            phone_number: employeeToEdit?.phone_number,
+            email: employeeToEdit?.email,
+            role_name: employeeToEdit?.role_id,
+            password: employeeToEdit?.password,
         },
     });
 
@@ -79,12 +118,9 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
             role_description: data.role_name === "Manager" ? "Manager dengan akses penuh" : "Kasir dengan akses terbatas",
         };
 
-        const updatedEmployees = [...employees];
-        updatedEmployees[editIndex] = updatedEmployee;
+        console.log("updatedEmployee", updatedEmployee);
 
-        setEmployees(updatedEmployees);
-
-        setOpen({ id: -1, status: false });
+        setOpen({ id: "", status: false });
     }
 
     const accordionData = [
@@ -103,7 +139,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
     return (
         <div className="p-5 w-full mb-32">
             <div className="flex items-center gap-5 text-black">
-                <button onClick={() => setOpen({ id: -1, status: false })}>
+                <button onClick={() => setOpen({ id: "", status: false })}>
                     <ChevronLeft />
                 </button>
 
@@ -126,7 +162,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, employees, setEmpl
                                             {...field}
                                         />
                                         <p className="absolute right-2 -bottom-7 text-sm text-gray-500">
-                                            {field.value.length}/50
+                                            {field.value?.length}/50
                                         </p>
                                     </div>
                                 </FormControl>

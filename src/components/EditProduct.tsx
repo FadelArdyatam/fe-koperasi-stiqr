@@ -15,8 +15,10 @@ import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import axiosInstance from "@/hooks/axiosInstance";
+import Notification from "./Notification";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { formatRupiah } from "@/hooks/convertRupiah";
 
 interface Merchant {
     id: string;
@@ -43,6 +45,28 @@ interface ShowcaseProduct {
     updated_at: string
 }
 
+interface Variant {
+    product_variant: any;
+    id: number;
+    variant_id: string;
+    variant_name: string;
+    product_id: string;
+    variant_description: string;
+    is_multiple: boolean;
+    merchant_id: string;
+    products: number[];
+    mustBeSelected: boolean;
+    methods: string;
+    choises: [];
+    showVariant: boolean;
+}
+
+interface Choice {
+    name: string;
+    price: number;
+    show: boolean;
+}
+
 interface EditProductProps {
     setOpen: (open: { id: string; status: boolean }) => void;
     open: { id: string; status: boolean };
@@ -53,13 +77,17 @@ interface EditProductProps {
         product_sku: string,
         product_weight: string,
         product_category: string,
-        product_price: string,
+        product_price: number,
         product_status: boolean,
         product_description: string,
         product_image: string,
         created_at: string,
         updated_at: string,
         merchant_id: string,
+        product_variant: Array<{
+            variant: any;
+            variant_id: string;
+        }> & { product_variant: Array<{ variant_id: string }> };
     }>;
     editIndex: string; // Tambahkan properti ini untuk mengetahui indeks produk yang diedit
     etalases: Array<{
@@ -72,22 +100,49 @@ interface EditProductProps {
         showcase_product: ShowcaseProduct[],
         merchant: Merchant,
     }>;
+    variants: Variant[];
+    setVariants: React.Dispatch<React.SetStateAction<Variant[]>>
+    setReset: (reset: boolean) => void;
 }
 
 const EditProduct: React.FC<EditProductProps> = ({
+    products,
     setOpen,
     editIndex,
-    etalases
+    etalases,
+    setVariants,
+    variants,
+    setReset
 }) => {
     const [productToEdit, setProductToEdit] = useState<EditProductProps['products'][0] | undefined>(undefined);
     const [quantity, setQuantity] = useState(productToEdit?.product_weight?.endsWith("g") ? "g" : "kg");
     const [loading, setLoading] = useState(true); // State untuk mengelola status loading
     const [error, setError] = useState<string | null>(); // State untuk mengelola
+    const [showNotificationVariant, setShowNotificationVariant] = useState(false);
     const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
+    const [showPopUpAddVariant, setShowPopUpAddVariant] = useState(false);
+    const [showChoisesInput, setShowChoisesInput] = useState(false);
+    const [showEditChoisesInput, setShowEditChoisesInput] = useState({ status: false, index: -1 });
+    const [newChoiceName, setNewChoiceName] = useState("");
+    const [newChoicePrice, setNewChoicePrice] = useState<number | "">("");
+    const [showChoice, setShowChoice] = useState(false);
+    const [displayChoises, setDisplayChoises] = useState<Choice[]>([]);
+    const [selectedVariants, setSelectedVariants] = useState<string[]>([]);
+    const [section, setSection] = useState({ addProduct: true, detailProduct: false });
+    const [showField, setShowField] = useState({ stock: false, variant: false });
+    const [showAddVariant, setShowAddVariant] = useState(false);
+    const [showError, setShowError] = useState(false);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
     }, []);
+
+    useEffect(() => {
+        if (productToEdit?.product_variant) {
+            const initialVariants = productToEdit.product_variant.map((item) => item.variant.variant_id);
+            setSelectedVariants(initialVariants);
+        }
+    }, [productToEdit]);
 
     console.log(editIndex)
 
@@ -139,7 +194,7 @@ const EditProduct: React.FC<EditProductProps> = ({
         }).optional(),
         name: z.string().min(1, { message: "Name is required." }).max(50, { message: "Name must be less than 50 characters." }),
         SKU: z.string().min(1, { message: "SKU is required." }).max(20, { message: "SKU must be less than 20 characters." }),
-        price: z.string().min(1, { message: "Price is required." }),
+        price: z.number().min(1, { message: "Price must be greater than 0." }),
         weight: z.string().min(1, { message: "Weight is required." }),
         etalase: z.array(z.string()).nonempty({ message: "At least one etalase must be selected." }),
         description: z.string().max(100, { message: "Description must be less than 100 characters." }).optional(),
@@ -160,6 +215,7 @@ const EditProduct: React.FC<EditProductProps> = ({
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         try {
+            console.log("Form data:", data);
             const formData = new FormData();
             formData.append("product_name", data.name);
             formData.append("product_weight", (data.weight + quantity).toString());
@@ -193,8 +249,7 @@ const EditProduct: React.FC<EditProductProps> = ({
 
             console.log(response2.data);
 
-            // Close the form modal
-            setOpen({ id: "", status: false });
+            setSection({ addProduct: true, detailProduct: true })
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 console.error("Axios error updating product:", error.response?.data || error.message);
@@ -203,6 +258,71 @@ const EditProduct: React.FC<EditProductProps> = ({
             }
         }
     }
+
+    const FormSchemaVariant = z.object({
+        name: z.string().nonempty("Nama varian wajib diisi"),
+        choises: z.array(
+            z.object({
+                name: z.string().nonempty("Nama pilihan wajib diisi"),
+                price: z.number().positive("Harga harus positif"),
+                show: z.boolean(),  // Tambahkan atribut show
+            })
+        ),
+        mustBeSelected: z.boolean(),
+        methods: z.string().nonempty("Metode wajib dipilih"),
+        products: z.array(z.string()),
+        showVariant: z.boolean(),
+    });
+
+    const formVariant = useForm<z.infer<typeof FormSchemaVariant>>({
+        resolver: zodResolver(FormSchemaVariant),
+        defaultValues: {
+            name: "",
+            choises: [],
+            mustBeSelected: false,
+            methods: "",
+            products: [],
+            showVariant: false,
+        },
+    });
+
+    console.log("variants", variants);
+
+    const onSubmitVariant = async (data: z.infer<typeof FormSchemaVariant>) => {
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
+
+        const payload = {
+            variant_name: data.name,
+            product_id: data.products.join(","), // Konversi array ke string dengan koma
+            variant_description: "Deskripsi untuk variant", // Bisa diambil dari form jika diperlukan
+            is_multiple: data.methods === "more",
+            multiple_value: displayChoises.map((choice) => choice.name).join(", "), // Semua pilihan nama
+            merchant_id: userData?.merchant?.id, // ID merchant
+        };
+
+        console.log(data);
+
+        try {
+            const response = await axiosInstance.post(
+                "/varian/create",
+                payload
+            );
+
+            if (response.status === 200 || response.status === 201) {
+                // Agar varian yang baru ditambahkan langsung muncul di halaman varian
+                setVariants([...variants, response.data.data]);
+
+                console.log("Varian berhasil ditambahkan:", response.data);
+                setShowPopUpAddVariant(false)
+                setShowNotificationVariant(true);
+            } else {
+                console.error("Gagal menambahkan varian:", response.data);
+            }
+        } catch (error: any) {
+            console.error("Terjadi kesalahan saat mengirim data:", error.response?.data || error.message);
+        }
+    };
 
     const deleteHandler = async () => {
         try {
@@ -214,6 +334,7 @@ const EditProduct: React.FC<EditProductProps> = ({
 
             // Close the form modal
             setOpen({ id: "", status: false });
+            setReset(true);
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 console.error("Axios error deleting product:", error.response?.data || error.message);
@@ -223,208 +344,303 @@ const EditProduct: React.FC<EditProductProps> = ({
         }
     }
 
+    const addNewChoice = () => {
+        if (newChoiceName && newChoicePrice) {
+            if (newChoicePrice < 0) {
+                setShowError(true);
+                return;
+            }
+
+            const newChoice = {
+                name: newChoiceName,
+                price: Number(newChoicePrice),
+                show: showChoice,
+            };
+
+            const updatedChoices = [...formVariant.getValues("choises"), newChoice];
+            formVariant.setValue("choises", updatedChoices);
+            setDisplayChoises(updatedChoices);
+
+            setNewChoiceName("");
+            setNewChoicePrice("");
+            setShowChoisesInput(false);
+        }
+    };
+
+    const updateShowChoises = (indexToUpdate: number) => {
+        const choises = formVariant.getValues("choises");
+        const updatedChoises = choises.map((choice, index) =>
+            index === indexToUpdate ? { ...choice, show: !choice.show } : choice
+        );
+
+        formVariant.setValue("choises", updatedChoises);
+        setDisplayChoises(updatedChoises);
+    };
+
+    const handleVariantChange = (variantId: string) => {
+        setSelectedVariants((prevSelected) =>
+            prevSelected.includes(variantId)
+                ? prevSelected.filter((id) => id !== variantId) // Hapus jika sudah dipilih
+                : [...prevSelected, variantId] // Tambah jika belum dipilih
+        );
+    };
+
+    console.log("Selected variants:", selectedVariants);
+
     return (
-        <div className="pt-5 w-full mb-32">
-            <div className="flex items-center gap-5 text-black">
-                <button onClick={() => setOpen({ id: "", status: false })}>
-                    <ChevronLeft />
-                </button>
+        <>
+            <div className="pt-5 w-full mb-32">
+                <div className="flex items-center gap-5 text-black">
+                    <button onClick={() => setOpen({ id: "", status: false })}>
+                        <ChevronLeft />
+                    </button>
 
-                <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Edit Product</p>
-            </div>
-
-            {/* Indikator loading */}
-            {loading && (
-                <p className="text-center text-gray-500 mt-5">Loading product details...</p>
-            )}
-
-            {/* Error handling */}
-            {error && (
-                <div className="bg-red-100 text-red-600 p-3 rounded-lg mt-5 text-center">
-                    {error}
+                    <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Edit Product</p>
                 </div>
-            )}
 
-            {!loading && !error && (
-                <div className=" bg-white rounded-lg p-5  mt-10 ">
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
-                            {/* Form fields tetap sama */}
-                            {/* Photo */}
-                            <FormField
-                                control={form.control}
-                                name="photo"
-                                render={({ field }) => (
-                                    <FormItem data-aos="fade-up" data-aos-delay="100">
-                                        <FormLabel>Foto Produk (Optional)</FormLabel>
-                                        <FormControl>
-                                            <Input type="file" onChange={(e) => field.onChange(e.target.files?.[0])} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                <div className="w-full mt-10">
+                    <p className="font-semibold"><span className="text-gray-500">{section.detailProduct ? '2' : '1'}/2:</span> {section.addProduct ? 'Informasi Product' : 'Detail Product'}</p>
 
-                            {/* Name */}
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem data-aos="fade-up" data-aos-delay="200">
-                                        <FormLabel>Nama Produk</FormLabel>
-                                        <FormControl>
-                                            <div className="relative">
+                    <div className="mt-2 flex items-center gap-3">
+                        <div className={`${section.addProduct ? 'bg-orange-500' : 'bg-gray-300'} w-full h-1.5 transition-all rounded-full`}></div>
+
+                        <div className={`${section.detailProduct ? 'bg-orange-500' : 'bg-gray-300'} w-full h-1.5 transition-all rounded-full`}></div>
+                    </div>
+                </div>
+
+                {/* Indikator loading */}
+                {loading && (
+                    <p className="text-center text-gray-500 mt-5">Loading product details...</p>
+                )}
+
+                {/* Error handling */}
+                {error && (
+                    <div className="bg-red-100 text-red-600 p-3 rounded-lg mt-5 text-center">
+                        {error}
+                    </div>
+                )}
+
+                {!loading && !error && (
+                    <div className=" bg-white rounded-lg p-5 mt-5">
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className={`${section.detailProduct ? 'hidden' : 'block'} space-y-10`}>
+                                {/* Form fields tetap sama */}
+                                {/* Photo */}
+                                <FormField
+                                    control={form.control}
+                                    name="photo"
+                                    render={({ field }) => (
+                                        <FormItem data-aos="fade-up" data-aos-delay="100">
+                                            <FormLabel>Foto Produk (Optional)</FormLabel>
+                                            <FormControl>
+                                                <Input type="file" onChange={(e) => field.onChange(e.target.files?.[0])} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Name */}
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem data-aos="fade-up" data-aos-delay="200">
+                                            <FormLabel>Nama Produk</FormLabel>
+                                            <FormControl>
+                                                <div className="relative">
+                                                    <Input
+                                                        placeholder="Enter product name"
+                                                        {...field}
+                                                        onChange={(e) => {
+                                                            field.onChange(e);
+                                                        }}
+                                                    />
+                                                    {/* Counter */}
+                                                    <p className="absolute right-2 -bottom-7 text-sm text-gray-500">
+                                                        {/* {field.value.length}/50 */}
+                                                    </p>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* SKU */}
+                                <FormField
+                                    control={form.control}
+                                    name="SKU"
+                                    render={({ field }) => (
+                                        <FormItem data-aos="fade-up" data-aos-delay="300">
+                                            <FormLabel>SKU Produk</FormLabel>
+                                            <FormControl>
+                                                <div className="relative">
+                                                    <Input
+                                                        placeholder="Enter SKU"
+                                                        {...field}
+                                                        onChange={(e) => {
+                                                            field.onChange(e);
+                                                        }}
+                                                        disabled={true}
+                                                    />
+                                                    <p className="absolute right-2 -bottom-5 text-sm text-gray-500">
+                                                        {/* {field.value.length}/20 */}
+                                                    </p>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Price */}
+                                <FormField
+                                    control={form.control}
+                                    name="price"
+                                    render={({ field }) => (
+                                        <FormItem data-aos="fade-up" data-aos-delay="400">
+                                            <FormLabel>Harga</FormLabel>
+                                            <FormControl>
                                                 <Input
-                                                    placeholder="Enter product name"
-                                                    {...field}
+                                                    type="text" // Ubah ke "text" agar bisa menampilkan format Rupiah
+                                                    placeholder="Enter price"
+                                                    value={formatRupiah(field.value)} // Tampilkan format Rupiah
                                                     onChange={(e) => {
-                                                        field.onChange(e);
+                                                        let value = e.target.value.replace(/\D/g, ""); // Hanya ambil angka
+                                                        value = value.slice(0, 10); // Batasi 10 digit
+                                                        field.onChange(Number(value)); // Simpan sebagai angka
                                                     }}
                                                 />
-                                                {/* Counter */}
-                                                <p className="absolute right-2 -bottom-7 text-sm text-gray-500">
-                                                    {/* {field.value.length}/50 */}
-                                                </p>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Weight */}
+                                <FormField
+                                    control={form.control}
+                                    name="weight"
+                                    render={({ field }) => (
+                                        <FormItem className="w-full" data-aos="fade-up" data-aos-delay="500">
+                                            <FormLabel>Berat</FormLabel>
+                                            <FormControl className="w-full">
+                                                <div className="flex items-center space-x-2">
+                                                    {/* Input untuk nilai berat */}
+                                                    <input
+                                                        type="number"
+                                                        placeholder="Masukkan berat"
+                                                        {...field}
+                                                        className="p-2 border border-gray-300 w-full rounded-md"
+                                                    />
+                                                    {/* Dropdown untuk memilih satuan */}
+                                                    <select
+                                                        className="h-10 border border-gray-300 w-full rounded-md"
+                                                    >
+                                                        <option value="" disabled>
+                                                            Pilih satuan
+                                                        </option>
+                                                        <option onClick={() => setQuantity('g')}>Gram (g)</option>
+                                                        <option onClick={() => setQuantity('kg')}>Kilogram (kg)</option>
+                                                    </select>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Description */}
+                                <FormField
+                                    control={form.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                        <FormItem data-aos="fade-up" data-aos-delay="600">
+                                            <FormLabel>Deskripsi (Optional)</FormLabel>
+                                            <FormControl>
+                                                <div className="relative">
+                                                    <textarea
+                                                        className="block w-full border rounded-lg p-3"
+                                                        placeholder="Jelaskan apa yang spesial dari produkmu"
+                                                        {...field}
+                                                        onChange={(e) => {
+                                                            field.onChange(e);
+                                                        }}
+                                                    />
+                                                    <p className="absolute right-2 -bottom-5 text-sm text-gray-500">
+                                                        {/* {(field.value?.length ?? 0)}/100 */}
+                                                    </p>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Etalase */}
+                                <FormField
+                                    control={form.control}
+                                    name="etalase"
+                                    render={({ field }) => (
+                                        <FormItem data-aos="fade-up">
+                                            <FormLabel>Pilih Etalase</FormLabel>
+                                            <div className="space-y-2 mt-2">
+                                                {etalases.map((etalase) => (
+                                                    <div key={etalase.showcase_id} className="flex items-center gap-2">
+                                                        <input
+                                                            type="radio"
+                                                            id={`etalase-${etalase.showcase_id}`}
+                                                            name="etalase"
+                                                            value={etalase.showcase_id}
+                                                            checked={field.value.includes(etalase.showcase_id)}
+                                                            onChange={(e) => {
+                                                                field.onChange([e.target.value]); // Perbarui nilai dalam form
+                                                                setSelectedEtalase(e.target.value); // Perbarui state etalase yang dipilih
+                                                            }}
+                                                            className="h-4 w-4 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                                                        />
+                                                        <label
+                                                            htmlFor={`etalase-${etalase.showcase_id}`}
+                                                            className="text-sm font-medium text-gray-700"
+                                                        >
+                                                            {etalase.showcase_name}
+                                                        </label>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                            {/* SKU */}
-                            <FormField
+                                {/* Variant */}
+                                {/* <FormField
                                 control={form.control}
-                                name="SKU"
-                                render={({ field }) => (
-                                    <FormItem data-aos="fade-up" data-aos-delay="300">
-                                        <FormLabel>SKU Produk</FormLabel>
-                                        <FormControl>
-                                            <div className="relative">
-                                                <Input
-                                                    placeholder="Enter SKU"
-                                                    {...field}
-                                                    onChange={(e) => {
-                                                        field.onChange(e);
-                                                    }}
-                                                    disabled={true}
-                                                />
-                                                <p className="absolute right-2 -bottom-5 text-sm text-gray-500">
-                                                    {/* {field.value.length}/20 */}
-                                                </p>
-                                            </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Price */}
-                            <FormField
-                                control={form.control}
-                                name="price"
-                                render={({ field }) => (
-                                    <FormItem data-aos="fade-up" data-aos-delay="400">
-                                        <FormLabel>Harga</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="number"
-                                                placeholder="Enter price"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Weight */}
-                            <FormField
-                                control={form.control}
-                                name="weight"
-                                render={({ field }) => (
-                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="500">
-                                        <FormLabel>Berat</FormLabel>
-                                        <FormControl className="w-full">
-                                            <div className="flex items-center space-x-2">
-                                                {/* Input untuk nilai berat */}
-                                                <input
-                                                    type="number"
-                                                    placeholder="Masukkan berat"
-                                                    {...field}
-                                                    className="p-2 border border-gray-300 w-full rounded-md"
-                                                />
-                                                {/* Dropdown untuk memilih satuan */}
-                                                <select
-                                                    className="h-10 border border-gray-300 w-full rounded-md"
-                                                >
-                                                    <option value="" disabled>
-                                                        Pilih satuan
-                                                    </option>
-                                                    <option onClick={() => setQuantity('g')}>Gram (g)</option>
-                                                    <option onClick={() => setQuantity('kg')}>Kilogram (kg)</option>
-                                                </select>
-                                            </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Description */}
-                            <FormField
-                                control={form.control}
-                                name="description"
-                                render={({ field }) => (
-                                    <FormItem data-aos="fade-up" data-aos-delay="600">
-                                        <FormLabel>Deskripsi (Optional)</FormLabel>
-                                        <FormControl>
-                                            <div className="relative">
-                                                <textarea
-                                                    className="block w-full border rounded-lg p-3"
-                                                    placeholder="Jelaskan apa yang spesial dari produkmu"
-                                                    {...field}
-                                                    onChange={(e) => {
-                                                        field.onChange(e);
-                                                    }}
-                                                />
-                                                <p className="absolute right-2 -bottom-5 text-sm text-gray-500">
-                                                    {/* {(field.value?.length ?? 0)}/100 */}
-                                                </p>
-                                            </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Etalase */}
-                            <FormField
-                                control={form.control}
-                                name="etalase"
+                                name="variant"
                                 render={({ field }) => (
                                     <FormItem data-aos="fade-up">
-                                        <FormLabel>Pilih Etalase</FormLabel>
+                                        <FormLabel>Pilih Variant</FormLabel>
                                         <div className="space-y-2 mt-2">
-                                            {etalases.map((etalase) => (
-                                                <div key={etalase.showcase_id} className="flex items-center gap-2">
+                                            {variants.map((variant) => (
+                                                <div key={variant.variant_id} className="flex items-center gap-2">
                                                     <input
                                                         type="radio"
-                                                        id={`etalase-${etalase.showcase_id}`}
-                                                        name="etalase"
-                                                        value={etalase.showcase_id}
-                                                        checked={field.value.includes(etalase.showcase_id)}
+                                                        id={`variant-${variant.variant_id}`}
+                                                        name="variant"
+                                                        value={variant.variant_id}
+                                                        // checked={field.value.includes(variant.variant_id)}
                                                         onChange={(e) => {
                                                             field.onChange([e.target.value]); // Perbarui nilai dalam form
-                                                            setSelectedEtalase(e.target.value); // Perbarui state etalase yang dipilih
+                                                            setSelectedVariant(e.target.value); // Perbarui state variant yang dipilih
                                                         }}
                                                         className="h-4 w-4 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                                                     />
                                                     <label
-                                                        htmlFor={`etalase-${etalase.showcase_id}`}
+                                                        htmlFor={`variant-${variant.variant_id}`}
                                                         className="text-sm font-medium text-gray-700"
                                                     >
-                                                        {etalase.showcase_name}
+                                                        {variant.variant_name}
                                                     </label>
                                                 </div>
                                             ))}
@@ -432,20 +648,445 @@ const EditProduct: React.FC<EditProductProps> = ({
                                         <FormMessage />
                                     </FormItem>
                                 )}
-                            />
+                            /> */}
 
-                            {/* ... */}
-                            <Button data-aos="fade-up" type="submit" className="w-full bg-blue-500 text-white">
-                                Update
-                            </Button>
-                        </form>
-                    </Form>
+                                {/* ... */}
+                                <Button data-aos="fade-up" type="submit" className="w-full bg-blue-500 text-white">
+                                    Update
+                                </Button>
+                            </form>
+                        </Form>
 
-                    <Button data-aos="fade-up" onClick={deleteHandler} className="w-full mt-5 bg-red-500 text-white">Delete</Button>
+                        <div className={`${section.detailProduct && !showAddVariant ? 'flex' : 'hidden'} bg-white rounded-lg w-full flex-col gap-5`}>
+                            <div>
+                                <div className="flex items-center justify-between">
+                                    <p className="font-semibold">Stok</p>
+
+                                    <button
+                                        className={`flex items-center justify-center w-14 min-w-14 h-8 p-1 rounded-full cursor-pointer 
+                                ${showField.stock ? 'bg-orange-500' : 'bg-gray-300'} transition-colors`}
+                                        onClick={() => setShowField({ ...showField, stock: !showField.stock })}
+                                    >
+                                        <div
+                                            className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform 
+                                    ${showField.stock ? 'transform translate-x-3' : 'transform -translate-x-3'}`}
+                                        />
+                                    </button>
+                                </div>
+
+                                <p className="mt-5 text-gray-500">Atur jumlah stok produk ini.</p>
+
+                                <div className={`${showField.stock ? 'flex' : 'hidden'} flex-col mt-5 items-center gap-3`}>
+                                    <div className="flex items-center gap-5">
+                                        <div className="flex flex-col gap-2">
+                                            <p className="font-semibold">Jumlah Stok</p>
+
+                                            <Input placeholder="1" type="number" />
+                                        </div>
+
+                                        <div className="flex flex-col gap-2">
+                                            <p className="font-semibold">Stok Minimum</p>
+
+                                            <Input placeholder="1" type="number" />
+                                        </div>
+                                    </div>
+
+                                    <p className="text-gray-500">Kamu akan diingatkan saat produk kurang dari stok minimum.</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className="flex items-center justify-between">
+                                    <p className="font-semibold">Variant</p>
+
+                                    <button
+                                        className={`flex items-center justify-center w-14 min-w-14 h-8 p-1 rounded-full cursor-pointer 
+                                ${showField.variant ? 'bg-orange-500' : 'bg-gray-300'} transition-colors`}
+                                        onClick={() => setShowField({ ...showField, variant: !showField.variant })}
+                                    >
+                                        <div
+                                            className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform 
+                                    ${showField.variant ? 'transform translate-x-3' : 'transform -translate-x-3'}`}
+                                        />
+                                    </button>
+                                </div>
+
+                                <p className="mt-5 text-gray-500">Atur jumlah stok produk ini.</p>
+
+                                <div className={`${showField.variant ? 'flex' : 'hidden'} flex-col mt-5 items-center gap-3`}>
+                                    <Button onClick={() => setShowAddVariant(true)} className="bg-transparent border border-orange-500 text-black w-full">
+                                        <p>Pilih Variant</p>
+                                    </Button>
+                                </div>
+                            </div>
+
+                            <Button className="bg-orange-500 text-white" onClick={() => { setOpen({ id: "", status: false }); setReset(true) }}>Simpan</Button>
+                        </div>
+
+                        {/* Variant Control */}
+                        {showAddVariant && (
+                            <div className="bg-white rounded-lg w-full gap-5">
+                                <div className="flex items-center justify-between">
+                                    <p className="font-semibold text-xl">Pilih Variant</p>
+                                    <button onClick={() => setShowAddVariant(false)}>
+                                        <ChevronLeft />
+                                    </button>
+                                </div>
+
+                                <Button onClick={() => setShowPopUpAddVariant(true)} className="mt-5 w-full bg-orange-100 text-orange-500">+ Tambah Variant Baru</Button>
+
+                                <div className="mt-5">
+                                    {variants.map((variant, index) => (
+                                        <label key={variant.variant_id || `variant-${index}`} className="p-3 border border-orange-500 rounded-lg flex items-center mt-5 gap-3 font-semibold">
+                                            <input
+                                                type="checkbox"
+                                                name="variant"
+                                                value={variant.variant_id}
+                                                checked={selectedVariants.includes(variant.variant_id)}
+                                                onChange={() => handleVariantChange(variant.variant_id)}
+                                            />
+                                            {variant?.variant_name}
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <Button data-aos="fade-up" onClick={deleteHandler} className="w-full mt-5 bg-red-500 text-white">Delete</Button>
+                    </div>
+                )}
+            </div>
+
+            {/* Add Variant Pop Up */}
+            {showPopUpAddVariant && (
+                <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-start overflow-y-auto py-10 justify-center">
+                    <div data-aos="fade-up" className="bg-white p-5 rounded-lg w-[90%]">
+                        <div className="flex items-center justify-between">
+                            <p className="font-semibold text-xl">Add Variant</p>
+                            <button onClick={() => setShowPopUpAddVariant(false)}>
+                                <ChevronLeft />
+                            </button>
+                        </div>
+
+                        <Form {...formVariant}>
+                            <form onSubmit={formVariant.handleSubmit(onSubmitVariant)} className="space-y-8 mt-6 bg-white p-5 rounded-lg">
+                                {/* Name */}
+                                <FormField
+                                    control={formVariant.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem data-aos="fade-up" data-aos-delay="100">
+                                            <FormLabel>Nama Varian</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Masukkan nama varian"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <Button data-aos="fade-up" data-aos-delay="200" type="button" onClick={() => setShowChoisesInput(true)} className="bg-transparent hover:bg-transparent border-2 border-orange-400 w-full text-orange-400">Tambah Pilihan</Button>
+
+                                {/* Choises */}
+                                <div className="mt-5">
+                                    {displayChoises.map((choise, index) => (
+                                        <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="mt-5">
+                                            <p>Pilihan {index + 1}</p>
+
+                                            <div className="border border-gray-500 p-5 rounded-lg mt-3">
+                                                <div className="flex items-center gap-5 justify-between">
+                                                    <p>{choise.name}</p>
+
+                                                    <button type="button" onClick={() => setShowEditChoisesInput({ status: true, index: index })} className="text-orange-400">Ubah</button>
+                                                </div>
+
+                                                <div className="mt-3 flex items-center gap-5 justify-between">
+                                                    <p className="text-gray-500">{choise.price}</p>
+
+                                                    <div
+                                                        onClick={() => updateShowChoises(index)}
+                                                        className={`w-14 h-8 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${choise.show ? "bg-orange-400" : "bg-gray-300"}`}
+                                                    >
+                                                        <div
+                                                            className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${choise.show ? "translate-x-6" : "translate-x-0"}`}
+                                                        ></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Popup untuk Input Harga dan Nama */}
+                                {showChoisesInput && (
+                                    <div className="fixed bg-black bg-opacity-50 inset-0 z-20 h-screen -translate-y-8">
+                                        <div data-aos="fade-up" className="bg-white p-4 rounded-t-lg mt-10 absolute bottom-0 w-full">
+                                            <p className="text-center mb-10 text-lg font-semibold">Tambah Pilihan</p>
+
+                                            <div>
+                                                <p>Nama Pilihan</p>
+
+                                                <Input
+                                                    className="mt-3"
+                                                    placeholder="Nama Pilihan"
+                                                    value={newChoiceName}
+                                                    onChange={(e) => setNewChoiceName(e.target.value)}
+                                                />
+                                            </div>
+
+                                            <div className="mt-5">
+                                                <p>Harga</p>
+
+                                                <Input
+                                                    className="mt-3"
+                                                    type="number"
+                                                    placeholder="Harga"
+                                                    value={newChoicePrice}
+                                                    onChange={(e) => setNewChoicePrice(Number(e.target.value))}
+                                                />
+
+                                                {showError && <p className="text-red-500 text-sm">Harga harus positif</p>}
+                                            </div>
+
+                                            <div className="mt-5">
+                                                <p>Tampilkan</p>
+
+                                                <div
+                                                    onClick={() => setShowChoice(!showChoice)}
+                                                    className={`w-14 h-8 mt-3 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${showChoice ? "bg-orange-400" : "bg-gray-300"
+                                                        }`}
+                                                >
+                                                    <div
+                                                        className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${showChoice ? "translate-x-6" : "translate-x-0"
+                                                            }`}
+                                                    ></div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-5 mt-5">
+                                                <Button
+                                                    onClick={addNewChoice}
+                                                    className="bg-green-500 w-full"
+                                                >
+                                                    Simpan
+                                                </Button>
+
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => setShowChoisesInput(false)}
+                                                    className="bg-gray-300 w-full"
+                                                >
+                                                    Tutup
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Notification */}
+                                {showError && <Notification message="Harga harus positif" onClose={() => setShowError(false)} status={"error"} />}
+
+                                {/* Popup untuk Edit Harga dan Nama */}
+                                {showEditChoisesInput.status && (
+                                    <div className="fixed bg-black bg-opacity-50 inset-0 z-20 h-screen -translate-y-8">
+                                        <div data-aos="fade-up" className="bg-white p-4 rounded-t-lg mt-10 translate-y-10 absolute bottom-0 w-full">
+                                            <p className="text-center mb-10 text-lg font-semibold">Ubah Pilihan</p>
+
+                                            <div>
+                                                <p>Nama Pilihan</p>
+
+                                                <Input
+                                                    className="mt-3"
+                                                    placeholder="Nama Pilihan"
+                                                    value={displayChoises[showEditChoisesInput.index].name}
+                                                    onChange={(e) => {
+                                                        const updatedChoises = displayChoises.map((choise, index) =>
+                                                            index === showEditChoisesInput.index ? { ...choise, name: e.target.value } : choise
+                                                        );
+
+                                                        formVariant.setValue("choises", updatedChoises);
+                                                        setDisplayChoises(updatedChoises);
+                                                    }}
+                                                />
+                                            </div>
+
+                                            <div className="mt-5">
+                                                <p>Harga</p>
+
+                                                <Input
+                                                    className="mt-3"
+                                                    type="number"
+                                                    placeholder="Harga"
+                                                    value={displayChoises[showEditChoisesInput.index].price}
+                                                    onChange={(e) => {
+                                                        const updatedChoises = displayChoises.map((choise, index) =>
+                                                            index === showEditChoisesInput.index ? { ...choise, price: Number(e.target.value) } : choise
+                                                        );
+
+                                                        formVariant.setValue("choises", updatedChoises);
+                                                        setDisplayChoises(updatedChoises);
+                                                    }}
+                                                />
+                                            </div>
+
+                                            <div className="mt-5">
+                                                <p>Tampilkan</p>
+
+                                                <div
+                                                    onClick={() => {
+                                                        const updatedChoises = displayChoises.map((choise, index) =>
+                                                            index === showEditChoisesInput.index ? { ...choise, show: !choise.show } : choise
+                                                        );
+
+                                                        formVariant.setValue("choises", updatedChoises);
+                                                        setDisplayChoises(updatedChoises);
+                                                    }}
+                                                    className={`w-14 h-8 mt-3 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${displayChoises[showEditChoisesInput.index].show ? "bg-orange-400" : "bg-gray-300"
+                                                        }`}
+                                                >
+                                                    <div className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${displayChoises[showEditChoisesInput.index].show ? "translate-x-6" : "translate-x-0"
+                                                        }`}></div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-5 mt-5">
+                                                <Button
+                                                    onClick={() => setShowEditChoisesInput({ status: false, index: -1 })}
+                                                    className="bg-green-500 w-full"
+                                                >
+                                                    Simpan
+                                                </Button>
+
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => setShowEditChoisesInput({ status: false, index: -1 })}
+                                                    className="bg-gray-300 w-full"
+                                                >
+                                                    Tutup
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Must Be Selected */}
+                                <FormField
+                                    control={formVariant.control}
+                                    name="mustBeSelected"
+                                    render={({ field }) => (
+                                        <FormItem data-aos="fade-up" data-aos-delay="300">
+                                            <div className="flex items-center gap-5 justify-between">
+                                                <FormLabel>Wajib Dipilih?</FormLabel>
+                                                <FormControl>
+                                                    <div
+                                                        className={`w-14 h-8 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${field.value ? "bg-orange-400" : "bg-gray-300"
+                                                            }`}
+                                                        onClick={() => field.onChange(!field.value)}
+                                                    >
+                                                        <div
+                                                            className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${field.value ? "translate-x-6" : "translate-x-0"
+                                                                }`}
+                                                        ></div>
+                                                    </div>
+                                                </FormControl>
+                                            </div>
+
+                                            <p className="text-sm text-gray-500">Varian harus dipilih pembeli.</p>
+
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Methods */}
+                                <FormField
+                                    control={formVariant.control}
+                                    name="methods"
+                                    render={({ field }) => (
+                                        <FormItem data-aos="fade-up" data-aos-delay="400">
+                                            <FormLabel>Metode</FormLabel>
+                                            <FormControl>
+                                                <div>
+                                                    <label className="flex items-center mb-2">
+                                                        <input
+                                                            type="radio"
+                                                            value="single"
+                                                            checked={field.value === "single"}
+                                                            onChange={() => field.onChange("single")}
+                                                            className="mr-2"
+                                                        />
+                                                        <span>Maks. Pilih 1</span>
+                                                    </label>
+
+                                                    <label className="flex items-center">
+                                                        <input
+                                                            type="radio"
+                                                            value="more"
+                                                            checked={field.value === "more"}
+                                                            onChange={() => field.onChange("more")}
+                                                            className="mr-2"
+                                                        />
+                                                        <span>Boleh lebih dari 1</span>
+                                                    </label>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Products */}
+                                <FormField
+                                    control={formVariant.control}
+                                    name="products"
+                                    render={({ field }) => (
+                                        <FormItem data-aos="fade-up" data-aos-delay="500">
+                                            <FormLabel>Produk</FormLabel>
+                                            <FormControl>
+                                                <div>
+                                                    {products.map((product) => (
+                                                        <label key={product.id} className="flex items-center mb-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                value={product.product_id}
+                                                                checked={field.value.includes(product.product_id)} // Memastikan `product_id` digunakan
+                                                                onChange={(e) => {
+                                                                    if (e.target.checked) {
+                                                                        field.onChange([...field.value, product.product_id]); // Tambahkan jika checked
+                                                                    } else {
+                                                                        field.onChange(
+                                                                            field.value.filter((id) => id !== product.product_id) // Hapus jika unchecked
+                                                                        );
+                                                                    }
+                                                                }}
+                                                                className="mr-2"
+                                                            />
+                                                            <span>{product.product_name}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <Button data-aos="fade-up" data-aos-delay="600" type="submit" className="w-full bg-green-500 text-white">
+                                    Simpan Varian
+                                </Button>
+                            </form>
+                        </Form>
+                    </div>
                 </div>
             )}
 
-        </div>
+            {/* Success Notification for Variant */}
+            {showNotificationVariant && <Notification message="Varian berhasil ditambahkan!" onClose={() => setShowNotificationVariant(false)} status="success" />}
+        </>
+
     );
 };
 

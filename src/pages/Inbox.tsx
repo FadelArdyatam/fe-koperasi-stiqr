@@ -4,6 +4,7 @@ import {
     CreditCard,
     UserRound,
     FileText,
+    ArrowLeft,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -21,6 +22,8 @@ interface INotification {
 }
 const Inbox = () => {
     const [notifications, setNotifications] = useState<INotification[]>([]);
+
+    console.log("Notifications", notifications)
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
@@ -42,7 +45,13 @@ const Inbox = () => {
     return (
         <div>
             <div className="p-5 w-full bg-orange-400">
-                <p data-aos="zoom-in" className="text-white font-semibold uppercase text-center">Notifikasi</p>
+                <div className="w-full flex items-center gap-5 justify-between">
+                    <div className="flex items-center justify-center w-full gap-5">
+                        <Link to={"/dashboard"}><ArrowLeft /></Link>
+
+                        <p data-aos="zoom-in" className="font-semibold m-auto text-white text-2xl">Notifikasi</p>
+                    </div>
+                </div>
             </div>
 
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -91,6 +100,7 @@ const Inbox = () => {
                         </div>
                     )
                 }
+
                 {notifications.map((notification, index) => (
                     <div data-aos="fade-up" data-aos-delay={index * 100} key={index}>
                         <div

@@ -140,7 +140,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                 <div className={`p-5 w-full bg-white`}>
                     <div className="w-full flex items-center gap-5 justify-between">
                         <div className="flex items-center gap-5">
-                            <button onClick={() => setShowOrderProcess(false)}><ArrowLeft /></button>
+                            <button onClick={() => { navigate("/dashboard") }}><ArrowLeft /></button>
 
                             <p data-aos="zoom-in" className="font-semibold text-2xl">Pesanan Diproses</p>
                         </div>

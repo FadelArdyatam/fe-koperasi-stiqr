@@ -35,13 +35,17 @@ interface Product {
     product_sku: string;
     product_weight: string;
     product_category: string;
-    product_price: string;
+    product_price: number;
     product_status: boolean;
     product_description: string;
     product_image: string;
     created_at: string;
     updated_at: string;
     merchant_id: string;
+    product_variant: Array<{
+        variant: any;
+        variant_id: string;
+    }> & { product_variant: Array<{ variant_id: string }> };
 }
 
 interface Merchant {
@@ -81,6 +85,7 @@ interface Etalase {
 }
 
 interface Variant {
+    product_variant: any;
     id: number;
     variant_id: string;
     variant_name: string;
@@ -101,8 +106,8 @@ const Catalog = () => {
     const [show, setShow] = useState('Produk');
     const [products, setProducts] = useState<Product[]>([]);
     // Untuk keperluan Filter
-    const [originalProducts, setOriginalProducts] = useState<Product[]>([]); // Semua data asli
-    const [allProducts, setAllProducts] = useState<Product[]>([]); // Menyimpan semua produk asli
+    // const [originalProducts, setOriginalProducts] = useState<Product[]>([]); // Semua data asli
+    // const [allProducts, setAllProducts] = useState<Product[]>([]); // Menyimpan semua produk asli
     // 
     const [variants, setVariants] = useState<Variant[]>([]);
     const [etalases, setEtalases] = useState<Etalase[]>([]);
@@ -113,6 +118,7 @@ const Catalog = () => {
         id: "",
         status: false,
     });
+    const [showVariantProductHandler, setShowVariantProductHandler] = useState({ id: "", status: false });
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -121,6 +127,8 @@ const Catalog = () => {
     const userData = userItem ? JSON.parse(userItem) : null;
     const [showFilterSection, setShowFilterSection] = useState(false);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'new' | 'highest' | 'lowest' | 'Semua' | 'Aktif' | 'Non-aktif'>('new');
+
+    const [reset, setReset] = useState(false);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
@@ -132,8 +140,8 @@ const Catalog = () => {
                 const response = await axiosInstance.get(`/product/${userData?.merchant?.id}`);
                 if (Array.isArray(response.data)) {
                     setProducts(response.data);
-                    setAllProducts(response.data); // Simpan data awal
-                    setOriginalProducts(response.data); // Simpan data awal
+                    // setAllProducts(response.data); // Simpan data awal
+                    // setOriginalProducts(response.data); // Simpan data awal
                 } else {
                     console.error("Invalid response format for products:", response.data);
                 }
@@ -176,7 +184,7 @@ const Catalog = () => {
         fetchProducts();
         fetchEtalases();
         fetchVariants();
-    }, []);
+    }, [reset]);
 
     // useEffect(() => {
     //     const handleSortAll = () => {
@@ -261,7 +269,7 @@ const Catalog = () => {
             if (sortOrder === 'Aktif') status = 'active';
             if (sortOrder === 'Non-aktif') status = 'inactive';
 
-        // Only pass sort parameter if it's a sorting option
+            // Only pass sort parameter if it's a sorting option
             const sortParam = ['asc', 'desc', 'new', 'highest', 'lowest'].includes(sortOrder)
                 ? sortOrder
                 : undefined;
@@ -301,9 +309,11 @@ const Catalog = () => {
         )
         : [];
 
+    console.log("Error", error)
+
     return (
         <div className="w-full flex flex-col min-h-screen items-center bg-orange-50">
-            <div className={`${addProduct || addVariant || addEtalase || open.status ? 'hidden' : 'block'} p-5 w-full`}>
+            <div className={`${addProduct || addVariant || addEtalase || open.status || showVariantProductHandler.status ? 'hidden' : 'block'} p-5 w-full`}>
                 <div data-aos="zoom-in" className="w-full">
                     <p className="font-semibold text-2xl">Katalog</p>
                 </div>
@@ -477,14 +487,14 @@ const Catalog = () => {
             </div>
 
             <div className="w-full">
-                {show === 'Produk' && <Product products={searchTerm !== '' ? filteredProducts : products} setProducts={setProducts} addProduct={addProduct} setAddProduct={setAddProduct} setOpen={setOpen} open={open} setEtalases={setEtalases} etalases={etalases} />}
+                {show === 'Produk' && <Product products={searchTerm !== '' ? filteredProducts : products} setProducts={setProducts} addProduct={addProduct} setAddProduct={setAddProduct} setOpen={setOpen} open={open} setEtalases={setEtalases} etalases={etalases} variants={variants} setVariants={setVariants} setReset={setReset} />}
             </div>
 
             <div className="w-full">
-                {show === 'Varian' && <Variant variants={searchTerm !== '' ? filteredVariants : variants} setVariants={setVariants} addVariant={addVariant} setAddVariant={setAddVariant} setOpen={setOpen} open={open} products={products} />}
+                {show === 'Varian' && <Variant variants={searchTerm !== '' ? filteredVariants : variants} setVariants={setVariants} addVariant={addVariant} setAddVariant={setAddVariant} setOpen={setOpen} open={open} products={products} setShowVariantProductHandler={setShowVariantProductHandler} showVariantProductHandler={showVariantProductHandler} setReset={setReset} />}
             </div>
 
-            {show === 'Etalase' && <Etalase etalases={searchTerm !== '' ? filteredEtalases : etalases} setEtalases={setEtalases} addEtalase={addEtalase} setAddEtalase={setAddEtalase} setOpen={setOpen} open={open} products={products} />}
+            {show === 'Etalase' && <Etalase etalases={searchTerm !== '' ? filteredEtalases : etalases} setEtalases={setEtalases} addEtalase={addEtalase} setAddEtalase={setAddEtalase} setOpen={setOpen} open={open} products={products} setReset={setReset} />}
         </div>
     );
 };

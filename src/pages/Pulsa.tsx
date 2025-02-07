@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, Mail } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import telkomsel from '../images/telkomsel.png'
@@ -7,6 +7,7 @@ import Bill from "@/components/Bill"
 import axiosInstance from "@/hooks/axiosInstance"
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Notification from "@/components/Notification"
 
 interface BillData {
     product: string;
@@ -28,6 +29,8 @@ const Pulsa = () => {
     const [products, setProducts] = useState<any[]>([]);
     const [category, setCategory] = useState("pulsa");
     const [searchTerm, setSearchTerm] = useState('');
+    const [isClicked, setIsClicked] = useState(false);
+    const [error, setError] = useState({ show: false, message: "" });
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -97,15 +100,16 @@ const Pulsa = () => {
 
             setDataBill(data);
             setShowBill(true);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error saat melakukan inquiry:", error);
-            alert("Terjadi kesalahan saat melakukan inquiry.");
+            setError({ show: true, message: error.response.data ? error.response.data.message : "Terjadi kesalahan saat melakukan pembelian paket. Silakan coba lagi." });
         }
     };
 
     const selectedAmountHandler = (amount: object, index: number) => {
         setSelecteProduct(amount);
         setIndexButton(index)
+        setIsClicked(true)
     }
 
     const setCategoryHandler = async (newCategory: string) => {
@@ -150,10 +154,6 @@ const Pulsa = () => {
                 </Link>
 
                 <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>Beli Pulsa</p>
-
-                <Button className="bg-transparent absolute right-5 hover:bg-transparent">
-                    <Mail className="scale-[1.5]" />
-                </Button>
             </div>
 
             <div className={`${showBill ? 'hidden' : 'block'}`}>
@@ -215,9 +215,9 @@ const Pulsa = () => {
 
                     <div className="w-full flex flex-wrap">
                         {searchTerm !== '' ? filteredProducts.map((product, index) => (
-                            <button data-aos="fade-up" data-aos-delay={index * 100} key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
+                            <button type="button" data-aos={isClicked ? undefined : 'fade-up'} data-aos-delay={index * 100} key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
                         )) : products.map((product, index) => (
-                            <button data-aos="fade-up" data-aos-delay={index * 100} key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
+                            <button type="button" data-aos={isClicked ? undefined : 'fade-up'} data-aos-delay={index * 100} key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
                         ))}
                     </div>
                 </div>
@@ -228,6 +228,8 @@ const Pulsa = () => {
             </div>
 
             {showBill && dataBill && <Bill data={dataBill} marginTop={true} />}
+
+            {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
         </div>
     )
 }

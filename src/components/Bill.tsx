@@ -4,6 +4,7 @@ import { Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '@/hooks/axiosInstance';
 import Notification from './Notification';
+import { formatRupiah } from '@/hooks/convertRupiah';
 
 interface BillProps {
     data: {
@@ -91,22 +92,22 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
 
                     <div className='flex items-start gap-5 justify-between'>
                         <div>
-                            <p>{data.product} {data.amount}</p>
-                            <p className='text-sm text-gray-400 mt-2'>1 x Rp {data.amount}</p>
+                            <p>{data.product}</p>
+                            <p className='text-sm text-gray-400 mt-2'>1 x {formatRupiah(data.amount)}</p>
                         </div>
-                        <p>Rp {data.amount}</p>
+                        <p>{formatRupiah(data.amount)}</p>
                     </div>
 
                     <div className='mt-10 flex items-center gap-5 justify-between'>
                         <p>Total Belanja</p>
-                        <p>Rp {data.amount}</p>
+                        <p>{formatRupiah(data.amount)}</p>
                     </div>
 
                     <div className='w-full my-5 h-[2px] bg-gray-200'></div>
 
                     <div className='flex items-center gap-5 justify-between'>
                         <p>Total Bayar</p>
-                        <p className='text-orange-400'>Rp {data.amount}</p>
+                        <p className='text-orange-400'>{formatRupiah(data.amount)}</p>
                     </div>
 
                     <div className='w-full my-5 h-[2px] bg-gray-200'></div>

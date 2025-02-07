@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Check, ChevronLeft, CreditCard, Home, Image, ScanQrCode, UserRound, FileText } from "lucide-react"
+import { Check, ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, FileText, User } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
@@ -15,9 +15,16 @@ const DataPemilik = () => {
     const [showEdit, setShowEdit] = useState(false)
     const [showNotification, setShowNotification] = useState(false)
     const [user, setUser] = useState<any>()
+    const [data, setData] = useState<any>()
+
+    const urlImage = import.meta.env.VITE_API_URL.replace('/api', '');
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
+    }, [])
+
+    useEffect(() => {
+        setData(JSON.parse(sessionStorage.getItem('user') || '{}'))
     }, [])
 
     useEffect(() => {
@@ -229,7 +236,17 @@ const DataPemilik = () => {
                     <div data-aos="fade-up" data-aos-delay="600" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Photo</p>
 
-                        <Image />
+                        <div data-aos="fade-up" className="w-14 h-14 rounded-lg overflow-hidden bg-gray-300 flex items-center justify-center">
+                            {data?.photo ? (
+                                <img
+                                    src={`${urlImage}/uploads/photos/${data?.photo}`}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <User className="text-gray-500 scale-[1.5]" />
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -248,7 +265,7 @@ const DataPemilik = () => {
                 <div className="w-[90%] bg-white shadow-lg rounded-lg p-5 -translate-y-20">
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
-                            <div className={'flex flex-col items-end w-full md:w-2/3 space-y-7'}>
+                            <div className={'flex flex-col items-end w-full space-y-7'}>
                                 <FormField
                                     control={form.control}
                                     name="NIK"

@@ -149,7 +149,19 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" data-aos-delay="700" to={"/profile/payment-data"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-delay="700" to={"/profile/customer-data"} className="flex items-center gap-5 justify-between">
+                        <div>
+                            <p>Data Customer</p>
+
+                            <p className="text-sm text-gray-500">Nama Pemesan, No Hp, Email, Nomor Lain</p>
+                        </div>
+
+                        <ChevronRight />
+                    </Link>
+
+                    <div className="w-full h-[2px] my-5 bg-gray-200"></div>
+
+                    <Link data-aos="fade-up" data-aos-delay="800" to={"/profile/payment-data"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Data Pembayaran</p>
 
@@ -161,7 +173,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <button data-aos="fade-up" data-aos-delay="800" onClick={() => setShowTermsandConditions(true)} className="flex items-center w-full gap-5 justify-between">
+                    <button data-aos="fade-up" onClick={() => setShowTermsandConditions(true)} className="flex items-center w-full gap-5 justify-between">
                         <div className="flex flex-col items-start">
                             <p>Syarat & Ketentuan</p>
 
