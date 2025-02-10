@@ -56,7 +56,7 @@ const Onboarding = ({ setShowOnboarding }: OnboardingProps) => {
             </button>
 
             {/* Container Slide */}
-            <div {...handlers} className="relative w-full h-[500px] overflow-hidden">
+            <div {...handlers} className="relative w-full h-[400px] overflow-hidden">
                 {slides.map((item, index) => (
                     <div
                         key={index}

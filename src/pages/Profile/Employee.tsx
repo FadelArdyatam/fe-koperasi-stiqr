@@ -184,7 +184,7 @@ const Employee = () => {
                 </button>
             </div>
 
-            {open.status && <EditEmployee setOpen={setOpen} employees={employees} setEmployees={setEmployees} editIndex={open.id} open={open} />}
+            {open.status && <EditEmployee setOpen={setOpen} employees={employees} setEmployees={setEmployees} editIndex={open.id} open={open} setIsSuccess={setIsSuccess} />}
 
             {addEmployee && <AddEmployee setAddEmployee={setAddEmployee} setIsSuccess={setIsSuccess} />}
         </>

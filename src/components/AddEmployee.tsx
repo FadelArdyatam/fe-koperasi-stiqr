@@ -112,7 +112,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                         <ChevronLeft />
                     </button>
 
-                    <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Add Employee</p>
+                    <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Tambah Pegawai</p>
                 </div>
 
                 <Form {...form}>
@@ -150,7 +150,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                             name="phone_number"
                             render={({ field }) => (
                                 <FormItem data-aos="fade-up" data-aos-delay="200">
-                                    <FormLabel>Phone</FormLabel>
+                                    <FormLabel>No Hp</FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder="Enter phone number"

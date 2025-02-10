@@ -4,7 +4,7 @@ import {
     CreditCard,
     UserRound,
     FileText,
-    ArrowLeft,
+    ChevronLeft,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -47,7 +47,7 @@ const Inbox = () => {
             <div className="p-5 w-full bg-orange-400">
                 <div className="w-full flex items-center gap-5 justify-between">
                     <div className="flex items-center justify-center w-full gap-5">
-                        <Link to={"/dashboard"}><ArrowLeft /></Link>
+                        <Link to={"/dashboard"}><ChevronLeft className="text-white scale-[1.2]" /></Link>
 
                         <p data-aos="zoom-in" className="font-semibold m-auto text-white text-2xl">Notifikasi</p>
                     </div>

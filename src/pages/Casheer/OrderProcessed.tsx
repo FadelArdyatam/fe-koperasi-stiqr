@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { formatRupiah } from "@/hooks/convertRupiah";
-import { ArrowLeft, Computer, Image } from "lucide-react"
+import { ArrowLeft, Computer } from "lucide-react"
 import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, useState, useEffect } from "react";
 import QRCodePage from "../QRCode";
 import axiosInstance from "@/hooks/axiosInstance";
@@ -42,6 +42,8 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
+
+    const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
     const calculateTotalAmount = () => {
         if (Array.isArray((basket as { sales_details?: SalesDetail[] }).sales_details)) {
@@ -199,10 +201,12 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
 
                         <div className="w-full flex flex-col items-start gap-5 px-3">
                             {type === 'detail' ? <>
-                                {basket?.sales_details?.map((item: { product: { product_name: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; product_price: any; }; quantity: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; }, index: number) => (
+                                {basket?.sales_details?.map((item: {
+                                    product_image: any; product: { product_name: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; product_price: any; }; quantity: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined;
+                                }, index: number) => (
                                     <div data-aos="fade-up" data-aos-delay={index * 100} key={index}>
                                         <div className="flex items-center gap-5">
-                                            <Image className="scale-[2]" />
+                                            <img className="w-10" src={`${urlImage}/uploads/products/${item.product_image}`} alt="" />
 
                                             <div>
                                                 <p className="text-lg font-semibold">{item.product.product_name}</p>
@@ -219,16 +223,17 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                                                 </div>
                                             </div>
                                         </div>
+
                                         <div className="w-full h-[1px] bg-gray-200 my-5"></div>
                                     </div>
                                 ))}
                             </> : <>
                                 {Array.isArray(basket) && basket.map((item, index) => (
-                                    <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="flex items-center gap-5">
-                                        <Image className="scale-[2]" />
+                                    <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="flex items-center gap-5 p-3">
+                                        <img className="w-10" src={`${urlImage}/uploads/products/${item.product_image}`} alt="" />
 
                                         <div>
-                                            <p className="text-lg font-semibold">{item.product.product_name}</p>
+                                            <p className="text-lg font-semibold">{item.product}</p>
 
                                             <div className="flex items-center gap-3">
                                                 <p className="font-semibold text-xl">{Number(item.price).toLocaleString("id-ID", {

@@ -24,7 +24,7 @@ interface Account {
 
 const DataPembayaran = () => {
     const [showContent, setShowContent] = useState({ show: false, index: "" });
-    const [isAdding, setIsAdding] = useState({ status: true, section: "bank" });
+    const [isAdding, setIsAdding] = useState({ status: false, section: "bank" });
     const [showEdit, setShowEdit] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [dataForEdit, setDataForEdit] = useState<Account | null>(null);
@@ -43,9 +43,15 @@ const DataPembayaran = () => {
     }, [showEdit, isAdding, showContent.show]);
 
     const FormSchemaBank = z.object({
-        bankName: z.string().min(3),
-        accountNumber: z.string().min(10),
-        ownerName: z.string().min(3),
+        bankName: z.string().min(3,
+            { message: "Nama Bank Tidak Boleh Kosong" }
+        ),
+        accountNumber: z.string().min(10,
+            { message: "Nomor Rekening harus lebih dari 10 karakter" }
+        ),
+        ownerName: z.string().min(3,
+            { message: "Nama Pemilik Tidak Boleh Kosong" }
+        ),
         // savingBook: z.union([z.instanceof(File), z.string().url()]), // Update to handle either File or URL
     })
 
@@ -170,9 +176,15 @@ const DataPembayaran = () => {
     }
 
     const FormSchemaEwallet = z.object({
-        ewalletName: z.string().min(3),
-        accountNumber: z.string().min(10),
-        ownerName: z.string().min(3),
+        ewalletName: z.string().min(3,
+            { message: "Nama E-wallet Tidak Boleh Kosong" }
+        ),
+        accountNumber: z.string().min(10,
+            { message: "Nomor Telp E-wallet harus lebih dari 10 karakter" }
+        ),
+        ownerName: z.string().min(3,
+            { message: "Nama Pemilik E-wallet Tidak Boleh Kosong" }
+        ),
         // savingBook: z.union([z.instanceof(File), z.string().url()]), // Update to handle either File or URL
     })
 
@@ -209,7 +221,7 @@ const DataPembayaran = () => {
                     </button>
                 )}
 
-                <p key={isAdding ? 'adding-mode' : showEdit ? 'edit-mode' : 'view-mode'} data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>{isAdding ? 'Tambah Data Pembayaran' : showEdit ? 'Edit Data Pembayaran' : 'Data Pembayaran'}</p>
+                <p key={isAdding.status ? 'adding-mode' : showEdit ? 'edit-mode' : 'view-mode'} data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>{isAdding.status ? 'Tambah Data Pembayaran' : showEdit ? 'Edit Data Pembayaran' : 'Data Pembayaran'}</p>
             </div>
 
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -270,7 +282,7 @@ const DataPembayaran = () => {
             </div>
 
             <div className="w-full flex flex-col gap-5">
-                <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setIsAdding({ status: true, section: "" })} className={`${isAdding.status || showEdit ? 'hidden' : 'block'} w-[90%] m-auto bg-green-400`}>Tambah Akun Pembayaran</Button>
+                <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setIsAdding({ status: true, section: "bank" })} className={`${isAdding.status || showEdit ? 'hidden' : 'block'} w-[90%] m-auto bg-green-400`}>Tambah Akun Pembayaran</Button>
             </div>
 
             <div key={showContent.show ? "showContent-mode" : "noShowContent-mode"} className={`${showContent.show === true && !showEdit ? 'block' : 'hidden'} w-[90%] bg-white -translate-y-20 p-5 rounded-lg shadow-lg`}>

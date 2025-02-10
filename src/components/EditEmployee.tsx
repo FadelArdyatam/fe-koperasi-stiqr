@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
@@ -42,9 +42,11 @@ interface EditEmployeeProps {
         role_description: string;
     }>) => void;
     editIndex: string;
+    setIsSuccess: (value: boolean) => void;
 }
 
-const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, editIndex }) => {
+const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, editIndex, setIsSuccess }) => {
+    const [showPassword, setShowPassword] = useState(false);
     const [employeeToEdit, setEmployeeToEdit] = useState<{
         employee_id: string;
         role_id: string;
@@ -89,11 +91,19 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, editIndex }) => {
 
     // Validasi schema untuk form
     const FormSchema = z.object({
-        name: z.string().min(3).max(50),
-        phone_number: z.string().min(10).max(13),
+        name: z.string().min(3,
+            { message: "Nama pegawai Tidak Boleh Kosong" }
+        ).max(50),
+        phone_number: z.string().min(10,
+            { message: "Nomor telepon tidak boleh kurang dari 10 karakter" }
+        ).max(13),
         email: z.string().email(),
         role_name: z.string().min(3).max(50),
-        password: z.string().min(6).max(50),
+        password: z.string().min(6,
+            { message: "Password minimal 6 karakter" }
+        ).max(50,
+            { message: "Password maksimal 50 karakter" }
+        ),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -121,6 +131,20 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, editIndex }) => {
         console.log("updatedEmployee", updatedEmployee);
 
         setOpen({ id: "", status: false });
+    }
+
+    const deleteEmployeeHandler = async () => {
+        try {
+            const response = await axiosInstance.delete(`/employee/deleted/${editIndex}`);
+
+            console.log("Delete Employee Response:", response.data);
+
+            setOpen({ id: "", status: false });
+
+            setIsSuccess(true);
+        } catch (error: any) {
+            console.error("Failed to delete Employee details:", error.message);
+        }
     }
 
     const accordionData = [
@@ -209,11 +233,17 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, editIndex }) => {
                             <FormItem data-aos="fade-up" data-aos-delay={400}>
                                 <FormLabel>Password</FormLabel>
                                 <FormControl>
-                                    <Input
-                                        type="password"
-                                        placeholder="Enter password"
-                                        {...field}
-                                    />
+                                    <div className="relative">
+                                        <Input
+                                            type={showPassword ? 'text' : 'password'}
+                                            placeholder="Enter password"
+                                            {...field}
+                                        />
+
+                                        <button className="absolute right-5 top-2" type="button" onClick={() => setShowPassword(!showPassword)}>
+                                            {showPassword ? <EyeOff /> : <Eye />}
+                                        </button>
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -241,7 +271,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, editIndex }) => {
                                                             value={option}
                                                             checked={field.value === option}
                                                             onChange={() => field.onChange(option)}
-                                                            className="form-radio"
+                                                            className="form-radio scale-125 md:scale-[1.5]"
                                                         />
                                                     </label>
 
@@ -279,6 +309,10 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, editIndex }) => {
 
                     <Button data-aos="fade-up" data-aos-delay={600} type="submit" className="w-full bg-blue-500 text-white">
                         Update
+                    </Button>
+
+                    <Button data-aos="fade-up" data-aos-delay={600} onClick={deleteEmployeeHandler} type="button" className="w-full bg-red-500 text-white">
+                        Delete
                     </Button>
                 </form>
             </Form>

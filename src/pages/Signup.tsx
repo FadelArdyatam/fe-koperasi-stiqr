@@ -1,11 +1,10 @@
 import { Button } from "@/components/ui/button"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ChevronDown, Eye, EyeOff, Smartphone, Store, UserRound } from "lucide-react"
+import { ChevronDown, ChevronLeft, Eye, EyeOff, Smartphone, Store, UserRound } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group"
 import { useEffect, useState } from "react"
 import {
     DropdownMenu,
@@ -20,6 +19,7 @@ import TermsandCondition from "@/components/TermsandCondition"
 import PinInput from "@/components/PinInput"
 import axiosInstance from "@/hooks/axiosInstance"
 import Notification from "@/components/Notification"
+import { useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
@@ -34,6 +34,8 @@ const Signup = () => {
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
@@ -53,7 +55,9 @@ const Signup = () => {
     }, [])
 
     const FormSchemaUser = z.object({
-        photo: z.union([z.instanceof(File), z.string().url()]),
+        photo: z.union([z.instanceof(File, {
+            message: "Foto harus di upload.",
+        }), z.string().url()]),
         ownerName: z.string().min(2, {
             message: "Nama pemilik harus terdiri dari minimal 2 karakter.",
         }),
@@ -397,7 +401,13 @@ const Signup = () => {
             {showTermsandConditions ? <TermsandCondition setShowTermsandConditions={setShowTermsandConditions} backToPageProfile={false} /> : (
                 <div>
                     <div key={currentSection} className={`${createPin ? 'hidden' : 'flex'} w-full flex-col p-10`}>
-                        <p data-aos="zoom-in" className="uppercase text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : 'Kode Otp'}</p>
+                        <div className="flex items-center w-full">
+                            <button onClick={() => { navigate("/") }}>
+                                <ChevronLeft />
+                            </button>
+
+                            <p data-aos="zoom-in" className="uppercase m-auto text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : 'Kode Otp'}</p>
+                        </div>
 
                         <div className="mt-10 w-full flex items-center">
                             <div className={`${section[0] ? 'bg-orange-500' : 'bg-gray-500'} transition-all w-12 min-w-12 h-12 rounded-full flex items-center justify-center`}>
@@ -473,42 +483,44 @@ const Signup = () => {
                                             control={formUser.control}
                                             name="gender"
                                             render={({ field }) => (
-                                                <FormItem className="space-y-3 m-auto">
+                                                <FormItem className="w-full">
                                                     <FormControl>
-                                                        <RadioGroup
-                                                            onValueChange={field.onChange}
-                                                            defaultValue={field.value}
-                                                            className="flex w-full space-x-7 md:space-x-28"
-                                                            data-aos="fade-up" data-aos-delay="200"
-                                                        >
-                                                            <FormItem className="flex items-center scale-[1] md:scale-[1.5] space-x-2 space-y-0">
-                                                                <FormControl>
-                                                                    <RadioGroupItem value="Laki - Laki" />
-                                                                </FormControl>
-                                                                <FormLabel className="font-normal">
-                                                                    Laki - Laki
-                                                                </FormLabel>
-                                                            </FormItem>
+                                                        <div className="flex flex-col w-full justify-center" data-aos="fade-up" data-aos-delay="200">
+                                                            <FormLabel>Gender</FormLabel>
 
-                                                            <FormItem className="flex items-center scale-[1] md:scale-[1.5] space-x-2 space-y-0">
-                                                                <FormControl>
-                                                                    <RadioGroupItem value="Perempuan" />
-                                                                </FormControl>
-                                                                <FormLabel className="font-normal">
+                                                            <div className="flex sm:flex-row flex-col items-center w-full gap-5 mt-5 m-auto">
+                                                                {/* Tombol Laki - Laki */}
+                                                                <Button
+                                                                    type="button"
+                                                                    className={`${field.value === "Laki - Laki" ? 'bg-orange-500' : 'bg-gray-100 text-black'} transition-all px-6 py-2 text-lg w-full`}
+                                                                    onClick={() => field.onChange("Laki - Laki")}
+                                                                >
+                                                                    Laki - Laki
+                                                                </Button>
+
+                                                                {/* Tombol Perempuan */}
+                                                                <Button
+                                                                    type="button"
+                                                                    className={`${field.value === "Perempuan" ? 'bg-orange-500' : 'bg-gray-100 text-black'} transition-all px-6 py-2 text-lg w-full`}
+                                                                    onClick={() => field.onChange("Perempuan")}
+                                                                >
                                                                     Perempuan
-                                                                </FormLabel>
-                                                            </FormItem>
-                                                        </RadioGroup>
+                                                                </Button>
+                                                            </div>
+                                                        </div>
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
+
                                         <FormField
                                             control={formUser.control}
                                             name="dateOfBirth"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
+                                                    <FormLabel>Tanggal Lahir</FormLabel>
+
                                                     <FormControl>
                                                         <Input
                                                             data-aos="fade-up"
@@ -570,7 +582,7 @@ const Signup = () => {
                                                 <FormItem className="w-full">
                                                     <FormControl>
                                                         <div data-aos="fade-up" data-aos-delay="600">
-                                                            <p className="font-bold">
+                                                            <p className="font-semibold mb-2">
                                                                 Photo Profile
                                                             </p>
 
@@ -578,7 +590,7 @@ const Signup = () => {
                                                                 {...field}
                                                                 type="file"
                                                                 accept="image/*"
-                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold p-2 rounded-lg"
                                                                 onChange={(e) => {
                                                                     const file = e.target.files ? e.target.files[0] : null;
 

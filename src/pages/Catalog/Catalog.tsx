@@ -315,7 +315,7 @@ const Catalog = () => {
         <div className="w-full flex flex-col min-h-screen items-center bg-orange-50">
             <div className={`${addProduct || addVariant || addEtalase || open.status || showVariantProductHandler.status ? 'hidden' : 'block'} p-5 w-full`}>
                 <div data-aos="zoom-in" className="w-full">
-                    <p className="font-semibold text-2xl">Katalog</p>
+                    <p className="font-semibold text-2xl">Catalog</p>
                 </div>
 
                 <div data-aos="zoom-in" data-aos-delay="100" className="mt-10 relative">

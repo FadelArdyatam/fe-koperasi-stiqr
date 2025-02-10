@@ -134,7 +134,7 @@ const ForgotPassword = () => {
 
     return (
         <div className='w-full flex flex-col min-h-screen items-center justify-center'>
-            <div className='fixed w-full top-0 p-5 flex items-center justify-center bg-orange-400'>
+            <div className='fixed w-full top-0 p-5 flex items-center z-20 justify-center bg-orange-400'>
                 <Link to={'/'} className='absolute left-5 bg-transparent hover:bg-transparent'>
                     <ChevronLeft className='scale-[1.3] text-white' />
                 </Link>
@@ -142,7 +142,7 @@ const ForgotPassword = () => {
                 <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>Lupa Password</p>
             </div>
 
-            <img data-aos="fade-up" data-aos-delay="100" src={logo} className='w-[70%] mt-32' alt="" />
+            <img data-aos="fade-up" data-aos-delay="100" src={logo} className='w-[70%] sm:max-w-max mt-32' alt="" />
 
             <div className='mt-10 text-center p-10'>
                 <p className='text-gray-500' data-aos="fade-up" data-aos-delay="200">Kami akan mengirimkan konfirmasi ke email Anda untuk mengatur ulang password Anda.</p>

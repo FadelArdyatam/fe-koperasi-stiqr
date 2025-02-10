@@ -334,10 +334,10 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                                     <AlertDialogTitle className="font-semibold text-lg">
                                         <CircleAlert />
 
-                                        <p>Are you absolutely sure?</p>
+                                        <p>Apakah Anda benar-benar yakin?</p>
                                     </AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete your payment.
+                                        Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pembayaran Anda secara permanen.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter className="mt-5 flex flex-col gap-3">
@@ -356,7 +356,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </AlertDialog>
                 </div>
 
-                <div className="mt-20 font-medium text-center">
+                <div className="sm:mt-0 mt-10 font-medium text-center">
                     <p className="text-white" data-aos="fade-up">Pindai QR ini melalui Aplikasi Penerbit kamu.</p>
 
                     <p className="text-white font-semibold text-2xl" data-aos="fade-up" data-aos-delay="100">{formatTime(timeLeftOpenBill ?? timeLeft)}</p> {/* Countdown Timer */}
