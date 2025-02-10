@@ -33,6 +33,7 @@ const Signup = () => {
     const [allData, setAllData] = useState<{ ownerName?: string } & (z.infer<typeof FormSchemaUser> | z.infer<typeof FormSchemaMerchant>)[]>([])
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
+    const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
@@ -426,19 +427,42 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Pemilik" {...field} />
+                                                        <Input
+                                                            data-aos="fade-up"
+                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                            placeholder="Nama Pemilik"
+                                                            {...field}
+                                                            onChange={(e) => {
+                                                                const formattedValue = e.target.value
+                                                                    .replace(/\b\w/g, (char) => char.toUpperCase())
+                                                                    .slice(0, 60);
+                                                                field.onChange(formattedValue);
+                                                            }}
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
+
                                         <FormField
                                             control={formUser.control}
                                             name="nik"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <Input data-aos="fade-up" data-aos-delay="100" className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="Nomor Induk Kewarganegaraan" {...field} />
+                                                        <Input
+                                                            data-aos="fade-up"
+                                                            data-aos-delay="100"
+                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                            type="number"
+                                                            placeholder="Nomor Induk Kewarganegaraan"
+                                                            {...field}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value.slice(0, 16);
+                                                                field.onChange(value);
+                                                            }}
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -454,10 +478,10 @@ const Signup = () => {
                                                         <RadioGroup
                                                             onValueChange={field.onChange}
                                                             defaultValue={field.value}
-                                                            className="flex w-full space-x-7"
+                                                            className="flex w-full space-x-7 md:space-x-28"
                                                             data-aos="fade-up" data-aos-delay="200"
                                                         >
-                                                            <FormItem className="flex items-center space-x-2 space-y-0">
+                                                            <FormItem className="flex items-center scale-[1] md:scale-[1.5] space-x-2 space-y-0">
                                                                 <FormControl>
                                                                     <RadioGroupItem value="Laki - Laki" />
                                                                 </FormControl>
@@ -466,7 +490,7 @@ const Signup = () => {
                                                                 </FormLabel>
                                                             </FormItem>
 
-                                                            <FormItem className="flex items-center space-x-2 space-y-0">
+                                                            <FormItem className="flex items-center scale-[1] md:scale-[1.5] space-x-2 space-y-0">
                                                                 <FormControl>
                                                                     <RadioGroupItem value="Perempuan" />
                                                                 </FormControl>
@@ -500,6 +524,7 @@ const Signup = () => {
                                                 </FormItem>
                                             )}
                                         />
+
                                         <FormField
                                             control={formUser.control}
                                             name="email"
@@ -507,12 +532,15 @@ const Signup = () => {
                                                 <FormItem className="w-full">
                                                     <div data-aos="fade-up" data-aos-delay="400">
                                                         <FormControl>
-                                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Email" {...field} />
+                                                            <Input
+                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                                placeholder="toko@gmail.com"
+                                                                {...field}
+                                                                onChange={(e) => field.onChange(e.target.value.toLowerCase())}
+                                                            />
                                                         </FormControl>
-
                                                         <p className="text-gray-500 text-xs mt-2 italic">Mohon pastikan email Anda aktif.</p>
                                                     </div>
-
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
@@ -525,15 +553,16 @@ const Signup = () => {
                                                 <FormItem className="w-full">
                                                     <div data-aos="fade-up" data-aos-delay="500">
                                                         <FormControl>
-                                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp" {...field} />
+                                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="0812..." {...field} />
                                                         </FormControl>
 
-                                                        <p className="text-xs italic text-gray-500 mt-2">Pastikan nomer Anda aktif.</p>
+                                                        <p className="text-xs italic text-gray-500 mt-2">Pastikan nomor HP Anda aktif.</p>
                                                     </div>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
+
                                         <FormField
                                             name="photo"
                                             control={formUser.control}
@@ -556,15 +585,18 @@ const Signup = () => {
                                                                     if (file) {
                                                                         if (file.size > 2 * 1024 * 1024) {
                                                                             alert("File size exceeds 2MB.");
+                                                                            setIsPhotoUploaded(false)
                                                                             return;
                                                                         }
 
                                                                         const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
                                                                         if (!validImageTypes.includes(file.type)) {
                                                                             alert("Invalid file type. Please upload an image (JPEG, PNG, or GIF).");
+                                                                            setIsPhotoUploaded(false)
                                                                             return;
                                                                         }
 
+                                                                        setIsPhotoUploaded(true)
                                                                         field.onChange(file);
                                                                     } else {
                                                                         field.onChange(null);
@@ -572,13 +604,14 @@ const Signup = () => {
                                                                 }}
                                                                 value=""
                                                             />
+
+                                                            {isPhotoUploaded && <p className="text-xs text-green-500 mt-2">Photo berhasil diupload.</p>}
                                                         </div>
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
-
 
                                         <FormField
                                             control={formUser.control}
@@ -689,7 +722,7 @@ const Signup = () => {
                                                             <DropdownMenuTrigger asChild>
                                                                 <div data-aos="fade-up" data-aos-delay="200" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                                     <button type="button">
-                                                                        {field.value || "Select Province"}
+                                                                        {field.value || "Pilih Provinsi"}
                                                                     </button>
                                                                     <ChevronDown />
                                                                 </div>
@@ -741,7 +774,7 @@ const Signup = () => {
                                                                         type="button"
                                                                         style={{ pointerEvents: !selectedProvince ? "none" : "auto" }}
                                                                     >
-                                                                        {field.value || "Select Regency"}
+                                                                        {field.value || "Pilih Kota"}
                                                                     </button>
                                                                     <ChevronDown />
                                                                 </div>
@@ -794,7 +827,7 @@ const Signup = () => {
                                                                         type="button"
                                                                         style={{ pointerEvents: !selectedRegency ? "none" : "auto" }}
                                                                     >
-                                                                        {field.value || "Select District"}
+                                                                        {field.value || "Pilih Kecamatan"}
                                                                     </button>
                                                                     <ChevronDown />
                                                                 </div>
@@ -845,7 +878,7 @@ const Signup = () => {
                                                                         style={{ pointerEvents: !selectedDistrict ? "none" : "auto" }}
 
                                                                     >
-                                                                        {field.value || "Select Village"}
+                                                                        {field.value || "Pilih Kelurahan"}
                                                                     </button>
                                                                     <ChevronDown />
                                                                 </div>
@@ -958,7 +991,7 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp Merchant" {...field} />
+                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="0812..." {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -971,7 +1004,13 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Email Merchant" {...field} />
+                                                        <Input
+                                                            data-aos="fade-up"
+                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                            placeholder="Email Merchant"
+                                                            {...field}
+                                                            onChange={(e) => field.onChange(e.target.value.toLowerCase())}
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

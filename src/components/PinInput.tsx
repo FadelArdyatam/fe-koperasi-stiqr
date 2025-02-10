@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 
-const PinInput = ({email}: {email: string}) => {
+const PinInput = ({ email }: { email: string }) => {
     const [step, setStep] = useState(1); // Step 1: Input PIN pertama, Step 2: Konfirmasi PIN
     const [pin, setPin] = useState<string[]>([]);
     const [confirmPin, setConfirmPin] = useState<string[]>([]);
@@ -43,7 +43,7 @@ const PinInput = ({email}: {email: string}) => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ pin: pinValue,email: email}),
+                body: JSON.stringify({ pin: pinValue, email: email }),
             });
 
             if (response.ok) {
@@ -63,7 +63,7 @@ const PinInput = ({email}: {email: string}) => {
         }
     };
 
-    const handleSubmit = async() => {
+    const handleSubmit = async () => {
         if (pin.join("") === confirmPin.join("")) {
             await handleSetPin(); // Kirim PIN ke endpoint jika cocok
         } else {
@@ -169,7 +169,7 @@ const PinInput = ({email}: {email: string}) => {
 
                     <p className='text-xl text-black font-semibold'>PIN Sukses Dibuat.</p>
 
-                    <p className="text-gray-500 text-sm text-center">Please don't tell your PIN to anyone for your own security even from parties claimed themselves as STIQR.</p>
+                    <p className="text-gray-500 text-sm text-center">Mohon untuk tidak memberitahukan PIN Anda kepada siapapun demi keamanan Anda sendiri meskipun dari pihak yang mengaku sebagai STIQR.</p>
 
                     <Button onClick={() => navigate('/dashboard')} className="uppercase text-white bg-green-400">Saya, Mengerti</Button>
                 </div>

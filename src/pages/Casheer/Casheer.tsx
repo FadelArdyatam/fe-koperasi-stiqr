@@ -442,7 +442,7 @@ const Casheer = () => {
 
                                 <Input
                                     type="number"
-                                    className="text-center w-10 border rounded-md appearance-none"
+                                    className="text-center w-10 sm:w-20 border rounded-md appearance-none"
                                     value={
                                         basket
                                             .filter((item) => item.product === product.product_name)
@@ -557,7 +557,7 @@ const Casheer = () => {
 
                                 <Input
                                     type="number"
-                                    className="text-center w-10 md:w-20 border rounded-md appearance-none"
+                                    className="text-center w-10 sm:w-20 border rounded-md appearance-none"
                                     value={
                                         basket
                                             .filter((item) => item.product === product.product_name)

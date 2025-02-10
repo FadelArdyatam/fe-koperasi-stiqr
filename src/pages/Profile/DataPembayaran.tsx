@@ -24,7 +24,7 @@ interface Account {
 
 const DataPembayaran = () => {
     const [showContent, setShowContent] = useState({ show: false, index: "" });
-    const [isAdding, setIsAdding] = useState({ status: false, section: "" });
+    const [isAdding, setIsAdding] = useState({ status: true, section: "bank" });
     const [showEdit, setShowEdit] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [dataForEdit, setDataForEdit] = useState<Account | null>(null);
@@ -448,6 +448,9 @@ const DataPembayaran = () => {
                                         <FormControl>
                                             <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field} />
                                         </FormControl>
+
+                                        <p className="text-xs italic text-gray-500 mt-2">Pastikan nomor HP DANA Anda aktif.</p>
+
                                         <FormMessage />
                                     </FormItem>
                                 )}

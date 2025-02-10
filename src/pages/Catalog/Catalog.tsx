@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CreditCard, FileText, Home, ScanQrCode, Search, SlidersHorizontal, UserRound } from "lucide-react";
+import { CreditCard, FileText, Home, ScanQrCode, Search, SlidersHorizontal, UserRound, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import Variant from './Variant';
 import Etalase from "./Etalase";
@@ -342,7 +342,13 @@ const Catalog = () => {
                 {showFilterSection && (
                     <div className="fixed w-full h-full bg-black bg-opacity-50 top-0 left-0 z-20 flex items-end">
                         <div data-aos="fade-up" className="w-full bg-white rounded-t-xl p-5">
-                            <p className="font-semibold text-2xl">Kondisi Produk</p>
+                            <div className="flex items-center justify-between w-full">
+                                <p className="font-semibold text-2xl">Kondisi Produk</p>
+
+                                <button type="button" onClick={() => setShowFilterSection(false)}>
+                                    <X />
+                                </button>
+                            </div>
 
                             <div className="mt-5 flex flex-wrap gap-2">
                                 {options.map((option) => (
