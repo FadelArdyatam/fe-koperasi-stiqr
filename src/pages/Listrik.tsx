@@ -42,21 +42,13 @@ const Listrik = () => {
 
     useEffect(() => {
         const checkProfile = async () => {
-            const token = localStorage.getItem("token");
-
-            if (!token) {
-                console.warn("Token tidak ditemukan untuk otorisasi.");
-                return;
-            }
-
             try {
-
                 const responseProducts = await axiosInstance.post("/ayoconnect/products",
                     {
                         "category": "listrik",
-                        "status": "active"
+                        "status": "active",
+                        "biller": type == 'Token Listrik' ? "PLN prepaid" : "PLN postpaid"
                     },);
-
                 setProducts(responseProducts.data.data);
 
                 console.log("Products Response:", responseProducts.data);
@@ -66,11 +58,11 @@ const Listrik = () => {
         };
 
         checkProfile();
-    }, [])
+    }, [type])
 
     const sendBill = async () => {
+        console.log('Selected Product:', selectedProduct)
         try {
-            console.log('Selected Product:', selectedProduct)
 
             // Ambil informasi user dari sessionStorage
             const userItem = sessionStorage.getItem("user");
@@ -113,7 +105,10 @@ const Listrik = () => {
         setType(value);
         AOS.refresh();
         if (value === "Tagihan Listrik") {
-            setNominal(""); // Reset nominal jika tipe "Tagihan Listrik" dipilih
+            console.log('tagihan listrik')
+            console.log(products)
+            setNominal(""); 
+            setSelecteProduct(products[0])
         }
     };
 

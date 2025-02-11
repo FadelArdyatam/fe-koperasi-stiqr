@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import telkomsel from '../images/telkomsel.png'
 import Bill from "@/components/Bill"
 import axiosInstance from "@/hooks/axiosInstance"
 import AOS from "aos";
@@ -194,25 +193,22 @@ const Pulsa = () => {
                 </div>
 
                 <div data-aos="fade-up" data-aos-delay="200" className="mt-10 w-[90%] m-auto flex flex-col gap-5">
-                    <div>
+                    <div className="bg-white shadow-lg rounded-lg p-5 gap-5">
                         <p className="text-gray-500 font-semibold">Provider</p>
-
-                        <input
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            type="text"
-                            placeholder="Search"
-                            className="w-full mt-2 p-5 bg-white shadow-lg"
-                        />
+                        <div className="flex flex-row items-center">
+                            <input
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                type="text"
+                                placeholder="Search"
+                                className="w-full p-3"
+                            />
+                        </div>
                     </div>
-
                     <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
+
                 </div>
 
                 <div className="mt-5 w-[90%] mb-10 m-auto flex flex-col items-center gap-5 shadow-lg">
-                    <div data-aos="fade-up" data-aos-delay="500" className="w-full flex items-center justify-center">
-                        <img src={telkomsel} className="w-[50%]" alt="" />
-                    </div>
-
                     <div className="w-full flex flex-wrap">
                         {searchTerm !== '' ? filteredProducts.map((product, index) => (
                             <button type="button" data-aos={isClicked ? undefined : 'fade-up'} data-aos-delay={index * 100} key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
