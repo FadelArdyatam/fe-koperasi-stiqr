@@ -546,7 +546,7 @@ const Signup = () => {
                                                         <FormControl>
                                                             <Input
                                                                 className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                                placeholder="toko@gmail.com"
+                                                                placeholder="nama@gmail.com"
                                                                 {...field}
                                                                 onChange={(e) => field.onChange(e.target.value.toLowerCase())}
                                                             />
@@ -695,7 +695,7 @@ const Signup = () => {
                                                                     <ChevronDown />
                                                                 </div>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full">
+                                                            <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max">
                                                                 <DropdownMenuSeparator />
                                                                 <DropdownMenuItem onSelect={() => field.onChange("Perorangan")} className="w-full">Perorangan</DropdownMenuItem>
                                                                 <DropdownMenuItem onSelect={() => field.onChange("CV")} className="w-full">CV</DropdownMenuItem>
@@ -751,7 +751,7 @@ const Signup = () => {
                                                                     <ChevronDown />
                                                                 </div>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
+                                                            <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max max-h-64 overflow-y-auto">
                                                                 {loading ? (
                                                                     <div>Loading...</div>
                                                                 ) : (
@@ -804,7 +804,7 @@ const Signup = () => {
                                                                 </div>
                                                             </DropdownMenuTrigger>
                                                             {selectedProvince && (
-                                                                <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
+                                                                <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max max-h-64 overflow-y-auto">
                                                                     {loading ? (
                                                                         <div>Loading...</div>
                                                                     ) : (
@@ -857,7 +857,7 @@ const Signup = () => {
                                                                 </div>
                                                             </DropdownMenuTrigger>
                                                             {selectedRegency && (
-                                                                <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
+                                                                <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max max-h-64 overflow-y-auto">
                                                                     {loading ? (
                                                                         <div>Loading...</div>
                                                                     ) : (
@@ -908,7 +908,7 @@ const Signup = () => {
                                                                 </div>
                                                             </DropdownMenuTrigger>
                                                             {selectedDistrict && ( // Render menu content only if `selectedDistrict` is valid
-                                                                <DropdownMenuContent className="w-full max-h-64 overflow-y-auto">
+                                                                <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max max-h-64 overflow-y-auto">
                                                                     {loading ? (
                                                                         <div>Loading...</div>
                                                                     ) : (

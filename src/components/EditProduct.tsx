@@ -72,6 +72,7 @@ interface EditProductProps {
     open: { id: string; status: boolean };
     products: Array<{
         id: number,
+        detail_product: any,
         product_id: string,
         product_name: string,
         product_sku: string,
@@ -109,7 +110,6 @@ const EditProduct: React.FC<EditProductProps> = ({
     products,
     setOpen,
     editIndex,
-    etalases,
     setVariants,
     variants,
     setReset
@@ -119,7 +119,7 @@ const EditProduct: React.FC<EditProductProps> = ({
     const [loading, setLoading] = useState(true); // State untuk mengelola status loading
     const [error, setError] = useState<string | null>(); // State untuk mengelola
     const [showNotificationVariant, setShowNotificationVariant] = useState(false);
-    const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
+    // const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
     const [showPopUpAddVariant, setShowPopUpAddVariant] = useState(false);
     const [showChoisesInput, setShowChoisesInput] = useState(false);
     const [showEditChoisesInput, setShowEditChoisesInput] = useState({ status: false, index: -1 });
@@ -132,6 +132,8 @@ const EditProduct: React.FC<EditProductProps> = ({
     const [showField, setShowField] = useState({ stock: false, variant: false });
     const [showAddVariant, setShowAddVariant] = useState(false);
     const [showError, setShowError] = useState(false);
+    const [allData, setAllData] = useState<any>([]);
+    const [stock, setStock] = useState({ stock: 0, minimumStock: 0 });
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -142,6 +144,8 @@ const EditProduct: React.FC<EditProductProps> = ({
             const initialVariants = productToEdit.product_variant.map((item) => item.variant.variant_id);
             setSelectedVariants(initialVariants);
         }
+
+        setShowField({ stock: productToEdit?.detail_product?.is_stok, variant: productToEdit?.detail_product?.is_variant });
     }, [productToEdit]);
 
     console.log(editIndex)
@@ -169,7 +173,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                     price: response.data.data.product_price,
                     weight: response.data.data.product_weight?.replace(/g|kg/, ""),
                     description: response.data.data.product_description,
-                    etalase: [], // Sesuaikan jika ada data etalase
+                    // etalase: [], // Sesuaikan jika ada data etalase
                 });
             } catch (err) {
                 console.error("Error fetching product details:", err);
@@ -196,7 +200,7 @@ const EditProduct: React.FC<EditProductProps> = ({
         SKU: z.string().min(1, { message: "SKU is required." }).max(20, { message: "SKU must be less than 20 characters." }),
         price: z.number().min(1, { message: "Price must be greater than 0." }),
         weight: z.string().min(1, { message: "Weight is required." }),
-        etalase: z.array(z.string()).nonempty({ message: "At least one etalase must be selected." }),
+        // etalase: z.array(z.string()).nonempty({ message: "At least one etalase must be selected." }),
         description: z.string().max(100, { message: "Description must be less than 100 characters." }).optional(),
     });
 
@@ -208,7 +212,7 @@ const EditProduct: React.FC<EditProductProps> = ({
             SKU: productToEdit?.product_sku,
             price: productToEdit?.product_price,
             weight: productToEdit?.product_weight?.replace(/g|kg/, ""),
-            etalase: ['semua produk'],
+            // etalase: ['semua produk'],
             description: productToEdit?.product_description,
         },
     });
@@ -227,27 +231,30 @@ const EditProduct: React.FC<EditProductProps> = ({
                 formData.append("product_image", data.photo);
             }
 
-            const response = await axiosInstance.patch(
-                `/product/${editIndex}/allProduct`,
-                formData,
-            );
+            // const response = await axiosInstance.patch(
+            //     `/product/${editIndex}/allProduct`,
+            //     formData,
+            // );
 
-            console.log(response.data)
+            // Update allData dengan FormData (hanya untuk debugging, tidak bisa langsung digunakan di state)
+            setAllData([...allData, Object.fromEntries(formData.entries())]);
 
-            console.log("selected etalase: ", selectedEtalase);
-            console.log("product id: ", response?.data?.data?.product_id);
+            // console.log(response.data)
 
-            const response2 = await axiosInstance.post(
-                "/showcase-product/create",
-                {
-                    product_id: response?.data?.data?.product_id,
-                    showcase_id: selectedEtalase
-                },
-            )
+            // console.log("selected etalase: ", selectedEtalase);
+            // console.log("product id: ", response?.data?.data?.product_id);
 
-            console.log("Updated product:", response.data);
+            // const response2 = await axiosInstance.post(
+            //     "/showcase-product/create",
+            //     {
+            //         product_id: response?.data?.data?.product_id,
+            //         showcase_id: selectedEtalase
+            //     },
+            // )
 
-            console.log(response2.data);
+            // console.log("Updated product:", response.data);
+
+            // console.log(response2.data);
 
             setSection({ addProduct: true, detailProduct: true })
         } catch (error) {
@@ -344,6 +351,28 @@ const EditProduct: React.FC<EditProductProps> = ({
         }
     }
 
+    const addProductHandler = async () => {
+        const data = {
+            is_stok: showField.stock,
+            is_variant: showField.variant,
+            variants: selectedVariants,
+            stok: stock.stock,
+            stok_minimum: stock.minimumStock,
+        };
+
+        // Menggabungkan semua objek dalam `allData` dengan `data`
+        const mergedData = allData.reduce((acc: any, obj: any) => ({ ...acc, ...obj }), {});
+        mergedData.details_products = data;
+
+        console.log("Merged Data:", mergedData);
+
+        const update = await axiosInstance.patch(`/product/${editIndex}/allProduct`, mergedData)
+        console.log(update)
+
+        setOpen({ id: "", status: false })
+        setReset(true)
+    }
+
     const addNewChoice = () => {
         if (newChoiceName && newChoicePrice) {
             if (newChoicePrice < 0) {
@@ -386,6 +415,8 @@ const EditProduct: React.FC<EditProductProps> = ({
     };
 
     console.log("Selected variants:", selectedVariants);
+
+    console.log("allData", allData);
 
     return (
         <>
@@ -579,7 +610,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                 />
 
                                 {/* Etalase */}
-                                <FormField
+                                {/* <FormField
                                     control={form.control}
                                     name="etalase"
                                     render={({ field }) => (
@@ -612,7 +643,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                             <FormMessage />
                                         </FormItem>
                                     )}
-                                />
+                                /> */}
 
                                 {/* Variant */}
                                 {/* <FormField
@@ -652,7 +683,7 @@ const EditProduct: React.FC<EditProductProps> = ({
 
                                 {/* ... */}
                                 <Button data-aos="fade-up" type="submit" className="w-full bg-blue-500 text-white">
-                                    Update
+                                    Lanjutkan
                                 </Button>
                             </form>
                         </Form>
@@ -681,13 +712,13 @@ const EditProduct: React.FC<EditProductProps> = ({
                                         <div className="flex flex-col gap-2">
                                             <p className="font-semibold">Jumlah Stok</p>
 
-                                            <Input placeholder="1" type="number" />
+                                            <Input onChange={(e) => setStock({ stock: Number(e.target.value), minimumStock: stock.minimumStock })} placeholder="1" type="number" />
                                         </div>
 
                                         <div className="flex flex-col gap-2">
                                             <p className="font-semibold">Stok Minimum</p>
 
-                                            <Input placeholder="1" type="number" />
+                                            <Input onChange={(e) => setStock({ stock: stock.stock, minimumStock: Number(e.target.value) })} placeholder="1" type="number" />
                                         </div>
                                     </div>
 
@@ -720,7 +751,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                 </div>
                             </div>
 
-                            <Button className="bg-orange-500 text-white" onClick={() => { setOpen({ id: "", status: false }); setReset(true) }}>Simpan</Button>
+                            <Button className="bg-orange-500 text-white" onClick={addProductHandler}>Simpan</Button>
                         </div>
 
                         {/* Variant Control */}
@@ -752,7 +783,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                             </div>
                         )}
 
-                        <Button data-aos="fade-up" onClick={deleteHandler} className="w-full mt-5 bg-red-500 text-white">Delete</Button>
+                        <Button onClick={deleteHandler} className={`${showAddVariant ? 'hidden' : 'block'} w-full mt-5 bg-red-500 text-white`}>Delete</Button>
                     </div>
                 )}
             </div>
@@ -1086,7 +1117,6 @@ const EditProduct: React.FC<EditProductProps> = ({
             {/* Success Notification for Variant */}
             {showNotificationVariant && <Notification message="Varian berhasil ditambahkan!" onClose={() => setShowNotificationVariant(false)} status="success" />}
         </>
-
     );
 };
 

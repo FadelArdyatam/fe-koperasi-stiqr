@@ -24,6 +24,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
     const [pin, setPin] = useState<string[]>([]);
     const [showNotification, setShowNotification] = useState(false);
     const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleNumberClick = (number: string) => {
@@ -45,6 +46,9 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
         console.log("data from bill: ", data)
 
         try {
+            setLoading(true);
+            setShowPinInput(false)
+
             // Mengirim request ke endpoint /payment
             const response = await axiosInstance.post("/ayoconnect/payment", {
                 accountNumber: data.phoneNumber,
@@ -55,7 +59,10 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                 pin: pin.join(''),
             });
 
-            console.log("Payment Response:", response.data);
+            if (response.data) {
+                setLoading(false);
+                console.log("Payment Response:", response.data);
+            }
 
             // Tampilkan notifikasi sukses setelah API call berhasil
             setShowNotification(true);
@@ -202,6 +209,13 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                     <Button onClick={backToHomeHandler} className="w-full">Back To Home</Button>
                 </div>
             </div>
+
+            {/* Loading */}
+            {loading && (
+                <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                </div>
+            )}
         </>
     );
 };

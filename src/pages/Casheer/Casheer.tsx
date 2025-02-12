@@ -6,7 +6,7 @@ import { ArrowLeft, Search, SlidersHorizontal, ShoppingBasket } from "lucide-rea
 import { useEffect, useState, useCallback, useRef } from "react"
 import { Link } from "react-router-dom"
 import takeAway from "../../images/take-away.png"
-import dineIn from "../../images/dine-in.png"
+import dineIn from "../../images/bayar-sekarang.png"
 import OrderSummary from "./OrderSummary"
 import AOS from "aos";
 import "aos/dist/aos.css";

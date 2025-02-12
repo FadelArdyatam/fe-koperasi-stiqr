@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { ChevronLeft } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronUp } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import Bill from "@/components/Bill"
@@ -7,6 +7,7 @@ import axiosInstance from "@/hooks/axiosInstance"
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Notification from "@/components/Notification"
+import provider from "@/data/provider.json"
 
 interface BillData {
     product: string;
@@ -30,6 +31,9 @@ const Pulsa = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isClicked, setIsClicked] = useState(false);
     const [error, setError] = useState({ show: false, message: "" });
+    const [loading, setLoading] = useState(false)
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [selectedProvider, setSelectedProvider] = useState("")
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -78,6 +82,8 @@ const Pulsa = () => {
             const userItem = sessionStorage.getItem("user");
             const userData = userItem ? JSON.parse(userItem) : null;
 
+            setLoading(true);
+
             const response = await axiosInstance.post("/ayoconnect/inquiry", {
                 accountNumber: phoneNumber,
                 productCode: selectedProduct.code,
@@ -85,7 +91,10 @@ const Pulsa = () => {
                 amount: selectedProduct.amount,
             });
 
-            console.log("Inquiry Response:", response.data);
+            if (response.data) {
+                setLoading(false);
+                console.log("Inquiry Response:", response.data);
+            }
 
             const data = {
                 product: selectedProduct.name,
@@ -156,16 +165,26 @@ const Pulsa = () => {
             </div>
 
             <div className={`${showBill ? 'hidden' : 'block'}`}>
-                <div data-aos="fade-up" data-aos-delay="100" className="relative mt-[105px] w-full p-8 shadow-lg flex items-center gap-5 justify-center">
-                    <p className="absolute left-5">Saldo</p>
+                <div data-aos="fade-up" data-aos-delay="100" className="relative mt-[70px] text-xl w-full p-8 shadow-lg flex flex-col items-center gap-2 justify-center">
+                    <p className="font-bold">Saldo</p>
 
-                    <p className="font-semibold text-orange-500 m-auto">{Number(balance).toLocaleString("id-ID", {
+                    <p className="font-semibold text-orange-500 text-2xl">{Number(balance).toLocaleString("id-ID", {
                         style: "currency",
                         currency: "IDR",
                     })}</p>
                 </div>
 
-                <div data-aos="fade-up" data-aos-delay="300" className="mt-5 w-[90%] m-auto flex flex-col items-center gap-5">
+                <div data-aos="fade-up" data-aos-delay="400" className="mt-10 w-[90%] m-auto flex flex-row items-center justify-center gap-5">
+                    <Button onClick={() => setCategoryHandler("pulsa")} className="bg-orange-400 text-white w-full">
+                        Pulsa
+                    </Button>
+
+                    <Button onClick={() => setCategoryHandler("paket data")} className="bg-orange-400 text-white w-full">
+                        Paket Data
+                    </Button>
+                </div>
+
+                <div data-aos="fade-up" data-aos-delay="300" className="mt-10 w-[90%] m-auto flex flex-col items-center gap-5">
                     <input
                         onChange={(e) => {
                             const value = e.target.value;
@@ -182,14 +201,33 @@ const Pulsa = () => {
                     <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
                 </div>
 
-                <div data-aos="fade-up" data-aos-delay="400" className="mt-10 w-[90%] m-auto flex flex-row items-center justify-center gap-5">
-                    <Button onClick={() => setCategoryHandler("pulsa")} className="bg-orange-400 text-white w-full">
-                        Pulsa
-                    </Button>
+                <div data-aos="fade-up" className="relative w-[90%] m-auto mt-5">
+                    <button
+                        type="button"
+                        className="p-3 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4] text-left border rounded-md"
+                        onClick={() => setDropdownOpen(!dropdownOpen)}
+                    >
+                        {selectedProvider || "Select Provider"}
 
-                    <Button onClick={() => setCategoryHandler("paket data")} className="bg-orange-400 text-white w-full">
-                        Paket Data
-                    </Button>
+                        {dropdownOpen ? <ChevronUp /> : <ChevronDown />}
+                    </button>
+
+                    {dropdownOpen && (
+                        <ul className="left-0 mt-1 w-full bg-white border rounded-md shadow-lg max-h-64 overflow-y-auto z-50">
+                            {provider.brand.map((item, index) => (
+                                <li
+                                    key={index}
+                                    className="p-3 hover:bg-gray-200 cursor-pointer"
+                                    onClick={() => {
+                                        setSelectedProvider(item);
+                                        setDropdownOpen(false);
+                                    }}
+                                >
+                                    {item}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
 
                 <div data-aos="fade-up" data-aos-delay="200" className="mt-10 w-[90%] m-auto flex flex-col gap-5">
@@ -226,6 +264,12 @@ const Pulsa = () => {
             {showBill && dataBill && <Bill data={dataBill} marginTop={true} />}
 
             {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
+
+            {loading && (
+                <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                </div>
+            )}
         </div>
     )
 }

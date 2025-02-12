@@ -269,10 +269,15 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
 
                                         <Input
                                             className="mt-3"
-                                            type="number"
+                                            inputMode="numeric"  // Menampilkan keyboard angka di mobile
+                                            pattern="[0-9]*"     // Mencegah karakter non-angka
+                                            type="text"
                                             placeholder="Harga"
-                                            value={newChoicePrice}
-                                            onChange={(e) => setNewChoicePrice(Number(e.target.value))}
+                                            value={formatRupiah(newChoicePrice.toString())}
+                                            onChange={(e) => {
+                                                const rawValue = e.target.value.replace(/[^0-9]/g, ""); // Hanya ambil angka
+                                                setNewChoicePrice(rawValue ? Number(rawValue) : ""); // Simpan angka saja tanpa format
+                                            }}
                                         />
 
                                         {showError && <p className="text-red-500 text-sm">Harga harus positif</p>}

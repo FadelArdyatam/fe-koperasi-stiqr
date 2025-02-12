@@ -28,6 +28,7 @@ import Booking from './pages/Booking/Booking.tsx'
 import PaymentSuccess from './components/PaymentSuccess.tsx'
 import ModalExpired from './components/ModalExpired.tsx'
 import DataCustomer from './pages/Profile/DataCustomer.tsx'
+import Customer from './pages/Customer.tsx'
 
 const router = createBrowserRouter([
   {
@@ -129,6 +130,10 @@ const router = createBrowserRouter([
   {
     path: '/payment-success',
     element: <PaymentSuccess />
+  },
+  {
+    path: '/customer',
+    element: <Customer />
   }
 ], {
   future: {

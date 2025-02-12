@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, CircleCheck } from "lucide-react";
+import { ChevronLeft, CircleCheck, Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,6 +23,7 @@ interface Role {
 }
 const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess }) => {
     const [showNotification, setShowNotification] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -33,7 +34,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
             message: "Nama Tidak boleh Kosong",
         }).max(50),
         phone_number: z.string().min(10, {
-            message: "Nomor telepon tidak boleh kurang dari 10 karakter",
+            message: "Nomor telepon tidak boleh kosong",
         }).max(13),
         email: z.string().email(),
         role_name: z.string().min(2).max(50),
@@ -154,11 +155,17 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                                     <FormControl>
                                         <Input
                                             placeholder="Enter phone number"
+                                            type="text" // Gunakan text agar tidak ada spinner di input number
+                                            inputMode="numeric" // Menampilkan keyboard angka di mobile
+                                            pattern="[0-9]*" // Memastikan hanya angka yang bisa diketik
+                                            maxLength={15} // Batasi maksimal 15 digit
                                             {...field}
                                             onChange={(e) => {
-                                                field.onChange(e);
+                                                const rawValue = e.target.value.replace(/\D/g, ""); // Hanya izinkan angka
+                                                if (rawValue.length <= 15) {
+                                                    field.onChange(rawValue);
+                                                }
                                             }}
-                                            type="number"
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -195,14 +202,20 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                                 <FormItem data-aos="fade-up" data-aos-delay="400">
                                     <FormLabel>Password</FormLabel>
                                     <FormControl>
-                                        <Input
-                                            placeholder="Enter password"
-                                            {...field}
-                                            onChange={(e) => {
-                                                field.onChange(e);
-                                            }}
-                                            type="password"
-                                        />
+                                        <div className="relative">
+                                            <Input
+                                                placeholder="Enter password"
+                                                {...field}
+                                                onChange={(e) => {
+                                                    field.onChange(e);
+                                                }}
+                                                type={showPassword ? "text" : "password"}
+                                            />
+
+                                            <button className="absolute right-5 top-2" type="button" onClick={() => setShowPassword(!showPassword)}>
+                                                {showPassword ? <EyeOff /> : <Eye />}
+                                            </button>
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft, Package } from "lucide-react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { Button } from "./ui/button";
@@ -43,6 +43,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
         showcase_product: {
             product: {
                 id: any;
+                product_id: string;
                 product_name: string;
                 product_price: string;
             };
@@ -51,6 +52,8 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
 
     const [etalaseToEdit, setEtalaseToEdit] = useState<Showcase | null>(null);
     const [showSetProductInput, setShowSetProductInput] = useState(false);
+    const [selectedProducts, setSelectedProducts] = useState<{ product_id: string }[]>([]);
+    const [showProductAfterSelected, setShowProductAfterSelected] = useState<{ product_id: string; product_name: string; product_price: number }[]>([]);
     // const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
@@ -59,20 +62,15 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
 
     const FormSchema = z.object({
         name: z.string().min(1, { message: "Name is required." }).max(50, { message: "Name must be less than 50 characters." }),
-        products: z.array(z.number()),
+        products: z.array(z.object({ product_id: z.string() })),
     });
 
-    const form = useForm<z.infer<typeof FormSchema>>({
+    const form = useForm<z.infer<typeof FormSchema & { products: { product_id: string }[] }>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
             name: "",
             products: [],
         },
-    });
-
-    const watchedProducts = useWatch({
-        control: form.control,
-        name: "products",
     });
 
     useEffect(() => {
@@ -84,8 +82,10 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
 
                 form.reset({
                     name: data.showcase_name,
-                    products: data.showcase_product.map((p: any) => p.product.id),
+                    products: data.showcase_product.map((p: any) => ({ product_id: p.product.product_id })),
                 });
+
+                setSelectedProducts(data.showcase_product.map((p: any) => ({ product_id: p.product.product_id })));
             } catch (error: any) {
                 console.error("Failed to fetch showcase details:", error.message);
             }
@@ -95,15 +95,18 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
     }, [editIndex, form]);
 
     const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-        console.log("Form submitted:", data);
-        const token = localStorage.getItem("token");
+
+        const payload = {
+            showcase_id: etalaseToEdit?.showcase_id,
+            products: data.products,
+        }
+
+        console.log("Form submitted:", payload);
 
         try {
             if (etalaseToEdit) {
                 const response = await axiosInstance.patch(
-                    `/showcase/${etalaseToEdit.showcase_id}/update`,
-                    { showcase_name: data.name },
-                    { headers: { Authorization: `Bearer ${token}` } }
+                    `/showcase/${etalaseToEdit.showcase_id}/update`, payload
                 );
 
                 console.log("API Response:", response.data);
@@ -129,16 +132,27 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
         }
     };
 
-    const toggleProductSelection = (productId: number) => {
-        const currentProducts = form.getValues("products");
+    const toggleProductSelection = (index: number, productId: string) => {
+        console.log(index)
+
+        const currentProducts = form.getValues("products").map(p => p.product_id);
+
+        let updatedProducts;
+
         if (currentProducts.includes(productId)) {
-            form.setValue(
-                "products",
-                currentProducts.filter((id) => id !== productId)
-            );
+            updatedProducts = currentProducts.filter(id => id !== productId);
         } else {
-            form.setValue("products", [...currentProducts, productId]);
+            updatedProducts = [...currentProducts, productId];
         }
+
+        // Perbarui state selectedProducts sebagai array string product_id
+        setSelectedProducts(updatedProducts.map(id => ({ product_id: id })));
+
+        // Perbarui semua selected products
+        setShowProductAfterSelected(products.filter(product => updatedProducts.includes(product.product_id)));
+
+        // Perbarui nilai form dalam format yang benar
+        form.setValue("products", updatedProducts.map(id => ({ product_id: id } as { product_id: string })));
     };
 
     return (
@@ -186,7 +200,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
                             </div>
 
                             <div className="mt-5 space-y-5">
-                                {etalaseToEdit?.showcase_product?.map((item, index) => (
+                                {showProductAfterSelected.length === 0 ? etalaseToEdit?.showcase_product?.map((item, index) => (
                                     <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="flex items-center gap-4 p-2 border rounded-md">
                                         <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-md">
                                             <Package className="text-gray-500" />
@@ -201,11 +215,32 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
 
                                         <input
                                             type="checkbox"
-                                            checked={watchedProducts.includes(item.product.id)}
-                                            onChange={() => toggleProductSelection(item.product.id)}
+                                            checked={selectedProducts.some(p => p.product_id === item.product.product_id)}
+                                            onChange={() => toggleProductSelection(index, item.product.product_id)}
                                         />
                                     </div>
-                                ))}
+                                )) : (
+                                    showProductAfterSelected.map((product, index) => (
+                                        <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="flex items-center gap-4 p-2 border rounded-md">
+                                            <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-md">
+                                                <Package className="text-gray-500" />
+                                            </div>
+
+                                            <div className="flex-1">
+                                                <p className="text-lg font-medium">{product.product_name}</p>
+                                                <p className="text-sm text-gray-500">
+                                                    Rp {new Intl.NumberFormat("id-ID").format(Number(product.product_price))}
+                                                </p>
+                                            </div>
+
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedProducts.some(p => p.product_id === product.product_id)}
+                                                onChange={() => toggleProductSelection(index, product.product_id)}
+                                            />
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
 
@@ -246,8 +281,8 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
 
                                 <input
                                     type="checkbox"
-                                    checked={watchedProducts.includes(product.id)}
-                                    onChange={() => toggleProductSelection(product.id)}
+                                    checked={selectedProducts.some(p => p.product_id === product.product_id)}
+                                    onChange={() => toggleProductSelection(index, product.product_id)}
                                 />
                             </label>
                         ))}

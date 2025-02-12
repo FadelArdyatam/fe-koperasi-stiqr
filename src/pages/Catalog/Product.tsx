@@ -33,6 +33,7 @@ interface ShowcaseProduct {
 
 interface ProductType {
     id: number;
+    detail_product: any;
     product_id: string;
     product_name: string;
     product_sku: string;
@@ -135,6 +136,8 @@ const Product: React.FC<ProductProps> = ({
             id,
             status: true,
         });
+
+        setReset(false);
     };
 
     const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;

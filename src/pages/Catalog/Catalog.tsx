@@ -30,6 +30,7 @@ import "aos/dist/aos.css";
 
 interface Product {
     id: number;
+    detail_product: any;
     product_id: string;
     product_name: string;
     product_sku: string;

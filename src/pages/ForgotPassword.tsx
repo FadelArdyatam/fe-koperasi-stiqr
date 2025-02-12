@@ -1,6 +1,6 @@
-import { Check, ChevronLeft, MailCheck } from 'lucide-react'
+import { ChevronLeft, MailCheck } from 'lucide-react'
 import logo from '../images/logo.png'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Form, FormField, FormItem, FormControl, FormMessage } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -13,13 +13,11 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 
 const ForgotPassword = () => {
-    const [Notification, setNotification] = useState({ status: false, address: '', notificationSuccess: false })
+    const [Notification, setNotification] = useState({ status: false, address: '', notificationSuccess: true })
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
-
-    const navigate = useNavigate();
 
     // For form email
     const FormEmailSchema = z.object({
@@ -44,7 +42,7 @@ const ForgotPassword = () => {
 
             console.log("Success:", response.data);
 
-            setNotification({ status: true, address: data.email, notificationSuccess: false })
+            setNotification({ status: true, address: data.email, notificationSuccess: true })
         } catch (error) {
             console.error("Error submitting email:", error);
 
@@ -127,7 +125,7 @@ const ForgotPassword = () => {
     // //
 
     const closeNotificationHandler = () => {
-        setNotification({ status: false, address: '', notificationSuccess: false })
+        setNotification({ status: false, address: '', notificationSuccess: true })
     }
 
     console.log(Notification.notificationSuccess)
@@ -142,14 +140,14 @@ const ForgotPassword = () => {
                 <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>Lupa Password</p>
             </div>
 
-            <img data-aos="fade-up" data-aos-delay="100" src={logo} className='w-[70%] sm:max-w-max mt-32' alt="" />
+            <img data-aos="fade-up" data-aos-delay="100" src={logo} className='w-[70%] sm:max-w-[300px] mt-32' alt="" />
 
             <div className='mt-10 text-center p-10'>
                 <p className='text-gray-500' data-aos="fade-up" data-aos-delay="200">Kami akan mengirimkan konfirmasi ke email Anda untuk mengatur ulang password Anda.</p>
 
                 <>
                     <Form {...formEmail}>
-                        <form onSubmit={formEmail.handleSubmit(onSubmitEmail)} className={`${Notification.status ? 'hidden' : 'block'}`}>
+                        <form onSubmit={formEmail.handleSubmit(onSubmitEmail)} className={`${!Notification.notificationSuccess ? 'hidden' : 'block'}`}>
                             <FormField
                                 control={formEmail.control}
                                 name="email"
@@ -176,7 +174,7 @@ const ForgotPassword = () => {
                         </form>
                     </Form>
 
-                    <div className={`${Notification.status ? 'flex' : 'hidden'} items-center justify-center fixed bg-black bg-opacity-50 left-0 right-0 top-0 bottom-0`}>
+                    <div className={`${Notification.notificationSuccess && Notification.address !== '' ? 'flex' : 'hidden'} items-center justify-center fixed bg-black bg-opacity-50 left-0 right-0 top-0 bottom-0`}>
                         {Notification.status && (
                             <div className="w-[90%] bg-white p-3 mt-5 rounded-lg flex items-center flex-col gap-5">
                                 <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-green-400'>
@@ -191,55 +189,25 @@ const ForgotPassword = () => {
                             </div>
                         )}
                     </div>
+
+                    <div className={`${Notification.notificationSuccess === false ? 'flex' : 'hidden'} items-center justify-center fixed bg-black bg-opacity-50 left-0 right-0 top-0 bottom-0`}>
+                        {Notification.status && (
+                            <div className="w-[90%] bg-white p-3 mt-5 rounded-lg flex items-center flex-col gap-5">
+                                <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-red-400'>
+                                    <MailCheck className='scale-[1.5]' />
+                                </div>
+
+                                <p className="text-orange-400 font-semibold text-xl">Gagal mengirim email</p>
+
+                                <p className='text-sm text-gray-500'>{Notification.address}</p>
+
+                                <Button onClick={closeNotificationHandler} className='bg-red-400 text-white'>Tutup</Button>
+                            </div>
+                        )}
+                    </div>
                 </>
 
-                {/* {showAddNewPassword && (
-                    <Form {...formNewPassword}>
-                        <form onSubmit={formNewPassword.handleSubmit(onSubmitNewPassword)} className={`${Notification.status ? 'hidden' : 'block'}`}>
-                            <FormField
-                                control={formNewPassword.control}
-                                name="password"
-                                render={({ field }) => (
-                                    <FormItem className="w-full mt-10">
-                                        <FormControl>
-                                            <input
-                                                type="password"
-                                                placeholder="Password Baru"
-                                                className="rounded-sm border border-black px-4 w-full py-3"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={formNewPassword.control}
-                                name="confirmPassword"
-                                render={({ field }) => (
-                                    <FormItem className="w-full mt-10">
-                                        <FormControl>
-                                            <input
-                                                type="password"
-                                                placeholder="Konfirmasi Password Baru"
-                                                className="rounded-sm border border-black px-4 w-full py-3"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <Button type="submit" className="bg-[#7ED321] px-5 py-3 mt-10 w-full text-white rounded-lg">
-                                Kirim
-                            </Button>
-                        </form>
-                    </Form>
-                )} */}
-
-                <div className={`${Notification.notificationSuccess ? 'flex' : 'hidden'} items-center justify-center fixed bg-black bg-opacity-50 left-0 right-0 top-0 bottom-0`}>
+                {/* <div className={`${Notification.notificationSuccess ? 'flex' : 'hidden'} items-center justify-center fixed bg-black bg-opacity-50 left-0 right-0 top-0 bottom-0`}>
                     <div className="w-[90%] bg-white p-3 mt-5 rounded-lg flex items-center flex-col gap-5">
                         <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-green-400'>
                             <Check className='scale-[1.5]' />
@@ -249,9 +217,9 @@ const ForgotPassword = () => {
 
                         <Button onClick={() => navigate('/')} className='bg-green-400 text-white'>Login</Button>
                     </div>
-                </div>
+                </div> */}
             </div>
-        </div>
+        </div >
     )
 }
 

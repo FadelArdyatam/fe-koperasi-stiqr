@@ -69,6 +69,7 @@ interface Choice {
 interface AddProductProps {
     setProducts: (products: Array<{
         id: number,
+        detail_product: any;
         product_id: string,
         product_name: string,
         product_sku: string,
@@ -89,6 +90,7 @@ interface AddProductProps {
 
     products: Array<{
         id: number,
+        detail_product: any;
         product_id: string,
         product_name: string,
         product_sku: string,
@@ -196,6 +198,10 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         },
     });
 
+    console.log("selectedEtalase", selectedEtalase)
+
+    console.log("selectedVariant", selectedVariants)
+
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         // Buat objek FormData
         const formData = new FormData();
@@ -208,6 +214,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         formData.append("product_price", data.product_price.toString()); // Pastikan angka dikonversi ke string
         formData.append("product_status", "true"); // FormData tidak mendukung boolean langsung
         formData.append("product_description", data.product_description || "");
+        formData.append("showcase_id", selectedEtalase || "1"); // Jika tidak ada etalase yang dipilih, gunakan etalase "Semua Produk"
 
         // Ambil merchant_id dari sessionStorage
         const merchantId = sessionStorage.getItem("user")
@@ -223,7 +230,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
         console.log("FormData Debug:");
         for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1]); // Debugging untuk melihat isi FormData
+            console.log(pair[0], pair[1], typeof pair[1]); // Cek apakah `product_image` terbaca sebagai `File`
         }
 
         // Update allData dengan FormData (hanya untuk debugging, tidak bisa langsung digunakan di state)
@@ -343,32 +350,35 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
         // Menggabungkan semua objek dalam `allData` dengan `data`
         const mergedData = allData.reduce((acc: any, obj: any) => ({ ...acc, ...obj }), {});
+        mergedData.details_products = data;
 
-        // Buat FormData
-        const formData = new FormData();
+        console.log("Merged Data:", mergedData);
 
-        // Tambahkan data dari allData ke FormData
-        Object.keys(mergedData).forEach((key) => {
-            const value = mergedData[key];
+        // // Buat FormData
+        // const formData = new FormData();
 
-            // Jika nilai adalah array atau objek, ubah ke JSON string
-            if (typeof value === "object" && value !== null) {
-                formData.append(key, JSON.stringify(value));
-            } else {
-                formData.append(key, value);
-            }
-        });
+        // // Tambahkan data dari allData ke FormData
+        // Object.keys(mergedData).forEach((key) => {
+        //     const value = mergedData[key];
 
-        // Tambahkan `details_products`
-        formData.append("details_products", JSON.stringify(data));
+        //     // Jika nilai adalah array atau objek, ubah ke JSON string
+        //     if (typeof value === "object" && value !== null) {
+        //         formData.append(key, JSON.stringify(value));
+        //     } else {
+        //         formData.append(key, value);
+        //     }
+        // });
 
-        console.log("Final FormData:");
-        for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1]); // Debugging isi FormData
-        }
+        // // Tambahkan `details_products`
+        // formData.append("details_products", JSON.stringify(data));
+
+        // console.log("Final FormData:");
+        // for (let pair of formData.entries()) {
+        //     console.log(pair[0], pair[1]); // Debugging isi FormData
+        // }
 
         try {
-            const response = await axiosInstance.post("/product/create", formData, {
+            const response = await axiosInstance.post("/product/create", mergedData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -435,10 +445,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         );
     };
 
-    console.log("Etalase", etalases)
-
-    console.log("Selected Variants", selectedVariants)
-
     console.log("All Data", allData)
 
     return (
@@ -479,7 +485,8 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                                 onChange={(e) => {
                                                     const file = e.target.files?.[0];
                                                     if (file) {
-                                                        field.onChange(file);
+                                                        console.log("Selected file:", file); // Debugging file
+                                                        field.onChange(file); // Simpan file ke state form
                                                         setImagePreview(URL.createObjectURL(file));
                                                     }
                                                 }}
@@ -789,7 +796,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                         type="checkbox"
                                         name="variant"
                                         value={variant.variant_id}
-                                        checked={selectedVariants.some(variant => variant.variant_id === variant.variant_id)}
+                                        checked={selectedVariants.some((selected) => selected.variant_id === variant.variant_id)}
                                         onChange={() => handleVariantChange(variant.variant_id)}
                                     />
                                     {variant?.variant_name}
@@ -1121,7 +1128,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                 />
 
                                 {/* Products */}
-                                <FormField
+                                {/* <FormField
                                     control={formVariant.control}
                                     name="products"
                                     render={({ field }) => (
@@ -1154,7 +1161,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                             <FormMessage />
                                         </FormItem>
                                     )}
-                                />
+                                /> */}
 
                                 <Button data-aos="fade-up" data-aos-delay="600" type="submit" className="w-full bg-green-500 text-white">
                                     Simpan Varian

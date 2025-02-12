@@ -49,7 +49,7 @@ const Profile = () => {
                         <ChevronLeft className='scale-[1.3] text-white' />
                     </Link>
 
-                    <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>Settings</p>
+                    <p data-aos="zoom-in" data-aos-once="true" className='font-semibold m-auto text-xl text-white text-center'>Settings</p>
                 </div>
 
                 <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -88,7 +88,7 @@ const Profile = () => {
 
                 <div className="bg-white w-[90%] -translate-y-20 p-5 rounded-lg shadow-lg z-20">
                     <div className="flex gap-5 items-center">
-                        <div data-aos="fade-up" className="w-20 h-20 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+                        <div data-aos="fade-up" data-aos-once="true" className="w-20 h-20 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
                             {data?.photo ? (
                                 <img
                                     src={`${urlImage}/uploads/photos/${data?.photo}`}
@@ -100,20 +100,20 @@ const Profile = () => {
                             )}
                         </div>
 
-                        <div data-aos="fade-up" data-aos-delay="100" className="flex flex-col gap-3">
+                        <div data-aos="fade-up" data-aos-once="true" className="flex flex-col gap-3">
                             <p className="text-xl font-semibold">{data?.username || data?.name}</p>
                             <p className="text-sm text-gray-500">{data?.email}</p>
                         </div>
                     </div>
 
-                    <Button data-aos="fade-up" data-aos-delay="300" onClick={handleSignOut} className="w-full mt-5 bg-orange-400">
+                    <Button data-aos="fade-up" data-aos-once="true" onClick={handleSignOut} className="w-full mt-5 bg-orange-400">
                         Sign Out
                     </Button>
                 </div>
 
 
-                <div className="bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20 mb-10">
-                    <Link data-aos="fade-up" data-aos-delay="400" to={"/profile/security"} className="flex items-center gap-5 justify-between">
+                <div className="bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20 mb-20">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/security"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Keamanan</p>
 
@@ -125,7 +125,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" data-aos-delay="500" to={"/profile/owner-data"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/owner-data"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Data Pemilik</p>
 
@@ -137,7 +137,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" data-aos-delay="600" to={"/profile/merchant-data"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/merchant-data"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Data Merchant</p>
 
@@ -149,7 +149,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" data-aos-delay="700" to={"/profile/customer-data"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/customer-data"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Data Customer</p>
 
@@ -161,7 +161,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" data-aos-delay="800" to={"/profile/payment-data"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/payment-data"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Data Pembayaran</p>
 
@@ -173,7 +173,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <button data-aos="fade-up" onClick={() => setShowTermsandConditions(true)} className="flex items-center w-full gap-5 justify-between">
+                    <button data-aos="fade-up" data-aos-once="true" onClick={() => setShowTermsandConditions(true)} className="flex items-center w-full gap-5 justify-between">
                         <div className="flex flex-col items-start">
                             <p>Syarat & Ketentuan</p>
 
@@ -185,7 +185,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" to={"/profile/history"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/history"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Riwayat</p>
 
@@ -197,7 +197,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" to={"/profile/employee"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/employee"} className="flex items-center gap-5 justify-between">
                         <div>
                             <p>Pegawai</p>
 
@@ -209,7 +209,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" to={"/profile/printer"} className="flex items-center gap-5 justify-between ">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/printer"} className="flex items-center gap-5 justify-between ">
                         <div>
                             <p>Printer</p>
 

@@ -134,6 +134,22 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
         }
     }
 
+    const handleCancelPayment = async () => {
+        try {
+            const response = await axiosInstance.post("/sales/cancel-payment", {
+                orderId: orderId
+            })
+            if (response.data.success) {
+                if (setShowQRCode) {
+                    setShowQRCode(false);
+                }
+                navigate('/dashboard')
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
     console.log("Basket:", basket);
 
     return (
@@ -144,7 +160,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                         <div className="flex items-center gap-5">
                             <button onClick={() => { navigate("/dashboard") }}><ArrowLeft /></button>
 
-                            <p data-aos="zoom-in" className="font-semibold text-2xl">Pesanan Diproses</p>
+                            <p data-aos="zoom-in" className="font-semibold text-2xl">{type === "detail" ? 'Detail Pesanan' : 'Pesanan Diproses'}</p>
                         </div>
                     </div>
                 </div>
@@ -153,8 +169,8 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                     <div data-aos="fade-up" data-aos-delay="100" className="w-full flex items-center gap-5 justify-between">
                         <p className="font-semibold text-xl">Informasi Pesanan</p>
 
-                        <div className="bg-orange-100 text-orange-400 text-sm p-2 rounded-full text-center">
-                            <p>Belum Dibayar</p>
+                        <div className={`${basket.status === 'done' ? 'bg-green-100 text-green-400' : basket.status === 'inprogress' ? 'bg-orange-100 text-orange-400' : basket.status === 'cancel' ? 'bg-red-100 text-red-400' : 'bg-orange-100 text-orange-400'} text-sm p-2 rounded-full text-center`}>
+                            <p>{basket.status === "done" ? 'Sudah Dibayar' : basket.status === "inprogress" ? 'Belum Dibayar' : basket.status === "cancel" ? 'Dibatalkan' : 'Belum Dibayar'}</p>
                         </div>
                     </div>
 
@@ -184,7 +200,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                 </div>
 
                 <div className="w-[90%] rounded-xl p-5 min-h-full bg-white mt-5 flex flex-col items-center gap-5">
-                    <div data-aos="fade-up" data-aos-delay="400" className="w-full flex items-center gap-5 justify-between bg-white shadow-lg p-3 rounded-lg">
+                    <div data-aos="fade-up" data-aos-delay="400" className={`${basket.status === 'done' || basket.status === 'cancel' ? 'hidden' : 'flex'} w-full items-center gap-5 justify-between bg-white shadow-lg p-3 rounded-lg`}>
                         <p className="font-semibold">Ada lagi pesanannya?</p>
 
                         <Button onClick={() => setShowOrderProcess(false)} className="bg-orange-400">+ Tambah</Button>
@@ -193,8 +209,8 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                     <div data-aos="fade-up" data-aos-delay="500" className="w-full mt-5 bg-white rounded-lg shadow-lg p-3">
                         <div className="w-full flex items-center gap-5 justify-between">
                             <p className="text-xl font-semibold">Daftar Pesanan</p>
+                            <button onClick={handleCancelPayment} className={`${basket.status === 'done' || basket.status === 'cancel' ? 'hidden' : 'block'} font-semibold text-orange-500`}>Pembatalan</button>
 
-                            <button className="font-semibold text-orange-500">Pembatalan</button>
                         </div>
 
                         <div className="w-full h-[1px] bg-gray-200 my-5"></div>
@@ -253,7 +269,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                     </div>
                 </div>
 
-                <div data-aos="fade-up" data-aos-delay="600" className="fixed bottom-0 w-full bg-white p-5 flex flex-col items-center justify-between">
+                <div data-aos="fade-up" data-aos-delay="600" className={`${basket.status === 'cancel' ? 'hidden' : 'flex'} fixed bottom-0 w-full bg-white p-5 flex-col items-center justify-between`}>
                     <div className="flex w-full items-center justify-between gap-5">
                         <p className="font-semibold text-xl">Total Tagihan</p>
 
@@ -272,7 +288,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                     <div className="w-full mt-10 flex items-center gap-5 justify-between">
                         <Button type="button" className={`flex bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Cetak Struk</Button>
 
-                        <Button type="button" onClick={handleTagih} className="bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold">Tagih</Button>
+                        <Button type="button" onClick={handleTagih} className={`${basket.status === 'done' ? 'hidden' : ''} bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold`}>Tagih</Button>
                     </div>
                 </div>
             </div>

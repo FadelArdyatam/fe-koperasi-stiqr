@@ -458,7 +458,20 @@ const DataPembayaran = () => {
                                         <FormLabel className="text-gray-500">Nomor Telp E-wallet</FormLabel>
 
                                         <FormControl>
-                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field} />
+                                            <Input
+                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                type="text" // Gunakan "text" agar tidak ada spinner pada input number
+                                                inputMode="numeric" // Menampilkan keyboard angka di mobile
+                                                pattern="[0-9]*" // Memastikan hanya angka yang diterima
+                                                maxLength={15} // Batasi maksimal 15 digit
+                                                {...field}
+                                                onChange={(e) => {
+                                                    const rawValue = e.target.value.replace(/\D/g, ""); // Hanya izinkan angka
+                                                    if (rawValue.length <= 15) {
+                                                        field.onChange(rawValue);
+                                                    }
+                                                }}
+                                            />
                                         </FormControl>
 
                                         <p className="text-xs italic text-gray-500 mt-2">Pastikan nomor HP DANA Anda aktif.</p>

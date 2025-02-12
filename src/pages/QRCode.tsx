@@ -465,7 +465,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                             className="pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                             onChange={(e) => {
                                 const value = e.target.value.replace(/\D/g, ""); // Hanya angka
-                                if (value.length <= 12) {
+                                if (value.length <= 10) {
                                     setAmount(value);
                                 }
                             }}

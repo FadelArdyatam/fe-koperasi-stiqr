@@ -270,8 +270,8 @@ const Booking = () => {
                                     </div>
 
                                     <div className="w-full mt-5">
-                                        <div className="w-full flex items-center gap-5">
-                                            <Button className="w-full rounded-full bg-transparent border border-orange-500 text-orange-500">
+                                        <div className={`${status === 'cancel' ? 'hidden' : 'flex'} w-full items-center gap-5`}>
+                                            <Button className={`${status === 'done' || status === 'cancel' ? 'hidden' : 'block'} w-full rounded-full bg-transparent border border-orange-500 text-orange-500`}>
                                                 Tambah Pesanan
                                             </Button>
 

@@ -13,6 +13,7 @@ import { formatRupiah } from "@/hooks/convertRupiah";
 import imgNoTransaction from "@/images/no-transaction.png";
 import { Button } from "@/components/ui/button";
 import DatePicker from "react-datepicker";
+import Notification from "@/components/Notification"
 import AOS from "aos";
 import "aos/dist/aos.css";
 
@@ -98,6 +99,9 @@ const Dashboard = () => {
     const [showNotification, setShowNotification] = useState(false);
     const [balance, setBalance] = useState(0);
     const [user, setUser] = useState<any>();
+
+    // Sementara ini, karena feature BPJS ini belum diimplementasikan
+    const [showNotificationBPJS, setShowNotificationBPJS] = useState(false);
 
     const [showBalance, setShowBalance] = useState(false);
 
@@ -398,7 +402,7 @@ const Dashboard = () => {
                     <p className="text-sm uppercase">Kasir</p>
                 </Link>
 
-                <Link data-aos="fade-up" data-aos-delay="400" to={"/dashboard"} className="flex flex-col gap-2 items-center justify-center">
+                <Link data-aos="fade-up" data-aos-delay="400" to={"/customer"} className="flex flex-col gap-2 items-center justify-center">
                     <div className="flex items-center justify-center p-3 bg-orange-400 rounded-full">
                         <UsersRound className="text-white scale-[1.1]" />
                     </div>
@@ -433,11 +437,11 @@ const Dashboard = () => {
 
                     <div className="w-10 min-w-10 h-[2px] min-h-[2px] bg-gray-300 rotate-90"></div>
 
-                    <Link data-aos="fade-up" data-aos-delay="600" to={'/bpjs'} className="flex m-auto flex-col items-center gap-3">
+                    <button type="button" onClick={() => setShowNotificationBPJS(true)} data-aos="fade-up" data-aos-delay="600" className="flex m-auto flex-col items-center gap-3">
                         <ShieldCheck className="text-orange-400" />
 
                         <p className="uppercase text-center text-sm">BPJS</p>
-                    </Link>
+                    </button>
                 </div>
             </div>
 
@@ -610,6 +614,9 @@ const Dashboard = () => {
                     )}
                 </div>
             </div>
+
+            {/* Notification for BPJS */}
+            {showNotificationBPJS && <Notification message={"Sementara Fitur ini belum tersedia"} onClose={() => { setShowNotificationBPJS(false) }} status={"error"} />}
         </div>
     );
 };
