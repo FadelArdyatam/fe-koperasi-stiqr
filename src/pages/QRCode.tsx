@@ -329,14 +329,14 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                         <AlertDialogContent
                             className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm"
                         >
-                            <div data-aos="zoom-in" className="bg-white p-5 rounded-lg shadow-lg w-[90%]">
+                            <div data-aos="zoom-in" className="bg-white text-center p-5 rounded-lg shadow-lg w-[90%]">
                                 <AlertDialogHeader>
                                     <AlertDialogTitle className="font-semibold text-lg">
-                                        <CircleAlert />
+                                        <CircleAlert className="m-auto" />
 
-                                        <p>Apakah Anda benar-benar yakin?</p>
+                                        <p className="text-center">Apakah Anda benar-benar yakin?</p>
                                     </AlertDialogTitle>
-                                    <AlertDialogDescription>
+                                    <AlertDialogDescription className="text-center">
                                         Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pembayaran Anda secara permanen.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
@@ -345,10 +345,10 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                                         className="w-full p-2 rounded-lg bg-green-500 text-white"
                                         onClick={handleCancelPayment}
                                     >
-                                        Continue
+                                        Lanjutkan
                                     </AlertDialogAction>
                                     <AlertDialogCancel className="w-full p-2 rounded-lg bg-red-500 text-white">
-                                        Cancel
+                                        Batalkan
                                     </AlertDialogCancel>
                                 </AlertDialogFooter>
                             </div>
@@ -365,6 +365,8 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                         <img src={logo} className="w-10" alt="Logo" data-aos="fade-up" data-aos-delay="150" />
 
                         <p className="mt-5 text-xl font-semibold" data-aos="fade-up" data-aos-delay="200">{userData.merchant.name}</p>
+
+                        <p className="mt-3 text-xl font-semibold">{formatRupiah(amount || dataForPaymentMethod?.amount || 0)}</p>
 
                         <div className="mt-10 w-full flex flex-col items-center p-5" data-aos="fade-up" data-aos-delay="250" ref={contentRef}>
                             {stringQR && <QRCode value={stringQR} size={200} />}
@@ -458,20 +460,22 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     <div className="relative mt-5">
                         <Input
                             type="text"
+                            inputMode="numeric"  // Menampilkan keyboard angka di mobile
+                            pattern="[0-9]*"     // Mencegah karakter non-angka
                             className="pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                             onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, ''); // Hanya angka
+                                const value = e.target.value.replace(/\D/g, ""); // Hanya angka
                                 if (value.length <= 12) {
-                                    setAmount(value); // Simpan nilai hingga 12 digit
+                                    setAmount(value);
                                 }
                             }}
-                            value={formatRupiah(amount)} // Pastikan hanya 12 digit yang ditampilkan
+                            value={formatRupiah(amount)}
                             placeholder="0.00"
                         />
                     </div>
                 </div>
 
-                <Button onClick={showShareLinkGenerator} data-aos="fade-up" data-aos-delay="200" className="uppercase !mt-20 w-[90%] m-auto bg-green-400 block">
+                <Button onClick={showShareLinkGenerator} data-aos="fade-up" data-aos-delay="200" className="uppercase !mt-10 w-[90%] m-auto bg-green-400 block">
                     Buat
                 </Button>
             </div>

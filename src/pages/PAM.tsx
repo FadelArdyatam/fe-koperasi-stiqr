@@ -46,7 +46,8 @@ const PAM = () => {
                     {
                         "category": "PDAM",
                         "status": "active"
-                    },);
+                    },
+                );
 
                 setProducts(responseProducts.data.data);
 
@@ -139,7 +140,7 @@ const PAM = () => {
                     </div>
                 </div>
 
-                <Button onClick={sendBill} className={`${phoneNumber.length === 0 || region.length === 0 ? 'hidden' : 'block'} uppercase mt-5 text-center w-[90%] m-auto mb-10 bg-green-500 text-white`}>
+                <Button onClick={sendBill} className={`${phoneNumber.length === 0 || region.length === 0 ? 'hidden' : 'block'} uppercase text-center w-[90%] m-auto -translate-y-10 mb-10 bg-green-500 text-white`}>
                     Lanjutkan
                 </Button>
             </div>

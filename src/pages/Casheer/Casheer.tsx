@@ -661,18 +661,18 @@ const Casheer = () => {
                             <p className="font-semibold text-2xl">Pilih Layanan</p>
 
                             <div className="mt-5 flex gap-5">
-                                <Button onClick={() => setShowService({ show: true, service: "Dine In" })} className="w-full h-40 bg-orange-100 rounded-xl text-orange-500 p-5 flex flex-col
+                                <Button onClick={() => setShowService({ show: true, service: "Pay Later" })} className="w-full h-40 bg-orange-100 rounded-xl text-orange-500 p-5 flex flex-col
                                 ">
                                     <img className="w-16 h-16 block" src={dineIn} alt="" />
 
-                                    <p className="text-lg mt-3 text-wrap">Makan di Tempat</p>
+                                    <p className="text-lg mt-3 text-wrap">Bayar Nanti</p>
                                 </Button>
 
-                                <Button onClick={() => setShowService({ show: true, service: "Take Away" })} className="w-full h-40 bg-orange-100 rounded-xl text-orange-500 p-5 flex flex-col
+                                <Button onClick={() => setShowService({ show: true, service: "Pay Now" })} className="w-full h-40 bg-orange-100 rounded-xl text-orange-500 p-5 flex flex-col
                                 ">
                                     <img className="w-16 h-16 block" src={takeAway} alt="" />
 
-                                    <p className="text-lg mt-3">Bawa Pulang</p>
+                                    <p className="text-lg mt-3">Bayar Sekarang</p>
                                 </Button>
                             </div>
                         </div>

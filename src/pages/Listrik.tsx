@@ -107,7 +107,7 @@ const Listrik = () => {
         if (value === "Tagihan Listrik") {
             console.log('tagihan listrik')
             console.log(products)
-            setNominal(""); 
+            setNominal("");
             setSelecteProduct(products[0])
         }
     };
@@ -188,7 +188,7 @@ const Listrik = () => {
                     )}
                 </div>
 
-                <div className={`${type.length === 0 || noMeter.length === 0 || (type === "Token Listrik" && nominal.length === 0) ? "hidden" : "block"} w-[90%] m-auto shadow-lg rounded-lg p-5`}>
+                <div className={`${type.length === 0 || noMeter.length === 0 || (type === "Token Listrik" && nominal.length === 0) ? "hidden" : "block"} w-[90%] m-auto shadow-lg -translate-y-10 rounded-lg p-5`}>
                     <p className="font-semibold">Keterangan</p>
 
                     <p className="mt-3">
@@ -204,7 +204,7 @@ const Listrik = () => {
 
                 <Button
                     onClick={sendBill}
-                    className={`${type.length === 0 || noMeter.length === 0 || (type === "Token Listrik" && nominal.length === 0) ? "hidden" : "block"} w-[90%] m-auto bg-green-400 text-white py-3 rounded-md hover:bg-green-500 mt-10 mb-10`}
+                    className={`${type.length === 0 || noMeter.length === 0 || (type === "Token Listrik" && nominal.length === 0) ? "hidden" : "block"} w-[90%] m-auto bg-green-400 text-white py-3 rounded-md hover:bg-green-500 mb-10`}
                 >
                     Lanjutkan
                 </Button>

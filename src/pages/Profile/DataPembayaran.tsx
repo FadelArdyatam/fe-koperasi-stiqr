@@ -282,7 +282,7 @@ const DataPembayaran = () => {
             </div>
 
             <div className="w-full flex flex-col gap-5">
-                <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setIsAdding({ status: true, section: "bank" })} className={`${isAdding.status || showEdit ? 'hidden' : 'block'} w-[90%] m-auto bg-green-400`}>Tambah Akun Pembayaran</Button>
+                <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setIsAdding({ status: true, section: "bank" })} className={`${isAdding.status || showEdit ? 'hidden' : 'block'} w-[90%] m-auto -mt-10 sm:mb-40 mb-0 bg-green-400`}>Tambah Akun Pembayaran</Button>
             </div>
 
             <div key={showContent.show ? "showContent-mode" : "noShowContent-mode"} className={`${showContent.show === true && !showEdit ? 'block' : 'hidden'} w-[90%] bg-white -translate-y-20 p-5 rounded-lg shadow-lg`}>

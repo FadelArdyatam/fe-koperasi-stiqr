@@ -30,7 +30,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
 
     const FormSchema = z.object({
         name: z.string().min(3, {
-            message: "Nama Tidak boleh kurang dari 3 karakter",
+            message: "Nama Tidak boleh Kosong",
         }).max(50),
         phone_number: z.string().min(10, {
             message: "Nomor telepon tidak boleh kurang dari 10 karakter",

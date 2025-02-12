@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
 import { ChevronLeft, ChevronDown } from "lucide-react"
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import AOS from "aos";
@@ -29,6 +29,8 @@ const BPJS = () => {
     const [showBill, setShowBill] = useState(false)
     // Sementara ini, karena feature ini belum diimplementasikan
     const [showNotification, setShowNotification] = useState(true);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -122,7 +124,7 @@ const BPJS = () => {
 
             {showBill && dataBill && <Bill data={dataBill} marginTop={false} />}
 
-            {showNotification && <Notification message={"Sementara Fitur ini belum tersedia"} onClose={() => setShowNotification(false)} status={"error"} />}
+            {showNotification && <Notification message={"Sementara Fitur ini belum tersedia"} onClose={() => { setShowNotification(false); navigate("/dashboard") }} status={"error"} />}
         </>
     )
 }

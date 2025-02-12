@@ -139,7 +139,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
     const [showNotificationAddProduct, setShowNotificationAddProduct] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
-    const [selectedVariants, setSelectedVariants] = useState<string[]>([]);
+    const [selectedVariants, setSelectedVariants] = useState<{ variant_id: string }[]>([]);
     const [showPopUpAddEtalase, setShowPopUpAddEtalase] = useState(false);
     const [showPopUpAddVariant, setShowPopUpAddVariant] = useState(false);
     const [showChoisesInput, setShowChoisesInput] = useState(false);
@@ -153,6 +153,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
     const [showField, setShowField] = useState({ stock: false, variant: false });
     const [showAddVariant, setShowAddVariant] = useState(false);
     const [allData, setAllData] = useState<any>([]);
+    const [stock, setStock] = useState({ stock: 0, minimumStock: 0 });
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -171,85 +172,64 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
     // Validation schema for form
     const FormSchema = z.object({
-        photo: z.instanceof(File, {
+        product_image: z.instanceof(File, {
             message: "Photo must be a valid file.",
         }).optional(),
-        name: z.string().min(1, { message: "Name is required." }).max(50, { message: "Name must be less than 50 characters." }),
-        SKU: z.string().min(1, { message: "SKU is required." }).max(20, { message: "SKU must be less than 20 characters." }),
-        price: z.string().min(1, { message: "Price is required." }),
-        weight: z.string().min(1, { message: "Weight is required." }),
-        etalase: z.array(z.string()).nonempty({ message: "At least one etalase must be selected." }),
-        description: z.string().max(100, { message: "Description must be less than 100 characters." }).optional(),
+        product_name: z.string().min(1, { message: "Name is required." }).max(50, { message: "Name must be less than 50 characters." }),
+        product_SKU: z.string().min(1, { message: "SKU is required." }).max(20, { message: "SKU must be less than 20 characters." }),
+        product_price: z.string().min(1, { message: "Price is required." }),
+        product_weight: z.string().min(1, { message: "Weight is required." }),
+        product_etalase: z.array(z.string()).nonempty({ message: "At least one etalase must be selected." }),
+        product_description: z.string().max(100, { message: "Description must be less than 100 characters." }).optional(),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            photo: undefined,
-            name: "",
-            SKU: "",
-            price: '',
-            weight: "",
-            etalase: ['semua produk'],
-            description: "",
+            product_image: undefined,
+            product_name: "",
+            product_SKU: "",
+            product_price: '',
+            product_weight: "",
+            product_etalase: ['semua produk'],
+            product_description: "",
         },
     });
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
+        // Buat objek FormData
         const formData = new FormData();
 
-        formData.append('product_name', data.name);
-        formData.append('product_sku', data.SKU);
-        formData.append('product_weight', data.weight + quantity);
-        formData.append('product_category', 'Kain');
-        formData.append('product_price', data.price);
-        formData.append('product_status', 'true');
-        formData.append('product_description', data.description || '');
+        // Tambahkan data ke FormData
+        formData.append("product_name", data.product_name);
+        formData.append("product_sku", data.product_SKU);
+        formData.append("product_weight", (data.product_weight + quantity).toString());
+        formData.append("product_category", "Kain");
+        formData.append("product_price", data.product_price.toString()); // Pastikan angka dikonversi ke string
+        formData.append("product_status", "true"); // FormData tidak mendukung boolean langsung
+        formData.append("product_description", data.product_description || "");
 
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
+        // Ambil merchant_id dari sessionStorage
+        const merchantId = sessionStorage.getItem("user")
+            ? JSON.parse(sessionStorage.getItem("user")!).merchant?.id || "Unknown"
+            : "Unknown";
 
-        formData.append('merchant_id', userData?.merchant?.id || 'Unknown');
+        formData.append("merchant_id", merchantId);
 
-        if (data.photo) {
-            formData.append('product_image', data.photo);
-
-            console.log(data.photo)
+        // Handle gambar jika ada
+        if (data.product_image) {
+            formData.append("product_image", data.product_image);
         }
 
-        // Update allData dengan data baru
-        const updatedAllData = [...allData, data];
-        setAllData(updatedAllData);
-
-        try {
-            const response = await axiosInstance.post(
-                "/product/create",
-                formData,
-            );
-            console.log(selectedEtalase);
-
-            setProducts([...products, response.data.data])
-
-            if (selectedEtalase) {
-                const response3 = await axiosInstance.post(
-                    "/showcase-product/create",
-                    {
-                        product_id: response?.data?.data?.product_id,
-                        showcase_id: selectedEtalase,
-                    },
-                )
-
-                console.log(response3)
-            }
-
-            console.log("Product successfully added to API:", response.data);
-
-            setShowNotificationAddProduct(true);
-
-            setSection({ addProduct: true, detailProduct: true });
-        } catch (error) {
-            console.error("Error while adding product to API:", error);
+        console.log("FormData Debug:");
+        for (let pair of formData.entries()) {
+            console.log(pair[0], pair[1]); // Debugging untuk melihat isi FormData
         }
+
+        // Update allData dengan FormData (hanya untuk debugging, tidak bisa langsung digunakan di state)
+        setAllData([...allData, Object.fromEntries(formData.entries())]);
+
+        setSection({ addProduct: true, detailProduct: true });
     }
 
     const FormSchemaEtalase = z.object({
@@ -352,6 +332,68 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         }
     };
 
+    const addProductHandler = async () => {
+        const data = {
+            is_stok: showField.stock,
+            is_variant: showField.variant,
+            variants: selectedVariants,
+            stok: stock.stock,
+            stok_minimum: stock.minimumStock,
+        };
+
+        // Menggabungkan semua objek dalam `allData` dengan `data`
+        const mergedData = allData.reduce((acc: any, obj: any) => ({ ...acc, ...obj }), {});
+
+        // Buat FormData
+        const formData = new FormData();
+
+        // Tambahkan data dari allData ke FormData
+        Object.keys(mergedData).forEach((key) => {
+            const value = mergedData[key];
+
+            // Jika nilai adalah array atau objek, ubah ke JSON string
+            if (typeof value === "object" && value !== null) {
+                formData.append(key, JSON.stringify(value));
+            } else {
+                formData.append(key, value);
+            }
+        });
+
+        // Tambahkan `details_products`
+        formData.append("details_products", JSON.stringify(data));
+
+        console.log("Final FormData:");
+        for (let pair of formData.entries()) {
+            console.log(pair[0], pair[1]); // Debugging isi FormData
+        }
+
+        try {
+            const response = await axiosInstance.post("/product/create", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            console.log("Product successfully added to API:", response.data);
+
+            setProducts([...products, response.data.data]);
+
+            // Jika ada etalase yang dipilih, kirim ke API showcase-product
+            if (selectedEtalase) {
+                const response2 = await axiosInstance.post("/showcase-product/create", {
+                    product_id: response?.data?.data?.product_id,
+                    showcase_id: selectedEtalase,
+                });
+
+                console.log(response2);
+            }
+
+            setShowNotification(true);
+        } catch (error) {
+            console.error("Error while adding product to API:", error);
+        }
+    };
+
     const addNewChoice = () => {
         if (newChoiceName && newChoicePrice) {
             if (newChoicePrice < 0) {
@@ -385,11 +427,11 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         setDisplayChoises(updatedChoises);
     };
 
-    const handleVariantChange = (variantId: string) => {
+    const handleVariantChange = (variant_id: string) => {
         setSelectedVariants((prevSelected) =>
-            prevSelected.includes(variantId)
-                ? prevSelected.filter((id) => id !== variantId) // Hapus jika sudah dipilih
-                : [...prevSelected, variantId] // Tambah jika belum dipilih
+            prevSelected.some(variant => variant.variant_id === variant_id)
+                ? prevSelected.filter((variant) => variant.variant_id !== variant_id) // Hapus jika sudah dipilih
+                : [...prevSelected, { variant_id }] // Tambah jika belum dipilih
         );
     };
 
@@ -425,7 +467,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                         {/* Photo */}
                         <FormField
                             control={form.control}
-                            name="photo"
+                            name="product_image"
                             render={({ field }) => (
                                 <FormItem data-aos="fade-up" data-aos-delay="100">
                                     <FormLabel>Foto Produk (Optional)</FormLabel>
@@ -461,7 +503,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                         {/* Name */}
                         <FormField
                             control={form.control}
-                            name="name"
+                            name="product_name"
                             render={({ field }) => (
                                 <FormItem data-aos="fade-up" data-aos-delay="200">
                                     <FormLabel>Nama Produk</FormLabel>
@@ -487,7 +529,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                         {/* SKU */}
                         <FormField
                             control={form.control}
-                            name="SKU"
+                            name="product_SKU"
                             render={({ field }) => (
                                 <FormItem data-aos="fade-up" data-aos-delay="300">
                                     <FormLabel>SKU Produk</FormLabel>
@@ -513,7 +555,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                         {/* Price */}
                         <FormField
                             control={form.control}
-                            name="price"
+                            name="product_price"
                             render={({ field }) => (
                                 <FormItem data-aos="fade-up" data-aos-delay="400">
                                     <FormLabel>Harga</FormLabel>
@@ -539,7 +581,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                         {/* Weight */}
                         <FormField
                             control={form.control}
-                            name="weight"
+                            name="product_weight"
                             render={({ field }) => (
                                 <FormItem className="w-full" data-aos="fade-up" data-aos-delay="500">
                                     <FormLabel>Berat</FormLabel>
@@ -569,7 +611,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                         {/* Description */}
                         <FormField
                             control={form.control}
-                            name="description"
+                            name="product_description"
                             render={({ field }) => (
                                 <FormItem data-aos="fade-up" data-aos-delay="600">
                                     <FormLabel>Deskripsi (Optional)</FormLabel>
@@ -596,7 +638,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                         {/* Etalase */}
                         <FormField
                             control={form.control}
-                            name="etalase"
+                            name="product_etalase"
                             render={() => (
                                 <FormItem data-aos="fade-up">
                                     <FormLabel className="flex items-center gap-5">
@@ -684,13 +726,13 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                 <div className="flex flex-col gap-2">
                                     <p className="font-semibold">Jumlah Stok</p>
 
-                                    <Input placeholder="1" type="number" />
+                                    <Input placeholder="1" type="number" onChange={(e) => setStock({ stock: Number(e.target.value), minimumStock: stock.minimumStock })} />
                                 </div>
 
                                 <div className="flex flex-col gap-2">
                                     <p className="font-semibold">Stok Minimum</p>
 
-                                    <Input placeholder="1" type="number" />
+                                    <Input placeholder="1" type="number" onChange={(e) => { setStock({ stock: stock.stock, minimumStock: Number(e.target.value) }) }} />
                                 </div>
                             </div>
 
@@ -725,7 +767,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
                     <Button onClick={() => { setSection({ addProduct: true, detailProduct: false }) }} className="w-full bg-orange-500 text-white">Kembali</Button>
 
-                    <Button onClick={() => { setShowNotification(true) }}>Simpan</Button>
+                    <Button onClick={addProductHandler}>Simpan</Button>
                 </div>
 
                 {/* Variant Control */}
@@ -747,7 +789,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                         type="checkbox"
                                         name="variant"
                                         value={variant.variant_id}
-                                        checked={selectedVariants.includes(variant.variant_id)}
+                                        checked={selectedVariants.some(variant => variant.variant_id === variant.variant_id)}
                                         onChange={() => handleVariantChange(variant.variant_id)}
                                     />
                                     {variant?.variant_name}

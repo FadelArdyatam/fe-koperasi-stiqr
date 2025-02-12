@@ -1,4 +1,4 @@
-import { CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, UserRound, X, FileText, ClipboardList, CirclePercent, EyeOff, Eye } from "lucide-react";
+import { CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, UserRound, X, FileText, ClipboardList, CirclePercent, EyeOff, Eye, UsersRound } from "lucide-react";
 import logo from "@/images/logo.png";
 // import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useState } from "react";
@@ -314,7 +314,7 @@ const Dashboard = () => {
                     <div data-aos="fade-up" data-aos-delay="200" className="flex items-center justify-center gap-2">
                         {showBalance ? (
                             <p
-                                className={`font-bold mt-2 text-orange-400 ${balance > 99999999 ? "text-3xl" : "text-4xl"
+                                className={`font-bold mt-2 text-orange-400 ${balance > 99999999 ? "sm:text-3xl text-xl" : "sm:text-4xl text-2xl"
                                     }`}
                             >
                                 {Number(balance).toLocaleString("id-ID", {
@@ -333,6 +333,22 @@ const Dashboard = () => {
                         >
                             {showBalance ? <Eye /> : <EyeOff />}
                         </button>
+                    </div>
+                </div>
+
+                <div data-aos="fade-up" data-aos-delay="250" className="flex items-center w-full justify-center gap-5 mt-5">
+                    <div className="text-center w-[100px] min-w-[100px]">
+                        <p className="text-base text-gray-500">Non Tunai</p>
+
+                        <p>{formatRupiah(0)}</p>
+                    </div>
+
+                    <div className="w-10 h-[2px] bg-gray-300 rotate-90"></div>
+
+                    <div className="text-center w-[100px] min-w-[100px]">
+                        <p className="text-base text-gray-500">Tunai</p>
+
+                        <p>{formatRupiah(0)}</p>
                     </div>
                 </div>
 
@@ -381,11 +397,19 @@ const Dashboard = () => {
 
                     <p className="text-sm uppercase">Kasir</p>
                 </Link>
+
+                <Link data-aos="fade-up" data-aos-delay="400" to={"/dashboard"} className="flex flex-col gap-2 items-center justify-center">
+                    <div className="flex items-center justify-center p-3 bg-orange-400 rounded-full">
+                        <UsersRound className="text-white scale-[1.1]" />
+                    </div>
+
+                    <p className="text-sm uppercase">Pelanggan</p>
+                </Link>
             </div>
 
             <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
                 <div className="flex items-center justify-between">
-                    <Link data-aos="fade-up" data-aos-delay="450" to={'/pulsa'} className="flex flex-col items-center gap-3">
+                    <Link data-aos="fade-up" data-aos-delay="450" to={'/pulsa'} className="flex m-auto flex-col items-center gap-3">
                         <Smartphone className="text-orange-400" />
 
                         <p className="uppercase text-center text-sm">Pulsa</p>
@@ -393,7 +417,7 @@ const Dashboard = () => {
 
                     <div className="w-10 min-w-10 h-[2px] min-h-[2px] bg-gray-300 rotate-90"></div>
 
-                    <Link data-aos="fade-up" data-aos-delay="500" to={'/pam'} className="flex flex-col items-center gap-3">
+                    <Link data-aos="fade-up" data-aos-delay="500" to={'/pam'} className="flex m-auto flex-col items-center gap-3">
                         <Droplet className="text-orange-400" />
 
                         <p className="uppercase text-center text-sm">PAM</p>
@@ -401,7 +425,7 @@ const Dashboard = () => {
 
                     <div className="w-10 min-w-10 h-[2px] min-h-[2px] bg-gray-300 rotate-90"></div>
 
-                    <Link data-aos="fade-up" data-aos-delay="550" to={'/listrik'} className="flex flex-col items-center gap-3">
+                    <Link data-aos="fade-up" data-aos-delay="550" to={'/listrik'} className="flex m-auto flex-col items-center gap-3">
                         <Zap className="text-orange-400" />
 
                         <p className="uppercase text-center text-sm">Listrik</p>
@@ -409,7 +433,7 @@ const Dashboard = () => {
 
                     <div className="w-10 min-w-10 h-[2px] min-h-[2px] bg-gray-300 rotate-90"></div>
 
-                    <Link data-aos="fade-up" data-aos-delay="600" to={'/bpjs'} className="flex flex-col items-center gap-3">
+                    <Link data-aos="fade-up" data-aos-delay="600" to={'/bpjs'} className="flex m-auto flex-col items-center gap-3">
                         <ShieldCheck className="text-orange-400" />
 
                         <p className="uppercase text-center text-sm">BPJS</p>

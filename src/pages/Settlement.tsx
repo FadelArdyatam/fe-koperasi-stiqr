@@ -185,18 +185,20 @@ const Settlement = () => {
                 </Link>
 
                 <p data-aos="zoom-in" className="font-semibold m-auto text-xl text-white text-center uppercase">
-                    Settlement
+                    Penarikan
                 </p>
             </div>
 
             <div className="w-[90%] m-auto pb-10">
                 {showNotification && (
-                    <div data-aos="fade-up" data-aos-delay="100" className="flex items-start gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
-                        <Info className="w-5 min-w-5 h-5 text-blue-500" />
+                    <div data-aos="fade-up" data-aos-delay="100" className="flex items-center justify-between gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <Info className="w-5 min-w-5 h-5 text-blue-500" />
 
-                        <p className="text-sm text-black">
-                            Penarikan dana pada malam hari antara 21.00 s/d 06.00 membutuhkan proses yang lebih lama. Stiqr menganjurkan penarikan dana di luar jam tersebut.
-                        </p>
+                            <p className="text-sm text-black">
+                                Penarikan dana hanya bisa dilakukan pada jam 18:00 s/d 23:59. Maksimal penarikan akan kembali semula setiap harinya pada jam 00:00
+                            </p>
+                        </div>
 
                         <button onClick={() => setShowNotification(false)} className="text-gray-400 hover:text-gray-600">
                             <XCircle className="w-5 h-5" />
@@ -217,12 +219,25 @@ const Settlement = () => {
                             <p className="text-gray-500">Saldo Pemasukan</p>
                             <p className="font-semibold text-lg">{formatRupiah(uangMasuk)}</p>
                         </div>
+
                         <div className="w-full flex items-center gap-5 justify-between">
                             <p className="text-gray-500">Saldo Pengeluaran</p>
                             <p className="font-semibold text-lg">{formatRupiah(uangKeluar)}</p>
                         </div>
+
+                        <div className="w-full flex items-center gap-5 justify-between">
+                            <p className="text-gray-500">Saldo Non Tunai</p>
+                            <p className="font-semibold text-lg">{formatRupiah(0)}</p>
+                        </div>
+
+                        <div className="w-full flex items-center gap-5 justify-between">
+                            <p className="text-gray-500">Saldo Tunai</p>
+                            <p className="font-semibold text-lg">{formatRupiah(0)}</p>
+                        </div>
                     </div>
                 </div>
+
+                <p className="text-xs text-gray-500 mt-3">*Saldo hanya bisa dilakukan menggunakan saldo non tunai</p>
 
                 {/* Withdrawal Form */}
                 <Form {...form}>
@@ -290,7 +305,7 @@ const Settlement = () => {
 
             {/* Transaction History */}
             <div className="pb-32">
-                <div className="p-5 bg-white w-full">
+                <div className="p-5 bg-white w-[94%] m-auto">
                     <p className="font-semibold text-lg">Riwayat Transaksi</p>
                     <Button
                         type="button"
@@ -343,8 +358,8 @@ const Settlement = () => {
                         {filteredHistories.length > 0 ? (
                             // Jika ada transaksi dalam rentang yang difilter
                             filteredHistories.map((history, index) => (
-                                <div key={index}>
-                                    <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
+                                <div key={index} className="w-[94%] m-auto">
+                                    <div className={`${index === 0 ? "hidden" : "block"} w-[94%] h-[2px] my-5 bg-gray-300 rounded-full`}></div>
 
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-start gap-2">
@@ -399,8 +414,8 @@ const Settlement = () => {
                                 // Jika tidak ada filter aktif, tampilkan semua transaksi
                                 histories.length > 0 ? (
                                     histories.map((history, index) => (
-                                        <div key={index}>
-                                            <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
+                                        <div key={index} className="w-[94%] m-auto">
+                                            <div className={`${index === 0 ? "hidden" : "block"} w-[94%] h-[2px] my-5 bg-gray-300 rounded-full`}></div>
 
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-start gap-2">

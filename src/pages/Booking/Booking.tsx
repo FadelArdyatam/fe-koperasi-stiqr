@@ -172,7 +172,7 @@ const Booking = () => {
                                 <ArrowLeft />
                             </Link>
 
-                            <p data-aos="zoom-in" className="font-semibold text-2xl">Pesanan</p>
+                            <p data-aos="zoom-in" className="font-semibold text-2xl">Pemesanan</p>
                         </div>
                     </div>
 

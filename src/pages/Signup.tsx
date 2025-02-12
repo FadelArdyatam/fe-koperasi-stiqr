@@ -689,14 +689,13 @@ const Signup = () => {
                                                             <DropdownMenuTrigger asChild>
                                                                 <div data-aos="fade-up" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                                     <button className="">
-                                                                        {field.value || "Select Type of Business"} {/* Display selected value */}
+                                                                        {field.value || "Tipe Usaha"} {/* Display selected value */}
                                                                     </button>
 
                                                                     <ChevronDown />
                                                                 </div>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent className="w-full">
-                                                                <DropdownMenuLabel>Business Entity</DropdownMenuLabel>
                                                                 <DropdownMenuSeparator />
                                                                 <DropdownMenuItem onSelect={() => field.onChange("Perorangan")} className="w-full">Perorangan</DropdownMenuItem>
                                                                 <DropdownMenuItem onSelect={() => field.onChange("CV")} className="w-full">CV</DropdownMenuItem>
@@ -718,6 +717,19 @@ const Signup = () => {
                                                 <FormItem className="w-full">
                                                     <FormControl>
                                                         <Input data-aos="fade-up" data-aos-delay="100" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Merchant" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={formMerchant.control}
+                                            name="merchantAddress"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Alamat Merchant" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -923,6 +935,31 @@ const Signup = () => {
 
                                         <FormField
                                             control={formMerchant.control}
+                                            name="postalCode"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input
+                                                            data-aos="fade-up"
+                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                            type="number"
+                                                            placeholder="Kode Pos"
+                                                            {...field}
+                                                            onInput={(e) => {
+                                                                const value = (e.target as HTMLInputElement).value;
+                                                                if (value.length > 5) {
+                                                                    (e.target as HTMLInputElement).value = value.slice(0, 5); // Limit to 5 digits
+                                                                }
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={formMerchant.control}
                                             name="merchantCategory"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -931,7 +968,7 @@ const Signup = () => {
                                                             <DropdownMenuTrigger asChild>
                                                                 <div data-aos="fade-up" data-aos-delay="600" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
                                                                     <button type="button" className="">
-                                                                        {field.value || "Select Category"} {/* Display selected value */}
+                                                                        {field.value || "Kategori Usaha"} {/* Display selected value */}
                                                                     </button>
 
                                                                     <ChevronDown />
@@ -953,44 +990,6 @@ const Signup = () => {
                                                                 <DropdownMenuItem onSelect={() => field.onChange("Lainnya")} className="w-full">Lainnya</DropdownMenuItem>
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formMerchant.control}
-                                            name="postalCode"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <Input
-                                                            data-aos="fade-up"
-                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                            type="number"
-                                                            placeholder="Postal Code"
-                                                            {...field}
-                                                            onInput={(e) => {
-                                                                const value = (e.target as HTMLInputElement).value;
-                                                                if (value.length > 5) {
-                                                                    (e.target as HTMLInputElement).value = value.slice(0, 5); // Limit to 5 digits
-                                                                }
-                                                            }}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formMerchant.control}
-                                            name="merchantAddress"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Merchant Address" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

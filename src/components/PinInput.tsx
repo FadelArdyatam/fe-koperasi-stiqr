@@ -90,12 +90,12 @@ const PinInput = ({ email }: { email: string }) => {
         <div className="w-full h-screen flex flex-col items-center p-5 justify-center bg-orange-400">
             {/* Header */}
             <h1 className="text-white text-xl font-semibold mb-2">
-                {step === 1 ? "Enter 6 Digit PIN" : "Confirm Your PIN"}
+                {step === 1 ? "Masukkan 6 Digit PIN" : "Konfirmasi PIN Anda"}
             </h1>
             <p className="text-white text-center mb-6 text-sm">
                 {step === 1
-                    ? "Setup your 6 digit PIN now. You will need to enter this pin to proceed future online transactions, e.g. Penarikan biaya, pembelian pulsa, etc."
-                    : "Please re-enter the PIN to confirm."}
+                    ? "Siapkan 6 digit PIN Anda sekarang. Anda harus memasukkan pin ini untuk melanjutkan transaksi online di masa mendatang, misalnya Penarikan biaya, pembelian pulsa, dll."
+                    : "Masukkan kembali PIN untuk konfirmasi."}
             </p>
 
             {/* PIN Indicator */}

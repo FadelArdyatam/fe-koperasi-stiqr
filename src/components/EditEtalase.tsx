@@ -153,7 +153,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
                 </div>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-10 p-5 bg-white rounded-lg">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 mt-10 p-5 bg-white rounded-lg">
                         <FormField
                             control={form.control}
                             name="name"

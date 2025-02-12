@@ -311,6 +311,8 @@ const Catalog = () => {
 
     console.log("Error", error)
 
+    console.log("Products", products)
+
     return (
         <div className="w-full flex flex-col min-h-screen items-center bg-orange-50">
             <div className={`${addProduct || addVariant || addEtalase || open.status || showVariantProductHandler.status ? 'hidden' : 'block'} p-5 w-full`}>
@@ -333,7 +335,7 @@ const Catalog = () => {
                     />
 
                     {/* Ikon Pengaturan */}
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-500" onClick={() => setShowFilterSection(true)}>
+                    <div className={`${show === "Etalase" ? 'hidden' : 'absolute'} right-3 top-1/2 transform -translate-y-1/2 text-orange-500`} onClick={() => setShowFilterSection(true)}>
                         <SlidersHorizontal />
                     </div>
                 </div>
@@ -410,7 +412,7 @@ const Catalog = () => {
                                 </label>
 
                                 {/* Highest Price */}
-                                <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
+                                <label className={`${show === "Varian" ? 'hidden' : 'flex'} items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer`}>
                                     <input
                                         type="radio"
                                         name="sort"
@@ -423,7 +425,7 @@ const Catalog = () => {
                                 </label>
 
                                 {/* Lowest Price */}
-                                <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
+                                <label className={`${show === "Varian" ? 'hidden' : 'flex'} items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer`}>
                                     <input
                                         type="radio"
                                         name="sort"

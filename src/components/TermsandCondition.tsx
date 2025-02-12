@@ -43,7 +43,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
         "item-1": "Ketentuan Umum",
         "item-2": "Ketentuan Akun STIQR",
         "item-3": "Perangkat Lunak Aplikasi STIQR",
-        "item-4": "Pencarian Saldo STIQR",
+        "item-4": "Pencairan Saldo STIQR",
         "item-5": "Tindakan Kecurangan",
         "item-6": "Kerahasiaan",
     };
@@ -64,7 +64,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
     };
 
     return (
-        <div className="w-full flex flex-col min-h-screen items-center">
+        <div className="w-full flex flex-col min-h-screen items-center pb-10">
             <div className="w-full px-5 pt-5 pb-32 flex items-center justify-center bg-orange-400">
                 {backToPageProfile ? (
                     <button onClick={() => setShowTermsandConditions(false)} className="absolute left-5 bg-transparent hover:bg-transparent">
@@ -79,7 +79,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                 <p data-aos="zoom-in" className="font-semibold m-auto text-xl text-white text-center">Syarat dan Ketentuan</p>
             </div>
 
-            <div className="fixed w-full h-[calc(100vh-64px)] top-16 overflow-y-auto pb-24">
+            <div className="w-full -translate-y-20 overflow-y-auto">
                 <div className="w-[90%] mx-auto bg-white shadow-lg rounded-lg !text-black block p-2">
                     <Accordion
                         type="single"
@@ -222,7 +222,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
 
                         <AccordionItem value="item-4" data-aos="fade-up" data-aos-delay="300" className="w-full border-b pb-2">
                             <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                                <span>Pencarian Saldo STIQR</span>
+                                <span>Pencairan Saldo STIQR</span>
 
                                 <ChevronDown
                                     className={`transform transition-transform duration-200 ${openItem === "item-4" ? "rotate-180" : "rotate-0"
@@ -413,7 +413,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                 </div>
             </div>
 
-            <div className={`w-[90%] ${openItem ? 'fixed bottom-4 m-auto' : 'm-64'} z-20`}>
+            <div className={`w-[90%] ${openItem ? 'fixed bottom-4 m-auto' : ''} z-20`}>
                 <Button data-aos="fade-up" data-aos-delay="600" onClick={termsandConditionHandler} className="w-full bg-green-400">Lanjutkan</Button>
             </div>
 

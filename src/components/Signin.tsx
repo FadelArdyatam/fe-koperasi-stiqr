@@ -98,17 +98,20 @@ const Signin = () => {
 
 				<Button
 					data-aos="fade-up"
+					typeof="button"
 					data-aos-delay="300"
-					type="submit"
 					disabled={loading}
-					className={`uppercase px-5 py-3 w-full rounded-lg ${loading
-						? "bg-gray-300 cursor-not-allowed"
-						: "bg-[#7ED321] text-white"
-						}`}
+					className={`uppercase px-5 py-3 w-full rounded-lg bg-[#7ED321] text-white`}
 				>
-					{loading ? "Loading..." : "Masuk"}
+					Masuk
 				</Button>
 			</form>
+
+			{loading && (
+				<div className="absolute bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+					<div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+				</div>
+			)}
 
 			<p data-aos="fade-up" data-aos-delay="300" className="mt-5 text-gray-500">
 				Saya belum memiliki{" "}

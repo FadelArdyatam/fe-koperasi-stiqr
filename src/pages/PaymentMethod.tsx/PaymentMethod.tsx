@@ -81,8 +81,6 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
 
                     <p className="font-semibold text-2xl">{formatRupiah(dataPayment.amount)}</p>
                 </div>
-
-                <Button className="bg-orange-200 text-orange-500 rounded-full">Lihat Detail</Button>
             </div>
 
             {/* Input Nominal Pembayaran */}
