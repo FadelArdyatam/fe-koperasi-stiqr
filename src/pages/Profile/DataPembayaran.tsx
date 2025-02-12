@@ -19,7 +19,6 @@ interface Account {
     bank_name: string;
     account_number: string;
     owner_name: string;
-    // savingBook: string | File;
 }
 
 const DataPembayaran = () => {
@@ -29,8 +28,6 @@ const DataPembayaran = () => {
     const [showNotification, setShowNotification] = useState(false);
     const [dataForEdit, setDataForEdit] = useState<Account | null>(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-
-    console.log("data banks", dataBanks);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -43,7 +40,7 @@ const DataPembayaran = () => {
     }, [showEdit, isAdding, showContent.show]);
 
     const FormSchemaBank = z.object({
-        bankName: z.string().min(3,
+        bankName: z.string().min(1,
             { message: "Nama Bank Tidak Boleh Kosong" }
         ),
         accountNumber: z.string().min(10,
@@ -52,16 +49,16 @@ const DataPembayaran = () => {
         ownerName: z.string().min(3,
             { message: "Nama Pemilik Tidak Boleh Kosong" }
         ),
-        // savingBook: z.union([z.instanceof(File), z.string().url()]), // Update to handle either File or URL
+        bankBranches: z.string().optional(),
     })
 
     const formBank = useForm<z.infer<typeof FormSchemaBank>>({
         resolver: zodResolver(FormSchemaBank),
         defaultValues: {
-            bankName: '',
+            bankName: isAdding.section == 'bank' ? '' : 'DANA',
             accountNumber: '',
             ownerName: '',
-            // savingBook: undefined
+            bankBranches: '',
         },
     })
 
@@ -95,7 +92,7 @@ const DataPembayaran = () => {
                 bankName: account.bank_name,
                 accountNumber: account.account_number,
                 ownerName: account.owner_name,
-                // savingBook: account.bank_notes_photo,
+                bankBranches: account.bank_branches,
             });
         } catch (error: any) {
             console.error("Failed to fetch data:", error.message);
@@ -108,28 +105,23 @@ const DataPembayaran = () => {
         }
     }, [showContent.show])
 
+
     async function onSubmitBank(data: z.infer<typeof FormSchemaBank>) {
-        const formData = new FormData();
-        formData.append("bank_name", data.bankName);
-        formData.append("account_number", data.accountNumber);
-        formData.append("owner_name", data.ownerName);
+        const payload = {
+            bank_name: isAdding.section === 'bank' ? data.bankName.split('-')[0] : "DANA",
+            bank_code: isAdding.section === 'bank' ? data.bankName.split('-')[1] : "",
+            account_number: data.accountNumber,
+            owner_name: data.ownerName,
+            bank_branches: isAdding.section === 'bank' ? data.bankBranches : undefined, // Hanya dikirim jika bank
+            type: isAdding.section,
+            merchant_id: userData.merchant.id,
+        };
 
-        // if (data.savingBook instanceof File) {
-        //     formData.append("bank_notes_photo", data.savingBook);
-        // } else {
-        //     console.warn("No file provided for savingBook.");
-        // }
-
-        formData.append("merchant_id", userData.merchant.id);
+        console.log('Payload:', payload);
 
         try {
-            const response = await axiosInstance.post(
-                "/account/create",
-                formData,
-            );
-
-            console.log("Response from API:", response.data);
-
+            const response = await axiosInstance.post("/account/create", payload);
+            console.log(response);
             setShowNotification(true);
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -142,19 +134,13 @@ const DataPembayaran = () => {
         }
     }
 
+
     async function onSubmitForEditBank(data: z.infer<typeof FormSchemaBank>) {
         const formData = new FormData();
 
         formData.append("bank_name", data.bankName);
         formData.append("account_number", data.accountNumber);
         formData.append("owner_name", data.ownerName);
-
-        // if (data.savingBook instanceof File) {
-        //     formData.append("bank_notes_photo", data.savingBook);
-        // } else {
-        //     console.warn("No file provided for savingBook.");
-        // }
-
         try {
             const response = await axiosInstance.patch(
                 `/account/${showContent.index}/update`,
@@ -175,38 +161,13 @@ const DataPembayaran = () => {
         }
     }
 
-    const FormSchemaEwallet = z.object({
-        ewalletName: z.string().min(3,
-            { message: "Nama E-wallet Tidak Boleh Kosong" }
-        ),
-        accountNumber: z.string().min(10,
-            { message: "Nomor Telp E-wallet harus lebih dari 10 karakter" }
-        ),
-        ownerName: z.string().min(3,
-            { message: "Nama Pemilik E-wallet Tidak Boleh Kosong" }
-        ),
-        // savingBook: z.union([z.instanceof(File), z.string().url()]), // Update to handle either File or URL
-    })
-
-    const formEwallet = useForm<z.infer<typeof FormSchemaEwallet>>({
-        resolver: zodResolver(FormSchemaEwallet),
-        defaultValues: {
-            ewalletName: 'DANA',
-            accountNumber: '',
-            ownerName: '',
-            // savingBook: undefined
-        },
-    })
-
-    async function onSubmitEwallet(data: z.infer<typeof FormSchemaEwallet>) {
-        console.log(data)
-    }
 
     const buttonBack = () => {
         setShowContent({ show: false, index: "" })
         setShowEdit(false)
         setIsAdding({ status: false, section: "" })
     }
+
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center">
@@ -309,24 +270,19 @@ const DataPembayaran = () => {
                         <p className="text-sm font-semibold">{dataForEdit?.owner_name}</p>
                     </div>
 
-                    {/* <div className="w-full h-[2px] my-2 bg-gray-200"></div>
-
-                    <div data-aos="fade-up" data-aos-delay="300" className="flex w-full items-center gap-5 justify-between">
-                        <p className="text-sm text-gray-500">Buku Tabungan</p>
-
-                        <Image />
-                    </div> */}
                 </div>
 
                 <Button data-aos="fade-up" data-aos-delay="400" onClick={() => setShowEdit(true)} className="mt-7 w-full bg-green-400">Edit</Button>
             </div>
 
-            {/* Add new Bank and e-wallet */}
             <div key={isAdding ? 'adding-bank-mode' : 'noAdding-bank-mode'} className={`${isAdding.status ? 'block' : 'hidden'} w-[90%] p-5 bg-white -translate-y-20 rounded-lg shadow-lg`}>
                 <div className="flex gap-5 items-center justify-between w-full">
-                    <Button className={`${isAdding.section === "bank" ? 'bg-orange-500 text-white' : 'bg-gray-200 text-black'} w-full`} onClick={() => setIsAdding({ status: isAdding.status, section: "bank" })}>Bank</Button>
+                    <Button className={`${isAdding.section === "bank" ? 'bg-orange-500 text-white' : 'bg-gray-200 text-black'} w-full`} onClick={() => { setIsAdding({ status: isAdding.status, section: "bank" }), formBank.setValue("bankName", "") }}>Bank</Button>
 
-                    <Button className={`${isAdding.section === "e-wallet" ? 'bg-orange-500 text-white' : 'bg-gray-200 text-black'} w-full`} onClick={() => setIsAdding({ status: isAdding.status, section: "e-wallet" })}>E-Wallet</Button>
+                    <Button className={`${isAdding.section === "e-wallet" ? 'bg-orange-500 text-white' : 'bg-gray-200 text-black'} w-full`} onClick={() => {
+                        setIsAdding({ status: isAdding.status, section: "e-wallet" })
+                        formBank.setValue("bankName", "DANA");
+                    }}>E-Wallet</Button>
                 </div>
 
                 <Form {...formBank}>
@@ -357,7 +313,7 @@ const DataPembayaran = () => {
                                                                 key={index}
                                                                 className="p-3 hover:bg-gray-200 cursor-pointer"
                                                                 onClick={() => {
-                                                                    field.onChange(bank.name);
+                                                                    field.onChange(`${bank.name + '-' + bank.code}`);
                                                                     setDropdownOpen(false);
                                                                 }}
                                                             >
@@ -367,6 +323,21 @@ const DataPembayaran = () => {
                                                     </ul>
                                                 )}
                                             </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={formBank.control}
+                                name="bankBranches"
+                                render={({ field }) => (
+                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="300">
+                                        <FormLabel className="text-gray-500">Cabang Bank</FormLabel>
+
+                                        <FormControl>
+                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -403,47 +374,24 @@ const DataPembayaran = () => {
                                 )}
                             />
 
-                            {/* <FormField
-                                control={form.control}
-                                name="savingBook"
-                                render={({ field }) => (
-                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="400">
-                                        <FormLabel className="text-gray-500">Upload Scan Buku Tabungan</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="file"
-                                                accept="image/*"
-                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                onChange={(e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) {
-                                                        field.onChange(file); // Update field value with the selected file
-                                                    }
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            /> */}
                         </div>
 
                         <Button data-aos="fade-up" data-aos-delay="500" type="submit" className={`${isAdding.section === "bank" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
                     </form>
                 </Form>
 
-                <Form {...formEwallet}>
-                    <form onSubmit={formEwallet.handleSubmit(onSubmitEwallet)}>
+                <Form {...formBank}>
+                    <form onSubmit={formBank.handleSubmit(onSubmitBank)}>
                         <div className={`${isAdding.section === "e-wallet" ? 'flex' : 'hidden'} flex-col items-end w-full space-y-7 mt-10`}>
                             <FormField
-                                control={formEwallet.control}
-                                name="ewalletName"
+                                control={formBank.control}
+                                name="bankName"
                                 render={({ field }) => (
                                     <FormItem className="w-full" data-aos="fade-up" data-aos-delay="100">
                                         <FormLabel className="text-gray-500">Nama E-wallet</FormLabel>
 
                                         <FormControl>
-                                            <Input className="w-full bg-bg-[#F4F4F4] font-sans font-semibold" disabled={true} {...field} />
+                                            <Input placeholder="DANA" className="w-full bg-bg-[#F4F4F4] font-sans font-semibold" readOnly={true} {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -451,7 +399,7 @@ const DataPembayaran = () => {
                             />
 
                             <FormField
-                                control={formEwallet.control}
+                                control={formBank.control}
                                 name="accountNumber"
                                 render={({ field }) => (
                                     <FormItem className="w-full" data-aos="fade-up" data-aos-delay="200">
@@ -482,7 +430,7 @@ const DataPembayaran = () => {
                             />
 
                             <FormField
-                                control={formEwallet.control}
+                                control={formBank.control}
                                 name="ownerName"
                                 render={({ field }) => (
                                     <FormItem className="w-full" data-aos="fade-up" data-aos-delay="300">
@@ -495,30 +443,6 @@ const DataPembayaran = () => {
                                     </FormItem>
                                 )}
                             />
-
-                            {/* <FormField
-                                control={form.control}
-                                name="savingBook"
-                                render={({ field }) => (
-                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="400">
-                                        <FormLabel className="text-gray-500">Upload Scan Buku Tabungan</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="file"
-                                                accept="image/*"
-                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                onChange={(e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) {
-                                                        field.onChange(file); // Update field value with the selected file
-                                                    }
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            /> */}
                         </div>
 
                         <Button data-aos="fade-up" data-aos-delay="500" type="submit" className={`${isAdding.section === "e-wallet" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
@@ -583,30 +507,6 @@ const DataPembayaran = () => {
                                     </FormItem>
                                 )}
                             />
-
-                            {/* <FormField
-                                control={form.control}
-                                name="savingBook"
-                                render={({ field }) => (
-                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="400">
-                                        <FormLabel className="text-gray-500">Upload Scan Buku Tabungan</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="file"
-                                                accept="image/*"
-                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                onChange={(e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) {
-                                                        field.onChange(file);
-                                                    }
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            /> */}
                         </div>
 
                         <Button data-aos="fade-up" data-aos-delay="500" type="submit" className="w-full bg-green-400 mt-7">Simpan Perubahan</Button>

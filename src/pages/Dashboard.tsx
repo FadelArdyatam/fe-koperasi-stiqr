@@ -92,12 +92,21 @@ interface History {
     }
 }
 
+interface IBalance {
+    amount: number;
+    non_cash_amount: number;
+    cash_amount: number;
+}
 const Dashboard = () => {
     // const [field, setField] = useState({ value: "" });
     const navigate = useNavigate();
     // const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to track dropdown open status
     const [showNotification, setShowNotification] = useState(false);
-    const [balance, setBalance] = useState(0);
+    const [balance, setBalance] = useState<IBalance>({
+        amount: 0,
+        cash_amount: 0,
+        non_cash_amount: 0,
+    });
     const [user, setUser] = useState<any>();
 
     // Sementara ini, karena feature BPJS ini belum diimplementasikan
@@ -240,6 +249,7 @@ const Dashboard = () => {
         }
         getTransaction()
     }, []);
+    console.log(balance)
 
     return (
         <div className="w-full">
@@ -318,10 +328,10 @@ const Dashboard = () => {
                     <div data-aos="fade-up" data-aos-delay="200" className="flex items-center justify-center gap-2">
                         {showBalance ? (
                             <p
-                                className={`font-bold mt-2 text-orange-400 ${balance > 99999999 ? "sm:text-3xl text-xl" : "sm:text-4xl text-2xl"
+                                className={`font-bold mt-2 text-orange-400 ${balance.amount > 99999999 ? "sm:text-3xl text-xl" : "sm:text-4xl text-2xl"
                                     }`}
                             >
-                                {Number(balance).toLocaleString("id-ID", {
+                                {Number(balance.amount).toLocaleString("id-ID", {
                                     style: "currency",
                                     currency: "IDR",
                                 })}
@@ -344,7 +354,7 @@ const Dashboard = () => {
                     <div className="text-center w-[100px] min-w-[100px]">
                         <p className="text-base text-gray-500">Non Tunai</p>
 
-                        <p>{formatRupiah(0)}</p>
+                        <p>{formatRupiah(Number(balance.non_cash_amount) ?? 0)}</p>
                     </div>
 
                     <div className="w-10 h-[2px] bg-gray-300 rotate-90"></div>
@@ -352,7 +362,7 @@ const Dashboard = () => {
                     <div className="text-center w-[100px] min-w-[100px]">
                         <p className="text-base text-gray-500">Tunai</p>
 
-                        <p>{formatRupiah(0)}</p>
+                        <p>{formatRupiah(Number(balance.cash_amount) ?? 0)}</p>
                     </div>
                 </div>
 

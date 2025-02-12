@@ -26,6 +26,12 @@ interface BankAccount {
     account_id: string;
     bank_name: string;
 }
+interface IBalance {
+    amount: number;
+    cash_amount: number;
+    non_cash_amount: number;
+
+}
 const Settlement = () => {
     const [uangMasuk, setUangMasuk] = useState(0);
     const [uangKeluar, setUangKeluar] = useState(0);
@@ -37,7 +43,11 @@ const Settlement = () => {
     const [isSuccess, setIsSuccess] = useState(false);
     const [message, setMessage] = useState<string>('');
     const [accounts, setAccounts] = useState<BankAccount[]>([])
-    const [balance, setBalance] = useState<string | null>(null)
+    const [balance, setBalance] = useState<IBalance>({
+        amount: 0,
+        cash_amount: 0,
+        non_cash_amount: 0,
+      });    
     const [histories, setHistories] = useState<any[]>([]);
     const [filteredHistories, setFilteredHistories] = useState<any[]>([]);
     const navigate = useNavigate();
@@ -59,7 +69,7 @@ const Settlement = () => {
     }, []);
 
     const FormSchema = z.object({
-        amount: z.number().min(10000, {
+        amount: z.number().min(1, {
             message: "Minimal Penarikan Rp 10.000",
         }),
         account_id: z.string().min(2, {
@@ -209,7 +219,7 @@ const Settlement = () => {
                 <div data-aos="fade-up" data-aos-delay="200" className={`${showNotification ? 'mt-10' : 'mt-24'} w-full border border-gray-300 rounded-lg p-5`}>
                     <div>
                         <p className="font-semibold text-lg">Total Saldo Stiqr</p>
-                        <p className="mt-2 font-semibold text-3xl">{formatRupiah(Number(balance))}</p>
+                        <p className="mt-2 font-semibold text-3xl">{formatRupiah(Number(balance.amount ?? 0))}</p>
                     </div>
 
                     <div className="w-full h-[1px] bg-gray-300 my-5" />
@@ -227,12 +237,12 @@ const Settlement = () => {
 
                         <div className="w-full flex items-center gap-5 justify-between">
                             <p className="text-gray-500">Saldo Non Tunai</p>
-                            <p className="font-semibold text-lg">{formatRupiah(0)}</p>
+                            <p className="font-semibold text-lg">{formatRupiah(balance.non_cash_amount ?? 0)}</p>
                         </div>
 
                         <div className="w-full flex items-center gap-5 justify-between">
                             <p className="text-gray-500">Saldo Tunai</p>
-                            <p className="font-semibold text-lg">{formatRupiah(0)}</p>
+                            <p className="font-semibold text-lg">{formatRupiah(balance.cash_amount ?? 0)}</p>
                         </div>
                     </div>
                 </div>
