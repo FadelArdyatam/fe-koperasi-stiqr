@@ -4,16 +4,8 @@ import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
-import Notification from "@/components/Notification"
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
 
 const AddCustomer = () => {
-    // Sementara ini, karena feature ini belum diimplementasikan
-    const [showNotification, setShowNotification] = useState(true);
-
-    const navigate = useNavigate();
-
     const FormSchema = z.object({
         customerName: z.string().min(3,
             { message: "Nama Pelanggan Tidak Boleh Kosong" }
@@ -66,7 +58,7 @@ const AddCustomer = () => {
                                 name="customerName"
                                 render={({ field }) => (
                                     <FormItem className="w-full" data-aos="fade-up" data-aos-delay="100">
-                                        <FormLabel className="text-gray-500">Nama Pemilik Rekening</FormLabel>
+                                        <FormLabel className="text-gray-500">Nama</FormLabel>
 
                                         <FormControl>
                                             <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
@@ -81,7 +73,7 @@ const AddCustomer = () => {
                                 name="phoneNumber"
                                 render={({ field }) => (
                                     <FormItem className="w-full" data-aos="fade-up" data-aos-delay="200">
-                                        <FormLabel className="text-gray-500">Nama Pemilik Rekening</FormLabel>
+                                        <FormLabel className="text-gray-500">No Hp</FormLabel>
 
                                         <FormControl>
                                             <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
@@ -96,7 +88,7 @@ const AddCustomer = () => {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem className="w-full" data-aos="fade-up" data-aos-delay="300">
-                                        <FormLabel className="text-gray-500">Nama Pemilik Rekening</FormLabel>
+                                        <FormLabel className="text-gray-500">Email</FormLabel>
 
                                         <FormControl>
                                             <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
@@ -111,7 +103,7 @@ const AddCustomer = () => {
                                 name="otherNumber"
                                 render={({ field }) => (
                                     <FormItem className="w-full" data-aos="fade-up" data-aos-delay="400">
-                                        <FormLabel className="text-gray-500">Nama Pemilik Rekening</FormLabel>
+                                        <FormLabel className="text-gray-500">Other Number</FormLabel>
 
                                         <FormControl>
                                             <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
@@ -126,7 +118,7 @@ const AddCustomer = () => {
                                 name="address"
                                 render={({ field }) => (
                                     <FormItem className="w-full" data-aos="fade-up" data-aos-delay="500">
-                                        <FormLabel className="text-gray-500">Nama Pemilik Rekening</FormLabel>
+                                        <FormLabel className="text-gray-500">Alamat</FormLabel>
 
                                         <FormControl>
                                             <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
@@ -141,8 +133,6 @@ const AddCustomer = () => {
                     </form>
                 </Form>
             </div>
-
-            {showNotification && <Notification message={"Sementara Fitur ini belum tersedia"} onClose={() => { setShowNotification(false); navigate("/dashboard") }} status={"error"} />}
         </>
     )
 }

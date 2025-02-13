@@ -2,12 +2,14 @@ import AddVariant from "@/components/AddVariant";
 import EditVarianProduct from "@/components/EditVarianProduct";
 import EditVariant from "@/components/EditVariant";
 import { Button } from "@/components/ui/button";
+import axiosInstance from "@/hooks/axiosInstance";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
 
 interface VariantProps {
     variants: Array<{
+        variant_status: any;
         product_variant: any;
         id: number;
         variant_id: string;
@@ -23,6 +25,7 @@ interface VariantProps {
         showVariant: boolean;
     }>;
     setVariants: (variants: Array<{
+        variant_status: any;
         product_variant: any;
         id: number;
         variant_id: string;
@@ -70,21 +73,41 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
         AOS.init({ duration: 500, once: true });
     }, []);
 
-    const handleSwitchChange = (id: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const handleSwitchChange = async (id: string, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.stopPropagation();
 
-        // Perbarui status showProduct pada produk tertentu
-        const updatedVariants = variants.map((variant) => {
-            if (variant.id === id) {
-                return {
-                    ...variant,
-                    showVariant: !variant.showVariant,
-                };
-            }
-            return variant;
-        });
+        const currentVariant = variants.find((variant) => variant.variant_id === id);
 
-        setVariants(updatedVariants); // Perbarui state di Catalog
+        console.log("id", id)
+
+        if (!currentVariant) return;
+
+        try {
+            const response = await axiosInstance.patch(`/varian/${id}/update-status`, {});
+            console.log(response);
+
+            // Perbarui status showVariant pada produk tertentu
+            setVariants(variants.map((variant) =>
+                variant.variant_id === id
+                    ? { ...variant, variant_status: !variant.variant_status }
+                    : variant
+            ));
+        } catch (error) {
+            console.error('Error updating variant status:', error);
+        }
+
+        // // Perbarui status showProduct pada produk tertentu
+        // const updatedVariants = variants.map((variant) => {
+        //     if (variant.id === id) {
+        //         return {
+        //             ...variant,
+        //             showVariant: !variant.showVariant,
+        //         };
+        //     }
+        //     return variant;
+        // });
+
+        // setVariants(updatedVariants); // Perbarui state di Catalog
     };
 
     const handleOpen = (id: string) => {
@@ -115,12 +138,12 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                                 {/* Custom Switch */}
                                 <button
                                     className={`flex items-center justify-center w-14 h-8 p-1 rounded-full cursor-pointer 
-                                    ${variant.showVariant ? 'bg-orange-500' : 'bg-gray-300'} transition-colors`}
-                                    onClick={(event) => handleSwitchChange(variant.id, event)}
+                                    ${variant.variant_status ? 'bg-orange-500' : 'bg-gray-300'} transition-colors`}
+                                    onClick={(event) => handleSwitchChange(variant.variant_id, event)}
                                 >
                                     <div
                                         className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform 
-                                        ${variant.showVariant ? 'transform translate-x-3' : 'transform -translate-x-3'}`}
+                                        ${variant.variant_status ? 'transform translate-x-3' : 'transform -translate-x-3'}`}
                                     ></div>
                                 </button>
                             </div>

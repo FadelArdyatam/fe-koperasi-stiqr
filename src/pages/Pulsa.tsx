@@ -25,7 +25,11 @@ const Pulsa = () => {
     const [dataBill, setDataBill] = useState<BillData | null>(null)
     const [showBill, setShowBill] = useState(false)
     const [indexButton, setIndexButton] = useState(-1)
-    const [balance, setBalance] = useState(0);
+    interface Balance {
+        amount: number;
+    }
+
+    const [balance, setBalance] = useState<Balance>({ amount: 0 });
     const [products, setProducts] = useState<any[]>([]);
     const [category, setCategory] = useState("pulsa");
     const [searchTerm, setSearchTerm] = useState('');
@@ -168,7 +172,7 @@ const Pulsa = () => {
                 <div data-aos="fade-up" data-aos-delay="100" className="relative mt-[70px] text-xl w-full p-8 shadow-lg flex flex-col items-center gap-2 justify-center">
                     <p className="font-bold">Saldo</p>
 
-                    <p className="font-semibold text-orange-500 text-2xl">{Number(balance).toLocaleString("id-ID", {
+                    <p className="font-semibold text-orange-500 text-2xl">{Number(balance.amount).toLocaleString("id-ID", {
                         style: "currency",
                         currency: "IDR",
                     })}</p>

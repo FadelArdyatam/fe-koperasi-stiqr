@@ -86,6 +86,7 @@ interface Etalase {
 }
 
 interface Variant {
+    variant_status: any;
     product_variant: any;
     id: number;
     variant_id: string;

@@ -1,4 +1,4 @@
-import { ArrowLeft, Trash2, Pencil, Search } from "lucide-react";
+import { ArrowLeft, Trash2, Pencil, ChevronsUpDown } from "lucide-react";
 import takeAway from "../../images/take-away.png"
 import dineIn from "../../images/dine-in.png"
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,19 @@ import { bookingDatas } from '@/pages/Booking/Booking';
 import axiosInstance from "@/hooks/axiosInstance";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command"
 
 interface OrderSummaryProps {
     basket: any[];
@@ -23,11 +36,32 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
     const [showOrderProcess, setShowOrderProcess] = useState(false);
     const [noMeja, setNoMeja] = useState("");
     const [responseSalesCreate, setResponseSalesCreate] = useState<any>(null);
-    const [searchTerm, setSearchTerm] = useState("");
+    const [openSearch, setOpenSearch] = useState(false);
+    const [value, setValue] = useState("");
+    const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+    const [customers, setCustomers] = useState<any[]>([]);
     const [dataCustomer, setDataCustomer] = useState({ name: "", phone: "", email: "", other_number: "" });
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
+    }, []);
+
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
+
+    useEffect(() => {
+        if (!userData) return;
+
+        const fetchData = async () => {
+            try {
+                const response = await axiosInstance.get(`/customers/${userData.merchant.id}`);
+                setCustomers(response.data);
+            } catch (error: any) {
+                console.error("Failed to fetch data:", error.message);
+            }
+        };
+
+        fetchData();
     }, []);
 
     const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
@@ -65,7 +99,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
             )
         );
     };
-
 
     const decreaseHandler = (index: number) => {
         const updatedBasket = [...basket];
@@ -152,6 +185,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
     };
 
     console.log("Merged Basket: ", mergedBasket);
+    console.log("selectedCustomer: ", selectedCustomer);
 
     return (
         <div ref={references}>
@@ -174,51 +208,127 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     <Button type="button" onClick={() => setShowService({ show: false, service: null })} className="block bg-orange-100 text-orange-400 rounded-full">Ubah</Button>
                 </div>
 
-                <div className="mt-10 relative w-[90%]" data-aos="fade-up" data-aos-delay="200">
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500">
-                        <Search />
-                    </div>
+                <Popover open={openSearch} onOpenChange={setOpenSearch}>
+                    <PopoverTrigger asChild>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={openSearch}
+                            className="mt-10 w-[90%] justify-between"
+                        >
+                            {value
+                                ? customers.find((customer) => customer.customer.name === value)?.customer.name
+                                : "Select customers..."}
 
-                    {/* Input */}
-                    <Input
-                        placeholder="Cari Pelanggan"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-12 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-orange-500"
-                    />
-                </div>
+                            <ChevronsUpDown className="opacity-50" />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="sm:w-[700px] p-0">
+                        <Command>
+                            <CommandInput placeholder="Search customer..." className="h-9" onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }} onClick={(e) => { e.preventDefault(); e.stopPropagation() }} />
+                            <CommandList>
+                                <CommandEmpty>No customer found.</CommandEmpty>
+                                <CommandGroup>
+                                    {customers.map((customer) => (
+                                        <CommandItem
+                                            key={customer.customer.customer_id}
+                                            value={customer.customer.name}
+                                            onSelect={(currentValue) => {
+                                                setValue(currentValue === value ? "" : currentValue);
+                                                setSelectedCustomer(customer);
+                                                setOpenSearch(false);
+                                            }}
+                                            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                            }}
+                                        >
+                                            {customer.customer.name}
+                                        </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                            </CommandList>
+                        </Command>
+                    </PopoverContent>
+                </Popover>
 
                 <div className="mt-5 w-[90%]">
                     <div data-aos="fade-up" data-aos-delay="300" className="flex items-center gap-5">
                         <div className="w-[65%]">
                             <p className="font-semibold">Nama Pemesan (Opsional)</p>
 
-                            <Input onChange={(e) => setDataCustomer({ name: e.target.value, phone: dataCustomer.phone, email: dataCustomer.email, other_number: dataCustomer.other_number })} type="text" placeholder="Nama Pemesan" className="w-full bg-white p-3 rounded-lg mt-2" />
+                            <Input
+                                value={selectedCustomer?.customer?.name !== null ? selectedCustomer?.customer?.name : dataCustomer.name}
+                                onChange={(e) => {
+                                    setDataCustomer({
+                                        name: e.target.value,
+                                        phone: dataCustomer.phone,
+                                        email: dataCustomer.email,
+                                        other_number: dataCustomer.other_number
+                                    });
+                                    setSelectedCustomer({ ...selectedCustomer, customer: { ...selectedCustomer?.customer, name: null } });
+                                }}
+                                type="text"
+                                placeholder="Nama Pemesan"
+                                className="w-full bg-white p-3 rounded-lg mt-2"
+                            />
                         </div>
 
                         <div className="w-[35%]">
                             <p className="font-semibold">No. Meja</p>
 
-                            <Input onChange={(e) => setNoMeja(e.target.value)} placeholder="No. Meja" className="w-full bg-white p-3 rounded-lg mt-2" />
+                            <Input
+                                onChange={(e) => {
+                                    setNoMeja(e.target.value);
+                                }}
+                                placeholder="No. Meja"
+                                className="w-full bg-white p-3 rounded-lg mt-2"
+                            />
                         </div>
                     </div>
 
                     <div data-aos="fade-up" data-aos-delay="400" className="mt-5">
                         <p className="font-semibold">No. Telephone</p>
 
-                        <Input onChange={(e) => setDataCustomer({ name: dataCustomer.name, phone: e.target.value, email: dataCustomer.email, other_number: dataCustomer.other_number })} placeholder="No. Telphone" type="number" className="w-full bg-white p-3 rounded-lg mt-2" />
+                        <Input
+                            value={selectedCustomer?.customer?.phone ? selectedCustomer?.customer?.phone : dataCustomer.phone}
+                            onChange={(e) => {
+                                setDataCustomer({ name: dataCustomer.name, phone: e.target.value, email: dataCustomer.email, other_number: dataCustomer.other_number });
+                                setSelectedCustomer({ ...selectedCustomer, customer: { ...selectedCustomer?.customer, phone: null } });
+                            }}
+                            placeholder="No. Telphone"
+                            type="number"
+                            className="w-full bg-white p-3 rounded-lg mt-2"
+                        />
                     </div>
 
                     <div data-aos="fade-up" data-aos-delay="500" className="mt-5">
                         <p className="font-semibold">Email</p>
 
-                        <Input onChange={(e) => setDataCustomer({ name: dataCustomer.name, phone: dataCustomer.phone, email: e.target.value, other_number: dataCustomer.other_number })} placeholder="Email" type="email" className="w-full bg-white p-3 rounded-lg mt-2" />
+                        <Input
+                            value={selectedCustomer?.customer?.email ? selectedCustomer?.customer?.email : dataCustomer.email}
+                            onChange={(e) => {
+                                setDataCustomer({ name: dataCustomer.name, phone: dataCustomer.phone, email: e.target.value, other_number: dataCustomer.other_number });
+                                setSelectedCustomer({ ...selectedCustomer, customer: { ...selectedCustomer?.customer, email: null } });
+                            }}
+                            placeholder="Email"
+                            type="email"
+                            className="w-full bg-white p-3 rounded-lg mt-2" />
                     </div>
 
                     <div data-aos="fade-up" data-aos-delay="600" className="mt-5">
                         <p className="font-semibold">Other Number</p>
 
-                        <Input onChange={(e) => setDataCustomer({ name: dataCustomer.name, phone: dataCustomer.phone, email: dataCustomer.email, other_number: e.target.value })} placeholder="Other Number" className="w-full bg-white p-3 rounded-lg mt-2" />
+                        <Input
+                            value={selectedCustomer?.customer?.other_number ? selectedCustomer?.customer?.other_number : dataCustomer.other_number}
+                            onChange={(e) => {
+                                setDataCustomer({ name: dataCustomer.name, phone: dataCustomer.phone, email: dataCustomer.email, other_number: e.target.value });
+                                setSelectedCustomer({ ...selectedCustomer, customer: { ...selectedCustomer?.customer, other_number: null } });
+                            }}
+                            placeholder="Other Number"
+                            className="w-full bg-white p-3 rounded-lg mt-2" />
                     </div>
 
                     <div data-aos="fade-up" className="mt-5 w-full flex items-center gap-5 justify-between bg-white p-5 rounded-lg">

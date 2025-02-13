@@ -533,6 +533,8 @@ const Dashboard = () => {
                                             <div className="flex flex-col items-end">
                                                 <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
 
+                                                <p className="text-sm font-semibold text-red-500">-{formatRupiah(0)}</p>
+
                                                 <div className="flex items-center">
                                                     <p className="text-xs">
                                                         {new Date(history.transaction_date).toLocaleDateString("id-ID", {
@@ -626,7 +628,7 @@ const Dashboard = () => {
             </div>
 
             {/* Notification for BPJS */}
-            {showNotificationBPJS && <Notification message={"Sementara Fitur ini belum tersedia"} onClose={() => { setShowNotificationBPJS(false) }} status={"error"} />}
+            {showNotificationBPJS && <Notification message={"Fitur ini akan segera hadir"} onClose={() => { setShowNotificationBPJS(false) }} status={"error"} />}
         </div>
     );
 };
