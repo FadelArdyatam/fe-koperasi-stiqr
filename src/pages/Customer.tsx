@@ -44,7 +44,7 @@ const Customer = () => {
     console.log("Customers", customers);
 
     return (
-        <div className="w-full flex flex-col items-center">
+        <div className="w-full flex flex-col items-center pb-32">
             <div className="w-full px-5 pt-5 pb-32 flex items-center justify-center bg-orange-400">
                 {isAdding ? (
                     <ChevronLeft onClick={() => setIsAdding(false)} className="text-white scale-[1.3] absolute left-5" />

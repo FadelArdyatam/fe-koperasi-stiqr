@@ -47,9 +47,12 @@ const Settlement = () => {
         amount: 0,
         cash_amount: 0,
         non_cash_amount: 0,
-      });    
+    });
     const [histories, setHistories] = useState<any[]>([]);
     const [filteredHistories, setFilteredHistories] = useState<any[]>([]);
+    const [showPinInput, setShowPinInput] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [pin, setPin] = useState<string[]>([]);
     const navigate = useNavigate();
 
     const [months, setMonths] = useState(2); // Default 2 bulan
@@ -87,27 +90,71 @@ const Settlement = () => {
         },
     });
 
-    async function onSubmit(data: FormData) {
+    async function onSubmit() {
+        // try {
+        //     const response = await axiosInstance.post(`/settlement/create`, {
+        //         amount: data.amount.toString(),
+        //         account_id: data.account_id,
+        //     });
+
+        //     console.log(response)
+
+        //     if (response.data.success) {
+        //         setErrorNotification(true);
+        //         setMessage("Berhasil melakukan penarikan")
+        //         setIsSuccess(true)
+        //     }
+        // } catch (error: any) {
+        //     setErrorNotification(true);
+        //     setMessage(error.response.data.message);
+        //     setIsSuccess(false)
+        //     console.error(error);
+        // }
+
+        setShowPinInput(true)
+    }
+
+    const handleSubmitPin = async () => {
         try {
+            setLoading(true);
+            setShowPinInput(false)
+
             const response = await axiosInstance.post(`/settlement/create`, {
-                amount: data.amount.toString(),
-                account_id: data.account_id,
+                amount: form.getValues("amount"),
+                account_id: form.getValues("account_id"),
             });
 
             console.log(response)
 
             if (response.data.success) {
-                setErrorNotification(true);
                 setMessage("Berhasil melakukan penarikan")
+                setLoading(false)
                 setIsSuccess(true)
             }
+
+            // Tampilkan notifikasi sukses setelah API call berhasil
+            setShowNotification(true);
         } catch (error: any) {
+            console.error("Error saat melakukan pembayaran:", error);
+
             setErrorNotification(true);
             setMessage(error.response.data.message);
-            setIsSuccess(false)
-            console.error(error);
+            setLoading(false);
         }
-    }
+
+        setShowPinInput(false);
+        setPin([]); // Reset PIN
+    };
+
+    const handleNumberClick = (number: string) => {
+        if (pin.length < 6) {
+            setPin([...pin, number]); // Tambahkan angka ke PIN
+        }
+    };
+
+    const handleDelete = () => {
+        setPin(pin.slice(0, -1)); // Hapus angka terakhir dari PIN
+    };
 
     useEffect(() => {
         // Ambil informasi user dari sessionStorage
@@ -482,6 +529,74 @@ const Settlement = () => {
                 )}
 
             </div>
+
+            {/* Komponen Input PIN */}
+            {showPinInput && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white w-[90%] p-6 rounded-lg">
+                        <h2 className="text-xl font-semibold text-center mb-4">Masukkan PIN Anda</h2>
+
+                        {/* PIN Indicator */}
+                        <div className="flex justify-center mb-6">
+                            {[...Array(6)].map((_, index) => (
+                                <div
+                                    key={index}
+                                    className={`w-4 h-4 mx-1 rounded-full ${pin[index] ? 'bg-green-500' : 'bg-gray-300'}`}
+                                ></div>
+                            ))}
+                        </div>
+
+                        {/* Number Pad */}
+                        <div className="grid grid-cols-3 gap-5 mb-5 max-w-[400px] mx-auto">
+                            {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((number) => (
+                                <button
+                                    key={number}
+                                    onClick={() => handleNumberClick(number)}
+                                    className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
+                                >
+                                    {number}
+                                </button>
+                            ))}
+                            <div></div>
+                            <button
+                                onClick={() => handleNumberClick("0")}
+                                className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
+                            >
+                                0
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold"
+                            >
+                                ⌫
+                            </button>
+                        </div>
+
+                        <div className="flex justify-between">
+                            <Button
+                                onClick={() => setShowPinInput(false)}
+                                className="w-full mr-2 bg-gray-400 text-white"
+                            >
+                                Batal
+                            </Button>
+                            <Button
+                                onClick={handleSubmitPin}
+                                className="w-full ml-2 bg-green-500 text-white"
+                                disabled={pin.length !== 6}
+                            >
+                                Konfirmasi
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Loading */}
+            {loading && (
+                <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                </div>
+            )}
 
             {errorNotification && (
                 <div>

@@ -509,7 +509,7 @@ const Dashboard = () => {
                         <div className="mt-5">
                             {filteredHistories.length > 0 ? (
                                 // Jika ada transaksi dalam rentang yang difilter
-                                filteredHistories.map((history, index) => (
+                                filteredHistories.slice().reverse().map((history, index) => (
                                     <div key={index}>
                                         <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
 
@@ -567,7 +567,7 @@ const Dashboard = () => {
                                 ) : (
                                     // Jika tidak ada filter aktif, tampilkan semua transaksi
                                     histories.length > 0 ? (
-                                        histories.map((history, index) => (
+                                        histories.slice().reverse().map((history, index) => (
                                             <div key={index}>
                                                 <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
 
