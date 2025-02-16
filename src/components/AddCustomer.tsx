@@ -4,6 +4,7 @@ import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
+import axiosInstance from "@/hooks/axiosInstance"
 
 const AddCustomer = () => {
     const FormSchema = z.object({
@@ -19,9 +20,9 @@ const AddCustomer = () => {
         otherNumber: z.string().min(3,
             { message: "Nomor Lain harus diisi" }
         ),
-        address: z.string().min(10,
-            { message: "Alamat harus diisi" }
-        ),
+        // address: z.string().min(10,
+        //     { message: "Alamat harus diisi" }
+        // ),
     })
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -31,20 +32,28 @@ const AddCustomer = () => {
             phoneNumber: '',
             email: '',
             otherNumber: '',
-            address: '',
+            // address: '',
         },
     })
 
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
     async function onSubmit(data: z.infer<typeof FormSchema>) {
-        const formData = new FormData();
 
-        formData.append("customer_name", data.customerName);
-        formData.append("phone_number", data.phoneNumber);
-        formData.append("email", data.email);
-        formData.append("other_number", data.otherNumber);
-        formData.append("address", data.address);
+        const payload = {
+            name: data.customerName,
+            phone: data.phoneNumber,
+            email: data.email,
+            other_number: data.otherNumber,
+            merchant_id: userData.merchant?.id
+        }
 
-        console.log("data", data)
+        try {
+            const response = await axiosInstance.post('/customers/create', payload)
+            console.log(response)
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     return (
@@ -113,7 +122,7 @@ const AddCustomer = () => {
                                 )}
                             />
 
-                            <FormField
+                            {/* <FormField
                                 control={form.control}
                                 name="address"
                                 render={({ field }) => (
@@ -126,7 +135,7 @@ const AddCustomer = () => {
                                         <FormMessage />
                                     </FormItem>
                                 )}
-                            />
+                            /> */}
                         </div>
 
                         <Button data-aos="fade-up" data-aos-delay="600" type="submit" className={`w-full bg-green-400 mt-7`}>Simpan Data</Button>

@@ -25,6 +25,7 @@ import Notification from "@/components/Notification";
 interface BankAccount {
     account_id: string;
     bank_name: string;
+    account_number: string;
 }
 interface IBalance {
     amount: number;
@@ -47,7 +48,7 @@ const Settlement = () => {
         amount: 0,
         cash_amount: 0,
         non_cash_amount: 0,
-      });    
+    });
     const [histories, setHistories] = useState<any[]>([]);
     const [filteredHistories, setFilteredHistories] = useState<any[]>([]);
     const navigate = useNavigate();
@@ -87,24 +88,46 @@ const Settlement = () => {
         },
     });
 
+    const [pin, setPin] = useState<string[]>([]);
+
+    const handleNumberClick = (number: string) => {
+        if (pin.length < 6) {
+            setPin([...pin, number]);
+        }
+    };
+
+    const handleDelete = () => {
+        setPin(pin.slice(0, -1));
+    };
+    const [showPinInput, setShowPinInput] = useState(false);
+    const [loading, setLoading] = useState(false);
     async function onSubmit(data: FormData) {
         try {
-            const response = await axiosInstance.post(`/settlement/create`, {
-                amount: data.amount.toString(),
-                account_id: data.account_id,
-            });
+            setShowPinInput(true);
+            if (showPinInput) {
+                setLoading(true);
+                const response = await axiosInstance.post(`/settlement/create`, {
+                    amount: data.amount.toString(),
+                    account_id: data.account_id,
+                    pin: pin.join(''),
+                });
 
-            console.log(response)
-
-            if (response.data.success) {
-                setErrorNotification(true);
-                setMessage("Berhasil melakukan penarikan")
-                setIsSuccess(true)
+                if (response.data.success) {
+                    setErrorNotification(true);
+                    setMessage("Berhasil melakukan penarikan")
+                    setIsSuccess(true)
+                    setPin([])
+                    setShowPinInput(false)
+                    setLoading(false)
+                }
             }
         } catch (error: any) {
             setErrorNotification(true);
             setMessage(error.response.data.message);
             setIsSuccess(false)
+            setShowPinInput(false)
+            setPin([])
+            setLoading(false)
             console.error(error);
         }
     }
@@ -182,10 +205,6 @@ const Settlement = () => {
         setStartDate(start);
         setEndDate(end);
     };
-
-    console.log("histories", histories);
-
-    console.log("filteredHistories", filteredHistories);
 
     return (
         <div>
@@ -294,7 +313,7 @@ const Settlement = () => {
                                                             key={i}
                                                             onSelect={() => field.onChange(account.account_id)}
                                                         >
-                                                            {account.bank_name}
+                                                            {account.bank_name} - {account.account_number}
                                                         </DropdownMenuItem>
                                                     ))}
                                                 </DropdownMenuContent>
@@ -309,6 +328,70 @@ const Settlement = () => {
                         <Button type="submit" className="mt-5 w-full text-base bg-orange-500">
                             Tarik Saldo
                         </Button>
+
+                        {showPinInput && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-white w-[90%] p-6 rounded-lg">
+                                    <h2 className="text-xl font-semibold text-center mb-4">Masukkan PIN Anda</h2>
+
+                                    {/* PIN Indicator */}
+                                    <div className="flex justify-center mb-6">
+                                        {[...Array(6)].map((_, index) => (
+                                            <div
+                                                key={index}
+                                                className={`w-4 h-4 mx-1 rounded-full ${pin[index] ? 'bg-green-500' : 'bg-gray-300'}`}
+                                            ></div>
+                                        ))}
+                                    </div>
+
+                                    {/* Number Pad */}
+                                    <div className="grid grid-cols-3 gap-5 mb-5 max-w-[400px] mx-auto">
+                                        {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((number) => (
+                                            <button
+                                                key={number}
+                                                type="button"
+                                                onClick={() => handleNumberClick(number)}
+                                                className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
+                                            >
+                                                {number}
+                                            </button>
+                                        ))}
+                                        <div></div>
+                                        <button
+                                            onClick={() => handleNumberClick("0")}
+                                            type="button"
+                                            className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
+                                        >
+                                            0
+                                        </button>
+                                        <button
+                                            onClick={handleDelete}
+                                            type="button"
+                                            className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold"
+                                        >
+                                            ⌫
+                                        </button>
+                                    </div>
+
+                                    <div className="flex justify-between">
+                                        <Button
+                                            onClick={() => setShowPinInput(false)}
+                                            type="button"
+                                            className="w-full mr-2 bg-gray-400 text-white"
+                                        >
+                                            Batal
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            className="w-full ml-2 bg-green-500 text-white"
+                                            disabled={pin.length !== 6 || loading}
+                                        >
+                                            Konfirmasi
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </form>
                 </Form>
             </div>
@@ -497,6 +580,8 @@ const Settlement = () => {
                     />
                 </div>
             )}
+
+
 
             {/* Navigation */}
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
