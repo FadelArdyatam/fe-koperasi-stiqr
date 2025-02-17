@@ -200,7 +200,7 @@ const Settlement = () => {
 
         fetchSettlement()
     }, []);
-    
+
     // useEffect(() => {
     //     if (startDate || endDate) {
     //         const filtered = histories.filter((history) => {
@@ -344,7 +344,7 @@ const Settlement = () => {
                             />
 
                             <div className="flex justify-between">
-                                <p>Biaya Aplikasi <i> (0,7%)</i> </p>
+                                <p>MDR <i> (0,7%)</i> </p>
                                 <p className="font-bold">{formatRupiah(marginMdr)}</p>
                             </div>
                             <div className="flex justify-between items-center">
