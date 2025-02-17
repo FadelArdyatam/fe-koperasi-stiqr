@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
 import { formatRupiah } from "@/hooks/convertRupiah";
 import { Input } from "@/components/ui/input";
-import DatePicker from "react-datepicker";
+// import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import notransaction from "../images/no-transaction.png";
+// import notransaction from "../images/no-transaction.png";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"; // Import Form from shadcn/ui
@@ -31,47 +31,58 @@ interface IBalance {
     amount: number;
     cash_amount: number;
     non_cash_amount: number;
+}
 
+interface ISettlement {
+    settlement_id: string;
+    created_at: Date;
+    amount: number;
+    account: {
+        bank_name: string;
+        account_number: string;
+    }
 }
 const Settlement = () => {
+    useEffect(() => {
+        AOS.init({ duration: 500, once: true, offset: 100 });
+    }, []);
+
     const [uangMasuk, setUangMasuk] = useState(0);
     const [uangKeluar, setUangKeluar] = useState(0);
-    const [startDate, setStartDate] = useState<Date | null>(new Date());
-    const [endDate, setEndDate] = useState<Date | null>(null);
-    const [showCalendar, setShowCalendar] = useState(false);
     const [showNotification, setShowNotification] = useState(true);
     const [errorNotification, setErrorNotification] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [message, setMessage] = useState<string>('');
     const [accounts, setAccounts] = useState<BankAccount[]>([])
+    const [mdr, setMdr] = useState(0)
+    const [marginMdr, setMarginMdr] = useState(0)
     const [balance, setBalance] = useState<IBalance>({
         amount: 0,
         cash_amount: 0,
         non_cash_amount: 0,
     });
-    const [histories, setHistories] = useState<any[]>([]);
-    const [filteredHistories, setFilteredHistories] = useState<any[]>([]);
     const navigate = useNavigate();
+    // const [startDate, setStartDate] = useState<Date | null>(new Date());
+    // const [endDate, setEndDate] = useState<Date | null>(null);
+    // const [showCalendar, setShowCalendar] = useState(false);
+    // const [histories, setHistories] = useState<any[]>([]);
+    // const [filteredHistories, setFilteredHistories] = useState<any[]>([]);
 
-    const [months, setMonths] = useState(2); // Default 2 bulan
+    // const [months, setMonths] = useState(2); // Default 2 bulan
 
-    useEffect(() => {
-        AOS.init({ duration: 500, once: true, offset: 100 });
-    }, []);
+    // useEffect(() => {
+    //     const handleResize = () => {
+    //         setMonths(window.innerWidth < 768 ? 1 : 2); // Jika kurang dari 768px, tampilkan 1 bulan
+    //     };
 
-    useEffect(() => {
-        const handleResize = () => {
-            setMonths(window.innerWidth < 768 ? 1 : 2); // Jika kurang dari 768px, tampilkan 1 bulan
-        };
-
-        handleResize(); // Jalankan saat pertama kali load
-        window.addEventListener("resize", handleResize); // Deteksi perubahan ukuran layar
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    //     handleResize(); // Jalankan saat pertama kali load
+    //     window.addEventListener("resize", handleResize); // Deteksi perubahan ukuran layar
+    //     return () => window.removeEventListener("resize", handleResize);
+    // }, []);
 
     const FormSchema = z.object({
-        amount: z.number().min(1, {
-            message: "Minimal Penarikan Rp 10.000",
+        amount: z.number().min(5, {
+            message: "Minimal Penarikan Rp 12.000",
         }),
         account_id: z.string().min(2, {
             message: "Tidak Boleh Kosong",
@@ -110,6 +121,7 @@ const Settlement = () => {
                     amount: data.amount.toString(),
                     account_id: data.account_id,
                     pin: pin.join(''),
+                    mdr_amount: mdr
                 });
 
                 if (response.data.success) {
@@ -171,40 +183,40 @@ const Settlement = () => {
                 console.error(error);
             }
         }
-
-        const getTransaction = async () => {
-            try {
-                const response = await axiosInstance.get(
-                    `/transactions/${userData.merchant.id}`,
-                );
-
-                setHistories(response.data);
-            } catch (err: any) {
-                console.log(err)
-            }
-        }
-
-        getTransaction();
         getMoney();
         getAccount();
         getSaldo()
     }, []);
-
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
+    const [settlements, setSettlements] = useState<ISettlement[]>([])
     useEffect(() => {
-        if (startDate || endDate) {
-            const filtered = histories.filter((history) => {
-                const transactionDate = new Date(history.transaction_date);
-                return startDate && endDate && transactionDate >= new Date(startDate) && transactionDate <= new Date(endDate);
-            });
-            setFilteredHistories(filtered);
+        const fetchSettlement = async () => {
+            console.log('settlement');
+            const res = await axiosInstance.get(`/settlement/${userData.merchant.id}`)
+            console.log(res)
+            setSettlements(res.data)
         }
-    }, [startDate, endDate, histories]);
 
-    const onChange = (dates: [Date | null, Date | null]) => {
-        const [start, end] = dates;
-        setStartDate(start);
-        setEndDate(end);
-    };
+        fetchSettlement()
+    }, []);
+    
+    // useEffect(() => {
+    //     if (startDate || endDate) {
+    //         const filtered = histories.filter((history) => {
+    //             const transactionDate = new Date(history.transaction_date);
+    //             return startDate && endDate && transactionDate >= new Date(startDate) && transactionDate <= new Date(endDate);
+    //         });
+    //         setFilteredHistories(filtered);
+    //     }
+    // }, [startDate, endDate, histories]);
+
+    // const onChange = (dates: [Date | null, Date | null]) => {
+    //     const [start, end] = dates;
+    //     setStartDate(start);
+    //     setEndDate(end);
+    // };
+
 
     return (
         <div>
@@ -272,29 +284,6 @@ const Settlement = () => {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5">
                         <div data-aos="fade-up" data-aos-delay="300" className="flex flex-col gap-3">
-                            <p>Saldo Yang Ingin Ditarik</p>
-                            <FormField
-                                control={form.control}
-                                name="amount"
-                                render={({ field }) => (
-                                    <FormItem className="w-full">
-                                        <FormControl>
-                                            <Input
-                                                type="text" // Menggunakan text agar bisa menampilkan format Rupiah
-                                                value={formatRupiah(String(field.value) || "0")} // Pastikan formatRupiah menerima string
-                                                placeholder="Masukkan Jumlah Saldo"
-                                                onChange={(e) => {
-                                                    let value = e.target.value.replace(/\D/g, ""); // Hanya angka
-                                                    value = value.slice(0, 7); // Batasi 10 digit
-                                                    field.onChange(value ? Number(value) : ""); // Simpan angka, kosongkan jika tidak ada input
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
                             <p>Pilih Bank</p>
                             <FormField
                                 control={form.control}
@@ -323,6 +312,58 @@ const Settlement = () => {
                                     </FormItem>
                                 )}
                             />
+                            <div className="w-full h-[1px] bg-gray-300 my-3" />
+                            <p className="">Saldo Yang Ingin Ditarik</p>
+                            <FormField
+                                control={form.control}
+                                name="amount"
+                                render={({ field }) => (
+                                    <FormItem className="w-full font-bold">
+                                        <FormControl>
+                                            <Input
+                                                type="text"
+                                                value={formatRupiah(String(field.value) || "0")}
+                                                placeholder="Masukkan Jumlah Saldo"
+                                                onChange={(e) => {
+                                                    let value = e.target.value.replace(/\D/g, "");
+                                                    value = value.slice(0, 7);
+                                                    const maxAmount = balance.non_cash_amount;
+                                                    if (Number(value) > maxAmount) {
+                                                        value = String(maxAmount);
+                                                    }
+                                                    field.onChange(value ? Number(value) : "");
+                                                    const margin = Number(value) * 0.007;
+                                                    setMarginMdr(Math.ceil(margin));
+                                                    setMdr(Math.ceil(Number(value) - margin));
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <div className="flex justify-between">
+                                <p>Biaya Aplikasi <i> (0,7%)</i> </p>
+                                <p className="font-bold">{formatRupiah(marginMdr)}</p>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <p>Biaya Admin </p>
+                                    <p className="text-xs text-gray-500 italic ">*sementara ditanggung oleh tim STIQR</p>
+                                </div>
+                                <p className="font-bold">
+                                    <span className="line-through font-semibold decoration-red-500">{formatRupiah(1000)}</span> {formatRupiah(0)}
+                                </p>
+
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <p>Saldo yang Diterima </p>
+                                    <p className="text-xs text-gray-500 italic ">*saldo yang masuk ke rekening Anda.</p>
+                                </div>
+                                <p className="font-bold">{formatRupiah(mdr)}</p>
+                            </div>
                         </div>
 
                         <Button type="submit" className="mt-5 w-full text-base bg-orange-500">
@@ -396,10 +437,58 @@ const Settlement = () => {
                 </Form>
             </div>
 
-            {/* Transaction History */}
+
             <div className="pb-32">
-                <div className="p-5 bg-white w-[94%] m-auto">
-                    <p className="font-semibold text-lg">Riwayat Transaksi</p>
+                {
+                    settlements.length > 0 ? (
+                        <div>
+                            <p className="text-xl text-center font-bold my-3">Riwayat Penarikan</p>
+                            {
+                                settlements.map((settlement, index) => (
+                                    <div key={index} className="w-[90%] m-auto">
+                                        <div className={`${index === 0 ? "hidden" : "block"} w-[100%] h-[2px] my-5 bg-gray-300 rounded-full`}></div>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-start gap-2">
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        {settlement.account.bank_name} - {settlement.account.account_number}
+                                                    </div>
+                                                    <p className="text-xs text-gray-400">{settlement.settlement_id}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col items-end">
+                                                <p className="text-md font-semibold">{formatRupiah(Number(settlement.amount) ?? 0)}</p>
+
+                                                <div className="flex items-center">
+                                                    <p className="text-xs">
+                                                        {new Date(settlement.created_at).toLocaleDateString("id-ID", {
+                                                            day: "2-digit",
+                                                            month: "long",
+                                                            year: "numeric",
+                                                        })}
+                                                    </p>
+
+                                                    <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                                    <p className="text-xs">
+                                                        {new Date(settlement.created_at).toLocaleTimeString("id-ID", {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                        })}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                        </div>
+                    ) : (
+                        <div></div>
+                    )
+                }
+                {/* <div className="p-5 bg-white w-[94%] m-auto">
+                    <p className="font-semibold text-lg">Riwayat Penarikan</p>
                     <Button
                         type="button"
                         className="w-full mt-3 text-base font-medium bg-gray-200 text-gray-700 border border-gray-400 rounded-lg"
@@ -439,9 +528,9 @@ const Settlement = () => {
                             </Button>
                         </div>
                     )}
-                </div>
+                </div> */}
 
-                {histories.length === 0 ? (
+                {/* {histories.length === 0 ? (
                     <div className="flex flex-col items-center gap-5">
                         <img className="p-5" src={notransaction} alt="No transactions" />
                         <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
@@ -449,7 +538,6 @@ const Settlement = () => {
                 ) : (
                     <div className="mt-5 p-5">
                         {filteredHistories.length > 0 ? (
-                            // Jika ada transaksi dalam rentang yang difilter
                             filteredHistories.map((history, index) => (
                                 <div key={index} className="w-[94%] m-auto">
                                     <div className={`${index === 0 ? "hidden" : "block"} w-[94%] h-[2px] my-5 bg-gray-300 rounded-full`}></div>
@@ -562,28 +650,26 @@ const Settlement = () => {
                             )
                         )}
                     </div>
-                )}
-
+                )} */}
             </div>
 
-            {errorNotification && (
-                <div>
-                    <Notification
-                        message={message}
-                        onClose={() => {
-                            setErrorNotification(false)
-                            if (isSuccess) {
-                                navigate('/dashboard')
-                            }
-                        }}
-                        status={isSuccess ? 'success' : 'error'}
-                    />
-                </div>
-            )}
+            {
+                errorNotification && (
+                    <div>
+                        <Notification
+                            message={message}
+                            onClose={() => {
+                                setErrorNotification(false)
+                                if (isSuccess) {
+                                    navigate('/dashboard')
+                                }
+                            }}
+                            status={isSuccess ? 'success' : 'error'}
+                        />
+                    </div>
+                )
+            }
 
-
-
-            {/* Navigation */}
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
                 <Link to="/dashboard" className="flex gap-3 flex-col items-center">
                     <Home />
@@ -612,7 +698,7 @@ const Settlement = () => {
                     <p className="uppercase">Profile</p>
                 </Link>
             </div>
-        </div>
+        </div >
     );
 };
 
