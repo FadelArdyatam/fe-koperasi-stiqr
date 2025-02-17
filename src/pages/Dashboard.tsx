@@ -16,6 +16,7 @@ import DatePicker from "react-datepicker";
 import Notification from "@/components/Notification"
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Joyride from 'react-joyride';
 
 export const admissionFees = [
     {
@@ -125,6 +126,18 @@ const Dashboard = () => {
     const [filteredHistories, setFilteredHistories] = useState<History[]>([]);
 
     const [months, setMonths] = useState(2); // Default 2 bulan
+
+    // Guidance
+    const [run] = useState(false);
+
+    const steps = [
+        { target: "#inbox", content: <h2>Ini adalah Inbox, untuk menerima semua Notification</h2> },
+        { target: "#balance", content: <h2>Ini adalah Saldo semua Stiqr anda</h2> },
+        { target: "#non-cash-balance", content: <h2>Ini adalah Saldo Non Tunai Stiqr anda</h2> },
+        { target: "#cash-balance", content: <h2>Ini adalah Saldo Tunai Stiqr anda</h2> },
+        { target: "#money-in", content: <h2>Ini adalah info Uang Masuk anda</h2> },
+        { target: "#money-out", content: <h2>Ini adalah info Uang Keluar anda</h2> },
+    ];
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
@@ -311,7 +324,7 @@ const Dashboard = () => {
                 <div className="flex items-center gap-5">
                     <p className="text-2xl m-auto uppercase font-semibold text-center text-white" data-aos="zoom-in">Home</p>
 
-                    <Link to={'/inbox'} className="bg-transparent text-white absolute right-5 hover:bg-transparent">
+                    <Link id="inbox" to={'/inbox'} className="bg-transparent text-white absolute right-5 hover:bg-transparent">
                         <Mail className="scale-[1.3]" />
                     </Link>
                 </div>
@@ -325,7 +338,7 @@ const Dashboard = () => {
                 <div className="w-full text-center">
                     <p className="font-semibold text-lg" data-aos="fade-up" data-aos-delay="150">Saldo Anda</p>
 
-                    <div data-aos="fade-up" data-aos-delay="200" className="flex items-center justify-center gap-2">
+                    <div id="balance" data-aos="fade-up" data-aos-delay="200" className="flex items-center justify-center gap-2">
                         {showBalance ? (
                             <p
                                 className={`font-bold mt-2 text-orange-400 ${balance.amount > 99999999 ? "sm:text-3xl text-xl" : "sm:text-4xl text-2xl"
@@ -351,7 +364,7 @@ const Dashboard = () => {
                 </div>
 
                 <div data-aos="fade-up" data-aos-delay="250" className="flex items-center w-full justify-center gap-5 mt-5">
-                    <div className="text-center w-[100px] min-w-[100px]">
+                    <div id="non-cash-balance" className="text-center w-[100px] min-w-[100px]">
                         <p className="text-base text-gray-500">Non Tunai</p>
 
                         <p>{formatRupiah(Number(balance.non_cash_amount) ?? 0)}</p>
@@ -359,7 +372,7 @@ const Dashboard = () => {
 
                     <div className="w-10 h-[2px] bg-gray-300 rotate-90"></div>
 
-                    <div className="text-center w-[100px] min-w-[100px]">
+                    <div id="cash-balance" className="text-center w-[100px] min-w-[100px]">
                         <p className="text-base text-gray-500">Tunai</p>
 
                         <p>{formatRupiah(Number(balance.cash_amount) ?? 0)}</p>
@@ -367,7 +380,7 @@ const Dashboard = () => {
                 </div>
 
                 <div className="mt-10 flex items-center justify-between">
-                    <div data-aos="fade-up" data-aos-delay="250" className="flex items-center gap-3">
+                    <div id="money-in" data-aos="fade-up" data-aos-delay="250" className="flex items-center gap-3">
                         <div className="w-10 min-w-10 min-h-10 h-10 flex items-center justify-center text-black bg-orange-400 rounded-full">
                             <HandCoins />
                         </div>
@@ -381,7 +394,7 @@ const Dashboard = () => {
 
                     <div className="w-10 h-[2px] bg-gray-300 rotate-90"></div>
 
-                    <div data-aos="fade-up" data-aos-delay="300" className="flex items-center gap-3">
+                    <div id="money-out" data-aos="fade-up" data-aos-delay="300" className="flex items-center gap-3">
                         <div className="w-10 min-w-10 min-h-10 h-10 flex items-center justify-center text-black bg-orange-400 rounded-full">
                             <CircleDollarSign />
                         </div>
@@ -629,6 +642,15 @@ const Dashboard = () => {
 
             {/* Notification for BPJS */}
             {showNotificationBPJS && <Notification message={"Fitur ini akan segera hadir"} onClose={() => { setShowNotificationBPJS(false) }} status={"error"} />}
+
+            <Joyride
+                steps={steps}
+                run={run}
+                scrollToFirstStep
+                hideCloseButton={true}
+                disableOverlayClose={true} // Supaya tidak tertutup jika diklik di luar
+                continuous={true}
+            />
         </div>
     );
 };
