@@ -105,7 +105,6 @@ const DataPembayaran = () => {
         }
     }, [showContent.show])
 
-
     async function onSubmitBank(data: z.infer<typeof FormSchemaBank>) {
         const payload = {
             bank_name: isAdding.section === 'bank' ? data.bankName.split('-')[0] : "DANA",
@@ -134,7 +133,6 @@ const DataPembayaran = () => {
         }
     }
 
-
     async function onSubmitForEditBank(data: z.infer<typeof FormSchemaBank>) {
         const formData = new FormData();
 
@@ -161,13 +159,11 @@ const DataPembayaran = () => {
         }
     }
 
-
     const buttonBack = () => {
         setShowContent({ show: false, index: "" })
         setShowEdit(false)
         setIsAdding({ status: false, section: "" })
     }
-
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center">
@@ -376,7 +372,7 @@ const DataPembayaran = () => {
 
                         </div>
 
-                        <Button data-aos="fade-up" data-aos-delay="500" type="submit" className={`${isAdding.section === "bank" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
+                        <Button type="submit" className={`${isAdding.section === "bank" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
                     </form>
                 </Form>
 
@@ -445,7 +441,7 @@ const DataPembayaran = () => {
                             />
                         </div>
 
-                        <Button data-aos="fade-up" data-aos-delay="500" type="submit" className={`${isAdding.section === "e-wallet" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
+                        <Button type="submit" className={`${isAdding.section === "e-wallet" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
                     </form>
                 </Form>
             </div>

@@ -76,7 +76,14 @@ const AddCustomer = () => {
                                         <FormLabel className="text-gray-500">No Hp</FormLabel>
 
                                         <FormControl>
-                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                            <Input
+                                                type="text" // Gunakan text agar tidak ada spinner di input number
+                                                inputMode="numeric" // Menampilkan keyboard angka di mobile
+                                                pattern="[0-9]*" // Memastikan hanya angka yang bisa diketik
+                                                maxLength={15} // Batasi maksimal 15 digit
+                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -106,7 +113,14 @@ const AddCustomer = () => {
                                         <FormLabel className="text-gray-500">Other Number</FormLabel>
 
                                         <FormControl>
-                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                            <Input
+                                                type="text" // Gunakan text agar tidak ada spinner di input number
+                                                inputMode="numeric" // Menampilkan keyboard angka di mobile
+                                                pattern="[0-9]*" // Memastikan hanya angka yang bisa diketik
+                                                maxLength={15} // Batasi maksimal 15 digit
+                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

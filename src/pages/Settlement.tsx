@@ -21,6 +21,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Notification from "@/components/Notification";
+import Joyride from "react-joyride";
 
 interface BankAccount {
     account_id: string;
@@ -71,8 +72,35 @@ const Settlement = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
+    // Guidance
+    const [run, setRun] = useState(false);
+
+    const steps = [
+        { target: "#notification", content: <h2>Penarikan dana hanya <strong>bisa dilakukan pada jam 18:00 S/D 23:59</strong></h2> },
+        { target: "#balance", content: <h2><strong>Minimal penarikan saldo Rp 10.000</strong></h2> },
+        { target: "#bank-account", content: <h2>Pilih tujuan penarikan, data akun bank/e-wallet dana yang harus <strong>di daftarkan terlebih dahulu melalui menu profil - data pembayaran</strong></h2> },
+    ];
+
+    useEffect(() => {
+        const tourCompleted = localStorage.getItem("joyride-sattlement");
+
+        if (!tourCompleted) {
+            setRun(true);
+        }
+    }, [])
+
+    const handleJoyrideCallback = (data: any) => {
+        const { status } = data
+
+        if (status === 'finished' || status === 'skipped') {
+            localStorage.setItem('joyride-sattlement', 'finished')
+            setRun(false)
+        }
+    }
+    // 
+
     const FormSchema = z.object({
-        amount: z.number().min(1, {
+        amount: z.number().min(10000, {
             message: "Minimal Penarikan Rp 10.000",
         }),
         account_id: z.string().min(2, {
@@ -248,12 +276,12 @@ const Settlement = () => {
 
             <div className="w-[90%] m-auto pb-10">
                 {showNotification && (
-                    <div data-aos="fade-up" data-aos-delay="100" className="flex items-center justify-between gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+                    <div id="notification" data-aos="fade-up" data-aos-delay="100" className="flex items-center justify-between gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
                         <div className="flex items-center gap-3">
                             <Info className="w-5 min-w-5 h-5 text-blue-500" />
 
                             <p className="text-sm text-black">
-                                Penarikan dana hanya bisa dilakukan pada jam 18:00 s/d 23:59. Maksimal penarikan akan kembali semula setiap harinya pada jam 00:00
+                                Penarikan dana hanya bisa dilakukan pada jam 18:00 s/d 23:59. Maksimal penarikan sebesar Rp 2.000.000 akan kembali semula setiap harinya pada jam 00:00
                             </p>
                         </div>
 
@@ -305,7 +333,7 @@ const Settlement = () => {
                                 control={form.control}
                                 name="amount"
                                 render={({ field }) => (
-                                    <FormItem className="w-full">
+                                    <FormItem className="w-full" id="balance">
                                         <FormControl>
                                             <Input
                                                 type="text" // Menggunakan text agar bisa menampilkan format Rupiah
@@ -328,7 +356,7 @@ const Settlement = () => {
                                 control={form.control}
                                 name="account_id"
                                 render={({ field }) => (
-                                    <FormItem className="w-full">
+                                    <FormItem className="w-full" id="bank-account">
                                         <FormControl>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger className="w-full p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center justify-between">
@@ -642,6 +670,22 @@ const Settlement = () => {
                     <p className="uppercase">Profile</p>
                 </Link>
             </div>
+
+            {run && (
+                <Joyride
+                    callback={handleJoyrideCallback}
+                    steps={steps}
+                    run={run}
+                    scrollToFirstStep
+                    hideCloseButton={true} // Menyembunyikan tombol close
+                    disableOverlayClose={true} // Menghindari tutup jika diklik di luar
+                    continuous={true} // Langsung lanjut ke langkah berikutnya
+                    // disableScrolling={true} // Mencegah scroll yang mengganggu
+                    showSkipButton={false} // Menyembunyikan tombol skip
+                    showProgress={true} // Menyembunyikan indikator progress
+                    spotlightClicks={true} // Menyorot klik pada elemen
+                />
+            )}
         </div>
     );
 };
