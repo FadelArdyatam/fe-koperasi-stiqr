@@ -112,5 +112,40 @@ deploy:
     - cat /tmp/curl-deploy.sh
     - echo "Executing deployment script..."
     - sh /tmp/curl-deploy.sh
-#  when: manual # Deployment dilakukan manual
+  only: 
+    - development
+    - main
+    - dev
+
+
+deploy-oncloud:
+  stage: deploy
+  script:
+    - echo "Deploying $APP_NAME application to VM..."
+    - apk update && apk add --no-cache ca-certificates curl bash
+    - cp /etc/gitlab-runner/certs/ca.crt /usr/local/share/ca-certificates/custom-ca.crt && update-ca-certificates
+    - echo "Validating required environment variables..."
+    - echo "Using DEPLOYMENT_API ":"" "$DEPLOYMENT_API_CLOUD"
+    - echo "Using RNC_TOKEN ":"" "(hidden)"
+    - echo "Using IMAGE_TAG ":"" "$IMAGE_TAG"
+    - >
+      if [ -z "$DEPLOYMENT_API_CLOUD" ] || [ -z "$RNC_TOKEN_CLOUD" ] || [ -z "$IMAGE_TAG" ]; then
+      echo "Error: Required environment variables are not set." >&2;
+      exit 1;
+      fi
+    - echo "Downloading deployment script..."
+    - >
+      curl --fail -o /tmp/curl-deploy.sh https://dns-gits.dnstech.co.id/go-public/ci-library/-/raw/main/script-deployment-k8s.sh ||
+      { echo "Error: Failed to download deployment script." >&2; exit 1; }
+    - echo "Customizing deployment script..."
+    - sed -i "s|DEPLOYMENT_API|$DEPLOYMENT_API_CLOUD|g" /tmp/curl-deploy.sh
+    - sed -i "s|AUTHTOKEN|$RNC_TOKEN_CLOUD|g" /tmp/curl-deploy.sh
+    - sed -i "s|IMAGETAG|$IMAGE_TAG|g" /tmp/curl-deploy.sh
+    - chmod +x /tmp/curl-deploy.sh
+    - cat /tmp/curl-deploy.sh
+    - echo "Executing deployment script..."
+    - bash -x /tmp/curl-deploy.sh
+  only: 
+    - production
+    - on-cloud
 
