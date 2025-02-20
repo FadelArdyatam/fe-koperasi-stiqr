@@ -1,4 +1,4 @@
-import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, ChevronRight, Check, FileText, ChevronDown } from "lucide-react"
+import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, ChevronRight, FileText, ChevronDown } from "lucide-react"
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
@@ -7,12 +7,12 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import axiosInstance from "@/hooks/axiosInstance";
 import noDataPembayaranImage from "../../images/no-data-image/data-pembayaran.png"
 import dataBanks from "../../data/bank.json"
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Notification from "@/components/Notification";
 
 interface Account {
     account_id: string;
@@ -25,7 +25,7 @@ const DataPembayaran = () => {
     const [showContent, setShowContent] = useState({ show: false, index: "" });
     const [isAdding, setIsAdding] = useState({ status: false, section: "bank" });
     const [showEdit, setShowEdit] = useState(false);
-    const [showNotification, setShowNotification] = useState(false);
+    // const [showNotification, setShowNotification] = useState(false);
     const [dataForEdit, setDataForEdit] = useState<Account | null>(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -66,6 +66,10 @@ const DataPembayaran = () => {
 
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
+
+    const [status, setStatus] = useState<"success" | "error" | null>(null)
+    const [message, setMessage] = useState<string>("");
+
     async function fetchData() {
         try {
             const response = await axiosInstance.get(`/account/${userData.merchant.id}`);
@@ -105,7 +109,6 @@ const DataPembayaran = () => {
         }
     }, [showContent.show])
 
-
     async function onSubmitBank(data: z.infer<typeof FormSchemaBank>) {
         const payload = {
             bank_name: isAdding.section === 'bank' ? data.bankName.split('-')[0] : "DANA",
@@ -121,16 +124,15 @@ const DataPembayaran = () => {
 
         try {
             const response = await axiosInstance.post("/account/create", payload);
-            console.log(response);
-            setShowNotification(true);
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.error("Error while adding Account:", error.response?.data || error.message);
-            } else {
-                console.error("Error while adding Account:", error);
-            }
-            alert("Failed to add Account. Please try again.");
-            setShowNotification(false);
+            console.log(response)
+            // setShowNotification(true);
+            setStatus("success");
+            setMessage("Data Pembayaran berhasil ditambahkan")
+        } catch (error:any) {
+            console.log(error)
+            setStatus("error")
+            setMessage(error.response.data.message)
+            // setShowNotification(false);
         }
     }
 
@@ -146,18 +148,10 @@ const DataPembayaran = () => {
                 `/account/${showContent.index}/update`,
                 formData,
             );
-
             console.log("Response from API:", response.data);
-
-            setShowNotification(true);
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.error("Error while adding Account:", error.response?.data || error.message);
-            } else {
-                console.error("Error while adding Account:", error);
-            }
-            alert("Failed to add Account. Please try again.");
-            setShowNotification(false);
+            // setShowNotification(true);
+        } catch (error: any) {
+            // setShowNotification(false);
         }
     }
 
@@ -516,7 +510,16 @@ const DataPembayaran = () => {
             {/*  */}
 
             {/* Notification */}
-            <div className={`${showNotification ? 'flex' : 'hidden'} fixed items-center justify-center top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50`}>
+            {status ? <Notification
+                message={message}
+                onClose={() => {
+                    if (status === 'success') {
+                        buttonBack()
+                    }
+                    setStatus(null)
+                }} status={status} /> : ''}
+
+            {/* <div className={`${showNotification ? 'flex' : 'hidden'} fixed items-center justify-center top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50`}>
                 <div className="w-[90%] bg-white p-5 mt-5 rounded-lg flex items-center flex-col gap-5">
                     <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-green-400'>
                         <Check />
@@ -526,9 +529,9 @@ const DataPembayaran = () => {
 
                     <p className='text-base'>{isAdding ? 'Data Bank Berhasil Ditambahkan' : 'Data Bank Berhasil Diubah.'}</p>
 
-                    <Button onClick={() => setShowNotification(false)} className="w-full">Back</Button>
+                    // <Button onClick={() => setShowNotification(false)} className="w-full">Back</Button>
                 </div>
-            </div>
+            </div> */}
             {/*  */}
         </div>
     )
