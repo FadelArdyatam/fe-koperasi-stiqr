@@ -26,6 +26,18 @@ const Customer = () => {
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
 
+    const [reset, setReset] = useState(false);
+
+    // Pagination
+    const ITEMS_PER_PAGE = 5;
+
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalPages = Math.ceil(customers.length / ITEMS_PER_PAGE);
+
+    const paginatedCustomers = customers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+    // 
+
     useEffect(() => {
         if (!userData) return;
 
@@ -39,7 +51,7 @@ const Customer = () => {
         };
 
         fetchData();
-    }, []);
+    }, [reset]);
 
     console.log("Customers", customers);
 
@@ -62,7 +74,7 @@ const Customer = () => {
             </div>
 
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
-                <Link to={'/dashboard'} className="flex gap-3 flex-col items-center">
+                <Link to={'/dashboard'} className="flex gap-3 text-orange-400 flex-col items-center">
                     <Home />
 
                     <p className="uppercase">Home</p>
@@ -88,7 +100,7 @@ const Customer = () => {
                     <p className="uppercase">Catalog</p>
                 </Link>
 
-                <Link to={'/profile'} className="flex gap-3 flex-col text-orange-400 items-center">
+                <Link to={'/profile'} className="flex gap-3 flex-col items-center">
                     <UserRound />
 
                     <p className="uppercase">Profile</p>
@@ -99,26 +111,56 @@ const Customer = () => {
             <Card className={`${isAdding || showDetail.show ? 'hidden' : 'block'} -translate-y-20 w-[90%] shadow-lg pt-5`}>
                 <CardContent>
                     {customers.length > 0 ? (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="text-black text-base">Nama</TableHead>
-                                    <TableHead className="text-black text-base">Other Number</TableHead>
-                                    <TableHead className="text-black text-base">Aksi</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {customers.map((customer, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{customer.customer?.name || "Nama tidak tersedia"}</TableCell>
-                                        <TableCell>{customer.customer?.other_number || "-"}</TableCell>
-                                        <TableCell className=" max-w-[40px]">
-                                            <Button onClick={() => setShowDetail({ show: true, index: index })} className="bg-orange-500">Detail</Button>
-                                        </TableCell>
+                        <>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="text-black text-base">Nama</TableHead>
+                                        <TableHead className="text-black text-base">Nomor Lainnya</TableHead>
+                                        <TableHead className="text-black text-base">Aksi</TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {paginatedCustomers.map((customer, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell className="min-w-[150px]">{customer.customer?.name || "Nama tidak tersedia"}</TableCell>
+                                            <TableCell>{customer.customer?.other_number || "-"}</TableCell>
+                                            <TableCell className="max-w-[40px]">
+                                                <Button onClick={() => setShowDetail({ show: true, index: index })} className="bg-orange-500">Detail</Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+
+                            <div className="flex items-center justify-center mx-auto w-full gap-5 mt-10">
+                                <button
+                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                    onClick={() => setCurrentPage(1)}
+                                    disabled={currentPage === 1}>
+                                    First
+                                </button>
+                                <button
+                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                    onClick={() => setCurrentPage(prev => prev - 1)}
+                                    disabled={currentPage === 1}>
+                                    Prev
+                                </button>
+                                <span className="text-xs text-nowrap sm:text-base">Page {currentPage} of {totalPages}</span>
+                                <button
+                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                    onClick={() => setCurrentPage(prev => prev + 1)}
+                                    disabled={currentPage === totalPages}>
+                                    Next
+                                </button>
+                                <button
+                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                    onClick={() => setCurrentPage(totalPages)}
+                                    disabled={currentPage === totalPages}>
+                                    Last
+                                </button>
+                            </div>
+                        </>
                     ) : (
                         <p className="text-center text-gray-500">Tidak ada data pelanggan.</p>
                     )}
@@ -126,12 +168,12 @@ const Customer = () => {
             </Card>
 
             {/* Tombol Tambah Customer */}
-            <Button onClick={() => setIsAdding(true)} className={`${isAdding || showDetail.show ? 'hidden' : 'block'} w-[90%] -translate-y-10 bg-orange-500`}>
+            <Button onClick={() => { setIsAdding(true); setReset(false) }} className={`${isAdding || showDetail.show ? 'hidden' : 'block'} w-[90%] -translate-y-10 bg-orange-500`}>
                 Tambah Customer
             </Button>
 
             {/* Form Add Customer */}
-            {isAdding && <AddCustomer />}
+            {isAdding && <AddCustomer setIsAdding={setIsAdding} setReset={setReset} />}
 
             {/* Detail Customer */}
             <div className={`${showDetail.show ? 'block' : 'hidden'} bg-white flex flex-col gap-5 -translate-y-20 w-[90%] p-5 rounded-lg shadow-lg z-0 mb-10`}>
@@ -157,7 +199,7 @@ const Customer = () => {
                 <div className="w-full h-[1px] bg-gray-200"></div>
 
                 <div className="w-full flex items-center justify-between">
-                    <p className="font-semibold text-black">Other Number</p>
+                    <p className="font-semibold text-black">Nomor Lainnya</p>
                     <p className="text-gray-500">{customers[showDetail.index]?.customer.other_number}</p>
                 </div>
 

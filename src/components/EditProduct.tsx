@@ -781,6 +781,8 @@ const EditProduct: React.FC<EditProductProps> = ({
                                         </label>
                                     ))}
                                 </div>
+
+                                <Button onClick={() => setShowAddVariant(false)} className="w-full mt-5 bg-green-400">Submit</Button>
                             </div>
                         )}
 

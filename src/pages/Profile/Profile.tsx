@@ -151,7 +151,7 @@ const Profile = () => {
 
                     <Link data-aos="fade-up" data-aos-once="true" to={"/profile/customer-data"} className="flex items-center gap-5 justify-between">
                         <div>
-                            <p>Data Customer</p>
+                            <p>Data Pelanggan</p>
 
                             <p className="text-sm text-gray-500">Nama Pemesan, No Hp, Email, Nomor Lain</p>
                         </div>
@@ -221,7 +221,7 @@ const Profile = () => {
                 </div>
             </div>
 
-            {showTermsandConditions && <TermsandConditionInProfile />}
+            {showTermsandConditions && <TermsandConditionInProfile setShowTermsandConditions={setShowTermsandConditions} />}
         </>
     )
 }

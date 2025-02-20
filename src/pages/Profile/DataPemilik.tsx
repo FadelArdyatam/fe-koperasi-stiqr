@@ -331,7 +331,7 @@ const DataPemilik = () => {
                                     name="dateOfBirth"
                                     render={({ field }) => (
                                         <FormItem data-aos="fade-up" data-aos-delay="500" className="w-full">
-                                            <FormLabel className="text-gray-500">Date of Birth</FormLabel>
+                                            <FormLabel className="text-gray-500">Tanggal Lahir</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="date"

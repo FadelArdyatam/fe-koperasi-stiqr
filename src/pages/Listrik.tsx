@@ -174,7 +174,7 @@ const Listrik = () => {
                                 </div>
                             </DropdownMenuTrigger>
 
-                            <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg w-[300px] flex flex-col gap-3">
+                            <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg w-full sm:min-w-[600px] min-w-max max-h-32 overflow-y-auto flex flex-col gap-3">
                                 {products.map((product, index) => (
                                     <DropdownMenuItem onClick={() => handleDropdownChange(product.amount)} key={index}>
                                         {Number(product.amount).toLocaleString("id-ID", {

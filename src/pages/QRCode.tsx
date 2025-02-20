@@ -455,22 +455,35 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                 </div>
 
                 <div data-aos="fade-up" data-aos-delay="100" className="mt-28 w-[90%] shadow-lg m-auto p-5 rounded-lg bg-white">
-                    <p className="text-gray-700 font-medium">Input Amount</p>
+                    <p className="text-gray-700 font-medium">Keterangan</p>
 
-                    <div className="relative mt-5">
+                    <div className="relative mt-3">
+                        <Input type="text" className="pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent" />
+                    </div>
+
+                    <p className="text-gray-700 font-medium mt-5">Masukan Jumlah</p>
+
+                    <div className="relative mt-3">
                         <Input
                             type="text"
                             inputMode="numeric"  // Menampilkan keyboard angka di mobile
                             pattern="[0-9]*"     // Mencegah karakter non-angka
                             className="pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                             onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, ""); // Hanya angka
+                                let value = e.target.value.replace(/\D/g, ""); // Hanya angka
+
+                                // Jika kosong atau nol, atur minimal 1
+                                if (value === "" || parseInt(value, 10) === 0) {
+                                    value = "1";
+                                }
+
+                                // Batasi panjang maksimal 10 digit
                                 if (value.length <= 10) {
                                     setAmount(value);
                                 }
                             }}
                             value={formatRupiah(amount)}
-                            placeholder="0.00"
+                            placeholder="1.00" // Placeholder awal minimal 1 rupiah
                         />
                     </div>
                 </div>

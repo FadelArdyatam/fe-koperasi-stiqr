@@ -21,7 +21,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Notification from "@/components/Notification";
-import Joyride from "react-joyride";
 
 interface BankAccount {
     account_id: string;
@@ -39,6 +38,7 @@ const Settlement = () => {
     const [startDate, setStartDate] = useState<Date | null>(new Date());
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [showCalendar, setShowCalendar] = useState(false);
+    const [showFilterCalendar, setShowFilterCalendar] = useState("");
     const [showNotification, setShowNotification] = useState(true);
     const [errorNotification, setErrorNotification] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -58,6 +58,9 @@ const Settlement = () => {
 
     const [months, setMonths] = useState(2); // Default 2 bulan
 
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
+
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
     }, []);
@@ -72,36 +75,23 @@ const Settlement = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // Guidance
-    const [run, setRun] = useState(false);
+    // Pagination
+    const ITEMS_PER_PAGE = 5;
 
-    const steps = [
-        { target: "#notification", content: <h2>Penarikan dana hanya <strong>bisa dilakukan pada jam 18:00 S/D 23:59</strong></h2> },
-        { target: "#balance", content: <h2><strong>Minimal penarikan saldo Rp 10.000</strong></h2> },
-        { target: "#bank-account", content: <h2>Pilih tujuan penarikan, data akun bank/e-wallet dana yang harus <strong>di daftarkan terlebih dahulu melalui menu profil - data pembayaran</strong></h2> },
-    ];
+    const [currentPage, setCurrentPage] = useState(1);
 
-    useEffect(() => {
-        const tourCompleted = localStorage.getItem("joyride-sattlement");
+    const totalPages = Math.ceil(histories.length / ITEMS_PER_PAGE);
 
-        if (!tourCompleted) {
-            setRun(true);
-        }
-    }, [])
+    const totalPagesFiltered = Math.ceil(filteredHistories.length / ITEMS_PER_PAGE);
 
-    const handleJoyrideCallback = (data: any) => {
-        const { status } = data
+    const paginatedHistories = histories.slice().reverse().slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-        if (status === 'finished' || status === 'skipped') {
-            localStorage.setItem('joyride-sattlement', 'finished')
-            setRun(false)
-        }
-    }
+    const paginatedFilteredHistories = filteredHistories.slice().reverse().slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
     // 
 
     const FormSchema = z.object({
-        amount: z.number().min(10000, {
-            message: "Minimal Penarikan Rp 10.000",
+        amount: z.number().min(12000, {
+            message: "Minimal Penarikan Rp 12.000",
         }),
         account_id: z.string().min(2, {
             message: "Tidak Boleh Kosong",
@@ -258,6 +248,124 @@ const Settlement = () => {
         setEndDate(end);
     };
 
+    function formatDate(date: Date) {
+        return date.toISOString().split('T')[0]; // Mengambil YYYY-MM-DD tanpa waktu
+    }
+
+    const yesterdayDateHandler = async () => {
+        const today = new Date();
+        const yesterday = new Date();
+
+        yesterday.setDate(today.getDate() - 1);
+        yesterday.setHours(0, 0, 0, 0);
+
+        today.setHours(23, 59, 59, 999);
+
+        setStartDate(yesterday);
+        setEndDate(today);
+
+        console.log(formatDate(yesterday), formatDate(today));
+
+        try {
+            const response = await axiosInstance.get(
+                `/transactions/${userData.merchant.id}?filter=yesterday&startDate=${formatDate(yesterday)}&endDate=${formatDate(today)}`
+            );
+
+            console.log("Transaction 2 days ago Response:", response.data);
+            setFilteredHistories(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+
+        setShowCalendar(false);
+        setShowFilterCalendar("Kemarin");
+    };
+
+    const todayHandler = async () => {
+        const today = new Date();
+        const yesterday = new Date();
+
+        yesterday.setHours(0, 0, 0, 0);
+        today.setHours(23, 59, 59, 999);
+
+        setStartDate(yesterday);
+        setEndDate(today);
+
+        console.log(formatDate(yesterday), formatDate(today));
+
+        try {
+            const response = await axiosInstance.get(
+                `/transactions/${userData.merchant.id}?filter=today&startDate=${formatDate(yesterday)}&endDate=${formatDate(today)}`
+            );
+
+            console.log("Transaction Today Response:", response.data);
+            setFilteredHistories(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+
+        setShowCalendar(false);
+        setShowFilterCalendar("Hari Ini");
+    }
+
+    const twoDaysAgoHandler = async () => {
+        const today = new Date();
+        const twoDaysAgo = new Date();
+
+        twoDaysAgo.setDate(today.getDate() - 2);
+        twoDaysAgo.setHours(0, 0, 0, 0);
+
+        today.setHours(23, 59, 59, 999);
+
+        setStartDate(twoDaysAgo);
+        setEndDate(today);
+
+        console.log(formatDate(twoDaysAgo), formatDate(today));
+
+        try {
+            const response = await axiosInstance.get(
+                `/transactions/${userData.merchant.id}?filter=2days&startDate=${formatDate(twoDaysAgo)}&endDate=${formatDate(today)}`
+            );
+
+            console.log("Transaction 2 days ago Response:", response.data);
+            setFilteredHistories(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+
+        setShowCalendar(false);
+        setShowFilterCalendar("2 Hari");
+    };
+
+    const sevenDaysAgoHandler = async () => {
+        const today = new Date();
+        const sevenDaysAgo = new Date();
+
+        sevenDaysAgo.setDate(today.getDate() - 7);
+        sevenDaysAgo.setHours(0, 0, 0, 0);
+
+        today.setHours(23, 59, 59, 999);
+
+        setStartDate(sevenDaysAgo);
+        setEndDate(today);
+
+        console.log(formatDate(sevenDaysAgo), formatDate(today));
+
+        try {
+            const response = await axiosInstance.get(
+                `/transactions/${userData.merchant.id}?filter=7days&startDate=${formatDate(sevenDaysAgo)}&endDate=${formatDate(today)}`
+            );
+
+            console.log("Transaction 7 days ago Response:", response.data);
+            setFilteredHistories(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+
+        setShowCalendar(false);
+        setShowFilterCalendar("7 Hari");
+    };
+
     console.log("histories", histories);
 
     console.log("filteredHistories", filteredHistories);
@@ -276,7 +384,7 @@ const Settlement = () => {
 
             <div className="w-[90%] m-auto pb-10">
                 {showNotification && (
-                    <div id="notification" data-aos="fade-up" data-aos-delay="100" className="flex items-center justify-between gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+                    <div data-aos="fade-up" data-aos-delay="100" className="flex items-center justify-between gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
                         <div className="flex items-center gap-3">
                             <Info className="w-5 min-w-5 h-5 text-blue-500" />
 
@@ -333,7 +441,7 @@ const Settlement = () => {
                                 control={form.control}
                                 name="amount"
                                 render={({ field }) => (
-                                    <FormItem className="w-full" id="balance">
+                                    <FormItem className="w-full">
                                         <FormControl>
                                             <Input
                                                 type="text" // Menggunakan text agar bisa menampilkan format Rupiah
@@ -351,21 +459,21 @@ const Settlement = () => {
                                 )}
                             />
 
-                            <p>Pilih Bank</p>
                             <FormField
                                 control={form.control}
                                 name="account_id"
                                 render={({ field }) => (
-                                    <FormItem className="w-full" id="bank-account">
+                                    <FormItem className="w-full">
                                         <FormControl>
                                             <DropdownMenu>
-                                                <DropdownMenuTrigger className="w-full p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center justify-between">
+                                                <DropdownMenuTrigger className="w-full mt-5 p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center justify-between">
                                                     {accounts.find(account => account.account_id === field.value)?.bank_name || "Pilih Akun Bank"}
                                                     <ChevronDown className="ml-2 h-4 w-4" />
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent>
                                                     {accounts?.map((account, i) => (
                                                         <DropdownMenuItem
+                                                            className="w-full sm:min-w-[600px] md:min-w-[700px] lg:min-w-[1200px] min-w-max max-h-64 overflow-y-auto"
                                                             key={i}
                                                             onSelect={() => field.onChange(account.account_id)}
                                                         >
@@ -391,11 +499,23 @@ const Settlement = () => {
             {/* Transaction History */}
             <div className="pb-32">
                 <div className="p-5 bg-white w-[94%] m-auto">
-                    <p className="font-semibold text-lg">Riwayat Transaksi</p>
+                    <p className="font-semibold text-center text-lg mb-5">Riwayat Penarikan</p>
+
+                    <div className="w-full mt-5 flex gap-5 overflow-x-auto">
+                        <Button onClick={() => { setShowCalendar(!showCalendar); setShowFilterCalendar("pilih tanggal transaksi") }} className={`${showFilterCalendar === 'pilih tanggal transaksi' ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>Pilih Tanggal Transaksi</Button>
+
+                        <Button onClick={yesterdayDateHandler} className={`${showFilterCalendar === 'Kemarin' ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>Kemarin</Button>
+
+                        <Button onClick={todayHandler} className={`${showFilterCalendar === 'Hari Ini' ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>Hari Ini</Button>
+
+                        <Button onClick={twoDaysAgoHandler} className={`${showFilterCalendar === '2 Hari' ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>2 Hari</Button>
+
+                        <Button onClick={sevenDaysAgoHandler} className={`${showFilterCalendar === '7 Hari' ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>7 Hari</Button>
+                    </div>
+
                     <Button
                         type="button"
-                        className="w-full mt-3 text-base font-medium bg-gray-200 text-gray-700 border border-gray-400 rounded-lg"
-                        onClick={() => setShowCalendar(!showCalendar)}
+                        className="w-full mt-5 text-base font-medium bg-gray-200 text-gray-700 border border-gray-400 rounded-lg"
                     >
                         {startDate && endDate
                             ? `${startDate.toLocaleDateString("id-ID", {
@@ -439,55 +559,76 @@ const Settlement = () => {
                         <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
                     </div>
                 ) : (
-                    <div className="mt-5 p-5">
+                    <div className="mt-5 w-[90%] m-auto">
                         {filteredHistories.length > 0 ? (
-                            // Jika ada transaksi dalam rentang yang difilter
-                            filteredHistories.map((history, index) => (
-                                <div key={index} className="w-[94%] m-auto">
-                                    <div className={`${index === 0 ? "hidden" : "block"} w-[94%] h-[2px] my-5 bg-gray-300 rounded-full`}></div>
-
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-start gap-2">
-                                            <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
-
-                                            <div>
-                                                <div className="flex items-center gap-2">
-                                                    <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
-
-                                                    <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
-                                                        <p>{history.transaction_status} </p>
+                            <div>
+                                {paginatedFilteredHistories.map((history, index) => (
+                                    <div key={index}>
+                                        <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-start gap-2">
+                                                <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
+                                                        <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                            <p>{history.transaction_status}</p>
+                                                        </div>
                                                     </div>
+                                                    <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                                 </div>
-
-                                                <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                             </div>
-                                        </div>
-
-                                        <div className="flex flex-col items-end">
-                                            <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
-
-                                            <div className="flex items-center">
-                                                <p className="text-xs">
-                                                    {new Date(history.transaction_date).toLocaleDateString("id-ID", {
-                                                        day: "2-digit",
-                                                        month: "long",
-                                                        year: "numeric",
-                                                    })}
-                                                </p>
-
-                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-
-                                                <p className="text-xs">
-                                                    {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
-                                                        hour: "2-digit",
-                                                        minute: "2-digit",
-                                                    })}
-                                                </p>
+                                            <div className="flex flex-col items-end">
+                                                <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
+                                                <div className="flex items-center">
+                                                    <p className="text-xs">
+                                                        {new Date(history.transaction_date).toLocaleDateString("id-ID", {
+                                                            day: "2-digit",
+                                                            month: "long",
+                                                            year: "numeric",
+                                                        })}
+                                                    </p>
+                                                    <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+                                                    <p className="text-xs">
+                                                        {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                        })}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                ))}
+
+                                <div className="flex items-center justify-center gap-5 mt-10">
+                                    <button
+                                        className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                        onClick={() => setCurrentPage(1)}
+                                        disabled={currentPage === 1}>
+                                        First
+                                    </button>
+                                    <button
+                                        className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                        onClick={() => setCurrentPage(prev => prev - 1)}
+                                        disabled={currentPage === 1}>
+                                        Prev
+                                    </button>
+                                    <span className="text-xs text-nowrap sm:text-base">Page {currentPage} of {totalPagesFiltered}</span>
+                                    <button
+                                        className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                        onClick={() => setCurrentPage(prev => prev + 1)}
+                                        disabled={currentPage === totalPagesFiltered}>
+                                        Next
+                                    </button>
+                                    <button
+                                        className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                        onClick={() => setCurrentPage(totalPagesFiltered)}
+                                        disabled={currentPage === totalPagesFiltered}>
+                                        Last
+                                    </button>
                                 </div>
-                            ))
+                            </div>
                         ) : (
                             // Jika tidak ada transaksi dalam rentang filter
                             startDate && endDate ? (
@@ -498,52 +639,74 @@ const Settlement = () => {
                             ) : (
                                 // Jika tidak ada filter aktif, tampilkan semua transaksi
                                 histories.length > 0 ? (
-                                    histories.map((history, index) => (
-                                        <div key={index} className="w-[94%] m-auto">
-                                            <div className={`${index === 0 ? "hidden" : "block"} w-[94%] h-[2px] my-5 bg-gray-300 rounded-full`}></div>
-
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-start gap-2">
-                                                    <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
-
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
-                                                            <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
-
-                                                            <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
-                                                                <p>{history.transaction_status} </p>
+                                    <div>
+                                        {paginatedHistories.map((history, index) => (
+                                            <div key={index}>
+                                                <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-start gap-2">
+                                                        <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
+                                                        <div>
+                                                            <div className="flex items-center gap-2">
+                                                                <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
+                                                                <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                                    <p>{history.transaction_status}</p>
+                                                                </div>
                                                             </div>
+                                                            <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                                         </div>
-
-                                                        <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                                     </div>
-                                                </div>
-
-                                                <div className="flex flex-col items-end">
-                                                    <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
-
-                                                    <div className="flex items-center">
-                                                        <p className="text-xs">
-                                                            {new Date(history.transaction_date).toLocaleDateString("id-ID", {
-                                                                day: "2-digit",
-                                                                month: "long",
-                                                                year: "numeric",
-                                                            })}
-                                                        </p>
-
-                                                        <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-
-                                                        <p className="text-xs">
-                                                            {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
-                                                                hour: "2-digit",
-                                                                minute: "2-digit",
-                                                            })}
-                                                        </p>
+                                                    <div className="flex flex-col items-end">
+                                                        <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
+                                                        <div className="flex items-center">
+                                                            <p className="text-xs">
+                                                                {new Date(history.transaction_date).toLocaleDateString("id-ID", {
+                                                                    day: "2-digit",
+                                                                    month: "long",
+                                                                    year: "numeric",
+                                                                })}
+                                                            </p>
+                                                            <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+                                                            <p className="text-xs">
+                                                                {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
+                                                                    hour: "2-digit",
+                                                                    minute: "2-digit",
+                                                                })}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                        ))}
+
+                                        <div className="flex items-center justify-center gap-5 mt-10">
+                                            <button
+                                                className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                                onClick={() => setCurrentPage(1)}
+                                                disabled={currentPage === 1}>
+                                                First
+                                            </button>
+                                            <button
+                                                className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                                onClick={() => setCurrentPage(prev => prev - 1)}
+                                                disabled={currentPage === 1}>
+                                                Prev
+                                            </button>
+                                            <span className="text-xs text-nowrap sm:text-base">Page {currentPage} of {totalPages}</span>
+                                            <button
+                                                className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                                disabled={currentPage === totalPages}>
+                                                Next
+                                            </button>
+                                            <button
+                                                className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                                onClick={() => setCurrentPage(totalPages)}
+                                                disabled={currentPage === totalPages}>
+                                                Last
+                                            </button>
                                         </div>
-                                    ))
+                                    </div>
                                 ) : (
                                     // Jika tidak ada transaksi sama sekali
                                     <div className="flex flex-col items-center gap-5">
@@ -555,7 +718,6 @@ const Settlement = () => {
                         )}
                     </div>
                 )}
-
             </div>
 
             {/* Komponen Input PIN */}
@@ -670,22 +832,6 @@ const Settlement = () => {
                     <p className="uppercase">Profile</p>
                 </Link>
             </div>
-
-            {run && (
-                <Joyride
-                    callback={handleJoyrideCallback}
-                    steps={steps}
-                    run={run}
-                    scrollToFirstStep
-                    hideCloseButton={true} // Menyembunyikan tombol close
-                    disableOverlayClose={true} // Menghindari tutup jika diklik di luar
-                    continuous={true} // Langsung lanjut ke langkah berikutnya
-                    // disableScrolling={true} // Mencegah scroll yang mengganggu
-                    showSkipButton={false} // Menyembunyikan tombol skip
-                    showProgress={true} // Menyembunyikan indikator progress
-                    spotlightClicks={true} // Menyorot klik pada elemen
-                />
-            )}
         </div>
     );
 };

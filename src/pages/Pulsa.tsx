@@ -26,10 +26,11 @@ const Pulsa = () => {
     const [showBill, setShowBill] = useState(false)
     const [indexButton, setIndexButton] = useState(-1)
     interface Balance {
+        non_cash_amount(non_cash_amount: any): unknown
         amount: number;
     }
 
-    const [balance, setBalance] = useState<Balance>({ amount: 0 });
+    const [balance, setBalance] = useState<Balance>({ amount: 0, non_cash_amount: () => { } });
     const [products, setProducts] = useState<any[]>([]);
     const [category, setCategory] = useState("pulsa");
     const [searchTerm, setSearchTerm] = useState('');
@@ -61,6 +62,8 @@ const Pulsa = () => {
                     `/balance/${userData.merchant.id}`,
                 );
 
+                setBalance(response.data);
+
                 const responseProducts = await axiosInstance.post("/ayoconnect/products",
                     {
                         "category": category,
@@ -71,7 +74,6 @@ const Pulsa = () => {
 
                 console.log("Profile Response:", response);
                 console.log("Products Response:", responseProducts.data);
-                setBalance(response.data);
             } catch (err) {
                 console.error("Error saat mengambil profile:", err);
             }
@@ -172,7 +174,7 @@ const Pulsa = () => {
                 <div data-aos="fade-up" data-aos-delay="100" className="relative mt-[70px] text-xl w-full p-8 shadow-lg flex flex-col items-center gap-2 justify-center">
                     <p className="font-bold">Saldo</p>
 
-                    <p className="font-semibold text-orange-500 text-2xl">{Number(balance.amount).toLocaleString("id-ID", {
+                    <p className="font-semibold text-orange-500 text-2xl">{Number(balance.non_cash_amount).toLocaleString("id-ID", {
                         style: "currency",
                         currency: "IDR",
                     })}</p>

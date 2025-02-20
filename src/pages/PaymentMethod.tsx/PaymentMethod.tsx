@@ -88,15 +88,12 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
                 <p className="font-semibold text-lg">Nominal Pembayaran</p>
 
                 <div className="relative mt-2">
-                    {/* Label "Rp" */}
-                    <span className="absolute inset-y-0 left-3 flex items-center text-gray-500">Rp</span>
-
                     <input
                         type="text"
                         placeholder="0"
-                        value={paymentAmount}
+                        value={formatRupiah(paymentAmount)}
                         onChange={handleInputChange}
-                        className="pl-10 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400"
+                        className="p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400"
                     />
                 </div>
 
@@ -119,6 +116,7 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
                 </div>
 
                 <Button
+                    disabled={paymentAmount < dataPayment.amount || change < 0}
                     onClick={paymentHandler}
                     className="bg-orange-500 w-full text-white px-5 py-2 rounded-md hover:bg-orange-600"
                 >

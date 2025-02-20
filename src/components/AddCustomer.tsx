@@ -4,8 +4,18 @@ import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
+import axiosInstance from "@/hooks/axiosInstance"
+import { useState } from "react"
+import Notification from "./Notification"
 
-const AddCustomer = () => {
+interface AddCustomerProps {
+    setIsAdding: React.Dispatch<React.SetStateAction<boolean>>;
+    setReset: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const AddCustomer: React.FC<AddCustomerProps> = ({ setIsAdding, setReset }) => {
+    const [showNotification, setShowNotification] = useState(false)
+
     const FormSchema = z.object({
         customerName: z.string().min(3,
             { message: "Nama Pelanggan Tidak Boleh Kosong" }
@@ -19,9 +29,9 @@ const AddCustomer = () => {
         otherNumber: z.string().min(3,
             { message: "Nomor Lain harus diisi" }
         ),
-        address: z.string().min(10,
-            { message: "Alamat harus diisi" }
-        ),
+        // address: z.string().min(10,
+        //     { message: "Alamat harus diisi" }
+        // ),
     })
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -31,20 +41,29 @@ const AddCustomer = () => {
             phoneNumber: '',
             email: '',
             otherNumber: '',
-            address: '',
+            // address: '',
         },
     })
 
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
+
     async function onSubmit(data: z.infer<typeof FormSchema>) {
-        const formData = new FormData();
+        const payload = {
+            name: data.customerName,
+            phone: data.phoneNumber,
+            email: data.email,
+            other_number: data.otherNumber,
+            merchant_id: userData.merchant?.id
+        }
 
-        formData.append("customer_name", data.customerName);
-        formData.append("phone_number", data.phoneNumber);
-        formData.append("email", data.email);
-        formData.append("other_number", data.otherNumber);
-        formData.append("address", data.address);
-
-        console.log("data", data)
+        try {
+            const response = await axiosInstance.post('/customers/create', payload)
+            setShowNotification(true)
+            console.log(response)
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     return (
@@ -57,7 +76,7 @@ const AddCustomer = () => {
                                 control={form.control}
                                 name="customerName"
                                 render={({ field }) => (
-                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="100">
+                                    <FormItem className="w-full">
                                         <FormLabel className="text-gray-500">Nama</FormLabel>
 
                                         <FormControl>
@@ -72,17 +91,20 @@ const AddCustomer = () => {
                                 control={form.control}
                                 name="phoneNumber"
                                 render={({ field }) => (
-                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="200">
+                                    <FormItem className="w-full">
                                         <FormLabel className="text-gray-500">No Hp</FormLabel>
 
                                         <FormControl>
                                             <Input
-                                                type="text" // Gunakan text agar tidak ada spinner di input number
+                                                type="text" // Menghindari spinner di input number
                                                 inputMode="numeric" // Menampilkan keyboard angka di mobile
                                                 pattern="[0-9]*" // Memastikan hanya angka yang bisa diketik
                                                 maxLength={15} // Batasi maksimal 15 digit
                                                 className="w-full bg-[#F4F4F4] font-sans font-semibold"
                                                 {...field}
+                                                onInput={(e) => {
+                                                    (e.target as HTMLInputElement).value = (e.target as HTMLInputElement).value.replace(/\D/g, ""); // Hanya angka yang bisa diketik
+                                                }}
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -94,7 +116,7 @@ const AddCustomer = () => {
                                 control={form.control}
                                 name="email"
                                 render={({ field }) => (
-                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="300">
+                                    <FormItem className="w-full">
                                         <FormLabel className="text-gray-500">Email</FormLabel>
 
                                         <FormControl>
@@ -109,17 +131,19 @@ const AddCustomer = () => {
                                 control={form.control}
                                 name="otherNumber"
                                 render={({ field }) => (
-                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="400">
-                                        <FormLabel className="text-gray-500">Other Number</FormLabel>
+                                    <FormItem className="w-full">
+                                        <FormLabel className="text-gray-500">Nomor Lainnya</FormLabel>
 
                                         <FormControl>
                                             <Input
-                                                type="text" // Gunakan text agar tidak ada spinner di input number
+                                                type="text" // Menghindari spinner di input number
                                                 inputMode="numeric" // Menampilkan keyboard angka di mobile
                                                 pattern="[0-9]*" // Memastikan hanya angka yang bisa diketik
-                                                maxLength={15} // Batasi maksimal 15 digit
                                                 className="w-full bg-[#F4F4F4] font-sans font-semibold"
                                                 {...field}
+                                                onInput={(e) => {
+                                                    (e.target as HTMLInputElement).value = (e.target as HTMLInputElement).value.replace(/\D/g, ""); // Hanya angka
+                                                }}
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -127,11 +151,11 @@ const AddCustomer = () => {
                                 )}
                             />
 
-                            <FormField
+                            {/* <FormField
                                 control={form.control}
                                 name="address"
                                 render={({ field }) => (
-                                    <FormItem className="w-full" data-aos="fade-up" data-aos-delay="500">
+                                    <FormItem className="w-full">
                                         <FormLabel className="text-gray-500">Alamat</FormLabel>
 
                                         <FormControl>
@@ -140,13 +164,15 @@ const AddCustomer = () => {
                                         <FormMessage />
                                     </FormItem>
                                 )}
-                            />
+                            /> */}
                         </div>
 
-                        <Button data-aos="fade-up" data-aos-delay="600" type="submit" className={`w-full bg-green-400 mt-7`}>Simpan Data</Button>
+                        <Button type="submit" className={`w-full bg-green-400 mt-7`}>Simpan Data</Button>
                     </form>
                 </Form>
             </div>
+
+            {showNotification && <Notification message={"Tambah Customer Berhasil!"} onClose={() => { setShowNotification(false); setIsAdding(false); setReset(true) }} status="success" />}
         </>
     )
 }
