@@ -31,58 +31,36 @@ const Pulsa = () => {
 
     const [balance, setBalance] = useState<Balance>({ amount: 0 });
     const [products, setProducts] = useState<any[]>([]);
-    const [category, setCategory] = useState("pulsa");
-    const [searchTerm, setSearchTerm] = useState('');
+    const [category, setCategory] = useState<string | null>(null);
     const [isClicked, setIsClicked] = useState(false);
     const [error, setError] = useState({ show: false, message: "" });
     const [loading, setLoading] = useState(false)
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [selectedProvider, setSelectedProvider] = useState("")
+    const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
     }, []);
 
     useEffect(() => {
-        const checkProfile = async () => {
-            const token = localStorage.getItem("token");
-
-            // Ambil informasi user dari sessionStorage
+        const fetchBalance = async () => {
             const userItem = sessionStorage.getItem("user");
             const userData = userItem ? JSON.parse(userItem) : null;
-
-            if (!token) {
-                console.warn("Token tidak ditemukan untuk otorisasi.");
-                return;
-            }
-
             try {
                 const response = await axiosInstance.get(
                     `/balance/${userData.merchant.id}`,
                 );
-
-                const responseProducts = await axiosInstance.post("/ayoconnect/products",
-                    {
-                        "category": category,
-                        "status": "active"
-                    },);
-
-                setProducts(responseProducts.data.data);
-
-                console.log("Profile Response:", response);
-                console.log("Products Response:", responseProducts.data);
                 setBalance(response.data);
             } catch (err) {
                 console.error("Error saat mengambil profile:", err);
             }
         };
 
-        checkProfile();
+        fetchBalance();
     }, [])
 
     const sendBill = async () => {
         try {
-            // Ambil informasi user dari sessionStorage
             const userItem = sessionStorage.getItem("user");
             const userData = userItem ? JSON.parse(userItem) : null;
 
@@ -97,23 +75,18 @@ const Pulsa = () => {
 
             if (response.data) {
                 setLoading(false);
-                console.log("Inquiry Response:", response.data);
+                const data = {
+                    ...response.data.data,
+                    date: new Date().toLocaleDateString(),
+                    time: new Date().toLocaleTimeString(),
+                };
+
+                setDataBill(data);
+                setShowBill(true);
             }
 
-            const data = {
-                product: selectedProduct.name,
-                amount: selectedProduct.amount,
-                phoneNumber: phoneNumber,
-                productCode: selectedProduct.code,
-                inquiryId: response.data.data.inquiryId, // Assuming inquiryId comes from response
-                date: new Date().toLocaleDateString(),
-                time: new Date().toLocaleTimeString(),
-            };
-
-            setDataBill(data);
-            setShowBill(true);
         } catch (error: any) {
-            console.error("Error saat melakukan inquiry:", error);
+            setLoading(false)
             setError({ show: true, message: error.response.data ? error.response.data.message : "Terjadi kesalahan saat melakukan pembelian paket. Silakan coba lagi." });
         }
     };
@@ -124,39 +97,27 @@ const Pulsa = () => {
         setIsClicked(true)
     }
 
-    const setCategoryHandler = async (newCategory: string) => {
+    const setCategoryHandler = (newCategory: string) => {
         setCategory(newCategory);
-
-        const token = localStorage.getItem("token");
-
-        try {
-            const responseProducts = await axiosInstance.post("/ayoconnect/products",
-                {
-                    "category": newCategory, // Gunakan parameter langsung
-                    "status": "active"
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-            console.log("Products Response:", responseProducts.data);
-
-            setProducts(responseProducts.data.data);
-        } catch (err) {
-            console.error("Error saat mengambil produk:", err);
-        }
     };
 
-    // Validasi sebelum memanggil filter
-    const filteredProducts = Array.isArray(products)
-        ? products.filter(product =>
-            product?.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        : [];
+    useEffect(() => {
+        const fetchProduct = async () => {
+            if (category != null && selectedProvider != null) {
+                const responseProducts = await axiosInstance.post("/ayoconnect/products",
+                    {
+                        "category": category,
+                        "status": "active",
+                        "biller": selectedProvider
+                    });
+                console.log("Products Response:", responseProducts.data);
+                setProducts(responseProducts.data.data);
+            }
+        }
 
-    console.log("Selected Products:", selectedProduct);
+        fetchProduct()
+    }, [category, selectedProvider]);
+
 
     return (
         <div>
@@ -179,33 +140,17 @@ const Pulsa = () => {
                 </div>
 
                 <div data-aos="fade-up" data-aos-delay="400" className="mt-10 w-[90%] m-auto flex flex-row items-center justify-center gap-5">
-                    <Button onClick={() => setCategoryHandler("pulsa")} className="bg-orange-400 text-white w-full">
+                    <Button onClick={() => setCategoryHandler("pulsa")} className={`${category == 'pulsa' ? 'hover:bg-orange-400 bg-orange-400 text-white' : 'hover:bg-orange-400 hover:text-white transition ease-in-out 300 bg-[#F4F4F4] text-black'} w-full`}>
                         Pulsa
                     </Button>
 
-                    <Button onClick={() => setCategoryHandler("paket data")} className="bg-orange-400 text-white w-full">
+                    <Button onClick={() => setCategoryHandler("paket data")} className={`${category == 'paket data' ? 'hover:bg-orange-400 bg-orange-400 text-white' : 'hover:bg-orange-400 hover:text-white transition ease-in-out 300 bg-[#F4F4F4] text-black'} w-full`}>
                         Paket Data
                     </Button>
                 </div>
 
-                <div data-aos="fade-up" data-aos-delay="300" className="mt-10 w-[90%] m-auto flex flex-col items-center gap-5">
-                    <input
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            if (/^\d*$/.test(value) && value.length <= 15) {
-                                setPhoneNumber(value);
-                            }
-                        }}
-                        value={phoneNumber}
-                        type="text"
-                        placeholder="No Telephone"
-                        className="w-full p-5 bg-white shadow-lg"
-                    />
+                <div data-aos="fade-up" className="relative w-[90%] m-auto mt-10">
 
-                    <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
-                </div>
-
-                <div data-aos="fade-up" className="relative w-[90%] m-auto mt-5">
                     <button
                         type="button"
                         className="p-3 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4] text-left border rounded-md"
@@ -232,35 +177,39 @@ const Pulsa = () => {
                             ))}
                         </ul>
                     )}
+
                 </div>
 
-                <div data-aos="fade-up" data-aos-delay="200" className="mt-10 w-[90%] m-auto flex flex-col gap-5">
-                    <div className="bg-white shadow-lg rounded-lg p-5 gap-5">
-                        <p className="text-gray-500 font-semibold">Provider</p>
-                        <div className="flex flex-row items-center">
-                            <input
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                type="text"
-                                placeholder="Search"
-                                className="w-full p-3"
-                            />
-                        </div>
-                    </div>
+                <div data-aos="fade-up" data-aos-delay="300" className="mt-10 w-[90%] m-auto flex flex-col items-center gap-5 z-0">
+                    <input
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^\d*$/.test(value) && value.length <= 15) {
+                                setPhoneNumber(value);
+                            }
+                        }}
+                        value={phoneNumber}
+                        type="text"
+                        placeholder="No Telephone"
+                        className="w-full p-5 bg-white shadow-lg"
+                    />
+
                     <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
-
                 </div>
+
 
                 <div className="mt-5 w-[90%] mb-10 m-auto flex flex-col items-center gap-5 shadow-lg">
                     <div className="w-full flex flex-wrap">
-                        {searchTerm !== '' ? filteredProducts.map((product, index) => (
-                            <button type="button" data-aos={isClicked ? undefined : 'fade-up'} data-aos-delay={index * 100} key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
-                        )) : products.map((product, index) => (
+                        {products.map((product, index) => (
                             <button type="button" data-aos={isClicked ? undefined : 'fade-up'} data-aos-delay={index * 100} key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
                         ))}
                     </div>
                 </div>
 
-                <Button onClick={sendBill} className={`${phoneNumber.length === 0 ? 'hidden' : 'block'} uppercase mt-5 text-center w-[90%] m-auto mb-10 bg-green-500 text-white`}>
+                <Button
+                    onClick={sendBill}
+                    className={`${(phoneNumber.length > 0 && category != null && selectedProvider != null) ? 'block' : 'hidden'} uppercase mt-5 text-center w-[90%] m-auto mb-10 bg-green-500 text-white`}
+                >
                     Lanjutkan
                 </Button>
             </div>
@@ -269,12 +218,14 @@ const Pulsa = () => {
 
             {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
 
-            {loading && (
-                <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
-                </div>
-            )}
-        </div>
+            {
+                loading && (
+                    <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                    </div>
+                )
+            }
+        </div >
     )
 }
 
