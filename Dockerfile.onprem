@@ -12,8 +12,7 @@ RUN npm install
 
 # Copy seluruh kode sumber ke dalam image
 COPY . ./
-COPY .env.docker.cloud .env
-
+COPY .env.docker.onprem .env
 
 # Build aplikasi
 RUN npm run build
