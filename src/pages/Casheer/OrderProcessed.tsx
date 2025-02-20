@@ -7,6 +7,7 @@ import axiosInstance from "@/hooks/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import noProduct from '../../images/no-product.png'
 // import { ISales } from "../Booking/Booking";
 
 interface OrderProcessedProps {
@@ -43,7 +44,6 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
         AOS.init({ duration: 500, once: true });
     }, []);
 
-    const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
     const calculateTotalAmount = () => {
         if (Array.isArray((basket as { sales_details?: SalesDetail[] }).sales_details)) {
@@ -222,7 +222,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                                 }, index: number) => (
                                     <div data-aos="fade-up" data-aos-delay={index * 100} key={index}>
                                         <div className="flex items-center gap-5">
-                                            <img className="w-10" src={`${urlImage}/uploads/products/${item.product_image}`} alt="" />
+                                            <img className="w-10" src={`${item.product_image ?? noProduct}`} alt="" />
 
                                             <div>
                                                 <p className="text-lg font-semibold">{item.product.product_name}</p>
@@ -246,7 +246,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                             </> : <>
                                 {Array.isArray(basket) && basket.map((item, index) => (
                                     <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="flex items-center gap-5 p-3">
-                                        <img className="w-10" src={`${urlImage}/uploads/products/${item.product_image}`} alt="" />
+                                        <img className="w-10" src={`${item.product_image ?? noProduct}`} alt="" />
 
                                         <div>
                                             <p className="text-lg font-semibold">{item.product}</p>

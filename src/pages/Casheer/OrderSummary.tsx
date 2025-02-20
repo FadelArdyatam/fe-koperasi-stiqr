@@ -22,6 +22,8 @@ import {
     CommandItem,
     CommandList,
 } from "@/components/ui/command"
+import noProduct from '../../images/no-product.png'
+
 
 interface OrderSummaryProps {
     basket: any[];
@@ -64,7 +66,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         fetchData();
     }, []);
 
-    const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
     console.log("Total Quantity: ", mergedBasket.reduce((acc, curr) => acc + curr.quantity, 0))
     console.log("Total Price: ", mergedBasket.reduce((acc, curr) => acc + curr.price * curr.quantity, 0))
@@ -343,7 +344,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                         <div data-aos="fade-up" key={index} className="w-full mt-5 p-5 rounded-lg bg-white shadow-lg">
                             <div className="flex items-start gap-5 justify-between">
                                 <div className="flex items-center gap-5">
-                                    <img className="w-10" src={`${urlImage}/uploads/products/${item.product_image}`} alt="" />
+                                    <img className="w-10" src={`${item.product_image ?? noProduct}`} alt="" />
 
                                     <div>
                                         <p className="text-lg font-semibold">{item.product}</p>

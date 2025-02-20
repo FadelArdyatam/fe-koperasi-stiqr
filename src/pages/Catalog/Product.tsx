@@ -5,6 +5,8 @@ import axiosInstance from '@/hooks/axiosInstance';
 import React, { useEffect } from 'react';
 import AOS from "aos";
 import "aos/dist/aos.css";
+import noProduct from '../../images/no-product.png'
+
 
 interface Merchant {
     id: string;
@@ -156,7 +158,7 @@ const Product: React.FC<ProductProps> = ({
                             <button className="flex items-center">
                                 <div className="h-12 w-12 min-w-12 bg-gray-200 rounded-md mr-4">
                                     <img
-                                        src={`${product.product_image}`}
+                                        src={`${product.product_image ?? noProduct}`}
                                         alt={product.product_name}
                                         className="h-12 w-12 object-cover rounded-md"
                                     />

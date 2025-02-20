@@ -16,6 +16,7 @@ import DatePicker from "react-datepicker";
 import Notification from "@/components/Notification"
 import AOS from "aos";
 import "aos/dist/aos.css";
+import noIssuerImg from "../images/no-issuer.png"
 
 export const admissionFees = [
     {
@@ -249,7 +250,6 @@ const Dashboard = () => {
         }
         getTransaction()
     }, []);
-    console.log(balance)
 
     return (
         <div className="w-full">
@@ -515,8 +515,14 @@ const Dashboard = () => {
 
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-start gap-2">
-                                                <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
-
+                                                <img
+                                                    src={history?.channel
+                                                        ? `${import.meta.env.VITE_ISSUER_BANK_URL}/${history.channel}.png`
+                                                        : noIssuerImg
+                                                    }
+                                                    className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
+                                                    alt="IMAGE"
+                                                />
                                                 <div>
                                                     <div className="flex items-center gap-2">
                                                         <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
@@ -573,7 +579,10 @@ const Dashboard = () => {
 
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-start gap-2">
-                                                        <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
+                                                        <img src={history?.channel
+                                                            ? `${import.meta.env.VITE_ISSUER_BANK_URL}/${history.channel}.png`
+                                                            : noIssuerImg
+                                                        } className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
 
                                                         <div>
                                                             <div className="flex items-center gap-2">

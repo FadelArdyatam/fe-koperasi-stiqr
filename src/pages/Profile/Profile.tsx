@@ -10,8 +10,6 @@ import "aos/dist/aos.css";
 const Profile = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(false)
     const [data, setData] = useState<any>()
-    const urlImage = import.meta.env.VITE_API_URL.replace('/api', '');
-    console.log(`${urlImage}/uploads/photos/${data?.photo}`)
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -91,7 +89,7 @@ const Profile = () => {
                         <div data-aos="fade-up" data-aos-once="true" className="w-20 h-20 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
                             {data?.photo ? (
                                 <img
-                                    src={`${urlImage}/uploads/photos/${data?.photo}`}
+                                    src={`${data?.photo}`}
                                     alt="Profile"
                                     className="w-full h-full object-cover"
                                 />
