@@ -46,13 +46,30 @@ stages:
   - release
   - deploy
 
-build-app:
+build-app-onprem:
   stage: build
   image: dns-regs.dnstech.co.id/library/docker:24.0.5
   script:
     - echo "Building Docker image..."
     - docker build -t "$IMAGE_TAG_PRE" . -f Dockerfile
     - docker push "$IMAGE_TAG_PRE"
+  only: 
+    - development
+    - main
+    - dev
+
+
+build-app-cloud:
+  stage: build
+  image: dns-regs.dnstech.co.id/library/docker:24.0.5
+  script:
+    - echo "Building Docker image..."
+    - docker build -t "$IMAGE_TAG_PRE" . -f Dockerfile
+    - docker push "$IMAGE_TAG_PRE"
+  only: 
+    - production
+    - on-cloud
+
 
 test-curl:
   stage: test
