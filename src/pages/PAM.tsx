@@ -8,24 +8,32 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom"
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Notification from "@/components/Notification";
 
-interface BillData {
-    product: string;
-    amount: string;
-    date: string;
-    time: string;
-    productCode: any;
-    phoneNumber: any;
-    inquiryId: any;
-}
+// interface BillData {
+//     product: string;
+//     amount: number;
+//     date: string;
+//     time: string;
+//     productCode: string;
+//     phoneNumber: string;
+//     inquiryId: number;
+//     processingFee: number;
+//     totalAdmin: number;
+// }
+// interface BillData {
+//     data:any;
+// }
 
 const PAM = () => {
     const [region, setregion] = useState("")
     const [phoneNumber, setphoneNumber] = useState("")
-    const [dataBill, setDataBill] = useState<BillData | null>(null)
+    const [dataBill, setDataBill] = useState<any | null>(null)
     const [showBill, setShowBill] = useState(false)
     const [products, setProducts] = useState<any[]>([]);
     const [selectedProduct, setSelecteProduct] = useState<any>(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState({ show: false, message: "" });
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -61,10 +69,10 @@ const PAM = () => {
     }, [])
 
     const sendBill = async () => {
+        setLoading(true)
         try {
             console.log('Selected Product:', selectedProduct)
 
-            // Ambil informasi user dari sessionStorage
             const userItem = sessionStorage.getItem("user");
             const userData = userItem ? JSON.parse(userItem) : null;
 
@@ -75,22 +83,18 @@ const PAM = () => {
                 amount: selectedProduct.amount,
             });
 
-            console.log('Inquiry Response:', response.data)
-
             const data = {
-                product: selectedProduct.name,
-                amount: response.data.data.amount,
+                ...response.data.data,
                 date: new Date().toLocaleDateString(),
                 time: new Date().toLocaleTimeString(),
-                productCode: selectedProduct.code, // Add appropriate value
-                phoneNumber: phoneNumber,  // Add appropriate value
-                inquiryId: response.data.data.inquiryId,  // Add appropriate
             }
 
             setDataBill(data)
             setShowBill(true)
-        } catch (error) {
-            console.log(error)
+            setLoading(false)
+        } catch (error:any) {
+            setLoading(false)
+            setError({ show: true, message: error.response.data ? error.response.data.message : "Terjadi kesalahan saat melakukan pembelian paket. Silakan coba lagi." });
         }
     }
 
@@ -126,7 +130,7 @@ const PAM = () => {
                             </div>
                         </DropdownMenuTrigger>
 
-                        <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg w-[300px] flex flex-col gap-3">
+                        <DropdownMenuContent className="bg-white p-5 border mt-3 z-50 rounded-lg w-[300px] max-h-96 overflow-y-auto flex flex-col gap-3 ">
                             {products.map((product, index) => (
                                 <DropdownMenuItem key={index} onClick={() => handleDropdownChange(product?.name)}>{product?.name}</DropdownMenuItem>
                             ))}
@@ -140,12 +144,20 @@ const PAM = () => {
                     </div>
                 </div>
 
-                <Button onClick={sendBill} className={`${phoneNumber.length === 0 || region.length === 0 ? 'hidden' : 'block'} uppercase text-center w-[90%] m-auto -translate-y-10 mb-10 bg-green-500 text-white`}>
+                <Button onClick={sendBill} className={`${phoneNumber.length === 0 || region.length === 0 ? 'hidden' : 'block'} uppercase text-center w-[90%] m-auto -translate-y-10 mb-10 bg-green-500 text-white z-0`}>
                     Lanjutkan
                 </Button>
             </div>
 
             {showBill && dataBill && <Bill data={dataBill} marginTop={false} />}
+            {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
+            {
+                loading && (
+                    <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                    </div>
+                )
+            }
         </>
     )
 }
