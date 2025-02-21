@@ -101,7 +101,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
 
     const [productDetails, setProductDetails] = useState<any[]>([])
     const backToHomeHandler = async () => {
-        if (data.productName != "PLN Postpaid") {
+        if (data.category == "Listrik" && data.productName != "PLN Postpaid") {
             const response = await axiosInstance.post("/ayoconnect/inquiry/status", {
                 refNumber: refNumber
             });
@@ -112,8 +112,8 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
             }
         } else {
             navigate('/dashboard');
+            setShowNotification(false);
         }
-        setShowNotification(false);
     };
 
     console.log(token)
