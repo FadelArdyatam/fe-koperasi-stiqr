@@ -11,12 +11,13 @@ import { jwtDecode } from "jwt-decode";
 import axiosInstance from "@/hooks/axiosInstance";
 import { formatRupiah } from "@/hooks/convertRupiah";
 import imgNoTransaction from "@/images/no-transaction.png";
+import noIssuerImg from "@/images/no-issuer.png";
 import { Button } from "@/components/ui/button";
 import DatePicker from "react-datepicker";
 import Notification from "@/components/Notification"
 import AOS from "aos";
 import "aos/dist/aos.css";
-import noIssuerImg from "../images/no-issuer.png"
+import { convertDate, convertTime } from "@/hooks/convertDate";
 
 export const admissionFees = [
     {
@@ -110,7 +111,6 @@ const Dashboard = () => {
     });
     const [user, setUser] = useState<any>();
 
-    // Sementara ini, karena feature BPJS ini belum diimplementasikan
     const [showNotificationBPJS, setShowNotificationBPJS] = useState(false);
 
     const [showBalance, setShowBalance] = useState(false);
@@ -123,7 +123,6 @@ const Dashboard = () => {
     const [showCalendar, setShowCalendar] = useState(false);
 
     const [histories, setHistories] = useState<History[]>([]);
-    const [filteredHistories, setFilteredHistories] = useState<History[]>([]);
 
     const [months, setMonths] = useState(2); // Default 2 bulan
 
@@ -141,34 +140,12 @@ const Dashboard = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    useEffect(() => {
-        if (startDate && endDate) {
-            const filtered = histories.filter((history) => {
-                const transactionDate = new Date(history.transaction_date).getTime();
-                const start = new Date(startDate).setHours(0, 0, 0, 0);
-                const end = new Date(endDate).setHours(23, 59, 59, 999);
-
-                return transactionDate >= start && transactionDate <= end;
-            });
-            setFilteredHistories(filtered);
-        } else {
-            setFilteredHistories(histories);
-        }
-    }, [startDate, endDate, histories]);
 
     const onChange = (dates: [any, any]) => {
         const [start, end] = dates;
         setStartDate(start);
         setEndDate(end);
     };
-
-    // const toggleDropdown = () => {
-    //     setIsDropdownOpen((prev) => !prev); 
-    // };
-
-    // const handleDropdownChange = (value: string) => {
-    //     setField({ value }); 
-    // };
 
     useEffect(() => {
         // Ambil informasi user dari sessionStorage
@@ -231,29 +208,55 @@ const Dashboard = () => {
         getMoney();
     }, [navigate]);
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [filter, setFilter] = useState<string>("today");
+    const [dateRange, setDateRange] = useState<{ startDate?: string; endDate?: string }>({});
+
     useEffect(() => {
-        // Ambil informasi user dari sessionStorage
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
-        setUser(userData);
 
-        const getTransaction = async () => {
+        if (!userData) return;
+
+        const fetchTransactions = async () => {
             try {
-                const response = await axiosInstance.get(
-                    `/transactions/${userData.merchant.id}`,
-                );
-                console.log("Transaction Response:", response.data);
-                setHistories(response.data);
-            } catch (err: any) {
-                console.log(err)
+                const params: any = {
+                    filter,
+                    page: currentPage,
+                    limit: 10
+                };
+
+                if (filter === "dateRange" && dateRange.startDate && dateRange.endDate) {
+                    params.startDate = dateRange.startDate;
+                    params.endDate = dateRange.endDate;
+                }
+
+                const response = await axiosInstance.get(`/transactions/${userData.merchant.id}`, { params });
+                setHistories(response.data.data);
+                setTotalPages(response.data.pagination.totalPages);
+            } catch (error) {
+                console.error("Error fetching transactions:", error);
             }
-        }
-        getTransaction()
-    }, []);
+        };
+
+        fetchTransactions();
+    }, [filter, currentPage, dateRange]);
+
+    const setFilterHandler = (newFilter: string) => {
+        setFilter(newFilter);
+        setCurrentPage(1);
+    };
+
+    const setCustomDateRange = (start: string | null, end: string | null) => {
+        setDateRange({ startDate: start || undefined, endDate: end || undefined });
+        setFilter("dateRange");
+    };
+
 
     return (
         <div className="w-full">
-            <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
+            <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
                 <Link to={'/dashboard'} className="flex gap-3 text-orange-400 flex-col items-center">
                     <Home />
 
@@ -311,7 +314,7 @@ const Dashboard = () => {
                 <div className="flex items-center gap-5">
                     <p className="text-2xl m-auto uppercase font-semibold text-center text-white" data-aos="zoom-in">Home</p>
 
-                    <Link to={'/inbox'} className="bg-transparent text-white absolute right-5 hover:bg-transparent">
+                    <Link id="inbox" to={'/inbox'} className="bg-transparent text-white absolute right-5 hover:bg-transparent">
                         <Mail className="scale-[1.3]" />
                     </Link>
                 </div>
@@ -319,7 +322,7 @@ const Dashboard = () => {
                 <p className="text-center text-white mt-16 font-semibold text-xl" data-aos="zoom-in" data-aos-delay="50">Hi, {user?.merchant?.name}</p>
             </div>
 
-            <div className="w-[90%] m-auto -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
+            <div id="all-balance" className="w-[90%] m-auto -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
                 <img src={logo} className="w-[50px]" data-aos="fade-up" data-aos-delay="100" alt="" />
 
                 <div className="w-full text-center">
@@ -341,6 +344,7 @@ const Dashboard = () => {
                         )}
 
                         <button
+                            id="balance"
                             onClick={() => setShowBalance(!showBalance)}
                             type="button"
                             className="block mt-3"
@@ -395,7 +399,7 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <div className="w-[90%] flex items-center gap-10 justify-center m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
+            <div id="kasir-pelanggan-pemesanan" className="w-[90%] flex items-center gap-10 justify-center m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
                 <Link data-aos="fade-up" data-aos-delay="350" to={"/booking"} className="flex flex-col gap-2 items-center justify-center">
                     <div className="flex items-center justify-center p-3 bg-orange-400 rounded-full">
                         <ClipboardList className="text-white scale-[1.1]" />
@@ -421,7 +425,7 @@ const Dashboard = () => {
                 </Link>
             </div>
 
-            <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
+            <div id="ppob" className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
                 <div className="flex items-center justify-between">
                     <Link data-aos="fade-up" data-aos-delay="450" to={'/pulsa'} className="flex m-auto flex-col items-center gap-3">
                         <Smartphone className="text-orange-400" />
@@ -434,7 +438,7 @@ const Dashboard = () => {
                     <Link data-aos="fade-up" data-aos-delay="500" to={'/pam'} className="flex m-auto flex-col items-center gap-3">
                         <Droplet className="text-orange-400" />
 
-                        <p className="uppercase text-center text-sm">PAM</p>
+                        <p className="uppercase text-center text-sm">PDAM</p>
                     </Link>
 
                     <div className="w-10 min-w-10 h-[2px] min-h-[2px] bg-gray-300 rotate-90"></div>
@@ -455,11 +459,32 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg p-5 bg-white shadow-lg">
-                <div className="flex flex-col items-center gap-5 justify-between">
+            <div id="date" className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg p-5 bg-white shadow-lg">
+                <p className="text-center font-semibold text-lg my-5">Riwayat Transaksi</p>
+
+                <div className="w-full flex gap-5 overflow-x-auto">
+                    {/* Pilih tanggal manual */}
+                    <Button onClick={() => {
+                        setShowCalendar(!showCalendar); setFilter("dateRange");
+                    }} className={`${filter === "dateRange" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>Pilih Tanggal Transaksi</Button>
+                    <Button onClick={() => setFilterHandler("today")} className={`${filter === "today" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
+                        Hari Ini
+                    </Button>
+                    <Button onClick={() => setFilterHandler("yesterday")} className={`${filter === "yesterday" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
+                        Kemarin
+                    </Button>
+                    <Button onClick={() => setFilterHandler("2days")} className={`${filter === "2days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
+                        2 Hari
+                    </Button>
+                    <Button onClick={() => setFilterHandler("7days")} className={`${filter === "7days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`
+                    }>
+                        7 Hari
+                    </Button >
+                </div >
+
+                <div className="flex mt-5 flex-col items-center gap-5 justify-between">
                     <Button
-                        onClick={() => setShowCalendar(!showCalendar)}
-                        className="text-sm bg-gray-200 border w-full border-gray-400 text-gray-700 rounded-lg px-3 py-2"
+                        className={`${showCalendar ? 'block' : 'hidden'} text-sm bg-gray-200 border w-full border-gray-400 text-gray-700 rounded-lg px-3 py-2`}
                     >
                         {startDate && endDate
                             ? `${startDate.toLocaleDateString("id-ID", {
@@ -476,31 +501,91 @@ const Dashboard = () => {
                 </div>
 
                 {/* Kalender DatePicker */}
-                {showCalendar && (
-                    <div className="flex flex-col items-center mt-5 border p-3 rounded-lg shadow-md">
-                        <DatePicker
-                            selected={startDate}
-                            onChange={onChange}
-                            startDate={startDate}
-                            endDate={endDate}
-                            selectsRange
-                            inline
-                            maxDate={startDate ? new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000) : undefined}
-                            className="w-full"
-                            monthsShown={months}
-                        />
+                {
+                    showCalendar && (
+                        <div className="flex flex-col items-center mt-5 border p-3 rounded-lg shadow-md">
+                            <DatePicker
+                                selected={startDate}
+                                onChange={onChange}
+                                startDate={startDate}
+                                endDate={endDate}
+                                selectsRange
+                                inline
+                                maxDate={startDate ? new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000) : undefined}
+                                className="w-full"
+                                monthsShown={months}
+                            />
 
-                        <Button
-                            className="w-full mt-3 bg-orange-500 text-white rounded-lg"
-                            onClick={() => setShowCalendar(false)}
-                        >
-                            Pilih
-                        </Button>
-                    </div>
-                )}
+                            <Button
+                                className="w-full mt-3 bg-orange-500 text-white rounded-lg"
+                                onClick={() => {
+                                    setShowCalendar(false);
+                                    setCustomDateRange(
+                                        startDate ? startDate.toISOString() : null,
+                                        endDate ? endDate.toISOString() : null
+                                    )
+                                }}
+                            >
+                                Pilih
+                            </Button>
+                        </div>
+                    )
+                }
 
                 <div className="mt-10 flex flex-col gap-5">
-                    {histories.length === 0 ? (
+                    {histories.length > 0 ? (
+                        <div>
+                            {histories.map((history, index) => (
+                                <div key={index}>
+                                    <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-start gap-2">
+                                            <img src={history?.channel ? `${import.meta.env.VITE_ISSUER_BANK_URL}/${history.channel}.png` : noIssuerImg} className="rounded-full w-10 h-10" alt="IMAGE" />
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
+                                                    <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                        <p>{history.transaction_status}</p>
+                                                    </div>
+                                                </div>
+                                                <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col items-end">
+                                            <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
+                                            <div className="flex items-center">
+                                                <p className="text-xs">{convertDate(history.transaction_date)}</p>
+                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+                                                <p className="text-xs">{convertTime(history.transaction_date)}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Pagination */}
+                            <div className="flex items-center justify-center gap-5 mt-10">
+                                <Button onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                                    First
+                                </Button>
+                                <Button onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
+                                    Prev
+                                </Button>
+                                <span>Page {currentPage} of {totalPages}</span>
+                                <Button onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
+                                    Next
+                                </Button>
+                                <Button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+                                    Last
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center gap-5">
+                            <img className="p-5" src={imgNoTransaction} alt="No transactions" />
+                            <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
+                        </div>)}
+                    {/* {histories?.length === 0 ? (
                         <div className="flex flex-col items-center gap-5">
                             <img className="p-5" src={imgNoTransaction} alt="No transactions" />
                             <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
@@ -509,60 +594,74 @@ const Dashboard = () => {
                         <div className="mt-5">
                             {filteredHistories.length > 0 ? (
                                 // Jika ada transaksi dalam rentang yang difilter
-                                filteredHistories.map((history, index) => (
-                                    <div key={index}>
-                                        <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
-
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-start gap-2">
-                                                <img
-                                                    src={history?.channel
-                                                        ? `${import.meta.env.VITE_ISSUER_BANK_URL}/${history.channel}.png`
-                                                        : noIssuerImg
-                                                    }
-                                                    className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden"
-                                                    alt="IMAGE"
-                                                />
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
-
-                                                        <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
-                                                            <p>{history.transaction_status} </p>
+                                <div>
+                                    {paginatedFilteredHistories.map((history, index) => (
+                                        <div key={index}>
+                                            <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-start gap-2">
+                                                    <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
+                                                            <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                                <p>{history.transaction_status}</p>
+                                                            </div>
                                                         </div>
+                                                        <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                                     </div>
-
-                                                    <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                                 </div>
-                                            </div>
-
-                                            <div className="flex flex-col items-end">
-                                                <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
-
-                                                <p className="text-sm font-semibold text-red-500">-{formatRupiah(0)}</p>
-
-                                                <div className="flex items-center">
-                                                    <p className="text-xs">
-                                                        {new Date(history.transaction_date).toLocaleDateString("id-ID", {
-                                                            day: "2-digit",
-                                                            month: "long",
-                                                            year: "numeric",
-                                                        })}
-                                                    </p>
-
-                                                    <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-
-                                                    <p className="text-xs">
-                                                        {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
-                                                            hour: "2-digit",
-                                                            minute: "2-digit",
-                                                        })}
-                                                    </p>
+                                                <div className="flex flex-col items-end">
+                                                    <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
+                                                    <div className="flex items-center">
+                                                        <p className="text-xs">
+                                                            {new Date(history.transaction_date).toLocaleDateString("id-ID", {
+                                                                day: "2-digit",
+                                                                month: "long",
+                                                                year: "numeric",
+                                                            })}
+                                                        </p>
+                                                        <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+                                                        <p className="text-xs">
+                                                            {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
+                                                                hour: "2-digit",
+                                                                minute: "2-digit",
+                                                            })}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
+                                    ))}
+
+                                    <div className="flex items-center justify-center gap-3 sm:gap-5 mt-10">
+                                        <button
+                                            className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                            onClick={() => setCurrentPage(1)}
+                                            disabled={currentPage === 1}>
+                                            First
+                                        </button>
+                                        <button
+                                            className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                            onClick={() => setCurrentPage(prev => prev - 1)}
+                                            disabled={currentPage === 1}>
+                                            Prev
+                                        </button>
+                                        <span className="text-xs text-nowrap sm:text-base">Page {currentPage} of {totalPagesFiltered}</span>
+                                        <button
+                                            className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                            onClick={() => setCurrentPage(prev => prev + 1)}
+                                            disabled={currentPage === totalPagesFiltered}>
+                                            Next
+                                        </button>
+                                        <button
+                                            className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                            onClick={() => setCurrentPage(totalPagesFiltered)}
+                                            disabled={currentPage === totalPagesFiltered}>
+                                            Last
+                                        </button>
                                     </div>
-                                ))
+                                </div>
                             ) : (
                                 // Jika tidak ada transaksi dalam rentang filter
                                 startDate && endDate ? (
@@ -572,56 +671,75 @@ const Dashboard = () => {
                                     </div>
                                 ) : (
                                     // Jika tidak ada filter aktif, tampilkan semua transaksi
-                                    histories.length > 0 ? (
-                                        histories.map((history, index) => (
-                                            <div key={index}>
-                                                <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
-
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-start gap-2">
-                                                        <img src={history?.channel
-                                                            ? `${import.meta.env.VITE_ISSUER_BANK_URL}/${history.channel}.png`
-                                                            : noIssuerImg
-                                                        } className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
-
-                                                        <div>
-                                                            <div className="flex items-center gap-2">
-                                                                <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
-
-                                                                <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
-                                                                    <p>{history.transaction_status} </p>
+                                    histories?.length > 0 ? (
+                                        <div>
+                                            {paginatedHistories.map((history, index) => (
+                                                <div key={index}>
+                                                    <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-start gap-2">
+                                                            <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
+                                                            <div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
+                                                                    <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                                        <p>{history.transaction_status}</p>
+                                                                    </div>
                                                                 </div>
+                                                                <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                                             </div>
-
-                                                            <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                                         </div>
-                                                    </div>
-
-                                                    <div className="flex flex-col items-end">
-                                                        <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
-
-                                                        <div className="flex items-center">
-                                                            <p className="text-xs">
-                                                                {new Date(history.transaction_date).toLocaleDateString("id-ID", {
-                                                                    day: "2-digit",
-                                                                    month: "long",
-                                                                    year: "numeric",
-                                                                })}
-                                                            </p>
-
-                                                            <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-
-                                                            <p className="text-xs">
-                                                                {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
-                                                                    hour: "2-digit",
-                                                                    minute: "2-digit",
-                                                                })}
-                                                            </p>
+                                                        <div className="flex flex-col items-end">
+                                                            <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
+                                                            <div className="flex items-center">
+                                                                <p className="text-xs">
+                                                                    {new Date(history.transaction_date).toLocaleDateString("id-ID", {
+                                                                        day: "2-digit",
+                                                                        month: "long",
+                                                                        year: "numeric",
+                                                                    })}
+                                                                </p>
+                                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
+                                                                <p className="text-xs">
+                                                                    {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
+                                                                        hour: "2-digit",
+                                                                        minute: "2-digit",
+                                                                    })}
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
+                                            ))}
+
+                                            <div className="flex items-center justify-center gap-5 mt-10">
+                                                <button
+                                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                                    onClick={() => setCurrentPage(1)}
+                                                    disabled={currentPage === 1}>
+                                                    First
+                                                </button>
+                                                <button
+                                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                                    onClick={() => setCurrentPage(prev => prev - 1)}
+                                                    disabled={currentPage === 1}>
+                                                    Prev
+                                                </button>
+                                                <span className="text-xs text-nowrap sm:text-base">Page {currentPage} of {totalPages}</span>
+                                                <button
+                                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                                    onClick={() => setCurrentPage(prev => prev + 1)}
+                                                    disabled={currentPage === totalPages}>
+                                                    Next
+                                                </button>
+                                                <button
+                                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                                    onClick={() => setCurrentPage(totalPages)}
+                                                    disabled={currentPage === totalPages}>
+                                                    Last
+                                                </button>
                                             </div>
-                                        ))
+                                        </div>
                                     ) : (
                                         // Jika tidak ada transaksi sama sekali
                                         <div className="flex flex-col items-center gap-5">
@@ -632,13 +750,29 @@ const Dashboard = () => {
                                 )
                             )}
                         </div>
-                    )}
+                    )} */}
                 </div>
-            </div>
+            </div >
 
             {/* Notification for BPJS */}
             {showNotificationBPJS && <Notification message={"Fitur ini akan segera hadir"} onClose={() => { setShowNotificationBPJS(false) }} status={"error"} />}
-        </div>
+
+            {/* {run && (
+                <Joyride
+                    callback={handleJoyrideCallback}
+                    steps={steps}
+                    run={run}
+                    scrollToFirstStep
+                    hideCloseButton={true} // Menyembunyikan tombol close
+                    disableOverlayClose={true} // Menghindari tutup jika diklik di luar
+                    continuous={true} // Langsung lanjut ke langkah berikutnya
+                    // disableScrolling={true} // Mencegah scroll yang mengganggu
+                    showSkipButton={false} // Menyembunyikan tombol skip
+                    showProgress={true} // Menyembunyikan indikator progress
+                    spotlightClicks={true} // Menyorot klik pada elemen
+                />
+            )} */}
+        </div >
     );
 };
 
