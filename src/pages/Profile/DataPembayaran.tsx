@@ -1,4 +1,4 @@
-import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, ChevronRight, FileText, ChevronDown } from "lucide-react"
+import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, ChevronRight, FileText, ChevronDown, CircleAlert } from "lucide-react"
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
@@ -13,6 +13,8 @@ import dataBanks from "../../data/bank.json"
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Notification from "@/components/Notification";
+import { AlertDialogHeader, AlertDialogFooter } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@radix-ui/react-alert-dialog";
 
 interface Account {
     account_id: string;
@@ -24,7 +26,7 @@ interface Account {
 const DataPembayaran = () => {
     const [showContent, setShowContent] = useState({ show: false, index: "" });
     const [isAdding, setIsAdding] = useState({ status: false, section: "bank" });
-    const [showEdit, setShowEdit] = useState(false);
+    // const [showEdit, setShowEdit] = useState(false);
     // const [showNotification, setShowNotification] = useState(false);
     const [dataForEdit, setDataForEdit] = useState<Account | null>(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -37,7 +39,7 @@ const DataPembayaran = () => {
         setTimeout(() => {
             AOS.refresh();
         }, 100);
-    }, [showEdit, isAdding, showContent.show]);
+    }, [isAdding, showContent.show]);
 
     const FormSchemaBank = z.object({
         bankName: z.string().min(1,
@@ -81,7 +83,7 @@ const DataPembayaran = () => {
 
     useEffect(() => {
         fetchData()
-    }, []);
+    }, [isAdding.status, showContent.show]);
 
     async function getAccountForEdit(accountId: string) {
         try {
@@ -110,10 +112,18 @@ const DataPembayaran = () => {
     }, [showContent.show])
 
     async function onSubmitBank(data: z.infer<typeof FormSchemaBank>) {
+        let phoneNumber = data.accountNumber;
+
+        if (data.accountNumber.startsWith('0')) {
+            phoneNumber = "62" + data.accountNumber.slice(1);
+        }
+
+        console.log(phoneNumber)
+
         const payload = {
             bank_name: isAdding.section === 'bank' ? data.bankName.split('-')[0] : "DANA",
             bank_code: isAdding.section === 'bank' ? data.bankName.split('-')[1] : "",
-            account_number: data.accountNumber,
+            account_number: isAdding.section === 'bank' ? data.accountNumber : phoneNumber,
             owner_name: data.ownerName,
             bank_branches: isAdding.section === 'bank' ? data.bankBranches : undefined, // Hanya dikirim jika bank
             type: isAdding.section,
@@ -136,47 +146,62 @@ const DataPembayaran = () => {
         }
     }
 
+    // async function onSubmitForEditBank(data: z.infer<typeof FormSchemaBank>) {
+    //     const formData = new FormData();
 
-    async function onSubmitForEditBank(data: z.infer<typeof FormSchemaBank>) {
-        const formData = new FormData();
+    //     formData.append("bank_name", data.bankName);
+    //     formData.append("account_number", data.accountNumber);
+    //     formData.append("owner_name", data.ownerName);
+    //     try {
+    //         const response = await axiosInstance.patch(
+    //             `/account/${showContent.index}/update`,
+    //             formData,
+    //         );
 
-        formData.append("bank_name", data.bankName);
-        formData.append("account_number", data.accountNumber);
-        formData.append("owner_name", data.ownerName);
+    //         console.log("Response from API:", response.data);
+
+    //         setShowNotification(true);
+    //     } catch (error) {
+    //         if (axios.isAxiosError(error)) {
+    //             console.error("Error while adding Account:", error.response?.data || error.message);
+    //         } else {
+    //             console.error("Error while adding Account:", error);
+    //         }
+    //         alert("Failed to add Account. Please try again.");
+    //         setShowNotification(false);
+    //     }
+    // }
+
+    const deleteHandler = async () => {
         try {
-            const response = await axiosInstance.patch(
-                `/account/${showContent.index}/update`,
-                formData,
-            );
-            console.log("Response from API:", response.data);
-            // setShowNotification(true);
+            const response = await axiosInstance.delete(`/account/${showContent.index}/delete`);
+            console.log(response);
+
+            setShowContent({ show: false, index: "" });
+
         } catch (error: any) {
-            // setShowNotification(false);
+            console.error("Failed to delete data:", error.message);
         }
     }
 
-
     const buttonBack = () => {
         setShowContent({ show: false, index: "" })
-        setShowEdit(false)
+        // setShowEdit(false)
         setIsAdding({ status: false, section: "" })
     }
 
-
     return (
-        <div className="w-full flex flex-col min-h-screen items-center">
+        <div className="w-full flex flex-col min-h-screen items-center pb-32">
             <div className='w-full px-5 pt-5 pb-32 flex items-center justify-center bg-orange-400'>
-                {showContent.show === false ? (
-                    <Link to={'/profile'} className='absolute left-5 bg-transparent hover:bg-transparent'>
-                        <ChevronLeft className='scale-[1.3] text-white' />
-                    </Link>
-                ) : (
-                    <button onClick={buttonBack} className='absolute left-5 bg-transparent hover:bg-transparent'>
-                        <ChevronLeft className='scale-[1.3] text-white' />
-                    </button>
-                )}
+                <Button onClick={buttonBack} className={`${isAdding.status || showContent.show ? 'block' : 'hidden'} absolute left-5 bg-transparent hover:bg-transparent`}>
+                    <ChevronLeft className='scale-[1.8] text-white' />
+                </Button>
 
-                <p key={isAdding.status ? 'adding-mode' : showEdit ? 'edit-mode' : 'view-mode'} data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>{isAdding.status ? 'Tambah Data Pembayaran' : showEdit ? 'Edit Data Pembayaran' : 'Data Pembayaran'}</p>
+                <Link to={'/profile'} className={`${isAdding.status === false && showContent.show === false ? 'block' : 'hidden'} absolute left-5 bg-transparent hover:bg-transparent`}>
+                    <ChevronLeft className='scale-[1.3] text-white' />
+                </Link>
+
+                <p key={isAdding.status ? 'adding-mode' : 'view-mode'} data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>{isAdding.status ? 'Tambah Data Pembayaran' : 'Data Pembayaran'}</p>
             </div>
 
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -223,7 +248,7 @@ const DataPembayaran = () => {
                         <div key={index} data-aos="fade-up" data-aos-delay={index * 100}>
                             <div className={`${index === 0 ? 'hidden' : 'block'} w-full h-[2px] my-5 bg-gray-200`}></div>
 
-                            <button onClick={() => setShowContent({ show: true, index: account.account_id })} className="flex w-full items-center gap-5 justify-between">
+                            <button onClick={() => setShowContent({ show: true, index: account.account_id })} className="flex w-full text-start items-center gap-5 justify-between">
                                 <div className="flex flex-col items-start">
                                     <p>{account.bank_name}</p>
 
@@ -237,10 +262,10 @@ const DataPembayaran = () => {
             </div>
 
             <div className="w-full flex flex-col gap-5">
-                <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setIsAdding({ status: true, section: "bank" })} className={`${isAdding.status || showEdit ? 'hidden' : 'block'} w-[90%] m-auto -mt-10 sm:mb-40 mb-0 bg-green-400`}>Tambah Akun Pembayaran</Button>
+                <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setIsAdding({ status: true, section: "bank" })} className={`${isAdding.status || showContent.show ? 'hidden' : 'block'} w-[90%] m-auto -mt-10 sm:mb-40 mb-0 bg-green-400`}>Tambah Akun Pembayaran</Button>
             </div>
 
-            <div key={showContent.show ? "showContent-mode" : "noShowContent-mode"} className={`${showContent.show === true && !showEdit ? 'block' : 'hidden'} w-[90%] bg-white -translate-y-20 p-5 rounded-lg shadow-lg`}>
+            <div key={showContent.show ? "showContent-mode" : "noShowContent-mode"} className={`${showContent.show === true ? 'block' : 'hidden'} w-[90%] bg-white -translate-y-20 p-5 rounded-lg shadow-lg`}>
                 <div className="flex flex-col gap-5">
                     <div data-aos="fade-up" className="flex w-full items-center gap-5 justify-between">
                         <p className="text-sm text-gray-500">Nama Akun Bank</p>
@@ -265,8 +290,41 @@ const DataPembayaran = () => {
                     </div>
 
                 </div>
+            </div>
 
-                <Button data-aos="fade-up" data-aos-delay="400" onClick={() => setShowEdit(true)} className="mt-7 w-full bg-green-400">Edit</Button>
+            <div className={`${showContent.show ? 'flex' : 'hidden'} items-center justify-between gap-5 w-full`}>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button data-aos="fade-up" data-aos-delay="400" className="w-[90%] -translate-y-10 m-auto bg-red-400">Delete</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent
+                        className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm"
+                    >
+                        <div data-aos="zoom-in" className="bg-white text-center p-5 rounded-lg shadow-lg w-[90%]">
+                            <AlertDialogHeader>
+                                <AlertDialogTitle className="font-semibold text-lg">
+                                    <CircleAlert className="m-auto" />
+
+                                    <p className="text-center">Apakah Anda benar-benar yakin?</p>
+                                </AlertDialogTitle>
+                                <AlertDialogDescription className="text-center">
+                                    Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pembayaran Anda secara permanen.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter className="mt-5 flex flex-col gap-3">
+                                <AlertDialogAction
+                                    className="w-full p-2 rounded-lg bg-green-500 text-white"
+                                    onClick={deleteHandler}
+                                >
+                                    Lanjutkan
+                                </AlertDialogAction>
+                                <AlertDialogCancel className="w-full p-2 rounded-lg bg-red-500 text-white">
+                                    Batalkan
+                                </AlertDialogCancel>
+                            </AlertDialogFooter>
+                        </div>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
 
             <div key={isAdding ? 'adding-bank-mode' : 'noAdding-bank-mode'} className={`${isAdding.status ? 'block' : 'hidden'} w-[90%] p-5 bg-white -translate-y-20 rounded-lg shadow-lg`}>
@@ -370,7 +428,7 @@ const DataPembayaran = () => {
 
                         </div>
 
-                        <Button data-aos="fade-up" data-aos-delay="500" type="submit" className={`${isAdding.section === "bank" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
+                        <Button type="submit" className={`${isAdding.section === "bank" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
                     </form>
                 </Form>
 
@@ -402,6 +460,7 @@ const DataPembayaran = () => {
                                         <FormControl>
                                             <Input
                                                 className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                placeholder="628..."
                                                 type="text" // Gunakan "text" agar tidak ada spinner pada input number
                                                 inputMode="numeric" // Menampilkan keyboard angka di mobile
                                                 pattern="[0-9]*" // Memastikan hanya angka yang diterima
@@ -439,14 +498,14 @@ const DataPembayaran = () => {
                             />
                         </div>
 
-                        <Button data-aos="fade-up" data-aos-delay="500" type="submit" className={`${isAdding.section === "e-wallet" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
+                        <Button type="submit" className={`${isAdding.section === "e-wallet" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
                     </form>
                 </Form>
             </div>
             {/*  */}
 
             {/* Edit Bank */}
-            <div key={showEdit ? 'edit-mode' : 'NoEdit-mode'} className={`${showEdit ? 'block' : 'hidden'} w-[90%] p-5 bg-white -translate-y-20 rounded-lg shadow-lg`}>
+            {/* <div key={showEdit ? 'edit-mode' : 'NoEdit-mode'} className={`${showEdit ? 'block' : 'hidden'} w-[90%] p-5 bg-white -translate-y-20 rounded-lg shadow-lg`}>
                 <Form {...formBank}>
                     <form
                         onSubmit={formBank.handleSubmit(onSubmitForEditBank)}
@@ -506,7 +565,7 @@ const DataPembayaran = () => {
                         <Button data-aos="fade-up" data-aos-delay="500" type="submit" className="w-full bg-green-400 mt-7">Simpan Perubahan</Button>
                     </form>
                 </Form>
-            </div>
+            </div> */}
             {/*  */}
 
             {/* Notification */}
@@ -529,7 +588,7 @@ const DataPembayaran = () => {
 
                     <p className='text-base'>{isAdding ? 'Data Bank Berhasil Ditambahkan' : 'Data Bank Berhasil Diubah.'}</p>
 
-                    // <Button onClick={() => setShowNotification(false)} className="w-full">Back</Button>
+                    <Button onClick={() => { setShowNotification(false); setIsAdding({ status: false, section: "bank" }) }} className="w-full">Back</Button>
                 </div>
             </div> */}
             {/*  */}

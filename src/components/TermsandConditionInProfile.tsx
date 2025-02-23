@@ -1,11 +1,15 @@
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@radix-ui/react-accordion";
 import { ChevronLeft, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { Button } from "./ui/button";
 
-const TermsandConditionInProfile = () => {
+interface TermsandConditionInProfileProps {
+    setShowTermsandConditions: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const TermsandConditionInProfile: React.FC<TermsandConditionInProfileProps> = ({ setShowTermsandConditions }) => {
     const [openItem, setOpenItem] = useState<string | null>(null);
 
     useEffect(() => {
@@ -19,9 +23,9 @@ const TermsandConditionInProfile = () => {
     return (
         <div className="w-full flex flex-col min-h-screen items-center">
             <div className="w-full px-5 pt-5 pb-32 flex items-center justify-center bg-orange-400">
-                <Link to={"/dashboard"} className="absolute left-5 bg-transparent hover:bg-transparent">
-                    <ChevronLeft className="scale-[1.3] text-white" />
-                </Link>
+                <Button onClick={() => setShowTermsandConditions(false)} className="absolute left-5 bg-transparent hover:bg-transparent">
+                    <ChevronLeft className="scale-[1.7] text-white" />
+                </Button>
 
                 <p data-aos="zoom-in" className="font-semibold m-auto text-xl text-white text-center">Syarat dan Ketentuan</p>
             </div>

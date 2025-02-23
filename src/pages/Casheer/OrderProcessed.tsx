@@ -158,7 +158,14 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                 <div className={`p-5 w-full bg-white`}>
                     <div className="w-full flex items-center gap-5 justify-between">
                         <div className="flex items-center gap-5">
-                            <button onClick={() => { navigate("/dashboard") }}><ArrowLeft /></button>
+                            <button onClick={() => {
+                                if (type === "detail") {
+                                    navigate("/booking");
+                                    setShowOrderProcess(false);
+                                } else {
+                                    navigate("/dashboard")
+                                }
+                            }}><ArrowLeft /></button>
 
                             <p data-aos="zoom-in" className="font-semibold text-2xl">{type === "detail" ? 'Detail Pesanan' : 'Pesanan Diproses'}</p>
                         </div>
