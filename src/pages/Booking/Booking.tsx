@@ -9,6 +9,7 @@ import {
     CookingPot,
     ReceiptText,
     Search,
+    X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -311,23 +312,31 @@ const Booking = () => {
             {showReceipt.show && (
                 <div className="fixed flex items-end justify-center top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50">
                     <div className="w-[100%] bg-white p-5 mt-5 rounded-t-lg flex items-center flex-col gap-5">
-                        <p className="font-semibold text-lg">
-                            Pilih Jenis Struk Antrian {datas[showReceipt.index].queue_number}
-                        </p>
+                        <div className="flex items-center gap-5 justify-between w-full">
+                            <p className="font-semibold text-lg m-auto">
+                                Pilih Jenis Struk Antrian {datas[showReceipt.index].queue_number}
+                            </p>
 
-                        <div className="flex flex-col gap-5">
+                            <button onClick={() => setShowReceipt({ type: "", show: false, index: 0 })}>
+                                <X />
+                            </button>
+                        </div>
+
+                        <div className="flex flex-col gap-5 w-full">
                             {/* Struk Dapur */}
                             <label
                                 htmlFor="dapur"
-                                className="flex items-center gap-5 justify-between cursor-pointer p-2 rounded-lg hover:bg-orange-100"
+                                className="flex items-center justify-between gap-5 cursor-pointer p-2 rounded-lg hover:bg-orange-100"
                             >
-                                <div className="w-10 h-10 min-w-10 min-h-10 rounded-lg bg-orange-200 flex items-center justify-center">
-                                    <CookingPot />
-                                </div>
+                                <div className="flex items-center gap-5">
+                                    <div className="w-10 h-10 min-w-10 min-h-10 rounded-lg bg-orange-200 flex items-center justify-center">
+                                        <CookingPot />
+                                    </div>
 
-                                <div>
-                                    <p className="font-semibold">Struk Dapur</p>
-                                    <p>Informasi menu yang harus disiapkan oleh juru masak.</p>
+                                    <div>
+                                        <p className="font-semibold">Struk Dapur</p>
+                                        <p>Informasi menu yang harus disiapkan oleh juru masak.</p>
+                                    </div>
                                 </div>
 
                                 <Input
@@ -348,15 +357,17 @@ const Booking = () => {
                             {/* Struk Checker */}
                             <label
                                 htmlFor="checker"
-                                className="flex items-center gap-5 justify-between cursor-pointer p-2 rounded-lg hover:bg-orange-100"
+                                className="flex items-center justify-between gap-5 cursor-pointer p-2 rounded-lg hover:bg-orange-100"
                             >
-                                <div className="w-10 h-10 min-w-10 min-h-10 rounded-lg bg-orange-200 flex items-center justify-center">
-                                    <ClipboardList />
-                                </div>
+                                <div className="flex items-center gap-5">
+                                    <div className="w-10 h-10 min-w-10 min-h-10 rounded-lg bg-orange-200 flex items-center justify-center">
+                                        <ClipboardList />
+                                    </div>
 
-                                <div>
-                                    <p className="font-semibold">Struk Checker</p>
-                                    <p>Informasi untuk memeriksa kesesuaian pesanan pembeli.</p>
+                                    <div>
+                                        <p className="font-semibold">Struk Checker</p>
+                                        <p>Informasi untuk memeriksa kesesuaian pesanan pembeli.</p>
+                                    </div>
                                 </div>
 
                                 <Input
@@ -377,15 +388,17 @@ const Booking = () => {
                             {/* Struk Tagihan */}
                             <label
                                 htmlFor="tagihan"
-                                className="flex items-center gap-5 justify-between cursor-pointer p-2 rounded-lg hover:bg-orange-100"
+                                className="flex items-center justify-between gap-5 cursor-pointer p-2 rounded-lg hover:bg-orange-100"
                             >
-                                <div className="w-10 h-10 min-w-10 min-h-10 rounded-lg bg-orange-200 flex items-center justify-center">
-                                    <ReceiptText />
-                                </div>
+                                <div className="flex items-center gap-5">
+                                    <div className="w-10 h-10 min-w-10 min-h-10 rounded-lg bg-orange-200 flex items-center justify-center">
+                                        <ReceiptText />
+                                    </div>
 
-                                <div>
-                                    <p className="font-semibold">Struk Tagihan</p>
-                                    <p>Informasi bukti pembayaran untuk pembeli.</p>
+                                    <div>
+                                        <p className="font-semibold">Struk Tagihan</p>
+                                        <p>Informasi bukti pembayaran untuk pembeli.</p>
+                                    </div>
                                 </div>
 
                                 <Input
@@ -418,7 +431,7 @@ const Booking = () => {
                 </div>
             )}
 
-            {!showReceipt.show && showReceipt.type !== "" && <Receipt data={datas[showReceipt.index]} showReceipt={showReceipt} />}
+            {!showReceipt.show && showReceipt.type !== "" && <Receipt data={datas[showReceipt.index]} showReceipt={showReceipt} setShowReceipt={setShowReceipt} />}
         </div>
     );
 };

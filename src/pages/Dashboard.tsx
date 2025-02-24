@@ -565,17 +565,21 @@ const Dashboard = () => {
 
                             {/* Pagination */}
                             <div className="flex items-center justify-center gap-5 mt-10">
-                                <Button onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
                                     First
                                 </Button>
-                                <Button onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
+
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
                                     Prev
                                 </Button>
+
                                 <span>Page {currentPage} of {totalPages}</span>
-                                <Button onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
+
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
                                     Next
                                 </Button>
-                                <Button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
                                     Last
                                 </Button>
                             </div>

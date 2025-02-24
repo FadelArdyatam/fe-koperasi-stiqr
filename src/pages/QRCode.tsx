@@ -475,7 +475,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </div>
                 </div>
 
-                <Button onClick={showShareLinkGenerator} data-aos="fade-up" data-aos-delay="200" className="uppercase !mt-10 w-[90%] m-auto bg-green-400 block">
+                <Button onClick={showShareLinkGenerator} disabled={Number(amount) <= 0 ? true : false} className={`${Number(amount) <= 0 ? 'bg-gray-500' : 'bg-green-400'} transition-all uppercase !mt-10 w-[90%] m-auto block`}>
                     Buat
                 </Button>
             </div>

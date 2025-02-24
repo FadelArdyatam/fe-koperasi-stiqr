@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, CircleAlert, CircleCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import axiosInstance from "@/hooks/axiosInstance";
@@ -19,6 +19,8 @@ import Notification from "./Notification";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { formatRupiah } from "@/hooks/convertRupiah";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@radix-ui/react-alert-dialog";
+import { AlertDialogHeader, AlertDialogFooter } from "./ui/alert-dialog";
 
 interface Merchant {
     id: string;
@@ -121,6 +123,7 @@ const EditProduct: React.FC<EditProductProps> = ({
     const [error, setError] = useState<string | null>(); // State untuk mengelola
     const [showNotificationVariant, setShowNotificationVariant] = useState(false);
     // const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
+    const [showNotification, setShowNotification] = useState(false);
     const [showPopUpAddVariant, setShowPopUpAddVariant] = useState(false);
     const [showChoisesInput, setShowChoisesInput] = useState(false);
     const [showEditChoisesInput, setShowEditChoisesInput] = useState({ status: false, index: -1 });
@@ -372,7 +375,7 @@ const EditProduct: React.FC<EditProductProps> = ({
         })
         console.log(update)
 
-        setOpen({ id: "", status: false })
+        setShowNotification(true);
         setReset(true)
     }
 
@@ -423,7 +426,7 @@ const EditProduct: React.FC<EditProductProps> = ({
 
     return (
         <>
-            <div className="pt-5 w-full mb-32">
+            <div className={`${showNotification ? 'hidden' : 'block'} pt-5 w-full mb-32`}>
                 <div className="flex items-center gap-5 text-black">
                     <button onClick={() => setOpen({ id: "", status: false })}>
                         <ChevronLeft />
@@ -467,7 +470,18 @@ const EditProduct: React.FC<EditProductProps> = ({
                                         <FormItem data-aos="fade-up" data-aos-delay="100">
                                             <FormLabel>Foto Produk (Optional)</FormLabel>
                                             <FormControl>
-                                                <Input type="file" onChange={(e) => field.onChange(e.target.files?.[0])} />
+                                                <Input
+                                                    type="file"
+                                                    accept="image/*" // Hanya menerima file gambar
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (file && file.type.startsWith("image/")) {
+                                                            field.onChange(file);
+                                                        } else {
+                                                            e.target.value = ""; // Reset input jika bukan gambar
+                                                        }
+                                                    }}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -788,7 +802,38 @@ const EditProduct: React.FC<EditProductProps> = ({
                             </div>
                         )}
 
-                        <Button onClick={deleteHandler} className={`${showAddVariant ? 'hidden' : 'block'} w-full mt-5 bg-red-500 text-white`}>Delete</Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button data-aos="fade-up" data-aos-delay="400" className={`${showAddVariant ? 'hidden' : 'block'} w-full !mt-5 m-auto bg-red-400`}>Delete</Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent
+                                className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm"
+                            >
+                                <div data-aos="zoom-in" className="bg-white text-center p-5 rounded-lg shadow-lg w-[90%]">
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle className="font-semibold text-lg">
+                                            <CircleAlert className="m-auto" />
+
+                                            <p className="text-center">Apakah Anda benar-benar yakin?</p>
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription className="text-center">
+                                            Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pembayaran Anda secara permanen.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter className="mt-5 flex flex-col gap-3">
+                                        <AlertDialogAction
+                                            className="w-full p-2 rounded-lg bg-green-500 text-white"
+                                            onClick={deleteHandler}
+                                        >
+                                            Lanjutkan
+                                        </AlertDialogAction>
+                                        <AlertDialogCancel className="w-full p-2 rounded-lg bg-red-500 text-white">
+                                            Batalkan
+                                        </AlertDialogCancel>
+                                    </AlertDialogFooter>
+                                </div>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                 )}
             </div>
@@ -1121,6 +1166,19 @@ const EditProduct: React.FC<EditProductProps> = ({
 
             {/* Success Notification for Variant */}
             {showNotificationVariant && <Notification message="Varian berhasil ditambahkan!" onClose={() => setShowNotificationVariant(false)} status="success" />}
+
+            {/* Success Notification */}
+            {showNotification && (
+                <div className="p-10">
+                    <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
+
+                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Product edited successfully!</p>
+
+                    <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setOpen({ id: "", status: false })} className="w-full bg-green-500 text-white mt-10">
+                        Done
+                    </Button>
+                </div>
+            )}
         </>
     );
 };

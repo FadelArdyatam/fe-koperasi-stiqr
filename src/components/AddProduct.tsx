@@ -152,6 +152,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
     const [showChoice, setShowChoice] = useState(false);
     const [displayChoises, setDisplayChoises] = useState<Choice[]>([]);
     const [showError, setShowError] = useState(false);
+    const [showErrorForAddProduct, setShowErrorForAddProduct] = useState(false)
     const [section, setSection] = useState({ addProduct: true, detailProduct: false });
     const [showField, setShowField] = useState({ stock: false, variant: false });
     const [showAddVariant, setShowAddVariant] = useState(false);
@@ -402,6 +403,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             setShowNotification(true);
         } catch (error) {
             console.error("Error while adding product to API:", error);
+            setShowErrorForAddProduct(true);
         }
     };
 
@@ -456,7 +458,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                         <ChevronLeft />
                     </button>
 
-                    <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Add Product</p>
+                    <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Tambah Produk</p>
                 </div>
 
                 <div className="w-full mt-10">
@@ -1187,6 +1189,9 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
             {/* Success Notification for Add Product */}
             {showNotificationAddProduct && <Notification message="Produk berhasil ditambahkan!" onClose={() => setShowNotificationAddProduct(false)} status="success" />}
+
+            {/* Error Notification */}
+            {showErrorForAddProduct && <Notification message="Terjadi kesalahan saat menambahkan produk" onClose={() => setShowErrorForAddProduct(false)} status="error" />}
 
             {/* Success Notification */}
             {showNotification && (

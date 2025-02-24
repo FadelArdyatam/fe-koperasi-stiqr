@@ -2,14 +2,20 @@ import { convertDate, convertTime } from "@/hooks/convertDate";
 import { formatRupiah } from "@/hooks/convertRupiah";
 import { ISales } from "@/pages/Booking/Booking";
 import { useRef } from "react";
+import { Button } from "./ui/button";
 
 interface ReceiptProps {
     data: ISales;
     // setShowReceipt: React.Dispatch<React.SetStateAction<{ type: string; show: boolean; index: number }>>;
     showReceipt: any;
+    setShowReceipt: React.Dispatch<React.SetStateAction<{
+        type: string;
+        show: boolean;
+        index: number;
+    }>>;
 }
 
-const Receipt: React.FC<ReceiptProps> = ({ data, showReceipt }) => {
+const Receipt: React.FC<ReceiptProps> = ({ data, showReceipt, setShowReceipt }) => {
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
 
@@ -331,6 +337,10 @@ const Receipt: React.FC<ReceiptProps> = ({ data, showReceipt }) => {
             >
                 Cetak Struk
             </button>
+
+            <Button className="w-full bg-gray-500 mt-3" onClick={() => setShowReceipt({ type: "", show: false, index: 0 })}>
+                Back
+            </Button>
         </div>
     );
 };
