@@ -575,9 +575,15 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                             value={formatRupiah(field.value)} // Pastikan format rupiah digunakan
                                             maxLength={16}
                                             onChange={(e) => {
-                                                const rawValue = e.target.value.replace(/\D/g, ""); // Hanya ambil angka
-                                                const limitedValue = rawValue.slice(0, 16); // Batasi 10 digit
-                                                field.onChange(limitedValue); // Simpan sebagai angka
+                                                let rawValue = e.target.value.replace(/\D/g, ""); // Hanya angka
+
+                                                // Pastikan nilai tidak bisa 0 rupiah
+                                                if (rawValue.startsWith("0") && rawValue.length > 1) {
+                                                    rawValue = rawValue.replace(/^0+/, ""); // Hapus nol di awal
+                                                }
+
+                                                const limitedValue = rawValue.slice(0, 16); // Batasi 16 digit
+                                                field.onChange(limitedValue); // Simpan angka bersih
                                             }}
                                         />
                                     </FormControl>

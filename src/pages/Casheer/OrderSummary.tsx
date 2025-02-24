@@ -1,6 +1,6 @@
 import { ArrowLeft, Trash2, Pencil, ChevronsUpDown } from "lucide-react";
-import takeAway from "../../images/take-away.png"
-import dineIn from "../../images/dine-in.png"
+import bayarNanti from "../../images/take-away.png"
+import bayarSekarang from "../../images/bayar-sekarang.png"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
@@ -22,6 +22,8 @@ import {
     CommandItem,
     CommandList,
 } from "@/components/ui/command"
+import noProduct from '../../images/no-product.png'
+
 
 interface OrderSummaryProps {
     basket: any[];
@@ -46,6 +48,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         AOS.init({ duration: 500, once: true });
     }, []);
 
+    console.log("Show Service: ", showService);
+
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
 
@@ -64,7 +68,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         fetchData();
     }, []);
 
-    const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
     console.log("Total Quantity: ", mergedBasket.reduce((acc, curr) => acc + curr.quantity, 0))
     console.log("Total Price: ", mergedBasket.reduce((acc, curr) => acc + curr.price * curr.quantity, 0))
@@ -201,9 +204,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 </div>
 
                 <div data-aos="fade-up" data-aos-delay="100" className="w-[90%] flex items-center justify-between gap-5 mt-5 bg-white p-5 shadow-lg rounded-md">
-                    <img className="w-10" src={showService.service === "Dine In" ? dineIn : takeAway} alt="" />
+                    <img className="w-10" src={showService.service === "Pay Now" ? bayarNanti : bayarSekarang} alt="" />
 
-                    <p className="font-semibold text-lg">{showService.service === "Dine In" ? "Makan di Tempat" : "Bawa Pulang"}</p>
+                    <p className="font-semibold text-lg">{showService.service === "Pay Now" ? "Bayar Sekarang" : "Bayar Nanti"}</p>
 
                     <Button type="button" onClick={() => setShowService({ show: false, service: null })} className="block bg-orange-100 text-orange-400 rounded-full">Ubah</Button>
                 </div>
@@ -224,16 +227,16 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                             <ChevronsUpDown className="opacity-50" />
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="sm:w-[700px] p-0">
+                    <PopoverContent className="sm:min-w-[600px] md:min-w-[700px] lg:min-w-[1200px] p-0" onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }} onClick={(e) => { e.preventDefault(); e.stopPropagation() }}>
                         <Command>
                             <CommandInput placeholder="Search customer..." className="h-9" onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }} onClick={(e) => { e.preventDefault(); e.stopPropagation() }} />
                             <CommandList>
-                                <CommandEmpty>No customer found.</CommandEmpty>
+                                <CommandEmpty onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }} onClick={(e) => { e.preventDefault(); e.stopPropagation() }}>No customer found.</CommandEmpty>
                                 <CommandGroup>
                                     {customers.map((customer) => (
                                         <CommandItem
                                             key={customer.customer.customer_id}
-                                            value={customer.customer.name}
+                                            value={customer.customer.name + " - " + customer.customer.other_number}
                                             onSelect={(currentValue) => {
                                                 setValue(currentValue === value ? "" : currentValue);
                                                 setSelectedCustomer(customer);
@@ -245,7 +248,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                                                 e.stopPropagation();
                                             }}
                                         >
-                                            {customer.customer.name}
+                                            {customer.customer.name} - {customer.customer.other_number}
                                         </CommandItem>
                                     ))}
                                 </CommandGroup>
@@ -319,7 +322,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     </div>
 
                     <div data-aos="fade-up" data-aos-delay="600" className="mt-5">
-                        <p className="font-semibold">Other Number</p>
+                        <p className="font-semibold">Nomor Lainnya</p>
 
                         <Input
                             value={selectedCustomer?.customer?.other_number ? selectedCustomer?.customer?.other_number : dataCustomer.other_number}
@@ -343,7 +346,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                         <div data-aos="fade-up" key={index} className="w-full mt-5 p-5 rounded-lg bg-white shadow-lg">
                             <div className="flex items-start gap-5 justify-between">
                                 <div className="flex items-center gap-5">
-                                    <img className="w-10" src={`${urlImage}/uploads/products/${item.product_image}`} alt="" />
+                                    <img className="w-10" src={`${item.product_image ?? noProduct}`} alt="" />
 
                                     <div>
                                         <p className="text-lg font-semibold">{item.product}</p>
@@ -390,7 +393,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     <div className="w-full mt-10 flex items-center gap-5 justify-between">
                         <Button onClick={() => setBasket([])} className="rounded-full w-14 h-14 min-w-14 min-h-14 bg-orange-100 text-orange-400 font-semibold"><Trash2 className="scale-[1.5]" /></Button>
 
-                        <Button onClick={() => openBillHandler('open')} className={`${showService.service === "Take Away" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
+                        <Button onClick={() => openBillHandler('open')} className={`${showService.service === "Pay Now" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
 
                         <Button onClick={() => openBillHandler('tagih')} className="bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold">Tagih</Button>
                     </div>

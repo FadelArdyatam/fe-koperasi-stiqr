@@ -218,6 +218,9 @@ const EditProduct: React.FC<EditProductProps> = ({
         },
     });
 
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
+
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         try {
             console.log("Form data:", data);
@@ -227,7 +230,7 @@ const EditProduct: React.FC<EditProductProps> = ({
             formData.append("product_category", "ExampleCategory"); // Replace with actual value
             formData.append("product_price", data.price.toString());
             formData.append("product_description", data.description || productToEdit?.product_description || "");
-
+            formData.append("merchant_id", userData.merchant.id)
             if (data.photo) {
                 formData.append("product_image", data.photo);
             }
@@ -294,12 +297,7 @@ const EditProduct: React.FC<EditProductProps> = ({
         },
     });
 
-    console.log("variants", variants);
-
     const onSubmitVariant = async (data: z.infer<typeof FormSchemaVariant>) => {
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
-
         const payload = {
             variant_name: data.name,
             product_id: data.products.join(","), // Konversi array ke string dengan koma
@@ -367,7 +365,11 @@ const EditProduct: React.FC<EditProductProps> = ({
 
         console.log("Merged Data:", mergedData);
 
-        const update = await axiosInstance.patch(`/product/${editIndex}/allProduct`, mergedData)
+        const update = await axiosInstance.patch(`/product/${editIndex}/allProduct`, mergedData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        })
         console.log(update)
 
         setOpen({ id: "", status: false })
@@ -781,6 +783,8 @@ const EditProduct: React.FC<EditProductProps> = ({
                                         </label>
                                     ))}
                                 </div>
+
+                                <Button onClick={() => setShowAddVariant(false)} className="w-full mt-5 bg-green-400">Submit</Button>
                             </div>
                         )}
 

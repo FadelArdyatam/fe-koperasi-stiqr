@@ -10,6 +10,7 @@ import dineIn from "../../images/bayar-sekarang.png"
 import OrderSummary from "./OrderSummary"
 import AOS from "aos";
 import "aos/dist/aos.css";
+import noProduct from '../../images/no-product.png'
 
 const Casheer = () => {
     const [searchTerm, setSearchTerm] = useState('')
@@ -29,8 +30,6 @@ const Casheer = () => {
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
-
-    const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
@@ -406,7 +405,7 @@ const Casheer = () => {
                                 onClick={() => detailProductHandler(index)}
                                 className="flex items-center gap-5 w-full cursor-pointer"
                             >
-                                <img src={`${urlImage}/uploads/products/${product.product_image}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
+                                <img src={`${product.product_image ?? noProduct}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
 
                                 <div className="flex flex-col justify-start items-start">
                                     <p className="font-semibold">{product.product_name.length > 10
@@ -521,7 +520,7 @@ const Casheer = () => {
                                 onClick={() => detailProductHandler(index)}
                                 className="flex items-center gap-5 w-full cursor-pointer"
                             >
-                                <img src={`${urlImage}/uploads/products/${product.product_image}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
+                                <img src={`${product.product_image ?? noProduct}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
 
                                 <div className="flex flex-col justify-start items-start">
                                     <p className="font-semibold">{product.product_name.length > 10

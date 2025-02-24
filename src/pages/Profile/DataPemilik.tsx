@@ -17,8 +17,6 @@ const DataPemilik = () => {
     const [user, setUser] = useState<any>()
     const [data, setData] = useState<any>()
 
-    const urlImage = import.meta.env.VITE_API_URL.replace('/api', '');
-
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
     }, [])
@@ -81,6 +79,11 @@ const DataPemilik = () => {
                 email: data.email,
                 phone_number: data.phoneNumber,
                 dob: data.dateOfBirth,
+                photo: data.photo,
+            }, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             })
             if (response.data.statusCode == 200) {
                 console.log(response)
@@ -239,7 +242,7 @@ const DataPemilik = () => {
                         <div data-aos="fade-up" className="w-14 h-14 rounded-lg overflow-hidden bg-gray-300 flex items-center justify-center">
                             {data?.photo ? (
                                 <img
-                                    src={`${urlImage}/uploads/photos/${data?.photo}`}
+                                    src={`${data?.photo}`}
                                     alt="Profile"
                                     className="w-full h-full object-cover"
                                 />
@@ -331,7 +334,7 @@ const DataPemilik = () => {
                                     name="dateOfBirth"
                                     render={({ field }) => (
                                         <FormItem data-aos="fade-up" data-aos-delay="500" className="w-full">
-                                            <FormLabel className="text-gray-500">Date of Birth</FormLabel>
+                                            <FormLabel className="text-gray-500">Tanggal Lahir</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="date"

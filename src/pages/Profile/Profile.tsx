@@ -10,8 +10,6 @@ import "aos/dist/aos.css";
 const Profile = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(false)
     const [data, setData] = useState<any>()
-    const urlImage = import.meta.env.VITE_API_URL.replace('/api', '');
-    console.log(`${urlImage}/uploads/photos/${data?.photo}`)
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -91,7 +89,7 @@ const Profile = () => {
                         <div data-aos="fade-up" data-aos-once="true" className="w-20 h-20 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
                             {data?.photo ? (
                                 <img
-                                    src={`${urlImage}/uploads/photos/${data?.photo}`}
+                                    src={`${data?.photo}`}
                                     alt="Profile"
                                     className="w-full h-full object-cover"
                                 />
@@ -151,7 +149,7 @@ const Profile = () => {
 
                     <Link data-aos="fade-up" data-aos-once="true" to={"/profile/customer-data"} className="flex items-center gap-5 justify-between">
                         <div>
-                            <p>Data Customer</p>
+                            <p>Data Pelanggan</p>
 
                             <p className="text-sm text-gray-500">Nama Pemesan, No Hp, Email, Nomor Lain</p>
                         </div>
@@ -209,7 +207,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/printer"} className="flex items-center gap-5 justify-between ">
+                    {/* <Link data-aos="fade-up" data-aos-once="true" to={"/profile/printer"} className="flex items-center gap-5 justify-between ">
                         <div>
                             <p>Printer</p>
 
@@ -217,11 +215,11 @@ const Profile = () => {
                         </div>
 
                         <ChevronRight />
-                    </Link>
+                    </Link> */}
                 </div>
             </div>
 
-            {showTermsandConditions && <TermsandConditionInProfile />}
+            {showTermsandConditions && <TermsandConditionInProfile setShowTermsandConditions={setShowTermsandConditions} />}
         </>
     )
 }

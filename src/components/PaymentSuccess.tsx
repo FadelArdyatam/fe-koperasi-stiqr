@@ -1,11 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Check } from "lucide-react";
-import { Button } from "./ui/button";
+import axiosInstance from "@/hooks/axiosInstance";
+import BluetoothPrinter from "./BluetoothPrinter";
 
 const PaymentSuccess: React.FC = () => {
   const location = useLocation();
   const { orderId, amount } = location.state || {};
+
+  interface IOrder {
+    no_transaksi: string;
+    date: string;
+    merchant: {
+      name: string;
+      address: string;
+      phone: string;
+    },
+    products: {
+      name: string;
+      qty: number;
+      price: number;
+      subtotal: number;
+    }[],
+    payment: {
+      total: number;
+      method: string;
+      pay: number;
+      change: number;
+    }
+  }
+  const [orders, setOrders] = useState<IOrder>()
+  useEffect(() => {
+    const fetchOrder = async () => {
+      const response = await axiosInstance.get(`/sales/order/${orderId}`)
+      setOrders(response.data)
+    }
+    fetchOrder()
+  }, [orderId]);
 
   return (
     <div className="min-h-screen bg-orange-400 flex flex-col items-center justify-center p-4">
@@ -15,7 +46,7 @@ const PaymentSuccess: React.FC = () => {
         </div>
 
         <h2 className="text-2xl font-bold mb-4 text-gray-800">
-          Payment Successful!
+          Pembayaran Berhasil
         </h2>
 
         <div className="bg-gray-100 p-4 rounded-md mb-6">
@@ -43,11 +74,13 @@ const PaymentSuccess: React.FC = () => {
           >
             Kembali
           </Link>
-          <Button
-            className="px-6 py-2 w-40 text-white bg-green-500 rounded-md hover:bg-green-600 transition text-center"
-          >
-            Cetak Struk
-          </Button>
+          {orders && (
+            <BluetoothPrinter
+              style="px-6 py-2 w-40 text-white bg-green-500 rounded-md hover:bg-green-600 transition text-center"
+              data={orders}
+            ></BluetoothPrinter>
+          )}
+
         </div>
       </div>
     </div>

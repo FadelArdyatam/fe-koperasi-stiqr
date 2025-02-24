@@ -62,23 +62,6 @@ const Settlement = () => {
         non_cash_amount: 0,
     });
     const navigate = useNavigate();
-    // const [startDate, setStartDate] = useState<Date | null>(new Date());
-    // const [endDate, setEndDate] = useState<Date | null>(null);
-    // const [showCalendar, setShowCalendar] = useState(false);
-    // const [histories, setHistories] = useState<any[]>([]);
-    // const [filteredHistories, setFilteredHistories] = useState<any[]>([]);
-
-    // const [months, setMonths] = useState(2); // Default 2 bulan
-
-    // useEffect(() => {
-    //     const handleResize = () => {
-    //         setMonths(window.innerWidth < 768 ? 1 : 2); // Jika kurang dari 768px, tampilkan 1 bulan
-    //     };
-
-    //     handleResize(); // Jalankan saat pertama kali load
-    //     window.addEventListener("resize", handleResize); // Deteksi perubahan ukuran layar
-    //     return () => window.removeEventListener("resize", handleResize);
-    // }, []);
 
     const FormSchema = z.object({
         amount: z.number().min(5, {
@@ -145,7 +128,6 @@ const Settlement = () => {
     }
 
     useEffect(() => {
-        // Ambil informasi user dari sessionStorage
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
@@ -200,23 +182,6 @@ const Settlement = () => {
 
         fetchSettlement()
     }, []);
-
-    // useEffect(() => {
-    //     if (startDate || endDate) {
-    //         const filtered = histories.filter((history) => {
-    //             const transactionDate = new Date(history.transaction_date);
-    //             return startDate && endDate && transactionDate >= new Date(startDate) && transactionDate <= new Date(endDate);
-    //         });
-    //         setFilteredHistories(filtered);
-    //     }
-    // }, [startDate, endDate, histories]);
-
-    // const onChange = (dates: [Date | null, Date | null]) => {
-    //     const [start, end] = dates;
-    //     setStartDate(start);
-    //     setEndDate(end);
-    // };
-
 
     return (
         <div>
@@ -487,170 +452,6 @@ const Settlement = () => {
                         <div></div>
                     )
                 }
-                {/* <div className="p-5 bg-white w-[94%] m-auto">
-                    <p className="font-semibold text-lg">Riwayat Penarikan</p>
-                    <Button
-                        type="button"
-                        className="w-full mt-3 text-base font-medium bg-gray-200 text-gray-700 border border-gray-400 rounded-lg"
-                        onClick={() => setShowCalendar(!showCalendar)}
-                    >
-                        {startDate && endDate
-                            ? `${startDate.toLocaleDateString("id-ID", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                            })} - ${endDate.toLocaleDateString("id-ID", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                            })}`
-                            : "Pilih Rentang Tanggal"}
-                    </Button>
-
-                    {showCalendar && (
-                        <div className="mt-3 border flex flex-col items-center p-2 border-gray-300 rounded-lg shadow-md">
-                            <DatePicker
-                                selected={startDate}
-                                onChange={onChange}
-                                startDate={startDate}
-                                endDate={endDate}
-                                selectsRange
-                                inline
-                                className="w-full"
-                                monthsShown={months}
-                            />
-                            <Button
-                                type="button"
-                                className="w-full mt-2 bg-orange-500 text-white rounded-lg py-2"
-                                onClick={() => setShowCalendar(false)}
-                            >
-                                Pilih
-                            </Button>
-                        </div>
-                    )}
-                </div> */}
-
-                {/* {histories.length === 0 ? (
-                    <div className="flex flex-col items-center gap-5">
-                        <img className="p-5" src={notransaction} alt="No transactions" />
-                        <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
-                    </div>
-                ) : (
-                    <div className="mt-5 p-5">
-                        {filteredHistories.length > 0 ? (
-                            filteredHistories.map((history, index) => (
-                                <div key={index} className="w-[94%] m-auto">
-                                    <div className={`${index === 0 ? "hidden" : "block"} w-[94%] h-[2px] my-5 bg-gray-300 rounded-full`}></div>
-
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-start gap-2">
-                                            <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
-
-                                            <div>
-                                                <div className="flex items-center gap-2">
-                                                    <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
-
-                                                    <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
-                                                        <p>{history.transaction_status} </p>
-                                                    </div>
-                                                </div>
-
-                                                <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex flex-col items-end">
-                                            <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
-
-                                            <div className="flex items-center">
-                                                <p className="text-xs">
-                                                    {new Date(history.transaction_date).toLocaleDateString("id-ID", {
-                                                        day: "2-digit",
-                                                        month: "long",
-                                                        year: "numeric",
-                                                    })}
-                                                </p>
-
-                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-
-                                                <p className="text-xs">
-                                                    {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
-                                                        hour: "2-digit",
-                                                        minute: "2-digit",
-                                                    })}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            // Jika tidak ada transaksi dalam rentang filter
-                            startDate && endDate ? (
-                                <div className="flex flex-col items-center gap-5 text-center">
-                                    <img className="p-5" src={notransaction} alt="No transactions" />
-                                    <p className="font-semibold text-lg text-orange-500">Tidak ada transaksi dalam rentang waktu ini</p>
-                                </div>
-                            ) : (
-                                // Jika tidak ada filter aktif, tampilkan semua transaksi
-                                histories.length > 0 ? (
-                                    histories.map((history, index) => (
-                                        <div key={index} className="w-[94%] m-auto">
-                                            <div className={`${index === 0 ? "hidden" : "block"} w-[94%] h-[2px] my-5 bg-gray-300 rounded-full`}></div>
-
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-start gap-2">
-                                                    <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
-
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
-                                                            <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
-
-                                                            <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
-                                                                <p>{history.transaction_status} </p>
-                                                            </div>
-                                                        </div>
-
-                                                        <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex flex-col items-end">
-                                                    <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
-
-                                                    <div className="flex items-center">
-                                                        <p className="text-xs">
-                                                            {new Date(history.transaction_date).toLocaleDateString("id-ID", {
-                                                                day: "2-digit",
-                                                                month: "long",
-                                                                year: "numeric",
-                                                            })}
-                                                        </p>
-
-                                                        <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-
-                                                        <p className="text-xs">
-                                                            {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
-                                                                hour: "2-digit",
-                                                                minute: "2-digit",
-                                                            })}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    // Jika tidak ada transaksi sama sekali
-                                    <div className="flex flex-col items-center gap-5">
-                                        <img className="p-5" src={notransaction} alt="No transactions" />
-                                        <p className="font-semibold text-lg text-orange-500">Belum ada transaksi</p>
-                                    </div>
-                                )
-                            )
-                        )}
-                    </div>
-                )} */}
             </div>
 
             {

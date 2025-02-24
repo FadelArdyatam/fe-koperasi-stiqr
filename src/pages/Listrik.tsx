@@ -16,25 +16,30 @@ import axiosInstance from "@/hooks/axiosInstance";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { formatRupiah } from "@/hooks/convertRupiah";
+import Notification from "@/components/Notification";
 
-interface BillData {
-    product: string;
-    amount: string;
-    date: string;
-    time: string;
-    productCode: any;
-    phoneNumber: any;
-    inquiryId: any;
-}
+// interface BillData {
+//     product: string;
+//     amount: number;
+//     date: string;
+//     time: string;
+//     productCode: string;
+//     phoneNumber: string;
+//     inquiryId: number;
+//     processingFee: number;
+//     totalAdmin: number;
+// }
 
 const Listrik = () => {
     const [nominal, setNominal] = useState("");
     const [noMeter, setNoMeter] = useState("");
     const [type, setType] = useState("");
-    const [dataBill, setDataBill] = useState<BillData | null>(null);
+    const [dataBill, setDataBill] = useState<any | null>(null);
     const [showBill, setShowBill] = useState(false);
     const [products, setProducts] = useState<any[]>([]);
     const [selectedProduct, setSelecteProduct] = useState<any>(null);
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState({ show: false, message: "" });
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -61,10 +66,9 @@ const Listrik = () => {
     }, [type])
 
     const sendBill = async () => {
-        console.log('Selected Product:', selectedProduct)
+        setLoading(true)
         try {
 
-            // Ambil informasi user dari sessionStorage
             const userItem = sessionStorage.getItem("user");
             const userData = userItem ? JSON.parse(userItem) : null;
 
@@ -75,22 +79,19 @@ const Listrik = () => {
                 merchant_id: userData.merchant.id,
             });
 
-            console.log('Inquiry Response:', response.data)
-
-            const data = {
-                product: selectedProduct.name,
-                amount: selectedProduct.amount + 300,
-                date: new Date().toLocaleDateString(),
-                time: new Date().toLocaleTimeString(),
-                productCode: selectedProduct.code, // Add appropriate value
-                phoneNumber: noMeter, // Add appropriate value
-                inquiryId: response.data.data.inquiryId, // Add appropriate
-            };
-
-            setDataBill(data);
-            setShowBill(true);
-        } catch (err) {
-            console.error("Error saat mengambil profile:", err);
+            if (response.data.success) {
+                const data = {
+                    ...response.data.data,
+                    date: new Date().toLocaleDateString(),
+                    time: new Date().toLocaleTimeString(),
+                };
+                setDataBill(data);
+                setShowBill(true);
+                setLoading(false)
+            }
+        } catch (err: any) {
+            setLoading(false)
+            setError({ show: true, message: err.response.data ? err.response.data.message : "Terjadi kesalahan saat melakukan pembelian paket. Silakan coba lagi." });
         }
 
     };
@@ -112,8 +113,7 @@ const Listrik = () => {
         }
     };
 
-    console.log("Products:", products);
-
+    console.log(selectedProduct)
     return (
         <>
             <div className="w-full p-10 pb-32 flex items-center justify-center bg-orange-400 bg-opacity-100">
@@ -174,7 +174,7 @@ const Listrik = () => {
                                 </div>
                             </DropdownMenuTrigger>
 
-                            <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg w-[300px] flex flex-col gap-3">
+                            <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg w-full sm:min-w-[600px] min-w-max max-h-32 overflow-y-auto flex flex-col gap-3">
                                 {products.map((product, index) => (
                                     <DropdownMenuItem onClick={() => handleDropdownChange(product.amount)} key={index}>
                                         {Number(product.amount).toLocaleString("id-ID", {
@@ -211,6 +211,14 @@ const Listrik = () => {
             </div>
 
             {showBill && dataBill && <Bill data={dataBill} marginTop={false} />}
+            {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
+            {
+                loading && (
+                    <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                    </div>
+                )
+            }
         </>
     );
 };

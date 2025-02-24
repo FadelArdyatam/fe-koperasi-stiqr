@@ -18,6 +18,8 @@ import { convertDate, convertTime } from "@/hooks/convertDate";
 import Receipt from "@/components/Receipt";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import noProduct from '../../images/no-product.png'
+
 
 const bookingDatas: any[] = [
     [
@@ -134,7 +136,6 @@ const Booking = () => {
 
     const [tagih, setTagih] = useState(false)
 
-    const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
     const statuses = [
         { value: "inprogress", label: "Belum Dibayar" },
@@ -238,7 +239,7 @@ const Booking = () => {
 
                                 <div>
                                     <div className="flex items-center gap-5">
-                                        <img src={`${urlImage}/uploads/products/${data?.sales_details[0]?.product?.product_image}`} alt={data?.sales_details[0]?.product?.product_image} className="h-12 w-12 object-cover rounded-md" />
+                                        <img src={`${data?.sales_details[0]?.product?.product_image ?? noProduct}`} alt={data?.sales_details[0]?.product?.product_image} className="h-12 w-12 object-cover rounded-md" />
 
                                         <div>
                                             <p className="text-lg font-semibold">

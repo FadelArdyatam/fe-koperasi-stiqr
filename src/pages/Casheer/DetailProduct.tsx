@@ -4,6 +4,8 @@ import { Button } from "../../components/ui/button";
 import { Input } from "@/components/ui/input";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import noProduct from '../../images/no-product.png'
+
 
 interface DetailProductProps {
     product: any;
@@ -24,7 +26,6 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
         AOS.init({ duration: 500, once: true });
     }, []);
 
-    const urlImage = `${import.meta.env.VITE_API_URL.replace('/api', '')}`;
 
     console.log("variants from detail product: ", variants);
 
@@ -74,7 +75,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
             <div data-aos="fade-up" data-aos-delay="100" className="w-[90%] flex flex-col items-end mt-5 bg-white p-5 shadow-lg rounded-md">
                 <div className="w-full">
                     <div className="flex items-center gap-5">
-                        <img src={`${urlImage}/uploads/products/${product.product_image}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
+                        <img src={`${product.product_image ?? noProduct}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
 
                         <p className="font-semibold text-lg">{product.product_name}</p>
                     </div>
