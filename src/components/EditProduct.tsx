@@ -198,14 +198,22 @@ const EditProduct: React.FC<EditProductProps> = ({
     // Validasi schema untuk form
     const FormSchema = z.object({
         photo: z.instanceof(File, {
-            message: "Photo must be a valid file.",
+            message: "Foto harus berupa file yang valid.",
         }).optional(),
-        name: z.string().min(1, { message: "Name is required." }).max(50, { message: "Name must be less than 50 characters." }),
-        SKU: z.string().min(1, { message: "SKU is required." }).max(20, { message: "SKU must be less than 20 characters." }),
-        price: z.number().min(1, { message: "Price must be greater than 0." }),
-        weight: z.string().min(1, { message: "Weight is required." }),
-        // etalase: z.array(z.string()).nonempty({ message: "At least one etalase must be selected." }),
-        description: z.string().max(100, { message: "Description must be less than 100 characters." }).optional(),
+        name: z.string()
+            .min(1, { message: "Nama wajib diisi." })
+            .max(50, { message: "Nama tidak boleh lebih dari 50 karakter." }),
+        SKU: z.string()
+            .min(1, { message: "SKU wajib diisi." })
+            .max(20, { message: "SKU tidak boleh lebih dari 20 karakter." }),
+        price: z.number()
+            .min(1, { message: "Harga harus lebih dari 0." }),
+        weight: z.string()
+            .min(1, { message: "Berat wajib diisi." }),
+        // etalase: z.array(z.string()).nonempty({ message: "Minimal satu etalase harus dipilih." }),
+        description: z.string()
+            .max(100, { message: "Deskripsi tidak boleh lebih dari 100 karakter." })
+            .optional(),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({

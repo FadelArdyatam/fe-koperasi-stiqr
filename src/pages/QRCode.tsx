@@ -461,10 +461,16 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                         <Input
                             type="text"
                             inputMode="numeric"  // Menampilkan keyboard angka di mobile
-                            pattern="[0-9]*"     // Mencegah karakter non-angka
+                            pattern="[1-9][0-9]*"  // Mencegah karakter non-angka dan angka 0 di awal
                             className="pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                             onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, ""); // Hanya angka
+                                let value = e.target.value.replace(/\D/g, ""); // Hanya angka
+
+                                // Mencegah angka nol di awal
+                                if (value.startsWith("0")) {
+                                    value = value.replace(/^0+/, ""); // Hapus semua nol di awal
+                                }
+
                                 if (value.length <= 10) {
                                     setAmount(value);
                                 }
