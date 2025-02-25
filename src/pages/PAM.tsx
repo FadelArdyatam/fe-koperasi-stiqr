@@ -92,7 +92,7 @@ const PAM = () => {
             setDataBill(data)
             setShowBill(true)
             setLoading(false)
-        } catch (error:any) {
+        } catch (error: any) {
             setLoading(false)
             setError({ show: true, message: error.response.data ? error.response.data.message : "Terjadi kesalahan saat melakukan pembelian paket. Silakan coba lagi." });
         }
@@ -130,7 +130,7 @@ const PAM = () => {
                             </div>
                         </DropdownMenuTrigger>
 
-                        <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg w-full sm:min-w-[600px] md:min-w-[700px] lg:min-w-[1200px] min-w-max max-h-64 overflow-y-auto flex flex-col gap-3">
+                        <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg max-w-[350px] sm:min-w-[600px] md:min-w-[700px] lg:min-w-[1200px] max-h-64 overflow-y-auto flex flex-col gap-3">
                             {products.map((product, index) => (
                                 <DropdownMenuItem key={index} onClick={() => handleDropdownChange(product?.name)}>{product?.name}</DropdownMenuItem>
                             ))}

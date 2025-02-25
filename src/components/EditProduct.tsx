@@ -150,6 +150,7 @@ const EditProduct: React.FC<EditProductProps> = ({
         }
 
         setShowField({ stock: productToEdit?.detail_product?.is_stok, variant: productToEdit?.detail_product?.is_variant });
+        setStock({ stock: productToEdit?.detail_product?.stok, minimumStock: productToEdit?.detail_product?.stok_minimum });
     }, [productToEdit]);
 
     console.log(editIndex)
@@ -737,13 +738,13 @@ const EditProduct: React.FC<EditProductProps> = ({
                                         <div className="flex flex-col gap-2">
                                             <p className="font-semibold">Jumlah Stok</p>
 
-                                            <Input onChange={(e) => setStock({ stock: Number(e.target.value), minimumStock: stock.minimumStock })} placeholder="1" type="number" />
+                                            <Input onChange={(e) => setStock({ stock: Number(e.target.value), minimumStock: stock.minimumStock })} placeholder="1" value={stock.stock} type="number" />
                                         </div>
 
                                         <div className="flex flex-col gap-2">
                                             <p className="font-semibold">Stok Minimum</p>
 
-                                            <Input onChange={(e) => setStock({ stock: stock.stock, minimumStock: Number(e.target.value) })} placeholder="1" type="number" />
+                                            <Input onChange={(e) => setStock({ stock: stock.stock, minimumStock: Number(e.target.value) })} placeholder="1" value={stock.minimumStock} type="number" />
                                         </div>
                                     </div>
 

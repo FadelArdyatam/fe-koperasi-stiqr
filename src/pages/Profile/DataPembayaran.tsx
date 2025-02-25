@@ -94,12 +94,12 @@ const DataPembayaran = () => {
 
             setDataForEdit(account);
 
-            formBank.reset({
-                bankName: account.bank_name,
-                accountNumber: account.account_number,
-                ownerName: account.owner_name,
-                bankBranches: account.bank_branches,
-            });
+            // formBank.reset({
+            //     bankName: account.bank_name,
+            //     accountNumber: account.account_number,
+            //     ownerName: account.owner_name,
+            //     bankBranches: account.bank_branches,
+            // });
         } catch (error: any) {
             console.error("Failed to fetch data:", error.message);
         }
@@ -138,7 +138,7 @@ const DataPembayaran = () => {
             // setShowNotification(true);
             setStatus("success");
             setMessage("Data Pembayaran berhasil ditambahkan")
-        } catch (error:any) {
+        } catch (error: any) {
             console.log(error)
             setStatus("error")
             setMessage(error.response.data.message)
