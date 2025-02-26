@@ -130,7 +130,7 @@ const PAM = () => {
                             </div>
                         </DropdownMenuTrigger>
 
-                        <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg max-w-[350px] sm:min-w-[600px] md:min-w-[700px] lg:min-w-[1200px] max-h-64 overflow-y-auto flex flex-col gap-3">
+                        <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg max-w-[350px] sm:min-w-[600px] md:min-w-[700px] lg:min-w-[800px] max-h-64 overflow-y-auto flex flex-col gap-3">
                             {products.map((product, index) => (
                                 <DropdownMenuItem key={index} onClick={() => handleDropdownChange(product?.name)}>{product?.name}</DropdownMenuItem>
                             ))}
@@ -144,7 +144,7 @@ const PAM = () => {
                     </div>
                 </div>
 
-                <Button onClick={sendBill} className={`${phoneNumber.length === 0 || region.length === 0 ? 'hidden' : 'block'} uppercase text-center w-[90%] m-auto -translate-y-10 mb-10 bg-green-500 text-white z-0`}>
+                <Button onClick={sendBill} className={`${phoneNumber.length === 0 || region.length === 0 ? 'hidden' : 'block'} uppercase text-center w-[90%] mb-10 bg-green-500 fixed bottom-5 left-[50%] -translate-x-[50%] text-white z-0`}>
                     Lanjutkan
                 </Button>
             </div>

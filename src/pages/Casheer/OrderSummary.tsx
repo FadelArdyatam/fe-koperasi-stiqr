@@ -43,6 +43,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
     const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
     const [customers, setCustomers] = useState<any[]>([]);
     const [dataCustomer, setDataCustomer] = useState({ name: "", phone: "", email: "", other_number: "" });
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
@@ -175,6 +176,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
             console.log("Response create order:", response);
 
             setResponseSalesCreate(response.data.data.sales_id);
+
+            setLoading(false)
         } catch (error: any) {
             console.error('Error creating order:', error);
             if (error.response) {
@@ -393,9 +396,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     <div className="w-full mt-10 flex items-center gap-5 justify-between">
                         <Button onClick={() => setBasket([])} className="rounded-full w-14 h-14 min-w-14 min-h-14 bg-orange-100 text-orange-400 font-semibold"><Trash2 className="scale-[1.5]" /></Button>
 
-                        <Button onClick={() => openBillHandler('open')} className={`${showService.service === "Pay Now" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
+                        <Button disabled={loading ? true : false} onClick={() => { openBillHandler('open'); setLoading(true) }} className={`${showService.service === "Pay Now" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
 
-                        <Button onClick={() => openBillHandler('tagih')} className="bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold">Tagih</Button>
+                        <Button disabled={loading ? true : false} onClick={() => { openBillHandler('tagih'); setLoading(true) }} className="bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold">Tagih</Button>
                     </div>
                 </div>
             </div>
