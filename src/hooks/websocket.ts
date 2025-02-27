@@ -3,7 +3,7 @@ import { io, Socket } from "socket.io-client";
 let socket: Socket | null = null;
 
 export const getSocket = () => {
-  const url = `${import.meta.env.VITE_API_URL}`.replace("/api", "");
+  const url = `${import.meta.env.VITE_API_BASE_URL}`;
   if (!socket) {
     socket = io(url, {
       secure: true,
