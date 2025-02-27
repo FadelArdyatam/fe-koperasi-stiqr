@@ -235,6 +235,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, editIndex, setIsSu
                                 <FormControl>
                                     <div className="relative">
                                         <Input
+                                            required
                                             type={showPassword ? 'text' : 'password'}
                                             placeholder="Enter password"
                                             {...field}

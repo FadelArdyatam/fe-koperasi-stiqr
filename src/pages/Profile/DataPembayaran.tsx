@@ -30,6 +30,7 @@ const DataPembayaran = () => {
     // const [showNotification, setShowNotification] = useState(false);
     const [dataForEdit, setDataForEdit] = useState<Account | null>(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -94,12 +95,6 @@ const DataPembayaran = () => {
 
             setDataForEdit(account);
 
-            formBank.reset({
-                bankName: account.bank_name,
-                accountNumber: account.account_number,
-                ownerName: account.owner_name,
-                bankBranches: account.bank_branches,
-            });
         } catch (error: any) {
             console.error("Failed to fetch data:", error.message);
         }
@@ -118,14 +113,14 @@ const DataPembayaran = () => {
             phoneNumber = "62" + data.accountNumber.slice(1);
         }
 
-        console.log(phoneNumber)
+        console.log(phoneNumber);
 
         const payload = {
             bank_name: isAdding.section === 'bank' ? data.bankName.split('-')[0] : "DANA",
             bank_code: isAdding.section === 'bank' ? data.bankName.split('-')[1] : "",
             account_number: isAdding.section === 'bank' ? data.accountNumber : phoneNumber,
             owner_name: data.ownerName,
-            bank_branches: isAdding.section === 'bank' ? data.bankBranches : undefined, // Hanya dikirim jika bank
+            bank_branches: isAdding.section === 'bank' ? data.bankBranches : undefined,
             type: isAdding.section,
             merchant_id: userData.merchant.id,
         };
@@ -133,16 +128,29 @@ const DataPembayaran = () => {
         console.log('Payload:', payload);
 
         try {
+            setLoading(true);
+
             const response = await axiosInstance.post("/account/create", payload);
-            console.log(response)
+            console.log(response);
+
             // setShowNotification(true);
             setStatus("success");
-            setMessage("Data Pembayaran berhasil ditambahkan")
-        } catch (error:any) {
-            console.log(error)
-            setStatus("error")
-            setMessage(error.response.data.message)
+            setMessage("Data Pembayaran berhasil ditambahkan");
+        } catch (error: any) {
+            console.log(error);
+            setStatus("error");
+            setMessage(error.response?.data?.message || "Terjadi kesalahan");
+
             // setShowNotification(false);
+        } finally {
+            setLoading(false);
+
+            formBank.reset({
+                bankName: isAdding.section === 'bank' ? '' : 'DANA',
+                accountNumber: '',
+                ownerName: '',
+                bankBranches: '',
+            });
         }
     }
 
@@ -425,10 +433,9 @@ const DataPembayaran = () => {
                                     </FormItem>
                                 )}
                             />
-
                         </div>
 
-                        <Button type="submit" className={`${isAdding.section === "bank" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
+                        <Button disabled={loading ? true : false} type="submit" className={`${isAdding.section === "bank" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
                     </form>
                 </Form>
 
@@ -498,7 +505,7 @@ const DataPembayaran = () => {
                             />
                         </div>
 
-                        <Button type="submit" className={`${isAdding.section === "e-wallet" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
+                        <Button disabled={loading ? true : false} type="submit" className={`${isAdding.section === "e-wallet" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
                     </form>
                 </Form>
             </div>
@@ -577,6 +584,12 @@ const DataPembayaran = () => {
                     }
                     setStatus(null)
                 }} status={status} /> : ''}
+
+            {loading && (
+                <div className="absolute bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                </div>
+            )}
 
             {/* <div className={`${showNotification ? 'flex' : 'hidden'} fixed items-center justify-center top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50`}>
                 <div className="w-[90%] bg-white p-5 mt-5 rounded-lg flex items-center flex-col gap-5">

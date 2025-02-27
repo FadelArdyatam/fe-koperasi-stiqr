@@ -461,10 +461,16 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                         <Input
                             type="text"
                             inputMode="numeric"  // Menampilkan keyboard angka di mobile
-                            pattern="[0-9]*"     // Mencegah karakter non-angka
+                            pattern="[1-9][0-9]*"  // Mencegah karakter non-angka dan angka 0 di awal
                             className="pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                             onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, ""); // Hanya angka
+                                let value = e.target.value.replace(/\D/g, ""); // Hanya angka
+
+                                // Mencegah angka nol di awal
+                                if (value.startsWith("0")) {
+                                    value = value.replace(/^0+/, ""); // Hapus semua nol di awal
+                                }
+
                                 if (value.length <= 10) {
                                     setAmount(value);
                                 }
@@ -475,7 +481,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </div>
                 </div>
 
-                <Button onClick={showShareLinkGenerator} data-aos="fade-up" data-aos-delay="200" className="uppercase !mt-10 w-[90%] m-auto bg-green-400 block">
+                <Button onClick={showShareLinkGenerator} disabled={Number(amount) <= 0 ? true : false} className={`${Number(amount) <= 0 ? 'bg-gray-500' : 'bg-green-400'} transition-all uppercase !mt-10 w-[90%] m-auto block`}>
                     Buat
                 </Button>
             </div>

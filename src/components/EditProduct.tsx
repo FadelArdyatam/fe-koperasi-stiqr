@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, CircleAlert, CircleCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import axiosInstance from "@/hooks/axiosInstance";
@@ -19,6 +19,8 @@ import Notification from "./Notification";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { formatRupiah } from "@/hooks/convertRupiah";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@radix-ui/react-alert-dialog";
+import { AlertDialogHeader, AlertDialogFooter } from "./ui/alert-dialog";
 
 interface Merchant {
     id: string;
@@ -121,6 +123,7 @@ const EditProduct: React.FC<EditProductProps> = ({
     const [error, setError] = useState<string | null>(); // State untuk mengelola
     const [showNotificationVariant, setShowNotificationVariant] = useState(false);
     // const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
+    const [showNotification, setShowNotification] = useState(false);
     const [showPopUpAddVariant, setShowPopUpAddVariant] = useState(false);
     const [showChoisesInput, setShowChoisesInput] = useState(false);
     const [showEditChoisesInput, setShowEditChoisesInput] = useState({ status: false, index: -1 });
@@ -147,6 +150,7 @@ const EditProduct: React.FC<EditProductProps> = ({
         }
 
         setShowField({ stock: productToEdit?.detail_product?.is_stok, variant: productToEdit?.detail_product?.is_variant });
+        setStock({ stock: productToEdit?.detail_product?.stok, minimumStock: productToEdit?.detail_product?.stok_minimum });
     }, [productToEdit]);
 
     console.log(editIndex)
@@ -195,14 +199,22 @@ const EditProduct: React.FC<EditProductProps> = ({
     // Validasi schema untuk form
     const FormSchema = z.object({
         photo: z.instanceof(File, {
-            message: "Photo must be a valid file.",
+            message: "Foto harus berupa file yang valid.",
         }).optional(),
-        name: z.string().min(1, { message: "Name is required." }).max(50, { message: "Name must be less than 50 characters." }),
-        SKU: z.string().min(1, { message: "SKU is required." }).max(20, { message: "SKU must be less than 20 characters." }),
-        price: z.number().min(1, { message: "Price must be greater than 0." }),
-        weight: z.string().min(1, { message: "Weight is required." }),
-        // etalase: z.array(z.string()).nonempty({ message: "At least one etalase must be selected." }),
-        description: z.string().max(100, { message: "Description must be less than 100 characters." }).optional(),
+        name: z.string()
+            .min(1, { message: "Nama wajib diisi." })
+            .max(50, { message: "Nama tidak boleh lebih dari 50 karakter." }),
+        SKU: z.string()
+            .min(1, { message: "SKU wajib diisi." })
+            .max(20, { message: "SKU tidak boleh lebih dari 20 karakter." }),
+        price: z.number()
+            .min(1, { message: "Harga harus lebih dari 0." }),
+        weight: z.string()
+            .min(1, { message: "Berat wajib diisi." }),
+        // etalase: z.array(z.string()).nonempty({ message: "Minimal satu etalase harus dipilih." }),
+        description: z.string()
+            .max(100, { message: "Deskripsi tidak boleh lebih dari 100 karakter." })
+            .optional(),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -372,7 +384,7 @@ const EditProduct: React.FC<EditProductProps> = ({
         })
         console.log(update)
 
-        setOpen({ id: "", status: false })
+        setShowNotification(true);
         setReset(true)
     }
 
@@ -423,7 +435,7 @@ const EditProduct: React.FC<EditProductProps> = ({
 
     return (
         <>
-            <div className="pt-5 w-full mb-32">
+            <div className={`${showNotification ? 'hidden' : 'block'} pt-5 w-full mb-32`}>
                 <div className="flex items-center gap-5 text-black">
                     <button onClick={() => setOpen({ id: "", status: false })}>
                         <ChevronLeft />
@@ -467,7 +479,18 @@ const EditProduct: React.FC<EditProductProps> = ({
                                         <FormItem data-aos="fade-up" data-aos-delay="100">
                                             <FormLabel>Foto Produk (Optional)</FormLabel>
                                             <FormControl>
-                                                <Input type="file" onChange={(e) => field.onChange(e.target.files?.[0])} />
+                                                <Input
+                                                    type="file"
+                                                    accept="image/*" // Hanya menerima file gambar
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (file && file.type.startsWith("image/")) {
+                                                            field.onChange(file);
+                                                        } else {
+                                                            e.target.value = ""; // Reset input jika bukan gambar
+                                                        }
+                                                    }}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -715,13 +738,13 @@ const EditProduct: React.FC<EditProductProps> = ({
                                         <div className="flex flex-col gap-2">
                                             <p className="font-semibold">Jumlah Stok</p>
 
-                                            <Input onChange={(e) => setStock({ stock: Number(e.target.value), minimumStock: stock.minimumStock })} placeholder="1" type="number" />
+                                            <Input onChange={(e) => setStock({ stock: Number(e.target.value), minimumStock: stock.minimumStock })} placeholder="1" value={stock.stock} type="number" />
                                         </div>
 
                                         <div className="flex flex-col gap-2">
                                             <p className="font-semibold">Stok Minimum</p>
 
-                                            <Input onChange={(e) => setStock({ stock: stock.stock, minimumStock: Number(e.target.value) })} placeholder="1" type="number" />
+                                            <Input onChange={(e) => setStock({ stock: stock.stock, minimumStock: Number(e.target.value) })} placeholder="1" value={stock.minimumStock} type="number" />
                                         </div>
                                     </div>
 
@@ -788,7 +811,38 @@ const EditProduct: React.FC<EditProductProps> = ({
                             </div>
                         )}
 
-                        <Button onClick={deleteHandler} className={`${showAddVariant ? 'hidden' : 'block'} w-full mt-5 bg-red-500 text-white`}>Delete</Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button data-aos="fade-up" data-aos-delay="400" className={`${showAddVariant ? 'hidden' : 'block'} w-full !mt-5 m-auto bg-red-400`}>Delete</Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent
+                                className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm"
+                            >
+                                <div data-aos="zoom-in" className="bg-white text-center p-5 rounded-lg shadow-lg w-[90%]">
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle className="font-semibold text-lg">
+                                            <CircleAlert className="m-auto" />
+
+                                            <p className="text-center">Apakah Anda benar-benar yakin?</p>
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription className="text-center">
+                                            Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pembayaran Anda secara permanen.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter className="mt-5 flex flex-col gap-3">
+                                        <AlertDialogAction
+                                            className="w-full p-2 rounded-lg bg-green-500 text-white"
+                                            onClick={deleteHandler}
+                                        >
+                                            Lanjutkan
+                                        </AlertDialogAction>
+                                        <AlertDialogCancel className="w-full p-2 rounded-lg bg-red-500 text-white">
+                                            Batalkan
+                                        </AlertDialogCancel>
+                                    </AlertDialogFooter>
+                                </div>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                 )}
             </div>
@@ -1121,6 +1175,19 @@ const EditProduct: React.FC<EditProductProps> = ({
 
             {/* Success Notification for Variant */}
             {showNotificationVariant && <Notification message="Varian berhasil ditambahkan!" onClose={() => setShowNotificationVariant(false)} status="success" />}
+
+            {/* Success Notification */}
+            {showNotification && (
+                <div className="p-10">
+                    <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
+
+                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Product edited successfully!</p>
+
+                    <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setOpen({ id: "", status: false })} className="w-full bg-green-500 text-white mt-10">
+                        Done
+                    </Button>
+                </div>
+            )}
         </>
     );
 };
