@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, Package } from "lucide-react";
+import { ChevronLeft, CircleCheck, Package } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
@@ -54,6 +54,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
     const [showSetProductInput, setShowSetProductInput] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState<{ product_id: string }[]>([]);
     const [showProductAfterSelected, setShowProductAfterSelected] = useState<{ product_id: string; product_name: string; product_price: number }[]>([]);
+    const [showNotification, setShowNotification] = useState(false);
     // const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
@@ -112,9 +113,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
                 console.log("API Response:", response.data);
             }
 
-            setOpen({ id: "", status: false });
-
-            setReset(true);
+            setShowNotification(true);
         } catch (error) {
             console.error("Error updating showcase:", error);
             alert("Failed to update showcase. Please try again.");
@@ -157,7 +156,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
 
     return (
         <>
-            <div className={`${showSetProductInput ? "hidden" : "block"} pt-5`}>
+            <div className={`${showSetProductInput || showNotification ? "hidden" : "block"} pt-5`}>
                 <div className="flex items-center gap-5 text-black">
                     <button onClick={() => setOpen({ id: "", status: false })}>
                         <ChevronLeft />
@@ -295,6 +294,19 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
                         onClick={() => setShowSetProductInput(false)}
                     >
                         Simpan
+                    </Button>
+                </div>
+            )}
+
+            {/* Success Notification */}
+            {showNotification && (
+                <div className="p-10">
+                    <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
+
+                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Etalase edited successfully!</p>
+
+                    <Button data-aos="fade-up" data-aos-delay="200" onClick={() => { setOpen({ id: "", status: false }); setReset(true); }} className="w-full bg-green-500 text-white mt-10">
+                        Done
                     </Button>
                 </div>
             )}

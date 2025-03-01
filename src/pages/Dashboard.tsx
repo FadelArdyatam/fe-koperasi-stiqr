@@ -484,7 +484,7 @@ const Dashboard = () => {
 
                 <div className="flex mt-5 flex-col items-center gap-5 justify-between">
                     <Button
-                        className={`${showCalendar ? 'block' : 'hidden'} text-sm bg-gray-200 border w-full border-gray-400 text-gray-700 rounded-lg px-3 py-2`}
+                        className={`${showCalendar && filter === "dateRange" ? 'block' : 'hidden'} text-sm bg-gray-200 border w-full border-gray-400 text-gray-700 rounded-lg px-3 py-2`}
                     >
                         {startDate && endDate
                             ? `${startDate.toLocaleDateString("id-ID", {
@@ -502,7 +502,7 @@ const Dashboard = () => {
 
                 {/* Kalender DatePicker */}
                 {
-                    showCalendar && (
+                    showCalendar && filter === "dateRange" && (
                         <div className="flex flex-col items-center mt-5 border p-3 rounded-lg shadow-md">
                             <DatePicker
                                 selected={startDate}
