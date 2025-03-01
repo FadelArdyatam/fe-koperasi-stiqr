@@ -10,12 +10,14 @@ import { Link } from "react-router-dom"
 import { z } from "zod"
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Notification from "@/components/Notification"
 
 const Keamanan = () => {
     const [showContent, setShowContent] = useState('')
     const [showNotification, setShowNotification] = useState(false)
     const [showPIN, setShowPIN] = useState({ oldPIN: false, newPIN: false })
     const [showPassword, setShowPassword] = useState({ oldPassword: false, newPassword: false, confirmPassword: false })
+    const [showNotificationError, setShowNotificationError] = useState(false)
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -31,19 +33,22 @@ const Keamanan = () => {
             .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
             .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
             .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
-            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
+            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' })
+            .regex(/[@#$%^&*!_]/, { message: "Kata sandi harus mengandung setidaknya satu karakter unik (@, #, $, dll.)." }),
         newPassword: z.
             string()
             .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
             .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
             .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
-            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
+            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' })
+            .regex(/[@#$%^&*!_]/, { message: "Kata sandi harus mengandung setidaknya satu karakter unik (@, #, $, dll.)." }),
         confirmPassword: z
             .string()
             .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
             .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
             .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
-            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
+            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' })
+            .regex(/[@#$%^&*!_]/, { message: "Kata sandi harus mengandung setidaknya satu karakter unik (@, #, $, dll.)." }),
     }).refine((data) => data.newPassword === data.confirmPassword, {
         message: 'Passwords do not match.',
         path: ['confirmPassword'], // Fokuskan error pada confirmPassword
@@ -62,6 +67,12 @@ const Keamanan = () => {
     const [errorPassword, setErrorPassword] = useState("")
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         try {
+            if (data.password === data.newPassword) {
+                setErrorPassword("Password lama dan password baru tidak boleh sama")
+                setShowNotificationError(true)
+                return
+            }
+
             const response = await axiosInstance.patch(`users/change-password`, {
                 password: data.password,
                 newPassword: data.newPassword,
@@ -182,7 +193,6 @@ const Keamanan = () => {
 
             {showContent === 'Password' ? (
                 <div className="w-[90%] bg-white p-5 shadow-lg rounded-lg -translate-y-20">
-                    {errorPassword && <p className="text-red-500 text-sm">{errorPassword}</p>}
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
                             <div className={'flex flex-col items-end w-full space-y-7'}>
@@ -364,6 +374,8 @@ const Keamanan = () => {
                     <Button onClick={() => handleBack()} className="w-full">Back</Button>
                 </div>
             </div>
+
+            {showNotificationError && <Notification message={errorPassword} onClose={() => { setShowNotificationError(false) }} status={"error"} />}
         </div>
     )
 }

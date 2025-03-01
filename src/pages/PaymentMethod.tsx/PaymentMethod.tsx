@@ -17,6 +17,7 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
     const [errorMessage, setErrorMessage] = useState(""); // Pesan error
     const [change, setChange] = useState(0); // Kembalian
     const [showNotification, setShowNotification] = useState(false); // Tampilkan notifikasi
+    const [loading, setLoading] = useState(false); // Loading
 
     const navigate = useNavigate();
 
@@ -46,6 +47,8 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
         }
 
         try {
+            setLoading(true);
+
             const response = await axiosInstance.post("/sales/other-payment", {
                 sales_id: dataPayment.sales_id,
                 paymentType: selectedMethod,
@@ -57,6 +60,8 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
 
         } catch (error) {
             console.error("Error:", error);
+        } finally {
+            setLoading(false);
         }
         // Proses pembayaran
     }
@@ -116,7 +121,7 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
                 </div>
 
                 <Button
-                    disabled={paymentAmount < dataPayment.amount || change < 0}
+                    disabled={paymentAmount < dataPayment.amount || change < 0 || loading}
                     onClick={paymentHandler}
                     className="bg-orange-500 w-full text-white px-5 py-2 rounded-md hover:bg-orange-600"
                 >

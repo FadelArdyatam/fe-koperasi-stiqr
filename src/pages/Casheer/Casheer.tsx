@@ -2,7 +2,7 @@ import DetailProduct from "@/pages/Casheer/DetailProduct"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import axiosInstance from "@/hooks/axiosInstance"
-import { ArrowLeft, Search, SlidersHorizontal, ShoppingBasket } from "lucide-react"
+import { ArrowLeft, Search, SlidersHorizontal, ShoppingBasket, X } from "lucide-react"
 import { useEffect, useState, useCallback, useRef } from "react"
 import { Link } from "react-router-dom"
 import takeAway from "../../images/take-away.png"
@@ -312,7 +312,13 @@ const Casheer = () => {
                 {showFilterSection && (
                     <div className="fixed w-full h-full bg-black bg-opacity-50 top-0 left-0 z-20 flex items-end">
                         <div data-aos="fade-up" className="w-full bg-white rounded-t-xl p-5">
-                            <p className="font-semibold text-2xl">Urutkan Berdasarkan</p>
+                            <div className="flex items-center justify-between w-full">
+                                <p className="font-semibold text-2xl">Urutkan Berdasarkan</p>
+
+                                <button type="button" onClick={() => setShowFilterSection(false)}>
+                                    <X />
+                                </button>
+                            </div>
 
                             <div className="mt-5 flex flex-col gap-3">
                                 {/* Produk Terbaru */}
