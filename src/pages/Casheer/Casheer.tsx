@@ -11,6 +11,7 @@ import OrderSummary from "./OrderSummary"
 import AOS from "aos";
 import "aos/dist/aos.css";
 import noProduct from '../../images/no-product.png'
+import { formatRupiah } from "@/hooks/convertRupiah"
 
 const Casheer = () => {
     const [searchTerm, setSearchTerm] = useState('')
@@ -420,19 +421,13 @@ const Casheer = () => {
                                     </p>
 
                                     <p className="font-semibold text-wrap">
-                                        {/* Format angka dengan pemotongan */}
-                                        {String(product.product_price).length > 5
-                                            ? `${Number(product.product_price)
-                                                .toLocaleString("id-ID", {
-                                                    style: "currency",
-                                                    currency: "IDR",
-                                                })
-                                                .slice(0, 10)}...`
-                                            : Number(product.product_price).toLocaleString("id-ID", {
-                                                style: "currency",
-                                                currency: "IDR",
-                                            })}
+                                        {formatRupiah(product.product_price)}
                                     </p>
+                                    {
+                                        product?.detail_product?.is_stok && (
+                                            <span className='bg-orange-100 p-1 mt-2 px-3 rounded-full text-orange-500 font-normal text-xs'> stok : {product.detail_product.stok}</span>
+                                        )
+                                    }
                                 </div>
                             </div>
 
@@ -535,19 +530,13 @@ const Casheer = () => {
                                     </p>
 
                                     <p className="font-semibold text-wrap">
-                                        {/* Format angka dengan pemotongan */}
-                                        {String(product.product_price).length > 5
-                                            ? `${Number(product.product_price)
-                                                .toLocaleString("id-ID", {
-                                                    style: "currency",
-                                                    currency: "IDR",
-                                                })
-                                                .slice(0, 10)}...`
-                                            : Number(product.product_price).toLocaleString("id-ID", {
-                                                style: "currency",
-                                                currency: "IDR",
-                                            })}
+                                        {formatRupiah(product.product_price)}
                                     </p>
+                                    {
+                                        product?.detail_product?.is_stok && (
+                                            <span className='bg-orange-100 p-1 mt-2 px-3 rounded-full text-orange-500 font-normal text-xs'> stok : {product.detail_product.stok}</span>
+                                        )
+                                    }
                                 </div>
                             </div>
 

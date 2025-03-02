@@ -133,7 +133,9 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                                 <button type="button" onClick={() => handleOpen(variant.variant_id)} className="text-lg font-semibold">{variant?.variant_name?.length > 25
                                     ? variant?.variant_name?.slice(0, 25) + "..."
                                     : variant.variant_name}
+
                                 </button>
+                                    {variant.variant_status ? 'aktif' : 'tidak aktif'}
 
                                 {/* Custom Switch */}
                                 <button

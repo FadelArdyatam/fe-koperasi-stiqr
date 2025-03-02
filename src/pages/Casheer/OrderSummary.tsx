@@ -39,7 +39,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
     const [noMeja, setNoMeja] = useState("");
     const [responseSalesCreate, setResponseSalesCreate] = useState<any>(null);
     const [openSearch, setOpenSearch] = useState(false);
-    const [value, setValue] = useState("");
+    // const [value, setValue] = useState("");
     const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
     const [customers, setCustomers] = useState<any[]>([]);
     const [dataCustomer, setDataCustomer] = useState({ name: "", phone: "", email: "", other_number: "" });
@@ -145,13 +145,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
             const generateOrderId = generateRandomString(15);
 
             setOrderId(generateOrderId)
+            console.log(selectedCustomer)
 
             const requestBody = {
                 customer: {
-                    name: dataCustomer.name,
-                    phone: dataCustomer.phone,
-                    email: dataCustomer.email,
-                    other_number: dataCustomer.other_number,
+                    name: selectedCustomer ? selectedCustomer.customer.name : dataCustomer.name,
+                    phone: selectedCustomer ? selectedCustomer.customer.phone : dataCustomer.phone,
+                    email: selectedCustomer ? selectedCustomer.customer.email : dataCustomer.email,
+                    other_number: selectedCustomer ? selectedCustomer.customer.other_number : dataCustomer.other_number,
                 },
                 status: "inprogress",
                 order_type: showService.service === "Dine In" ? "dinein" : "takeaway",
@@ -164,6 +165,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
             };
 
             const response = await axiosInstance.post('/sales/create', requestBody);
+            console.log(response)
 
             if (status == 'tagih') {
                 setTagih(true)
@@ -190,8 +192,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         }
     };
 
-    console.log("Merged Basket: ", mergedBasket);
-    console.log("selectedCustomer: ", selectedCustomer);
 
     return (
         <div ref={references}>
@@ -223,32 +223,23 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                             aria-expanded={openSearch}
                             className="mt-10 w-[90%] justify-between"
                         >
-                            {value
-                                ? customers.find((customer) => customer.customer.name === value)?.customer.name
-                                : "Select customers..."}
-
+                            {selectedCustomer?.customer?.name || "Select customers..."}
                             <ChevronsUpDown className="opacity-50" />
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="sm:min-w-[600px] md:min-w-[700px] lg:min-w-[1200px] p-0" onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }} onClick={(e) => { e.preventDefault(); e.stopPropagation() }}>
+                    <PopoverContent className="sm:min-w-[600px] md:min-w-[700px] lg:min-w-[1200px] p-0" onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}>
                         <Command>
-                            <CommandInput placeholder="Search customer..." className="h-9" onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }} onClick={(e) => { e.preventDefault(); e.stopPropagation() }} />
+                            <CommandInput placeholder="Search customer..." className="h-9" />
                             <CommandList>
-                                <CommandEmpty onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }} onClick={(e) => { e.preventDefault(); e.stopPropagation() }}>No customer found.</CommandEmpty>
+                                <CommandEmpty>No customer found.</CommandEmpty>
                                 <CommandGroup>
-                                    {customers.map((customer) => (
+                                    {customers.length > 0 && customers?.map((customer) => (
                                         <CommandItem
                                             key={customer.customer.customer_id}
-                                            value={customer.customer.name + " - " + customer.customer.other_number}
-                                            onSelect={(currentValue) => {
-                                                setValue(currentValue === value ? "" : currentValue);
+                                            onSelect={() => {
                                                 setSelectedCustomer(customer);
+                                                // setValue(customer.customer.name);
                                                 setOpenSearch(false);
-                                            }}
-                                            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
                                             }}
                                         >
                                             {customer.customer.name} - {customer.customer.other_number}

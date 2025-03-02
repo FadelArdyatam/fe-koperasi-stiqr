@@ -30,7 +30,7 @@ const DataPembayaran = () => {
     // const [showNotification, setShowNotification] = useState(false);
     const [dataForEdit, setDataForEdit] = useState<Account | null>(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -107,8 +107,8 @@ const DataPembayaran = () => {
     }, [showContent.show])
 
     async function onSubmitBank(data: z.infer<typeof FormSchemaBank>) {
+        setLoading(true)
         let phoneNumber = data.accountNumber;
-
         if (data.accountNumber.startsWith('0')) {
             phoneNumber = "62" + data.accountNumber.slice(1);
         }
@@ -135,7 +135,8 @@ const DataPembayaran = () => {
 
             // setShowNotification(true);
             setStatus("success");
-            setMessage("Data Pembayaran berhasil ditambahkan");
+            setMessage("Data Pembayaran berhasil ditambahkan")
+            setLoading(false)
         } catch (error: any) {
             console.log(error);
             setStatus("error");
@@ -151,6 +152,7 @@ const DataPembayaran = () => {
                 ownerName: '',
                 bankBranches: '',
             });
+
         }
     }
 
@@ -197,6 +199,8 @@ const DataPembayaran = () => {
         // setShowEdit(false)
         setIsAdding({ status: false, section: "" })
     }
+
+
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center pb-32">
@@ -505,7 +509,7 @@ const DataPembayaran = () => {
                             />
                         </div>
 
-                        <Button disabled={loading ? true : false} type="submit" className={`${isAdding.section === "e-wallet" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
+                        <Button type="submit" className={`${isAdding.section === "e-wallet" ? 'block' : 'hidden'} w-full bg-green-400 mt-7` } disabled={loading} > {`${loading ? 'Tunggu...' : 'Simpan Data'}`} </Button>
                     </form>
                 </Form>
             </div>

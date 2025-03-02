@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, FileText, Info, XCircle, ChevronDown } from "lucide-react";
+import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, FileText, Info, XCircle, ChevronDown, ChevronsLeft, ChevronRight, ChevronsRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom"; // Remove Form import from react-router-dom
 import { useEffect, useState } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
@@ -172,16 +172,22 @@ const Settlement = () => {
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
     const [settlements, setSettlements] = useState<ISettlement[]>([])
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     useEffect(() => {
         const fetchSettlement = async () => {
-            console.log('settlement');
-            const res = await axiosInstance.get(`/settlement/${userData.merchant.id}`)
+            const params: any = {
+                page: currentPage,
+                limit: 10,
+            }
+            const res = await axiosInstance.get(`/settlement/${userData.merchant.id}`, { params })
             console.log(res)
-            setSettlements(res.data)
+            setSettlements(res.data.data)
+            setTotalPages(res.data.pagination.totalPages)
         }
 
         fetchSettlement()
-    }, []);
+    }, [currentPage]);
 
     return (
         <div>
@@ -452,6 +458,29 @@ const Settlement = () => {
                         <div></div>
                     )
                 }
+
+                <div className="flex flex-col items-center">
+
+                    <div className="flex items-center mt-12 justify-center gap-5 mb-3 ">
+                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                            <ChevronsLeft />
+                        </Button>
+
+                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
+                            <ChevronLeft />
+                        </Button>
+
+
+                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
+                            <ChevronRight />
+                        </Button>
+
+                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+                            <ChevronsRight />
+                        </Button>
+                    </div>
+                    <span className="text-center">Halaman {currentPage} dari {totalPages}</span>
+                </div>
             </div>
 
             {

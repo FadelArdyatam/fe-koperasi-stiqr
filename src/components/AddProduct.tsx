@@ -330,7 +330,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                 // Agar varian yang baru ditambahkan langsung muncul di halaman varian
                 setVariants([...variants, response.data.data]);
 
-                console.log("Varian berhasil ditambahkan:", response.data);
                 setShowPopUpAddVariant(false)
                 setShowNotificationVariant(true);
             } else {
@@ -355,30 +354,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         mergedData.details_products = data;
 
         console.log("Merged Data:", mergedData);
-
-        // // Buat FormData
-        // const formData = new FormData();
-
-        // // Tambahkan data dari allData ke FormData
-        // Object.keys(mergedData).forEach((key) => {
-        //     const value = mergedData[key];
-
-        //     // Jika nilai adalah array atau objek, ubah ke JSON string
-        //     if (typeof value === "object" && value !== null) {
-        //         formData.append(key, JSON.stringify(value));
-        //     } else {
-        //         formData.append(key, value);
-        //     }
-        // });
-
-        // // Tambahkan `details_products`
-        // formData.append("details_products", JSON.stringify(data));
-
-        // console.log("Final FormData:");
-        // for (let pair of formData.entries()) {
-        //     console.log(pair[0], pair[1]); // Debugging isi FormData
-        // }
-
         try {
             const response = await axiosInstance.post("/product/create", mergedData, {
                 headers: {
@@ -390,7 +365,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
             setProducts([...products, response.data.data]);
 
-            // Jika ada etalase yang dipilih, kirim ke API showcase-product
             if (selectedEtalase) {
                 const response2 = await axiosInstance.post("/showcase-product/create", {
                     product_id: response?.data?.data?.product_id,

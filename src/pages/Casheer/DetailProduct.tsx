@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import noProduct from '../../images/no-product.png'
+import { formatRupiah } from "@/hooks/convertRupiah";
 
 
 interface DetailProductProps {
@@ -20,28 +21,26 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
     const [quantity, setQuantity] = useState(1);
     const [price, setPrice] = useState(product.product_price);
     const [notes, setNotes] = useState("");
-    const [detailVariant, setDetailVariant] = useState<any[]>([]);
+    // const [detailVariant, setDetailVariant] = useState<any[]>([]);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
 
 
-    console.log("variants from detail product: ", variants);
 
-    const handleVariantChange = (variantId: string, variantName: string, value: string, checked: boolean) => {
-        setDetailVariant((prev) => {
-            if (checked) {
-                // Add the selected variant
-                return [...prev, { variant_id: variantId, variant_name: variantName, value }];
-            } else {
-                // Remove the unselected variant
-                return prev.filter((variant) => !(variant.variant_id === variantId && variant.variant_name === variantName && variant.value === value));
-            }
-        });
-    };
+    // const handleVariantChange = (variantId: string, variantName: string, checked: boolean) => {
+    //     setDetailVariant((prev) => {
+    //         if (checked) {
+    //             // Add the selected variant
+    //             return [...prev, { variant_id: variantId, variant_name: variantName, value }];
+    //         } else {
+    //             // Remove the unselected variant
+    //             return prev.filter((variant) => !(variant.variant_id === variantId && variant.variant_name === variantName && variant.value === value));
+    //         }
+    //     });
+    // };
 
-    console.log("detail variant: ", detailVariant);
 
     const addBasketHandler = () => {
         const payload = {
@@ -52,13 +51,14 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
             price: price,
             notes: notes,
             date: new Date().toLocaleString(),
-            detail_variant: detailVariant,
+            // detail_variant: detailVariant,
             service: showService?.service,
         };
 
         setBasket([...basket, payload]);
         setShowDetailProduct(false);
     };
+    console.log(product)
 
     return (
         <div className="flex w-full flex-col min-h-screen items-center bg-orange-50 pb-[150px]">
@@ -99,27 +99,35 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                 {variants.map((variant, index) => (
                     <div key={index} className="mt-5">
                         <p className="font-semibold">{variant.variant_name}</p>
-
-                        <p className="text-gray-500">Optional - pilih maksimum {variant.detail_variant.length}</p>
-
-                        <div className="w-full h-[1px] bg-gray-300 my-5"></div>
-
+                        <p className="text-gray-500">{variant.is_multiple ? 'Pilih lebih dari 1' : 'Pilih Maksimal 1'}</p>
                         <div className="flex flex-col w-full gap-5">
-                            {variant.detail_variant.map((value: { name: string }, valueIndex: number) => (
-                                <div key={valueIndex} className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        id={`checkbox-${index}-${valueIndex}`}
-                                        value={value.name}
-                                        className="w-4 h-4 border-gray-300 rounded"
-                                        onChange={(e) => handleVariantChange(variant.variant_id, variant.variant_name, value.name, e.target.checked)}
-                                    />
-
-                                    <label htmlFor={`checkbox-${index}-${valueIndex}`} className="text-gray-700">
-                                        {value.name}
-                                    </label>
+                            {product?.product_variant?.map((detail: any, valueIndex: number) => (
+                                <div key={valueIndex} className="flex flex-col gap-2">
+                                    {
+                                        detail?.variant?.detail_variant.map((variant: any, i: number) => (
+                                            <div key={i} className="flex flex-row justify-between">
+                                                <div className="flex gap-3 items-center">
+                                                    <input
+                                                        type={variant.is_multiple ? 'checkbox' : 'radio'}
+                                                        id={`checkbox-${index}-${valueIndex}`}
+                                                        value={detail.variant.variant_name}
+                                                        className="w-4 h-4 border-gray-300 rounded"
+                                                        // onChange={(e) => handleVariantChange(variant.variant_id, variant.variant_name, value.name, e.target.checked)}
+                                                    />
+                                                    <label htmlFor={`checkbox-${index}-${valueIndex}`} className="text-gray-700">
+                                                        {variant.name}
+                                                    </label>
+                                                </div>
+                                                <label htmlFor={`checkbox-${index}-${valueIndex}`} className="text-gray-700">
+                                                    {formatRupiah(variant.price)}
+                                                </label>
+                                            </div>
+                                        ))
+                                    }
                                 </div>
                             ))}
+                            <div className="w-full h-[1px] bg-gray-300 my-5"></div>
+
                         </div>
                     </div>
                 ))}

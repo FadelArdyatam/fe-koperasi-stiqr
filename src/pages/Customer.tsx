@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronLeft, Home, ScanQrCode, CreditCard, FileText, UserRound } from "lucide-react";
+import { ChevronLeft, Home, ScanQrCode, CreditCard, FileText, UserRound, ChevronsLeft, ChevronsRight, ChevronRight } from "lucide-react";
 import AddCustomer from "@/components/AddCustomer";
 import axiosInstance from "@/hooks/axiosInstance";
 
@@ -27,31 +27,29 @@ const Customer = () => {
     const userData = userItem ? JSON.parse(userItem) : null;
 
     const [reset, setReset] = useState(false);
-
-    // Pagination
-    const ITEMS_PER_PAGE = 5;
-
     const [currentPage, setCurrentPage] = useState(1);
-
-    const totalPages = Math.ceil(customers.length / ITEMS_PER_PAGE);
-
-    const paginatedCustomers = customers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-    // 
-
+    const [totalPages, setTotalPages] = useState(1);
+    console.log(currentPage)
     useEffect(() => {
         if (!userData) return;
 
         const fetchData = async () => {
+            const params: any = {
+                page: currentPage,
+                limit: 5,
+                is_pagination: true,
+            };
             try {
-                const response = await axiosInstance.get(`/customers/${userData.merchant.id}`);
-                setCustomers(response.data);
+                const response = await axiosInstance.get(`/customers/${userData.merchant.id}`, { params });
+                setCustomers(response.data.data);
+                setTotalPages(response.data.pagination.totalPages);
             } catch (error: any) {
                 console.error("Failed to fetch data:", error.message);
             }
         };
 
         fetchData();
-    }, [reset]);
+    }, [reset, currentPage]);
 
     console.log("Customers", customers);
 
@@ -121,7 +119,7 @@ const Customer = () => {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {paginatedCustomers.map((customer, index) => (
+                                    {customers.map((customer, index) => (
                                         <TableRow key={index}>
                                             <TableCell className="min-w-[150px]">{customer.customer?.name || "Nama tidak tersedia"}</TableCell>
                                             <TableCell>{customer.customer?.other_number || "-"}</TableCell>
@@ -133,32 +131,24 @@ const Customer = () => {
                                 </TableBody>
                             </Table>
 
-                            <div className="flex items-center justify-center mx-auto w-full gap-5 mt-10">
-                                <button
-                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
-                                    onClick={() => setCurrentPage(1)}
-                                    disabled={currentPage === 1}>
-                                    First
-                                </button>
-                                <button
-                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
-                                    onClick={() => setCurrentPage(prev => prev - 1)}
-                                    disabled={currentPage === 1}>
-                                    Prev
-                                </button>
-                                <span className="text-xs text-nowrap sm:text-base">Page {currentPage} of {totalPages}</span>
-                                <button
-                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
-                                    onClick={() => setCurrentPage(prev => prev + 1)}
-                                    disabled={currentPage === totalPages}>
-                                    Next
-                                </button>
-                                <button
-                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
-                                    onClick={() => setCurrentPage(totalPages)}
-                                    disabled={currentPage === totalPages}>
-                                    Last
-                                </button>
+                            <div className="flex items-center justify-center gap-5 my-10">
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                                    <ChevronsLeft />
+                                </Button>
+
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
+                                    <ChevronLeft />
+                                </Button>
+
+                                <span>Page {currentPage} of {totalPages}</span>
+
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
+                                    <ChevronRight />
+                                </Button>
+
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+                                    <ChevronsRight />
+                                </Button>
                             </div>
                         </>
                     ) : (
