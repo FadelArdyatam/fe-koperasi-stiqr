@@ -221,26 +221,36 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                             variant="outline"
                             role="combobox"
                             aria-expanded={openSearch}
-                            className="mt-10 w-[90%] justify-between"
+                            className="mt-10 w-[90%] justify-between border border-gray-300 rounded-lg"
                         >
                             {selectedCustomer?.customer?.name || "Select customers..."}
                             <ChevronsUpDown className="opacity-50" />
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="sm:min-w-[600px] md:min-w-[700px] lg:min-w-[1200px] p-0" onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                        <Command>
-                            <CommandInput placeholder="Search customer..." className="h-9" />
-                            <CommandList>
-                                <CommandEmpty>No customer found.</CommandEmpty>
+
+                    <PopoverContent
+                        className="w-[var(--radix-popper-anchor-width)] p-0 border border-gray-300 rounded-lg shadow-lg max-h-72 overflow-y-auto"
+                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        align="start"
+                    >
+                        <Command className="w-full">
+                            <CommandInput
+                                placeholder="Search customer..."
+                                className="h-9 px-4 border-b border-gray-200 focus:outline-none"
+                            />
+
+                            <CommandList className="max-h-60 overflow-y-auto">
+                                <CommandEmpty className="p-3 text-gray-500">No customer found.</CommandEmpty>
+
                                 <CommandGroup>
                                     {customers.length > 0 && customers?.map((customer) => (
                                         <CommandItem
                                             key={customer.customer.customer_id}
                                             onSelect={() => {
                                                 setSelectedCustomer(customer);
-                                                // setValue(customer.customer.name);
                                                 setOpenSearch(false);
                                             }}
+                                            className="cursor-pointer px-4 py-2 hover:bg-gray-100 rounded-md transition"
                                         >
                                             {customer.customer.name} - {customer.customer.other_number}
                                         </CommandItem>

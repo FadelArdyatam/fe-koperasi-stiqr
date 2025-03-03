@@ -263,15 +263,20 @@ const Settlement = () => {
                                     <FormItem className="w-full">
                                         <FormControl>
                                             <DropdownMenu>
-                                                <DropdownMenuTrigger className="w-full p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center justify-between">
+                                                <DropdownMenuTrigger className="w-full p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center justify-between rounded-lg border border-gray-300">
                                                     {accounts.find(account => account.account_id === field.value)?.bank_name || "Pilih Akun Bank"}
                                                     <ChevronDown className="ml-2 h-4 w-4" />
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent>
+
+                                                <DropdownMenuContent
+                                                    className="bg-white p-3 border mt-2 z-10 rounded-lg w-[var(--radix-popper-anchor-width)] max-h-64 overflow-y-auto flex flex-col gap-2 shadow-lg"
+                                                    align="start"
+                                                >
                                                     {accounts?.map((account, i) => (
                                                         <DropdownMenuItem
                                                             key={i}
                                                             onSelect={() => field.onChange(account.account_id)}
+                                                            className="cursor-pointer px-4 py-2 hover:bg-gray-100 rounded-md"
                                                         >
                                                             {account.bank_name} - {account.account_number}
                                                         </DropdownMenuItem>
