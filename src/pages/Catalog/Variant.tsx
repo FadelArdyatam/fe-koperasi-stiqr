@@ -126,33 +126,47 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
             <div className={`${addVariant || open.status || showVariantProductHandler.status ? 'hidden' : 'block'}`}>
                 <div>
                     {variants.map((variant, index) => (
-                        <div data-aos="fade-up" data-aos-delay={index * 100} key={variant.id} className="shadow-sm">
-                            <div
-                                className="flex w-full justify-between items-center p-4 bg-white rounded-md mt-3"
-                            >
-                                <button type="button" onClick={() => handleOpen(variant.variant_id)} className="text-lg font-semibold">{variant?.variant_name?.length > 25
-                                    ? variant?.variant_name?.slice(0, 25) + "..."
-                                    : variant.variant_name}
-
-                                </button>
-
-                                {/* Custom Switch */}
-                                <button
-                                    className={`flex items-center justify-center w-14 h-8 p-1 rounded-full cursor-pointer 
-                                    ${variant.variant_status ? 'bg-orange-500' : 'bg-gray-300'} transition-colors`}
-                                    onClick={(event) => handleSwitchChange(variant.variant_id, event)}
+                        <div data-aos="fade-up" data-aos-delay={index * 100} key={variant.id} className="shadow-sm flex flex-col mb-3 bg-white hover:cursor-pointer hover:bg-orange-100 transition ease-in-out rounded-md duration-500">
+                            <div onClick={() => handleOpen(variant.variant_id)} className="">
+                                <div
+                                    className="flex w-full justify-between items-center p-4 rounded-md mt-3 hover:cursor-pointer"
                                 >
-                                    <div
-                                        className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform 
+                                    <button type="button" className="text-lg font-semibold">{variant?.variant_name?.length > 25
+                                        ? variant?.variant_name?.slice(0, 25) + "..."
+                                        : variant.variant_name}
+
+                                    </button>
+
+                                    {/* Custom Switch */}
+                                    <button
+                                        className={`flex items-center justify-center w-14 h-8 p-1 rounded-full cursor-pointer 
+                                    ${variant.variant_status ? 'bg-orange-500' : 'bg-gray-300'} transition-colors`}
+                                        onClick={(event) => handleSwitchChange(variant.variant_id, event)}
+                                    >
+                                        <div
+                                            className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform 
                                         ${variant.variant_status ? 'transform translate-x-3' : 'transform -translate-x-3'}`}
-                                    ></div>
-                                </button>
+                                        ></div>
+                                    </button>
+                                </div>
                             </div>
 
-                            <div onClick={() => { setShowVariantProductHandler({ id: variant.variant_id, status: true }); setReset(false) }} className="w-full flex p-4 bg-white rounded-md items-center gap-5 justify-between">
-                                <p>Diterapkan ke {variant?.product_variant?.length} produk</p>
+                            <div className="flex flex-row justify-between w-full p-4">
+                                {/* Elemen kiri */}
+                                <div className="w-auto">
+                                    <p>Diterapkan ke {variant?.product_variant?.length} produk</p>
+                                </div>
 
-                                <p className="text-orange-500">Atur Produk</p>
+                                {/* Elemen kanan */}
+                                <div
+                                    onClick={() => {
+                                        setShowVariantProductHandler({ id: variant.variant_id, status: true });
+                                        setReset(false);
+                                    }}
+                                    className="w-auto hover:cursor-pointer text-orange-500"
+                                >
+                                    Atur Produk
+                                </div>
                             </div>
                         </div>
                     ))}

@@ -40,38 +40,51 @@ const DataMerchant = () => {
     }, [showEdit]);
 
     const FormSchema = z.object({
-        merchantName: z.string().min(2, {
-            message: "Merchant name must be at least 2 characters.",
+        merchantName: z.string().min(1, {
+            message: "Nama Merchant wajib diisi",
         }),
-        merchantCategory: z.enum(["Makanan & Minuman", "Fashion & Aksesori", "Elektronik & Gadget", "Kesehatan & Kecantikan", "Rumah & Dekorasi", "Otomotif", "Hobi & Hiburan", "Jasa & Layanan", "Bahan Pokok & Grosir", "Teknologi & Digital", "Lainnya"], {
-            message: "Please select the category",
+        merchantCategory: z.enum([
+            "Makanan & Minuman",
+            "Fashion & Aksesori",
+            "Elektronik & Gadget",
+            "Kesehatan & Kecantikan",
+            "Rumah & Dekorasi",
+            "Otomotif",
+            "Hobi & Hiburan",
+            "Jasa & Layanan",
+            "Bahan Pokok & Grosir",
+            "Teknologi & Digital",
+            "Lainnya"
+        ], {
+            message: "Kategori Merchant wajib dipilih",
         }),
         merchantProvince: z.string().min(2, {
-            message: "Province must be at least 2 characters.",
+            message: "Provinsi wajib diisi",
         }),
         merchantRegency: z.string().min(2, {
-            message: "Regency must be at least 2 characters.",
+            message: "Kabupaten/Kota wajib diisi",
         }),
         merchantDistrict: z.string().min(2, {
-            message: "District must be at least 2 characters.",
+            message: "Kecamatan wajib diisi",
         }),
         merchantVillage: z.string().min(2, {
-            message: "Village must be at least 2 characters.",
+            message: "Desa/Kelurahan wajib diisi",
         }),
         phoneNumberMerchant: z.string().min(10, {
-            message: "Phone number must be at least 10 characters.",
+            message: "Nomor telepon harus memiliki minimal 10 karakter.",
         }).max(15, {
-            message: "Phone number must be at most 15 characters.",
+            message: "Nomor telepon harus memiliki maksimal 15 karakter.",
         }),
         merchantAddress: z.string().min(5, {
-            message: "Merchant address must be at least 5 characters.",
+            message: "Alamat merchant harus memiliki minimal 5 karakter.",
         }),
         postalCode: z.string().min(5, {
-            message: "Postal code must be at least 5 characters.",
+            message: "Kode pos harus memiliki 5 karakter.",
         }).max(5, {
-            message: "Postal code must be at most 5 characters.",
+            message: "Kode pos harus memiliki 5 karakter.",
         }),
     });
+
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),

@@ -21,6 +21,23 @@ interface Purchase {
     date: string;
     image?: string;
     status: string;
+    biller?: string;
+}
+
+interface ISales {
+    sales_id: string;
+    total_amount: number;
+    channel: number;
+    transaction_date: string;
+    transaction_id: string;
+    transaction_status: string;
+    sales?: {
+        orderId: string;
+    },
+    qr_transaction?: {
+        orderId: string;
+    }
+    payment_method: string;
 }
 
 interface ISales {
@@ -234,7 +251,7 @@ const Riwayat = () => {
                             </Button>
                         </div>
 
-                        <div className="flexflex-col items-center gap-5 justify-between">
+                        <div className="flex flex-col items-center gap-5 justify-between">
                             <Button
                                 className={`${showCalendar ? 'block' : 'hidden'} text-sm bg-gray-200 border w-full border-gray-400 text-gray-700 rounded-lg px-3 py-2`}
                             >
@@ -398,7 +415,7 @@ const Riwayat = () => {
                                     <div className="flex md:items-center md:justify-between md:flex-row flex-col">
                                         <div className="flex md:items-start items-center gap-5">
                                             <img
-                                                src={"https://is3.cloudhost.id/stiqr/ppob/Smartfren.png"}
+                                                src={`https://is3.cloudhost.id/stiqr/ppob/${purchase.biller}.png`}
                                                 className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
                                                 alt=""
                                             />
@@ -445,24 +462,26 @@ const Riwayat = () => {
                         }
                         {
                             totalPages > 0 && (
-                                <div className="flex items-center justify-center gap-5 mb-32">
-                                    <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
-                                        <ChevronsLeft />
-                                    </Button>
+                                <div className="flex flex-col items-center w-full mb-32">
+                                    <div className="flex items-center justify-center gap-5 mb-5">
+                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                                            <ChevronsLeft />
+                                        </Button>
 
-                                    <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
-                                        <ChevronLeft />
-                                    </Button>
+                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
+                                            <ChevronLeft />
+                                        </Button>
 
-                                    <span>Page {currentPage} of {totalPages}</span>
 
-                                    <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
-                                        <ChevronRight />
-                                    </Button>
+                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
+                                            <ChevronRight />
+                                        </Button>
 
-                                    <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
-                                        <ChevronsRight />
-                                    </Button>
+                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+                                            <ChevronsRight />
+                                        </Button>
+                                    </div>
+                                    <span className="text-center">Halaman {currentPage} dari {totalPages}</span>
                                 </div>
                             )
                         }
@@ -563,7 +582,7 @@ const Riwayat = () => {
                 ) : (
                     <div>
                         <div className="flex items-center gap-3">
-                            <img src={purchases[showDescription.index]?.image} className="w-10 min-w-10 h-10 min-h-10 rounded-full" alt="" />
+                            <img src={`https://is3.cloudhost.id/stiqr/ppob/${purchases[showDescription.index]?.biller}.png`} className="w-10 min-w-10 h-10 min-h-10 rounded-full" alt="" />
 
                             <div>
                                 <p>{purchases[showDescription.index]?.type}</p>

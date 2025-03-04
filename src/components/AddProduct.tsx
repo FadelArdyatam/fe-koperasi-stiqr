@@ -540,32 +540,38 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                         <FormField
                             control={form.control}
                             name="product_price"
-                            render={({ field }) => (
-                                <FormItem data-aos="fade-up" data-aos-delay="400">
-                                    <FormLabel>Harga</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="text" // Ganti dari number ke text agar bisa menerima format Rp
-                                            placeholder="Enter price"
-                                            {...field}
-                                            value={formatRupiah(field.value)} // Pastikan format rupiah digunakan
-                                            maxLength={16}
-                                            onChange={(e) => {
-                                                let rawValue = e.target.value.replace(/\D/g, ""); // Hanya angka
+                            render={({ field }) => {
+                                const [displayValue, setDisplayValue] = useState(formatRupiah(field.value || "0"));
 
-                                                // Pastikan nilai tidak bisa 0 rupiah
-                                                if (rawValue.startsWith("0") && rawValue.length > 1) {
-                                                    rawValue = rawValue.replace(/^0+/, ""); // Hapus nol di awal
-                                                }
+                                return (
+                                    <FormItem data-aos="fade-up" data-aos-delay="400">
+                                        <FormLabel>Harga</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="text"
+                                                inputMode="numeric" // Tampilkan keyboard angka di mobile
+                                                pattern="[0-9]*"
+                                                placeholder="Enter price"
+                                                value={displayValue} // Gunakan nilai yang sudah diformat
+                                                maxLength={16}
+                                                onChange={(e) => {
+                                                    let rawValue = e.target.value.replace(/\D/g, ""); // Hanya angka
 
-                                                const limitedValue = rawValue.slice(0, 16); // Batasi 16 digit
-                                                field.onChange(limitedValue); // Simpan angka bersih
-                                            }}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+                                                    // Pastikan nilai tidak bisa 0 rupiah
+                                                    if (rawValue.startsWith("0") && rawValue.length > 1) {
+                                                        rawValue = rawValue.replace(/^0+/, ""); // Hapus nol di awal
+                                                    }
+
+                                                    const limitedValue = rawValue.slice(0, 16); // Batasi 16 digit
+                                                    setDisplayValue(formatRupiah(limitedValue)); // Tampilkan format Rp
+                                                    field.onChange(limitedValue); // Simpan angka bersih ke form
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                );
+                            }}
                         />
 
                         {/* Weight */}

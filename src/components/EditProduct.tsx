@@ -137,7 +137,7 @@ const EditProduct: React.FC<EditProductProps> = ({
     const [showAddVariant, setShowAddVariant] = useState(false);
     const [showError, setShowError] = useState(false);
     const [allData, setAllData] = useState<any>([]);
-    const [stock, setStock] = useState({ stock: 0, minimumStock: 0 });
+    const [stock, setStock] = useState({ stock: "", minimumStock: "" });
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -429,10 +429,39 @@ const EditProduct: React.FC<EditProductProps> = ({
         );
     };
 
-    console.log("Selected variants:", selectedVariants);
+    const handleStockChange = (e: any) => {
+        let value = e.target.value;
 
-    console.log("allData", allData);
+        if (value === "") {
+            setStock((prev) => ({ ...prev, stock: "0" }));
+            return;
+        }
 
+        if (value.length > 1 && value.startsWith("0")) {
+            value = value.replace(/^0+/, "");
+        }
+
+        if (/^\d*$/.test(value)) {
+            setStock((prev) => ({ ...prev, stock: value }));
+        }
+    };
+
+    const handleMinimumStockChange = (e: any) => {
+        let value = e.target.value;
+
+        if (value === "") {
+            setStock((prev) => ({ ...prev, minimumStock: "0" }));
+            return;
+        }
+
+        if (value.length > 1 && value.startsWith("0")) {
+            value = value.replace(/^0+/, "");
+        }
+
+        if (/^\d*$/.test(value)) {
+            setStock((prev) => ({ ...prev, minimumStock: value }));
+        }
+    };
     return (
         <>
             <div className={`${showNotification ? 'hidden' : 'block'} pt-5 w-full mb-32`}>
@@ -441,7 +470,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                         <ChevronLeft />
                     </button>
 
-                    <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Edit Product</p>
+                    <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Edit Produk</p>
                 </div>
 
                 <div className="w-full mt-10">
@@ -733,18 +762,30 @@ const EditProduct: React.FC<EditProductProps> = ({
 
                                 <p className="mt-5 text-gray-500">Atur jumlah stok produk ini.</p>
 
-                                <div className={`${showField.stock ? 'flex' : 'hidden'} flex-col mt-5 items-center gap-3`}>
+                                <div className={`${showField.stock ? "flex" : "hidden"} flex-col mt-5 items-center gap-3`}>
                                     <div className="flex items-center gap-5">
                                         <div className="flex flex-col gap-2">
                                             <p className="font-semibold">Jumlah Stok</p>
-
-                                            <Input onChange={(e) => setStock({ stock: Number(e.target.value), minimumStock: stock.minimumStock })} placeholder="1" value={stock.stock} type="number" />
+                                            <Input
+                                                onChange={handleStockChange}
+                                                placeholder="1"
+                                                value={stock.stock}
+                                                type="text"
+                                                inputMode="numeric"
+                                                pattern="[0-9]*"
+                                            />
                                         </div>
 
                                         <div className="flex flex-col gap-2">
                                             <p className="font-semibold">Stok Minimum</p>
-
-                                            <Input onChange={(e) => setStock({ stock: stock.stock, minimumStock: Number(e.target.value) })} placeholder="1" value={stock.minimumStock} type="number" />
+                                            <Input
+                                                onChange={handleMinimumStockChange}
+                                                placeholder="1"
+                                                value={stock.minimumStock}
+                                                type="text"
+                                                inputMode="numeric"
+                                                pattern="[0-9]*"
+                                            />
                                         </div>
                                     </div>
 
