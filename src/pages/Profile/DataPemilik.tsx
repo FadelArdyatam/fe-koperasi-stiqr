@@ -32,28 +32,30 @@ const DataPemilik = () => {
     }, [showEdit]);
 
     const FormSchema = z.object({
-        NIK: z.string().min(2, {
-            message: "NIK must be at least 2 characters.",
+        NIK: z.string().min(16, {
+            message: "NIK harus terdiri 16 digit angka",
+        }).max(16, {
+            message: "NIK harus terdiri 16 digit angka",
         }),
-        ownerName: z.string().min(2, {
-            message: "ownerName must be at least 2 characters.",
+        ownerName: z.string().min(1, {
+            message: "Nama wajib diisi."
         }),
         email: z.string().email({
-            message: "Invalid email address.",
+            message: "Email tidak valid",
         }),
         phoneNumber: z.string().min(10, {
-            message: "Phone number must be at least 10 characters.",
+            message: "Nomor HP harus terdiri dari minimal 10 digit angka.",
         }).max(15, {
-            message: "Phone number must be at most 15 characters.",
+            message: "Nomor HP harus terdiri dari maksimal 15 digit angka.",
         }),
         dateOfBirth: z.string().refine((value) => {
             const date = new Date(value);
             return date instanceof Date && !isNaN(date.getTime());
         }, {
-            message: "Invalid date.",
+            message: "Tanggal tidak valid",
         }),
         photo: z.instanceof(File, {
-            message: "Photo must be a valid file.",
+            message: "Foto Profile harus diisi dengan file",
         }).optional(),
     });
 
@@ -289,7 +291,7 @@ const DataPemilik = () => {
                                     name="ownerName"
                                     render={({ field }) => (
                                         <FormItem data-aos="fade-up" data-aos-delay="200" className="w-full">
-                                            <FormLabel className="text-gray-500">Name</FormLabel>
+                                            <FormLabel className="text-gray-500">Nama</FormLabel>
 
                                             <FormControl>
                                                 <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
@@ -319,7 +321,7 @@ const DataPemilik = () => {
                                     name="phoneNumber"
                                     render={({ field }) => (
                                         <FormItem data-aos="fade-up" data-aos-delay="400" className="w-full">
-                                            <FormLabel className="text-gray-500">Phone</FormLabel>
+                                            <FormLabel className="text-gray-500">Nomor HP</FormLabel>
 
                                             <FormControl>
                                                 <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field} />
@@ -352,7 +354,7 @@ const DataPemilik = () => {
                                     name="photo"
                                     render={({ field }) => (
                                         <FormItem data-aos="fade-up" data-aos-delay="600" className="w-full">
-                                            <FormLabel className="text-gray-500">Photo</FormLabel>
+                                            <FormLabel className="text-gray-500">Foto Profil</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="file"

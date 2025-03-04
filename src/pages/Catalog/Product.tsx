@@ -170,9 +170,15 @@ const Product: React.FC<ProductProps> = ({
                                             : product.product_name}
                                     </h3>
 
+
                                     <p className="text-sm text-gray-600">
                                         Rp {new Intl.NumberFormat('id-ID').format(Number(product.product_price))}
                                     </p>
+                                    {
+                                        product?.detail_product?.is_stok && (
+                                            <span className='bg-orange-100 p-1 mt-2 px-3 rounded-full text-orange-500 font-normal text-xs'> stok : {product.detail_product.stok}</span>
+                                        )
+                                    }
                                 </div>
                             </button>
 

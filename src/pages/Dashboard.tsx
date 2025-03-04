@@ -1,6 +1,5 @@
-import { CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, UserRound, X, FileText, ClipboardList, CirclePercent, EyeOff, Eye, UsersRound } from "lucide-react";
+import { CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, UserRound, X, FileText, ClipboardList, CirclePercent, EyeOff, Eye, UsersRound, ChevronsLeft, ChevronsRight, ChevronRight, ChevronLeft } from "lucide-react";
 import logo from "@/images/logo.png";
-// import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useState } from "react";
 import linkaja from "@/images/linkaja.jpg";
 import gopay from "@/images/gopay.png";
@@ -13,7 +12,6 @@ import { formatRupiah } from "@/hooks/convertRupiah";
 import imgNoTransaction from "@/images/no-transaction.png";
 import noIssuerImg from "@/images/no-issuer.png";
 import { Button } from "@/components/ui/button";
-import DatePicker from "react-datepicker";
 import Notification from "@/components/Notification"
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -100,9 +98,7 @@ interface IBalance {
     cash_amount: number;
 }
 const Dashboard = () => {
-    // const [field, setField] = useState({ value: "" });
     const navigate = useNavigate();
-    // const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to track dropdown open status
     const [showNotification, setShowNotification] = useState(false);
     const [balance, setBalance] = useState<IBalance>({
         amount: 0,
@@ -117,38 +113,12 @@ const Dashboard = () => {
 
     const [uangMasuk, setUangMasuk] = useState(0);
     const [uangKeluar, setUangKeluar] = useState(0);
-
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
-    const [showCalendar, setShowCalendar] = useState(false);
-
     const [histories, setHistories] = useState<History[]>([]);
-
-    const [months, setMonths] = useState(2); // Default 2 bulan
-
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
 
     useEffect(() => {
-        const handleResize = () => {
-            setMonths(window.innerWidth < 768 ? 1 : 2); // Jika kurang dari 768px, tampilkan 1 bulan
-        };
-
-        handleResize(); // Jalankan saat pertama kali load
-        window.addEventListener("resize", handleResize); // Deteksi perubahan ukuran layar
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-
-    const onChange = (dates: [any, any]) => {
-        const [start, end] = dates;
-        setStartDate(start);
-        setEndDate(end);
-    };
-
-    useEffect(() => {
-        // Ambil informasi user dari sessionStorage
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
         setUser(userData);
@@ -210,9 +180,6 @@ const Dashboard = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [filter, setFilter] = useState<string>("today");
-    const [dateRange, setDateRange] = useState<{ startDate?: string; endDate?: string }>({});
-
     useEffect(() => {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
@@ -222,15 +189,9 @@ const Dashboard = () => {
         const fetchTransactions = async () => {
             try {
                 const params: any = {
-                    filter,
                     page: currentPage,
-                    limit: 10
+                    limit: 5
                 };
-
-                if (filter === "dateRange" && dateRange.startDate && dateRange.endDate) {
-                    params.startDate = dateRange.startDate;
-                    params.endDate = dateRange.endDate;
-                }
 
                 const response = await axiosInstance.get(`/transactions/${userData.merchant.id}`, { params });
                 setHistories(response.data.data);
@@ -241,17 +202,7 @@ const Dashboard = () => {
         };
 
         fetchTransactions();
-    }, [filter, currentPage, dateRange]);
-
-    const setFilterHandler = (newFilter: string) => {
-        setFilter(newFilter);
-        setCurrentPage(1);
-    };
-
-    const setCustomDateRange = (start: string | null, end: string | null) => {
-        setDateRange({ startDate: start || undefined, endDate: end || undefined });
-        setFilter("dateRange");
-    };
+    }, [currentPage]);
 
 
     return (
@@ -450,87 +401,16 @@ const Dashboard = () => {
                     </Link>
 
                     <div className="w-10 min-w-10 h-[2px] min-h-[2px] bg-gray-300 rotate-90"></div>
-
-                    <button type="button" onClick={() => setShowNotificationBPJS(true)} data-aos="fade-up" data-aos-delay="600" className="flex m-auto flex-col items-center gap-3">
+                    <Link data-aos="fade-up" data-aos-delay="550" to={'/bpjs'} className="flex m-auto flex-col items-center gap-3">
                         <ShieldCheck className="text-orange-400" />
 
                         <p className="uppercase text-center text-sm">BPJS</p>
-                    </button>
+                    </Link>
                 </div>
             </div>
 
             <div id="date" className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg p-5 bg-white shadow-lg">
-                <p className="text-center font-semibold text-lg my-5">Riwayat Transaksi</p>
-
-                <div className="w-full flex gap-5 overflow-x-auto">
-                    {/* Pilih tanggal manual */}
-                    <Button onClick={() => {
-                        setShowCalendar(!showCalendar); setFilter("dateRange");
-                    }} className={`${filter === "dateRange" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>Pilih Tanggal Transaksi</Button>
-                    <Button onClick={() => setFilterHandler("today")} className={`${filter === "today" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                        Hari Ini
-                    </Button>
-                    <Button onClick={() => setFilterHandler("yesterday")} className={`${filter === "yesterday" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                        Kemarin
-                    </Button>
-                    <Button onClick={() => setFilterHandler("2days")} className={`${filter === "2days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                        2 Hari
-                    </Button>
-                    <Button onClick={() => setFilterHandler("7days")} className={`${filter === "7days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`
-                    }>
-                        7 Hari
-                    </Button >
-                </div >
-
-                <div className="flex mt-5 flex-col items-center gap-5 justify-between">
-                    <Button
-                        className={`${showCalendar ? 'block' : 'hidden'} text-sm bg-gray-200 border w-full border-gray-400 text-gray-700 rounded-lg px-3 py-2`}
-                    >
-                        {startDate && endDate
-                            ? `${startDate.toLocaleDateString("id-ID", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                            })} - ${endDate.toLocaleDateString("id-ID", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                            })}`
-                            : "Pilih Tanggal Transaksi"}
-                    </Button>
-                </div>
-
-                {/* Kalender DatePicker */}
-                {
-                    showCalendar && (
-                        <div className="flex flex-col items-center mt-5 border p-3 rounded-lg shadow-md">
-                            <DatePicker
-                                selected={startDate}
-                                onChange={onChange}
-                                startDate={startDate}
-                                endDate={endDate}
-                                selectsRange
-                                inline
-                                maxDate={startDate ? new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000) : undefined}
-                                className="w-full"
-                                monthsShown={months}
-                            />
-
-                            <Button
-                                className="w-full mt-3 bg-orange-500 text-white rounded-lg"
-                                onClick={() => {
-                                    setShowCalendar(false);
-                                    setCustomDateRange(
-                                        startDate ? startDate.toISOString() : null,
-                                        endDate ? endDate.toISOString() : null
-                                    )
-                                }}
-                            >
-                                Pilih
-                            </Button>
-                        </div>
-                    )
-                }
+                <p className="text-center font-semibold text-lg my-5">Riwayat Transaksi Hari Ini</p>
 
                 <div className="mt-10 flex flex-col gap-5">
                     {histories.length > 0 ? (
@@ -538,20 +418,20 @@ const Dashboard = () => {
                             {histories.map((history, index) => (
                                 <div key={index}>
                                     <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex md:flex-row flex-col md:items-center justify-between">
                                         <div className="flex items-start gap-2">
                                             <img src={history?.channel ? `${import.meta.env.VITE_ISSUER_BANK_URL}/${history.channel}.png` : noIssuerImg} className="rounded-full w-10 h-10" alt="IMAGE" />
-                                            <div>
-                                                <div className="flex items-center gap-2">
+                                            <div className="flex flex-col items-start">
+                                                <div className="flex md:flex-row flex-col md:gap-2 items-start">
                                                     <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
-                                                    <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                    <div className={`${history.transaction_status === "success" ? "bg-green-400 " : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} w-fit px-2 rounded-md text-white text-xs py-[0.5]"`}>
                                                         <p>{history.transaction_status}</p>
                                                     </div>
                                                 </div>
-                                                <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
+                                                <p className="text-xs text-gray-400 text-start">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col items-end">
+                                        <div className="flex flex-col items-end md:mt-0 mt-2">
                                             <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
                                             <div className="flex items-center">
                                                 <p className="text-xs">{convertDate(history.transaction_date)}</p>
@@ -564,197 +444,52 @@ const Dashboard = () => {
                             ))}
 
                             {/* Pagination */}
-                            <div className="flex items-center justify-center gap-5 mt-10">
-                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
-                                    First
-                                </Button>
-
-                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
-                                    Prev
-                                </Button>
-
-                                <span>Page {currentPage} of {totalPages}</span>
-
-                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
-                                    Next
-                                </Button>
-
-                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
-                                    Last
-                                </Button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center gap-5">
-                            <img className="p-5" src={imgNoTransaction} alt="No transactions" />
-                            <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
-                        </div>)}
-                    {/* {histories?.length === 0 ? (
-                        <div className="flex flex-col items-center gap-5">
-                            <img className="p-5" src={imgNoTransaction} alt="No transactions" />
-                            <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
-                        </div>
-                    ) : (
-                        <div className="mt-5">
-                            {filteredHistories.length > 0 ? (
-                                // Jika ada transaksi dalam rentang yang difilter
-                                <div>
-                                    {paginatedFilteredHistories.map((history, index) => (
-                                        <div key={index}>
-                                            <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-start gap-2">
-                                                    <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
-                                                            <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
-                                                            <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
-                                                                <p>{history.transaction_status}</p>
-                                                            </div>
-                                                        </div>
-                                                        <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex flex-col items-end">
-                                                    <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
-                                                    <div className="flex items-center">
-                                                        <p className="text-xs">
-                                                            {new Date(history.transaction_date).toLocaleDateString("id-ID", {
-                                                                day: "2-digit",
-                                                                month: "long",
-                                                                year: "numeric",
-                                                            })}
-                                                        </p>
-                                                        <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-                                                        <p className="text-xs">
-                                                            {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
-                                                                hour: "2-digit",
-                                                                minute: "2-digit",
-                                                            })}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-
-                                    <div className="flex items-center justify-center gap-3 sm:gap-5 mt-10">
-                                        <button
-                                            className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                            <div className="flex flex-col items-center w-full mt-10">
+                                <div className="flex md:flex-row flex-col justify-between items-center w-full mb-5 md:gap-3 gap-5">
+                                    <Button onClick={()=> navigate('/profile/history')} className="bg-orange-500 text-white hover:cursor-pointer">Lihat Semua Transaksi</Button>
+                                    <div className="flex items-center justify-end gap-5 flex-1">
+                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
                                             onClick={() => setCurrentPage(1)}
-                                            disabled={currentPage === 1}>
-                                            First
-                                        </button>
-                                        <button
-                                            className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                            disabled={currentPage === 1}
+                                        >
+                                            <ChevronsLeft />
+                                        </Button>
+
+                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
                                             onClick={() => setCurrentPage(prev => prev - 1)}
-                                            disabled={currentPage === 1}>
-                                            Prev
-                                        </button>
-                                        <span className="text-xs text-nowrap sm:text-base">Page {currentPage} of {totalPagesFiltered}</span>
-                                        <button
-                                            className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+                                            disabled={currentPage === 1}
+                                        >
+                                            <ChevronLeft />
+                                        </Button>
+
+                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
                                             onClick={() => setCurrentPage(prev => prev + 1)}
-                                            disabled={currentPage === totalPagesFiltered}>
-                                            Next
-                                        </button>
-                                        <button
-                                            className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
-                                            onClick={() => setCurrentPage(totalPagesFiltered)}
-                                            disabled={currentPage === totalPagesFiltered}>
-                                            Last
-                                        </button>
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            <ChevronRight />
+                                        </Button>
+
+                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
+                                            onClick={() => setCurrentPage(totalPages)}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            <ChevronsRight />
+                                        </Button>
                                     </div>
                                 </div>
-                            ) : (
-                                // Jika tidak ada transaksi dalam rentang filter
-                                startDate && endDate ? (
-                                    <div className="flex flex-col items-center gap-5 text-center">
-                                        <img className="p-5" src={imgNoTransaction} alt="No transactions" />
-                                        <p className="font-semibold text-lg text-orange-500">Tidak ada transaksi dalam rentang waktu ini</p>
-                                    </div>
-                                ) : (
-                                    // Jika tidak ada filter aktif, tampilkan semua transaksi
-                                    histories?.length > 0 ? (
-                                        <div>
-                                            {paginatedHistories.map((history, index) => (
-                                                <div key={index}>
-                                                    <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-start gap-2">
-                                                            <img src={`${import.meta.env.VITE_ISSUER_BANK_URL}/${history?.channel}.png`} className="rounded-full w-10 h-10 min-w-10 min-h-10 overflow-hidden" alt="IMAGE" />
-                                                            <div>
-                                                                <div className="flex items-center gap-2">
-                                                                    <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
-                                                                    <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} px-2 rounded-md text-white text-xs py-[0.5]"`}>
-                                                                        <p>{history.transaction_status}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <p className="text-xs text-gray-400">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex flex-col items-end">
-                                                            <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
-                                                            <div className="flex items-center">
-                                                                <p className="text-xs">
-                                                                    {new Date(history.transaction_date).toLocaleDateString("id-ID", {
-                                                                        day: "2-digit",
-                                                                        month: "long",
-                                                                        year: "numeric",
-                                                                    })}
-                                                                </p>
-                                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-                                                                <p className="text-xs">
-                                                                    {new Date(history.transaction_date).toLocaleTimeString("id-ID", {
-                                                                        hour: "2-digit",
-                                                                        minute: "2-digit",
-                                                                    })}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
 
-                                            <div className="flex items-center justify-center gap-5 mt-10">
-                                                <button
-                                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
-                                                    onClick={() => setCurrentPage(1)}
-                                                    disabled={currentPage === 1}>
-                                                    First
-                                                </button>
-                                                <button
-                                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
-                                                    onClick={() => setCurrentPage(prev => prev - 1)}
-                                                    disabled={currentPage === 1}>
-                                                    Prev
-                                                </button>
-                                                <span className="text-xs text-nowrap sm:text-base">Page {currentPage} of {totalPages}</span>
-                                                <button
-                                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
-                                                    onClick={() => setCurrentPage(prev => prev + 1)}
-                                                    disabled={currentPage === totalPages}>
-                                                    Next
-                                                </button>
-                                                <button
-                                                    className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
-                                                    onClick={() => setCurrentPage(totalPages)}
-                                                    disabled={currentPage === totalPages}>
-                                                    Last
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        // Jika tidak ada transaksi sama sekali
-                                        <div className="flex flex-col items-center gap-5">
-                                            <img className="p-5" src={imgNoTransaction} alt="No transactions" />
-                                            <p className="font-semibold text-lg text-orange-500">Belum ada transaksi</p>
-                                        </div>
-                                    )
-                                )
-                            )}
+                                {/* Info halaman */}
+                                <p className="text-end items-end">Halaman {currentPage} dari {totalPages}</p>
+                            </div>
+
                         </div>
-                    )} */}
+                    ) : (
+                        <div className="flex flex-col items-center gap-5">
+                            <img className="p-5" src={imgNoTransaction} alt="No transactions" />
+                            <Button onClick={()=> navigate('/profile/history')} className="bg-orange-500 text-white hover:cursor-pointer">Lihat Semua Transaksi</Button>
+                            <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
+                        </div>)
+                    }
                 </div>
             </div >
 

@@ -179,12 +179,12 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         product_image: z.instanceof(File, {
             message: "Photo must be a valid file.",
         }).optional(),
-        product_name: z.string().min(1, { message: "Name is required." }).max(50, { message: "Name must be less than 50 characters." }),
-        product_SKU: z.string().min(1, { message: "SKU is required." }).max(20, { message: "SKU must be less than 20 characters." }),
-        product_price: z.string().min(1, { message: "Price is required." }),
-        product_weight: z.string().min(1, { message: "Weight is required." }),
-        product_etalase: z.array(z.string()).nonempty({ message: "At least one etalase must be selected." }),
-        product_description: z.string().max(100, { message: "Description must be less than 100 characters." }).optional(),
+        product_name: z.string().min(1, { message: "Masukkan Nama Anda." }).max(50, { message: "Name must be less than 50 characters." }),
+        product_SKU: z.string().min(1, { message: "SKU Dibutuhkan." }).max(20, { message: "SKU must be less than 20 characters." }),
+        product_price: z.string().min(1, { message: "Masukkan Harga." }),
+        product_weight: z.string().min(1, { message: "Masukkan Berat." }),
+        product_etalase: z.array(z.string()).nonempty({ message: "Minimal satu etalase harus dipilih." }),
+        product_description: z.string().max(100, { message: "Deskripsi harus kurang dari 100 karakter." }).optional(),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -330,7 +330,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                 // Agar varian yang baru ditambahkan langsung muncul di halaman varian
                 setVariants([...variants, response.data.data]);
 
-                console.log("Varian berhasil ditambahkan:", response.data);
                 setShowPopUpAddVariant(false)
                 setShowNotificationVariant(true);
             } else {
@@ -355,30 +354,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         mergedData.details_products = data;
 
         console.log("Merged Data:", mergedData);
-
-        // // Buat FormData
-        // const formData = new FormData();
-
-        // // Tambahkan data dari allData ke FormData
-        // Object.keys(mergedData).forEach((key) => {
-        //     const value = mergedData[key];
-
-        //     // Jika nilai adalah array atau objek, ubah ke JSON string
-        //     if (typeof value === "object" && value !== null) {
-        //         formData.append(key, JSON.stringify(value));
-        //     } else {
-        //         formData.append(key, value);
-        //     }
-        // });
-
-        // // Tambahkan `details_products`
-        // formData.append("details_products", JSON.stringify(data));
-
-        // console.log("Final FormData:");
-        // for (let pair of formData.entries()) {
-        //     console.log(pair[0], pair[1]); // Debugging isi FormData
-        // }
-
         try {
             const response = await axiosInstance.post("/product/create", mergedData, {
                 headers: {
@@ -390,7 +365,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
             setProducts([...products, response.data.data]);
 
-            // Jika ada etalase yang dipilih, kirim ke API showcase-product
             if (selectedEtalase) {
                 const response2 = await axiosInstance.post("/showcase-product/create", {
                     product_id: response?.data?.data?.product_id,

@@ -2,7 +2,7 @@ import DetailProduct from "@/pages/Casheer/DetailProduct"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import axiosInstance from "@/hooks/axiosInstance"
-import { ArrowLeft, Search, SlidersHorizontal, ShoppingBasket } from "lucide-react"
+import { ArrowLeft, Search, SlidersHorizontal, ShoppingBasket, X } from "lucide-react"
 import { useEffect, useState, useCallback, useRef } from "react"
 import { Link } from "react-router-dom"
 import takeAway from "../../images/take-away.png"
@@ -11,6 +11,7 @@ import OrderSummary from "./OrderSummary"
 import AOS from "aos";
 import "aos/dist/aos.css";
 import noProduct from '../../images/no-product.png'
+import { formatRupiah } from "@/hooks/convertRupiah"
 
 const Casheer = () => {
     const [searchTerm, setSearchTerm] = useState('')
@@ -18,7 +19,6 @@ const Casheer = () => {
     const [error, setError] = useState<string | null>(null);
     const [etalases, setEtalases] = useState<any[]>([]);
     const [products, setProducts] = useState<any[]>([]);
-    const [variants, setVariants] = useState<any[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [showDetailProduct, setShowDetailProduct] = useState(false);
     const [basket, setBasket] = useState<any[]>([]);
@@ -128,21 +128,8 @@ const Casheer = () => {
             };
         }
 
-        const fetchVariants = async () => {
-            try {
-                const response = await axiosInstance.get(`/varian/${userData?.merchant?.id}`);
-                setVariants(response.data.data);
-            } catch (err: any) {
-                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data varian.");
-                console.error("Error saat mengambil data varian:", err);
-            } finally {
-                setLoading(false);
-            };
-        };
-
         fetchProducts();
         fetchEtalases();
-        fetchVariants();
     }, [])
 
     useEffect(() => {
@@ -312,7 +299,13 @@ const Casheer = () => {
                 {showFilterSection && (
                     <div className="fixed w-full h-full bg-black bg-opacity-50 top-0 left-0 z-20 flex items-end">
                         <div data-aos="fade-up" className="w-full bg-white rounded-t-xl p-5">
-                            <p className="font-semibold text-2xl">Urutkan Berdasarkan</p>
+                            <div className="flex items-center justify-between w-full">
+                                <p className="font-semibold text-2xl">Urutkan Berdasarkan</p>
+
+                                <button type="button" onClick={() => setShowFilterSection(false)}>
+                                    <X />
+                                </button>
+                            </div>
 
                             <div className="mt-5 flex flex-col gap-3">
                                 {/* Produk Terbaru */}
@@ -414,19 +407,13 @@ const Casheer = () => {
                                     </p>
 
                                     <p className="font-semibold text-wrap">
-                                        {/* Format angka dengan pemotongan */}
-                                        {String(product.product_price).length > 5
-                                            ? `${Number(product.product_price)
-                                                .toLocaleString("id-ID", {
-                                                    style: "currency",
-                                                    currency: "IDR",
-                                                })
-                                                .slice(0, 10)}...`
-                                            : Number(product.product_price).toLocaleString("id-ID", {
-                                                style: "currency",
-                                                currency: "IDR",
-                                            })}
+                                        {formatRupiah(product.product_price)}
                                     </p>
+                                    {
+                                        product?.detail_product?.is_stok && (
+                                            <span className='bg-orange-100 p-1 mt-2 px-3 rounded-full text-orange-500 font-normal text-xs'> stok : {product.detail_product.stok}</span>
+                                        )
+                                    }
                                 </div>
                             </div>
 
@@ -513,7 +500,8 @@ const Casheer = () => {
                             data-aos="fade-up"
                             data-aos-delay={index * 100}
                             key={index}
-                            className="flex items-center gap-5 w-full p-5 bg-white rounded-lg justify-between"
+                            title={`${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'Stok Habis' : ''}`}
+                            className={`flex items-center gap-5 w-full p-5  rounded-lg justify-between ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? ' bg-red-100 ' : 'bg-white'}`}
                         >
                             {/* Detail Produk */}
                             <div
@@ -529,19 +517,13 @@ const Casheer = () => {
                                     </p>
 
                                     <p className="font-semibold text-wrap">
-                                        {/* Format angka dengan pemotongan */}
-                                        {String(product.product_price).length > 5
-                                            ? `${Number(product.product_price)
-                                                .toLocaleString("id-ID", {
-                                                    style: "currency",
-                                                    currency: "IDR",
-                                                })
-                                                .slice(0, 10)}...`
-                                            : Number(product.product_price).toLocaleString("id-ID", {
-                                                style: "currency",
-                                                currency: "IDR",
-                                            })}
+                                        {formatRupiah(product.product_price)}
                                     </p>
+                                    {
+                                        product?.detail_product?.is_stok && (
+                                            <span className='bg-orange-100 p-1 mt-2 px-3 rounded-full text-orange-500 font-normal text-xs'> stok : {product.detail_product.stok}</span>
+                                        )
+                                    }
                                 </div>
                             </div>
 
@@ -549,7 +531,8 @@ const Casheer = () => {
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => removeQuantityHandler(index)}
-                                    className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
+                                    disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
+                                    className={`w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'cursor-not-allowed' : ''}`}
                                 >
                                     -
                                 </button>
@@ -557,6 +540,7 @@ const Casheer = () => {
                                 <Input
                                     type="number"
                                     className="text-center w-10 xs:w-20 border rounded-md appearance-none"
+                                    disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
                                     value={
                                         basket
                                             .filter((item) => item.product === product.product_name)
@@ -618,7 +602,8 @@ const Casheer = () => {
 
                                 <button
                                     onClick={() => addQuantityHandler(index)}
-                                    className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
+                                    disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
+                                    className={`w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'cursor-not-allowed' : ''}`}
                                 >
                                     +
                                 </button>
@@ -679,7 +664,7 @@ const Casheer = () => {
                 )}
             </div>
 
-            {showDetailProduct && <DetailProduct product={selectedProduct} variants={variants} setShowDetailProduct={setShowDetailProduct} basket={basket} setBasket={setBasket} showService={showService} />}
+            {showDetailProduct && <DetailProduct product={selectedProduct} setShowDetailProduct={setShowDetailProduct} basket={basket} setBasket={setBasket} showService={showService} />}
 
             {showService.show && showService.service !== null && <OrderSummary references={serviceRef} setBasket={setBasket} basket={basket} setShowService={setShowService} showService={showService} />}
         </>

@@ -68,14 +68,20 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
             setLoading(true);
             setShowPinInput(false)
 
-            const response = await axiosInstance.post("/ayoconnect/payment", {
+            const payload: any = {
                 accountNumber: data.accountNumber,
                 productCode: data.productCode,
                 inquiryId: data.inquiryId,
                 amount: total,
                 merchant_id: userData.merchant.id,
                 pin: pin.join(''),
-            });
+            }
+
+            if (data.category === "BPJS") {
+                payload.month = data.month; // Menambahkan properti ke payload yang sudah ada
+            }
+
+            const response = await axiosInstance.post("/ayoconnect/payment", payload);
 
             if (response.data.success) {
                 if (data.category == 'Listrik' && data.productName != "PLN Postpaid") {

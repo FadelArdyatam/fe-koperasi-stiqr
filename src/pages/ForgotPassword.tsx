@@ -14,6 +14,25 @@ import "aos/dist/aos.css";
 
 const ForgotPassword = () => {
     const [Notification, setNotification] = useState({ status: false, address: '', notificationSuccess: true })
+    const [timer, setTimer] = useState(0);
+    const [isCounting, setIsCounting] = useState(false);
+
+    useEffect(() => {
+        let interval: any;
+        if (isCounting && timer > 0) {
+            interval = setInterval(() => {
+                setTimer((prev) => prev - 1);
+            }, 1000);
+        } else if (timer === 0) {
+            setIsCounting(false);
+        }
+        return () => clearInterval(interval);
+    }, [timer, isCounting]);
+
+    const startTimer = () => {
+        setTimer(120); // 2 menit
+        setIsCounting(true);
+    };
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
@@ -168,8 +187,12 @@ const ForgotPassword = () => {
                                 )}
                             />
 
-                            <Button data-aos="fade-up" data-aos-delay="400" type="submit" className="bg-[#7ED321] px-5 py-3 mt-10 w-full text-white rounded-lg">
-                                Kirim
+                            <Button
+                                onClick={startTimer}
+                                className={`${isCounting ? 'bg-gray-300 text-orange-500' : 'bg-[#7ED321] text-white'} transition-all px-5 py-3 mt-10 w-full rounded-lg`}
+                                disabled={isCounting}
+                            >
+                                {isCounting ? `${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, '0')}` : 'Kirim'}
                             </Button>
                         </form>
                     </Form>

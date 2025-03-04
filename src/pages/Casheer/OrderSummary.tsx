@@ -39,7 +39,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
     const [noMeja, setNoMeja] = useState("");
     const [responseSalesCreate, setResponseSalesCreate] = useState<any>(null);
     const [openSearch, setOpenSearch] = useState(false);
-    const [value, setValue] = useState("");
+    // const [value, setValue] = useState("");
     const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
     const [customers, setCustomers] = useState<any[]>([]);
     const [dataCustomer, setDataCustomer] = useState({ name: "", phone: "", email: "", other_number: "" });
@@ -145,13 +145,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
             const generateOrderId = generateRandomString(15);
 
             setOrderId(generateOrderId)
+            console.log(selectedCustomer)
 
             const requestBody = {
                 customer: {
-                    name: dataCustomer.name,
-                    phone: dataCustomer.phone,
-                    email: dataCustomer.email,
-                    other_number: dataCustomer.other_number,
+                    name: selectedCustomer ? selectedCustomer.customer.name : dataCustomer.name,
+                    phone: selectedCustomer ? selectedCustomer.customer.phone : dataCustomer.phone,
+                    email: selectedCustomer ? selectedCustomer.customer.email : dataCustomer.email,
+                    other_number: selectedCustomer ? selectedCustomer.customer.other_number : dataCustomer.other_number,
                 },
                 status: "inprogress",
                 order_type: showService.service === "Dine In" ? "dinein" : "takeaway",
@@ -164,6 +165,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
             };
 
             const response = await axiosInstance.post('/sales/create', requestBody);
+            console.log(response)
 
             if (status == 'tagih') {
                 setTagih(true)
@@ -190,8 +192,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         }
     };
 
-    console.log("Merged Basket: ", mergedBasket);
-    console.log("selectedCustomer: ", selectedCustomer);
 
     return (
         <div ref={references}>
@@ -221,35 +221,36 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                             variant="outline"
                             role="combobox"
                             aria-expanded={openSearch}
-                            className="mt-10 w-[90%] justify-between"
+                            className="mt-10 w-[90%] justify-between border border-gray-300 rounded-lg"
                         >
-                            {value
-                                ? customers.find((customer) => customer.customer.name === value)?.customer.name
-                                : "Select customers..."}
-
+                            {selectedCustomer?.customer?.name || "Select customers..."}
                             <ChevronsUpDown className="opacity-50" />
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="sm:min-w-[600px] md:min-w-[700px] lg:min-w-[1200px] p-0" onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }} onClick={(e) => { e.preventDefault(); e.stopPropagation() }}>
-                        <Command>
-                            <CommandInput placeholder="Search customer..." className="h-9" onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }} onClick={(e) => { e.preventDefault(); e.stopPropagation() }} />
-                            <CommandList>
-                                <CommandEmpty onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }} onClick={(e) => { e.preventDefault(); e.stopPropagation() }}>No customer found.</CommandEmpty>
+
+                    <PopoverContent
+                        className="w-[var(--radix-popper-anchor-width)] p-0 border border-gray-300 rounded-lg shadow-lg max-h-72 overflow-y-auto"
+                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        align="start"
+                    >
+                        <Command className="w-full">
+                            <CommandInput
+                                placeholder="Search customer..."
+                                className="h-9 px-4 border-b border-gray-200 focus:outline-none"
+                            />
+
+                            <CommandList className="max-h-60 overflow-y-auto">
+                                <CommandEmpty className="p-3 text-gray-500">No customer found.</CommandEmpty>
+
                                 <CommandGroup>
-                                    {customers.map((customer) => (
+                                    {customers.length > 0 && customers?.map((customer) => (
                                         <CommandItem
                                             key={customer.customer.customer_id}
-                                            value={customer.customer.name + " - " + customer.customer.other_number}
-                                            onSelect={(currentValue) => {
-                                                setValue(currentValue === value ? "" : currentValue);
+                                            onSelect={() => {
                                                 setSelectedCustomer(customer);
                                                 setOpenSearch(false);
                                             }}
-                                            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                            }}
+                                            className="cursor-pointer px-4 py-2 hover:bg-gray-100 rounded-md transition"
                                         >
                                             {customer.customer.name} - {customer.customer.other_number}
                                         </CommandItem>

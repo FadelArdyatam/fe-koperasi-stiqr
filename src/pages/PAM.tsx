@@ -119,7 +119,7 @@ const PAM = () => {
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <div data-aos="fade-up" data-aos-delay="200" className="mt-10">
+                            <div data-aos="fade-up" data-aos-delay="200" className="mt-10 w-full">
                                 <p>Wilayah</p>
 
                                 <div className="flex items-center gap-5 border mt-2 text-gray-400 border-black rounded-lg p-2 justify-between">
@@ -130,9 +130,14 @@ const PAM = () => {
                             </div>
                         </DropdownMenuTrigger>
 
-                        <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg max-w-[350px] sm:min-w-[600px] md:min-w-[700px] lg:min-w-[800px] max-h-64 overflow-y-auto flex flex-col gap-3">
+                        <DropdownMenuContent
+                            className="bg-white p-5 border mt-3 z-10 rounded-lg w-[var(--radix-popper-anchor-width)] max-h-64 overflow-y-auto flex flex-col gap-3"
+                            align="start"
+                        >
                             {products.map((product, index) => (
-                                <DropdownMenuItem key={index} onClick={() => handleDropdownChange(product?.name)}>{product?.name}</DropdownMenuItem>
+                                <DropdownMenuItem key={index} onClick={() => handleDropdownChange(product?.name)}>
+                                    {product?.name}
+                                </DropdownMenuItem>
                             ))}
                         </DropdownMenuContent>
                     </DropdownMenu>

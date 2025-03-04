@@ -163,7 +163,7 @@ const Listrik = () => {
                     {type === "Token Listrik" && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <div data-aos="fade-up" className="mt-10">
+                                <div data-aos="fade-up" className="mt-10 w-full">
                                     <p>Nominal</p>
 
                                     <div className="flex items-center gap-5 border mt-2 text-gray-400 border-black rounded-lg p-2 justify-between">
@@ -174,7 +174,10 @@ const Listrik = () => {
                                 </div>
                             </DropdownMenuTrigger>
 
-                            <DropdownMenuContent className="bg-white p-5 border mt-3 z-10 rounded-lg w-full sm:min-w-[600px] min-w-max max-h-32 overflow-y-auto flex flex-col gap-3">
+                            <DropdownMenuContent
+                                className="bg-white p-5 border mt-3 z-10 rounded-lg w-[var(--radix-popper-anchor-width)] max-h-32 overflow-y-auto flex flex-col gap-3"
+                                align="start" // Pastikan dropdown sejajar dengan trigger
+                            >
                                 {products.map((product, index) => (
                                     <DropdownMenuItem onClick={() => handleDropdownChange(product.amount)} key={index}>
                                         {Number(product.amount).toLocaleString("id-ID", {

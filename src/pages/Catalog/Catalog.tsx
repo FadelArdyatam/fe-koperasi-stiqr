@@ -112,6 +112,7 @@ const Catalog = () => {
     // const [allProducts, setAllProducts] = useState<Product[]>([]); // Menyimpan semua produk asli
     // 
     const [variants, setVariants] = useState<Variant[]>([]);
+    const [variantsProduct, setVariantsProduct] = useState<Variant[]>([]);
     const [etalases, setEtalases] = useState<Etalase[]>([]);
     const [addProduct, setAddProduct] = useState(false);
     const [addVariant, setAddVariant] = useState(false);
@@ -173,8 +174,16 @@ const Catalog = () => {
 
         const fetchVariants = async () => {
             try {
-                const response = await axiosInstance.get(`/varian/${userData?.merchant?.id}`);
+                const merchantId = userData.merchant.id;
+
+                const [response, response2] = await Promise.all([
+                    axiosInstance.get(`/varian/${merchantId}`, { params: { filter: 'all' } }),
+                    axiosInstance.get(`/varian/${merchantId}`)
+                ]);
+
                 setVariants(response.data.data);
+                setVariantsProduct(response2.data.data);
+
             } catch (err: any) {
                 setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data varian.");
                 console.error("Error saat mengambil data varian:", err);
@@ -188,77 +197,6 @@ const Catalog = () => {
         fetchVariants();
     }, [reset]);
 
-    // useEffect(() => {
-    //     const handleSortAll = () => {
-    //         const sortArray = (arr: any[], key: string) => {
-    //             return arr.sort((a, b) => {
-    //                 // Jika key adalah 'createdAt', urutkan berdasarkan tanggal
-    //                 if (key === 'created_at') {
-    //                     const dateA = new Date(a[key]);
-    //                     const dateB = new Date(b[key]);
-    //                     if (sortOrder === 'asc') {
-    //                         return dateA > dateB ? 1 : -1; // Urutkan berdasarkan tanggal lebih baru jika 'desc'
-    //                     } else {
-    //                         return dateA < dateB ? 1 : -1; // Urutkan berdasarkan tanggal lebih lama jika 'asc'
-    //                     }
-    //                 } else if (key === 'product_name' || key === 'variant_name' || key === 'showcase_name') {
-    //                     // Pengurutan berdasarkan nama produk (A-Z atau Z-A)
-    //                     if (sortOrder === 'asc') {
-    //                         return a[key]?.toLowerCase() > b[key]?.toLowerCase() ? 1 : -1;
-    //                     } else {
-    //                         return a[key]?.toLowerCase() < b[key]?.toLowerCase() ? 1 : -1;
-    //                     }
-    //                 } else if (key === 'product_price' || key === 'variant_price' || key === 'showcase_price') {
-    //                     // Pengurutan berdasarkan harga tertinggi
-    //                     if (sortOrder === 'highest') {
-    //                         return a[key] < b[key] ? 1 : -1;
-    //                     } else {
-    //                         return a[key] > b[key] ? 1 : -1;
-    //                     }
-    //                 } else if (key === 'product_status') {
-    //                     // Pengurutan berdasarkan status produk (Aktif atau Non-aktif)
-    //                     if (sortOrder === 'Aktif') {
-    //                         return a[key] ? 1 : -1;
-    //                     } else if (sortOrder === 'Non-aktif') {
-    //                         return !a[key] ? 1 : -1;
-    //                     }
-    //                 }
-
-    //                 return 0; // Default return value
-    //             });
-    //         };
-
-    //         if (sortOrder === 'new') {
-    //             setProducts((prev) => [...sortArray(prev, 'created_at')]); // Sort berdasarkan tanggal terbaru
-    //             setVariants((prev) => [...sortArray(prev, 'created_at')]); // Sort berdasarkan tanggal terbaru
-    //             setEtalases((prev) => [...sortArray(prev, 'created_at')]); // Sort berdasarkan tanggal terbaru
-    //         } else if (sortOrder === 'asc') {
-    //             setProducts((prev) => [...sortArray(prev, 'product_name')]); // Sort berdasarkan nama produk A-Z
-    //             setVariants((prev) => [...sortArray(prev, 'variant_name')]); // Sort berdasarkan nama varian A-Z
-    //             setEtalases((prev) => [...sortArray(prev, 'showcase_name')]); // Sort berdasarkan nama etalase A-Z
-    //         } else if (sortOrder === 'desc') {
-    //             setProducts((prev) => [...sortArray(prev, 'product_name')]); // Sort berdasarkan nama produk Z-A
-    //             setVariants((prev) => [...sortArray(prev, 'variant_name')]); // Sort berdasarkan nama varian Z-A
-    //             setEtalases((prev) => [...sortArray(prev, 'showcase_name')]); // Sort berdasarkan nama etalase Z-A
-    //         } else if (sortOrder === 'highest') {
-    //             setProducts((prev) => [...sortArray(prev, 'product_price')]); // Sort berdasarkan harga tertinggi
-    //             setVariants((prev) => [...sortArray(prev, 'variant_price')]); // Sort berdasarkan harga tertinggi
-    //             setEtalases((prev) => [...sortArray(prev, 'showcase_price')]); // Sort berdasarkan harga tertinggi
-    //         } else if (sortOrder === 'lowest') {
-    //             setProducts((prev) => [...sortArray(prev, 'product_price')]); // Sort berdasarkan harga terendah
-    //             setVariants((prev) => [...sortArray(prev, 'variant_price')]); // Sort berdasarkan harga terendah
-    //             setEtalases((prev) => [...sortArray(prev, 'showcase_price')]); // Sort berdasarkan harga terendah
-    //         } else if (sortOrder === 'Semua') {
-    //             setProducts([...originalProducts]); // Kembalikan ke semua data
-    //         } else if (sortOrder === 'Aktif') {
-    //             setProducts(allProducts.filter(product => product.product_status)); // Tampilkan produk yang aktif
-    //         } else if (sortOrder === 'Non-aktif') {
-    //             setProducts(allProducts.filter(product => !product.product_status)); // Tampilkan produk yang non-aktif
-    //         }
-    //     };
-
-    //     handleSortAll();
-    // }, [sortOrder])
     useEffect(() => {
         fetchProducts();
     }, [sortOrder]);
@@ -497,7 +435,7 @@ const Catalog = () => {
             </div>
 
             <div className="w-full">
-                {show === 'Produk' && <Product products={searchTerm !== '' ? filteredProducts : products} setProducts={setProducts} addProduct={addProduct} setAddProduct={setAddProduct} setOpen={setOpen} open={open} setEtalases={setEtalases} etalases={etalases} variants={variants} setVariants={setVariants} setReset={setReset} />}
+                {show === 'Produk' && <Product products={searchTerm !== '' ? filteredProducts : products} setProducts={setProducts} addProduct={addProduct} setAddProduct={setAddProduct} setOpen={setOpen} open={open} setEtalases={setEtalases} etalases={etalases} variants={variantsProduct} setVariants={setVariants} setReset={setReset} />}
             </div>
 
             <div className="w-full">
