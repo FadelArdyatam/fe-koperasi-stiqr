@@ -19,7 +19,6 @@ const Casheer = () => {
     const [error, setError] = useState<string | null>(null);
     const [etalases, setEtalases] = useState<any[]>([]);
     const [products, setProducts] = useState<any[]>([]);
-    const [variants, setVariants] = useState<any[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [showDetailProduct, setShowDetailProduct] = useState(false);
     const [basket, setBasket] = useState<any[]>([]);
@@ -129,21 +128,8 @@ const Casheer = () => {
             };
         }
 
-        const fetchVariants = async () => {
-            try {
-                const response = await axiosInstance.get(`/varian/${userData?.merchant?.id}`);
-                setVariants(response.data.data);
-            } catch (err: any) {
-                setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data varian.");
-                console.error("Error saat mengambil data varian:", err);
-            } finally {
-                setLoading(false);
-            };
-        };
-
         fetchProducts();
         fetchEtalases();
-        fetchVariants();
     }, [])
 
     useEffect(() => {
@@ -514,7 +500,8 @@ const Casheer = () => {
                             data-aos="fade-up"
                             data-aos-delay={index * 100}
                             key={index}
-                            className="flex items-center gap-5 w-full p-5 bg-white rounded-lg justify-between"
+                            title={`${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'Stok Habis' : ''}`}
+                            className={`flex items-center gap-5 w-full p-5  rounded-lg justify-between ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? ' bg-red-100 ' : 'bg-white'}`}
                         >
                             {/* Detail Produk */}
                             <div
@@ -544,7 +531,8 @@ const Casheer = () => {
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => removeQuantityHandler(index)}
-                                    className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
+                                    disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
+                                    className={`w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'cursor-not-allowed' : ''}`}
                                 >
                                     -
                                 </button>
@@ -552,6 +540,7 @@ const Casheer = () => {
                                 <Input
                                     type="number"
                                     className="text-center w-10 xs:w-20 border rounded-md appearance-none"
+                                    disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
                                     value={
                                         basket
                                             .filter((item) => item.product === product.product_name)
@@ -613,7 +602,8 @@ const Casheer = () => {
 
                                 <button
                                     onClick={() => addQuantityHandler(index)}
-                                    className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
+                                    disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
+                                    className={`w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'cursor-not-allowed' : ''}`}
                                 >
                                     +
                                 </button>
@@ -674,7 +664,7 @@ const Casheer = () => {
                 )}
             </div>
 
-            {showDetailProduct && <DetailProduct product={selectedProduct} variants={variants} setShowDetailProduct={setShowDetailProduct} basket={basket} setBasket={setBasket} showService={showService} />}
+            {showDetailProduct && <DetailProduct product={selectedProduct} setShowDetailProduct={setShowDetailProduct} basket={basket} setBasket={setBasket} showService={showService} />}
 
             {showService.show && showService.service !== null && <OrderSummary references={serviceRef} setBasket={setBasket} basket={basket} setShowService={setShowService} showService={showService} />}
         </>

@@ -11,13 +11,12 @@ import { formatRupiah } from "@/hooks/convertRupiah";
 interface DetailProductProps {
     product: any;
     setShowDetailProduct: any;
-    variants: any[];
     basket: any[];
     setBasket: any;
     showService: { show: boolean; service: string | null };
 }
 
-const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailProduct, variants, basket, setBasket, showService }) => {
+const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailProduct, basket, setBasket, showService }) => {
     const [quantity, setQuantity] = useState(1);
     const [price, setPrice] = useState(product.product_price);
     const [notes, setNotes] = useState("");
@@ -96,41 +95,38 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
             </div>
 
             <div data-aos="fade-up" data-aos-delay="200" className="w-[90%] mt-5 p-5 rounded-lg bg-white shadow-lg">
-                {variants.map((variant, index) => (
-                    <div key={index} className="mt-5">
-                        <p className="font-semibold">{variant.variant_name}</p>
-                        <p className="text-gray-500">{variant.is_multiple ? 'Pilih lebih dari 1' : 'Pilih Maksimal 1'}</p>
-                        <div className="flex flex-col w-full gap-5">
-                            {product?.product_variant?.map((detail: any, valueIndex: number) => (
-                                <div key={valueIndex} className="flex flex-col gap-2">
-                                    {
-                                        detail?.variant?.detail_variant.map((variant: any, i: number) => (
-                                            <div key={i} className="flex flex-row justify-between">
-                                                <div className="flex gap-3 items-center">
-                                                    <input
-                                                        type={variant.is_multiple ? 'checkbox' : 'radio'}
-                                                        id={`checkbox-${index}-${valueIndex}`}
-                                                        value={detail.variant.variant_name}
-                                                        className="w-4 h-4 border-gray-300 rounded"
-                                                        // onChange={(e) => handleVariantChange(variant.variant_id, variant.variant_name, value.name, e.target.checked)}
-                                                    />
-                                                    <label htmlFor={`checkbox-${index}-${valueIndex}`} className="text-gray-700">
-                                                        {variant.name}
-                                                    </label>
-                                                </div>
-                                                <label htmlFor={`checkbox-${index}-${valueIndex}`} className="text-gray-700">
-                                                    {formatRupiah(variant.price)}
+                <div className="mt-5">
+                    <div className="flex flex-col w-full gap-5">
+                        {product?.product_variant?.map((detail: any, valueIndex: number) => (
+                            <div key={valueIndex} className="flex flex-col gap-2">
+                                <p className="font-semibold">{detail.variant.variant_name}</p>
+                                <p className="text-gray-500">{detail.variant.is_multiple ? 'Pilih lebih dari 1' : 'Pilih Maksimal 1'}</p>
+                                {
+                                    detail?.variant?.detail_variant.map((variant: any, i: number) => (
+                                        <div key={i} className="flex flex-row justify-between">
+                                            <div className="flex gap-3 items-center">
+                                                <input
+                                                    type={detail.variant.is_multiple ? 'checkbox' : 'radio'}
+                                                    id={`checkbox-${valueIndex}-${i}`}
+                                                    value={detail.variant.variant_name}
+                                                    className="w-4 h-4 border-gray-300 rounded"
+                                                // onChange={(e) => handleVariantChange(variant.variant_id, variant.variant_name, value.name, e.target.checked)}
+                                                />
+                                                <label htmlFor={`checkbox-${valueIndex}-${i}`} className="text-gray-700">
+                                                    {variant.name}
                                                 </label>
                                             </div>
-                                        ))
-                                    }
-                                </div>
-                            ))}
-                            <div className="w-full h-[1px] bg-gray-300 my-5"></div>
-
-                        </div>
+                                            <label htmlFor={`checkbox-${valueIndex}-${i}`} className="text-gray-700">
+                                                {formatRupiah(variant.price)}
+                                            </label>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        ))}
+                        <div className="w-full h-[1px] bg-gray-300 my-5"></div>
                     </div>
-                ))}
+                </div>
             </div>
 
             <div data-aos="fade-up" data-aos-delay="300" className="w-[90%] bg-white p-5 rounded-lg shadow-lg mt-5">
@@ -152,6 +148,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                                     setPrice(product.product_price);
                                 }
                             }}
+                            disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
                             className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
                         >
                             -
@@ -162,6 +159,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                             type="number"
                             className="text-center w-10 border rounded-md"
                             value={quantity}
+                            disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
                             onChange={(e) => {
                                 const inputValue = parseInt(e.target.value, 10);
 
@@ -188,6 +186,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                                 setQuantity(quantity + 1);
                                 setPrice(product.product_price);
                             }}
+                            disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
                             className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
                         >
                             +
@@ -201,7 +200,8 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                         currency: "IDR",
                     })}</p>
 
-                    <Button onClick={addBasketHandler} className="bg-orange-400 text-white">
+                    <Button disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
+                        onClick={addBasketHandler} className="bg-orange-400 text-white">
                         Tambah ke Keranjang
                     </Button>
                 </div>

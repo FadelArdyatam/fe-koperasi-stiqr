@@ -135,7 +135,6 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                                     : variant.variant_name}
 
                                 </button>
-                                    {variant.variant_status ? 'aktif' : 'tidak aktif'}
 
                                 {/* Custom Switch */}
                                 <button

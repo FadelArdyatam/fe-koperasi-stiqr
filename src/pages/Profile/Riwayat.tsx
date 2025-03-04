@@ -162,7 +162,7 @@ const Riwayat = () => {
                         onClick={() => setType("Uang Masuk")}
                         className={`uppercase block !mt-10 w-full mb-3 bg-transparent hover:bg-transparent rounded-none transition-all`}
                     >
-                        Uang Masuk
+                        Penjualan
                     </Button>
                     <Button
                         onClick={() => setType("Pembelian")}

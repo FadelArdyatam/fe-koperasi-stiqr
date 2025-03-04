@@ -21,6 +21,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Notification from "@/components/Notification";
+import imgNoTransaction from "@/images/no-transaction.png";
+import DatePicker from "react-datepicker";
+
 
 interface BankAccount {
     account_id: string;
@@ -63,8 +66,38 @@ const Settlement = () => {
     });
     const navigate = useNavigate();
 
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+    const onChange = (dates: [any, any]) => {
+        const [start, end] = dates;
+        setStartDate(start);
+        setEndDate(end);
+    };
+    const [filter, setFilter] = useState("today")
+    const [showCalendar, setShowCalendar] = useState(false);
+    const [dateRange, setDateRange] = useState<{ startDate?: string; endDate?: string }>({});
+    const setCustomDateRange = (start: string | null, end: string | null) => {
+        setDateRange({ startDate: start || undefined, endDate: end || undefined });
+        setFilter("dateRange");
+    };
+    const [months, setMonths] = useState(2);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setMonths(window.innerWidth < 768 ? 1 : 2);
+        };
+
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    const setFilterHandler = (newFilter: string) => {
+        setFilter(newFilter);
+        setCurrentPage(1);
+    };
     const FormSchema = z.object({
-        amount: z.number().min(5, {
+        amount: z.number().min(12000, {
             message: "Minimal Penarikan Rp 12.000",
         }),
         account_id: z.string().min(2, {
@@ -177,17 +210,22 @@ const Settlement = () => {
     useEffect(() => {
         const fetchSettlement = async () => {
             const params: any = {
+                filter,
                 page: currentPage,
                 limit: 10,
             }
+
+            if (filter === "dateRange" && dateRange.startDate && dateRange.endDate) {
+                params.startDate = dateRange.startDate;
+                params.endDate = dateRange.endDate;
+            }
             const res = await axiosInstance.get(`/settlement/${userData.merchant.id}`, { params })
-            console.log(res)
             setSettlements(res.data.data)
             setTotalPages(res.data.pagination.totalPages)
         }
 
         fetchSettlement()
-    }, [currentPage]);
+    }, [currentPage, filter, dateRange]);
 
     return (
         <div>
@@ -414,14 +452,81 @@ const Settlement = () => {
             </div>
 
 
-            <div className="pb-32">
+            <div className="pb-32 flex flex-col gap-5 w-[90%] m-auto shadow-lg bg-white rounded-lg">
+                <p className="text-xl text-center font-bold my-3">Riwayat Penarikan</p>
+                <div className="w-full flex gap-5 overflow-x-auto my-5 p-3">
+                    <Button onClick={() => {
+                        setShowCalendar(!showCalendar); setFilter("dateRange");
+                    }} className={`${filter === "dateRange" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>Pilih Tanggal Transaksi</Button>
+                    <Button onClick={() => { setFilterHandler("today"); setShowCalendar(false) }} className={`${filter === "today" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
+                        Hari Ini
+                    </Button>
+                    <Button onClick={() => { setFilterHandler("yesterday"); setShowCalendar(false) }} className={`${filter === "yesterday" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
+                        Kemarin
+                    </Button>
+                    <Button onClick={() => { setFilterHandler("2days"); setShowCalendar(false) }} className={`${filter === "2days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
+                        2 Hari
+                    </Button>
+                    <Button onClick={() => { setFilterHandler("7days"); setShowCalendar(false) }} className={`${filter === "7days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`
+                    }>
+                        7 Hari
+                    </Button>
+                </div>
+                <div className="flexflex-col items-center gap-5 justify-between">
+                    <Button
+                        className={`${showCalendar ? 'block' : 'hidden'} text-sm bg-gray-200 border w-full border-gray-400 text-gray-700 rounded-lg px-3 py-2`}
+                    >
+                        {startDate && endDate
+                            ? `${startDate.toLocaleDateString("id-ID", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                            })} - ${endDate.toLocaleDateString("id-ID", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                            })}`
+                            : "Pilih Tanggal Transaksi"}
+                    </Button>
+                </div>
+
+                {
+                    showCalendar && (
+                        <div className="flex flex-col items-center border p-3 rounded-lg shadow-md">
+                            <DatePicker
+                                selected={startDate}
+                                onChange={onChange}
+                                startDate={startDate}
+                                endDate={endDate}
+                                selectsRange
+                                inline
+                                maxDate={startDate ? new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000) : undefined}
+                                className="w-full"
+                                monthsShown={months}
+                            />
+
+                            <Button
+                                className="w-full mt-3 bg-orange-500 text-white rounded-lg"
+                                onClick={() => {
+                                    setShowCalendar(false);
+                                    setCustomDateRange(
+                                        startDate ? startDate.toISOString() : null,
+                                        endDate ? endDate.toISOString() : null
+                                    )
+                                }}
+                            >
+                                Pilih
+                            </Button>
+                        </div>
+                    )
+                }
                 {
                     settlements.length > 0 ? (
                         <div>
-                            <p className="text-xl text-center font-bold my-3">Riwayat Penarikan</p>
+
                             {
                                 settlements.map((settlement, index) => (
-                                    <div key={index} className="w-[90%] m-auto">
+                                    <div key={index} className="px-5 m-auto">
                                         <div className={`${index === 0 ? "hidden" : "block"} w-[100%] h-[2px] my-5 bg-gray-300 rounded-full`}></div>
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-start gap-2">
@@ -460,32 +565,39 @@ const Settlement = () => {
                                 ))}
                         </div>
                     ) : (
-                        <div></div>
+                        <div className="flex flex-col items-center justify-center my-10">
+                            <img className="p-5" src={imgNoTransaction} alt="No transactions" />
+                            <p className="mt-5 font-bold text-orange-500">
+                                Belum ada penarikan saldo
+                            </p>
+                        </div>
                     )
                 }
 
-                <div className="flex flex-col items-center">
+                {
+                    settlements.length > 0 && (
+                        <div className="flex flex-col items-center">
+                            <div className="flex items-center mt-12 justify-center gap-5 mb-3 ">
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                                    <ChevronsLeft />
+                                </Button>
 
-                    <div className="flex items-center mt-12 justify-center gap-5 mb-3 ">
-                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
-                            <ChevronsLeft />
-                        </Button>
-
-                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
-                            <ChevronLeft />
-                        </Button>
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
+                                    <ChevronLeft />
+                                </Button>
 
 
-                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
-                            <ChevronRight />
-                        </Button>
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
+                                    <ChevronRight />
+                                </Button>
 
-                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
-                            <ChevronsRight />
-                        </Button>
-                    </div>
-                    <span className="text-center">Halaman {currentPage} dari {totalPages}</span>
-                </div>
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+                                    <ChevronsRight />
+                                </Button>
+                            </div>
+                            <span className="text-center">Halaman {currentPage} dari {totalPages}</span>
+                        </div>
+                    )}
             </div>
 
             {

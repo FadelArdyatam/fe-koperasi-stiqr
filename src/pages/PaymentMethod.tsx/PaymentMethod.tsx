@@ -21,22 +21,18 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
 
     const navigate = useNavigate();
 
-    console.log("dataPayment", dataPayment);
-
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/\D/g, ""); // Hanya angka
-        const amount = parseInt(value || "0"); // Konversi ke integer (default 0 jika kosong)
+        const amount = parseInt(value || "0", 10); // Konversi ke integer (default 0 jika kosong)
 
         setPaymentAmount(value); // Update nominal pembayaran
 
-        if (amount >= dataPayment.amount) {
-            // Hitung kembalian jika nominal pembayaran >= total tagihan
-            setChange(amount - dataPayment.amount);
-            setErrorMessage(""); // Reset error jika valid
-        } else {
-            // Tetapkan kembalian menjadi 0 jika nominal pembayaran < total tagihan
+        if (amount < dataPayment.amount) {
+            setErrorMessage("Nominal pembayaran tidak boleh kurang dari total tagihan.");
             setChange(0);
-            setErrorMessage(amount > 0 ? "Nominal pembayaran tidak boleh kurang dari total tagihan." : "");
+        } else {
+            setErrorMessage("");
+            setChange(amount - dataPayment.amount);
         }
     };
 
@@ -55,16 +51,13 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
             });
 
             console.log("Response other payment:", response);
-
             setShowNotification(true);
-
         } catch (error) {
             console.error("Error:", error);
         } finally {
             setLoading(false);
         }
-        // Proses pembayaran
-    }
+    };
 
     return (
         <div className="flex w-full flex-col min-h-screen items-center bg-orange-50">
@@ -73,7 +66,6 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
                 <div className="w-full flex items-center gap-5 justify-between">
                     <div className="flex items-center gap-5">
                         <button onClick={() => setShowPaymentMethodComponent(false)}><ArrowLeft /></button>
-
                         <p className="font-semibold text-2xl">{selectedMethod}</p>
                     </div>
                 </div>
@@ -83,7 +75,6 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
             <div className="w-[90%] flex justify-between p-5 items-center bg-white gap-5 mt-5 shadow-lg rounded-md">
                 <div>
                     <p className="font-semibold text-lg text-gray-500">Total Tagihan</p>
-
                     <p className="font-semibold text-2xl">{formatRupiah(dataPayment.amount)}</p>
                 </div>
             </div>
@@ -91,22 +82,20 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
             {/* Input Nominal Pembayaran */}
             <div className="w-[90%] flex flex-col mt-5">
                 <p className="font-semibold text-lg">Nominal Pembayaran</p>
-
                 <div className="relative mt-2">
                     <input
                         type="text"
                         placeholder="0"
                         value={formatRupiah(paymentAmount)}
                         onChange={handleInputChange}
+                        maxLength={15}
                         className="p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400"
                     />
                 </div>
-
                 {errorMessage && <p className="text-red-500 text-sm mt-2">{errorMessage}</p>}
-
                 <Button
                     className="bg-orange-200 text-orange-500 rounded-full w-max mt-5"
-                    onClick={() => setPaymentAmount(dataPayment.amount.toString())}
+                    onClick={() => { setPaymentAmount(dataPayment.amount.toString()); setErrorMessage("") }}
                 >
                     Uang Pas
                 </Button>
@@ -116,12 +105,10 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
             <div className="w-full fixed bottom-0 p-5 bg-white flex flex-col gap-5 justify-end mt-5">
                 <div className="flex items-center gap-5 justify-between">
                     <p>Kembalian</p>
-
                     <p className="font-semibold text-lg">{formatRupiah(change)}</p>
                 </div>
-
                 <Button
-                    disabled={paymentAmount < dataPayment.amount || change < 0 || loading}
+                    disabled={paymentAmount === "" || parseInt(paymentAmount) < dataPayment.amount || loading}
                     onClick={paymentHandler}
                     className="bg-orange-500 w-full text-white px-5 py-2 rounded-md hover:bg-orange-600"
                 >

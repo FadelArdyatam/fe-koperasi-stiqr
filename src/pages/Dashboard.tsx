@@ -445,10 +445,8 @@ const Dashboard = () => {
 
                             {/* Pagination */}
                             <div className="flex flex-col items-center w-full mt-10">
-                                <div className="flex justify-between items-center w-full mb-5">
-                                    {/* Select di pojok kiri */}
-                                    <Button>Lihat Semua Transaksi</Button>
-                                    {/* Pagination di tengah */}
+                                <div className="flex md:flex-row flex-col justify-between items-center w-full mb-5 md:gap-3 gap-5">
+                                    <Button onClick={()=> navigate('/profile/history')} className="bg-orange-500 text-white hover:cursor-pointer">Lihat Semua Transaksi</Button>
                                     <div className="flex items-center justify-end gap-5 flex-1">
                                         <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
                                             onClick={() => setCurrentPage(1)}
@@ -488,6 +486,7 @@ const Dashboard = () => {
                     ) : (
                         <div className="flex flex-col items-center gap-5">
                             <img className="p-5" src={imgNoTransaction} alt="No transactions" />
+                            <Button onClick={()=> navigate('/profile/history')} className="bg-orange-500 text-white hover:cursor-pointer">Lihat Semua Transaksi</Button>
                             <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
                         </div>)
                     }
