@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ChevronDown, ChevronLeft, Eye, EyeOff, Smartphone, Store, UserRound } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronRight, Eye, EyeOff, Save, Smartphone, Store, UserRound } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -488,7 +488,7 @@ const Signup = () => {
                                                 <FormItem className="w-full">
                                                     <FormControl>
                                                         <div className="flex flex-col w-full justify-center" data-aos="fade-up" data-aos-delay="200">
-                                                            <FormLabel>Gender</FormLabel>
+                                                            <FormLabel>Jenis Kelamin</FormLabel>
 
                                                             <div className="flex sm:flex-row flex-col items-center w-full gap-5 mt-5 m-auto">
                                                                 {/* Tombol Laki - Laki */}
@@ -567,7 +567,17 @@ const Signup = () => {
                                                 <FormItem className="w-full">
                                                     <div data-aos="fade-up" data-aos-delay="500">
                                                         <FormControl>
-                                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="0812..." {...field} />
+                                                            <Input
+                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                                type="tel"
+                                                                placeholder="0812..."
+                                                                {...field}
+                                                                onChange={(e) => {
+                                                                    // Validasi manual untuk panjang dan hanya angka
+                                                                    const value = e.target.value.replace(/\D/g, '').slice(0, 15);
+                                                                    field.onChange(value);
+                                                                }}
+                                                            />
                                                         </FormControl>
 
                                                         <p className="text-xs italic text-gray-500 mt-2">Pastikan nomor HP Anda aktif.</p>
@@ -585,27 +595,28 @@ const Signup = () => {
                                                     <FormControl>
                                                         <div data-aos="fade-up" data-aos-delay="600">
                                                             <p className="font-semibold mb-2">
-                                                                Photo Profile
+                                                                Foto Profil
                                                             </p>
 
                                                             <input
                                                                 {...field}
                                                                 type="file"
+                                                                id="fileInput"
                                                                 accept="image/*"
-                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold p-2 rounded-lg"
+                                                                className="hidden" // Sembunyikan input file bawaan
                                                                 onChange={(e) => {
                                                                     const file = e.target.files ? e.target.files[0] : null;
 
                                                                     if (file) {
                                                                         if (file.size > 2 * 1024 * 1024) {
-                                                                            alert("File size exceeds 2MB.");
+                                                                            alert("Ukuran file melebihi 2MB.");
                                                                             setIsPhotoUploaded(false)
                                                                             return;
                                                                         }
 
                                                                         const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
                                                                         if (!validImageTypes.includes(file.type)) {
-                                                                            alert("Invalid file type. Please upload an image (JPEG, PNG, or GIF).");
+                                                                            alert("Tipe file tidak valid. Silakan unggah gambar (JPEG, PNG, atau GIF).");
                                                                             setIsPhotoUploaded(false)
                                                                             return;
                                                                         }
@@ -618,6 +629,20 @@ const Signup = () => {
                                                                 }}
                                                                 value=""
                                                             />
+                                                            <label
+                                                                htmlFor="fileInput"
+                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold p-2 rounded-lg inline-flex items-center justify-between cursor-pointer"
+                                                            >
+                                                                <span className="text-gray-500">
+                                                                    {field.value
+                                                                        ? (field.value instanceof File ? field.value.name : field.value)
+                                                                        : "Tidak ada foto yang dipilih"}
+                                                                </span>
+                                                                <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded">
+                                                                    Pilih Foto
+                                                                </span>
+                                                            </label>
+
 
                                                             {isPhotoUploaded && <p className="text-xs text-green-500 mt-2">Photo berhasil diupload.</p>}
                                                         </div>
@@ -673,8 +698,14 @@ const Signup = () => {
                                             )}
                                         />
                                     </div>
-
-                                    <Button data-aos="fade-up" className={`${currentSection === 0 ? 'block' : 'hidden'} w-full md:w-max mt-10 font-sans font-semibold bg-[#7ED321] rounded-lg`}>NEXT</Button>
+                                    <div className="w-full flex justify-end mt-10">
+                                        <Button
+                                            data-aos="fade-up"
+                                            className={`${currentSection === 0 ? 'flex' : 'hidden'} font-sans font-semibold bg-[#7ED321] rounded-lg px-6 py-2 `}
+                                        >
+                                            Selanjutnya <ChevronRight />
+                                        </Button>
+                                    </div>
                                 </form>
                             </Form>
 
@@ -1004,7 +1035,18 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="0812..." {...field} />
+                                                        <Input
+                                                            data-aos="fade-up"
+                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                            type="tel"
+                                                            placeholder="0812..."
+                                                            {...field}
+                                                            onChange={(e) => {
+                                                                // Validasi manual untuk panjang dan hanya angka
+                                                                const value = e.target.value.replace(/\D/g, '').slice(0, 15);
+                                                                field.onChange(value);
+                                                            }}
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -1032,8 +1074,8 @@ const Signup = () => {
                                     </div>
 
                                     <div data-aos="fade-up" className="flex items-center w-full justify-between gap-5">
-                                        <Button type="button" onClick={() => { setCurrentSection(0) }} className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>BACK</Button>
-                                        <Button type="submit" className={`${currentSection === 1 ? 'block' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] rounded-lg`}>SUBMIT</Button>
+                                        <Button type="button" onClick={() => { setCurrentSection(0) }} className={`${currentSection === 1 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-orange-400 hover:bg-orange-400 rounded-lg`}> <ChevronLeft /> Kembali</Button>
+                                        <Button type="submit" className={`${currentSection === 1 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] hover:bg-[#7ED321] rounded-lg `}> <Save /> Kirim </Button>
                                     </div>
                                 </form>
                             </Form>

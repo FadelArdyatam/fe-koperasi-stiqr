@@ -1,7 +1,7 @@
 import TermsandConditionInProfile from "@/components/TermsandConditionInProfile"
 import { Button } from "@/components/ui/button"
 import axios from "axios"
-import { ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, User, UserRound, FileText } from "lucide-react"
+import { ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, User, UserRound, FileText, LogOut } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import AOS from "aos";
@@ -47,7 +47,7 @@ const Profile = () => {
                         <ChevronLeft className='scale-[1.3] text-white' />
                     </Link>
 
-                    <p data-aos="zoom-in" data-aos-once="true" className='font-semibold m-auto text-xl text-white text-center'>Settings</p>
+                    <p data-aos="zoom-in" data-aos-once="true" className='font-semibold m-auto text-xl text-white text-center'>Profile</p>
                 </div>
 
                 <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -105,7 +105,7 @@ const Profile = () => {
                     </div>
 
                     <Button data-aos="fade-up" data-aos-once="true" onClick={handleSignOut} className="w-full mt-5 bg-orange-400">
-                        Sign Out
+                        <LogOut /> Keluar
                     </Button>
                 </div>
 
@@ -196,7 +196,7 @@ const Profile = () => {
 
                     <Link data-aos="fade-up" data-aos-once="true" to={"/profile/customer-data"} className="flex items-center gap-5 justify-between">
                         <div>
-                            <p>Data Pelanggan</p>
+                            <p>Pengaturan Data Pelanggan</p>
 
                             <p className="text-sm text-gray-500">Nama Pemesan, No Hp, Email, Nomor Lain</p>
                         </div>

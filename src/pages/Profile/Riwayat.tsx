@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, Filter, FileText, ChevronsLeft, ChevronsRight, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { admissionFees } from "../Dashboard";
+import { Link, useLocation } from "react-router-dom";
 import html2canvas from "html2canvas";
 import axiosInstance from "@/hooks/axiosInstance";
 import noTransactionImage from "../../images/no-transaction.png"
@@ -41,7 +40,11 @@ interface ISales {
 }
 
 const Riwayat = () => {
+
+    const location = useLocation();
+
     const [type, setType] = useState("Uang Masuk");
+
     const [showDescription, setShowDescription] = useState({ status: false, index: -1 });
     const contentRef = useRef(null);
     const [startDate, setStartDate] = useState<Date | null>(null);
@@ -139,6 +142,15 @@ const Riwayat = () => {
             }
         }
     };
+
+
+    useEffect(() => {
+        if (location.state?.type) {
+            setType(location.state.type);
+        }
+        setDataUser(userData);
+
+    }, [location.state]);
 
     return (
         <div className="relative h-screen overflow-y-hidden">
@@ -521,7 +533,7 @@ const Riwayat = () => {
             <div ref={contentRef} className={`${showDescription.status ? 'block' : 'hidden'} w-[90%] mt-24 left-[50%] -translate-x-[50%] p-5 z-20 absolute bg-white rounded-lg shadow-lg`}>
                 {type === "Uang Masuk" ? (
                     <div>
-                        <div className="flex items-center gap-3">
+                        {/* <div className="flex items-center gap-3">
                             <img src={admissionFees[showDescription.index]?.image} className="w-10 min-w-10 h-10 min-h-10 rounded-full" alt="" />
 
                             <div>
@@ -565,7 +577,7 @@ const Riwayat = () => {
                             </div>
 
                             <Button onClick={downloadImage} className="text-green-400 mt-10 bg-transparent w-full">+ Unduh File</Button>
-                        </div>
+                        </div> */}
                     </div>
                 ) : (
                     <div>
@@ -588,7 +600,7 @@ const Riwayat = () => {
                                 <div className="flex flex-col items-start">
                                     <p className="text-gray-500">user</p>
 
-                                    <p className="mt-2">{dataUser.merchant.name}</p>
+                                    <p className="mt-2">{dataUser?.merchant.name}</p>
                                 </div>
 
                                 <div className="flex flex-col items-end">
