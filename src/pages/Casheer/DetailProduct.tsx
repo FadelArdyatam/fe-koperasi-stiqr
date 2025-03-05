@@ -18,8 +18,8 @@ interface DetailProductProps {
 }
 
 const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailProduct, variants, basket, setBasket, showService }) => {
-    const [quantity, setQuantity] = useState(1);
-    const [price, setPrice] = useState(product.product_price);
+    const [quantity, setQuantity] = useState(product.quantity ? product.quantity : 1);
+    const [price, setPrice] = useState(product.product_price || product.price);
     const [notes, setNotes] = useState("");
     // const [detailVariant, setDetailVariant] = useState<any[]>([]);
 
@@ -44,12 +44,12 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
 
     const addBasketHandler = () => {
         const payload = {
-            product_id: product.product_id,
-            product_image: product.product_image,
-            product: product.product_name,
-            quantity: quantity,
-            price: price,
-            notes: notes,
+            product_id: product.product_id || product.id,
+            product_image: product.product_image || noProduct,
+            product: product.product_name || product.product,
+            quantity: quantity || product.quantity,
+            price: price || product.product_price || product.price,
+            notes: notes || "",
             date: new Date().toLocaleString(),
             // detail_variant: detailVariant,
             service: showService?.service,
@@ -75,9 +75,9 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
             <div data-aos="fade-up" data-aos-delay="100" className="w-[90%] flex flex-col items-end mt-5 bg-white p-5 shadow-lg rounded-md">
                 <div className="w-full">
                     <div className="flex items-center gap-5">
-                        <img src={`${product.product_image ?? noProduct}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
+                        <img src={`${product.product_image ?? noProduct}`} alt={product?.product_name || product.product} className="h-12 w-12 object-cover rounded-md" />
 
-                        <p className="font-semibold text-lg">{product.product_name}</p>
+                        <p className="font-semibold text-lg">{product.product_name || product.product}</p>
                     </div>
 
                     <div className="mt-5">
@@ -88,7 +88,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                 </div>
 
                 <div className="mt-5">
-                    <p className="text-orange-400 text-xl font-semibold">{Number(product.product_price).toLocaleString("id-ID", {
+                    <p className="text-orange-400 text-xl font-semibold">{Number(product.product_price || product.price).toLocaleString("id-ID", {
                         style: "currency",
                         currency: "IDR",
                     })}</p>
@@ -112,7 +112,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                                                         id={`checkbox-${index}-${valueIndex}`}
                                                         value={detail.variant.variant_name}
                                                         className="w-4 h-4 border-gray-300 rounded"
-                                                        // onChange={(e) => handleVariantChange(variant.variant_id, variant.variant_name, value.name, e.target.checked)}
+                                                    // onChange={(e) => handleVariantChange(variant.variant_id, variant.variant_name, value.name, e.target.checked)}
                                                     />
                                                     <label htmlFor={`checkbox-${index}-${valueIndex}`} className="text-gray-700">
                                                         {variant.name}
@@ -149,7 +149,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                             onClick={() => {
                                 if (quantity > 1) {
                                     setQuantity(quantity - 1);
-                                    setPrice(product.product_price);
+                                    setPrice(product.product_price || product.price);
                                 }
                             }}
                             className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
@@ -168,7 +168,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                                 // Validasi input angka positif
                                 if (!isNaN(inputValue) && inputValue > 0) {
                                     setQuantity(inputValue);
-                                    setPrice(product.product_price);
+                                    setPrice(product.product_price || product.price);
                                 } else if (e.target.value === "") {
                                     setQuantity(1); // Default jika input kosong
                                 }
@@ -186,7 +186,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                         <button
                             onClick={() => {
                                 setQuantity(quantity + 1);
-                                setPrice(product.product_price);
+                                setPrice(product.product_price || product.price);
                             }}
                             className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
                         >

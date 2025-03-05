@@ -262,7 +262,11 @@ const Riwayat = () => {
                                         endDate={endDate}
                                         selectsRange
                                         inline
-                                        maxDate={startDate ? new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000) : undefined}
+                                        maxDate={
+                                            startDate
+                                                ? new Date(Math.min(new Date().getTime(), startDate.getTime() + 6 * 24 * 60 * 60 * 1000))
+                                                : new Date()
+                                        }
                                         className="w-full"
                                         monthsShown={months}
                                     />

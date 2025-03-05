@@ -10,9 +10,10 @@ interface PaymentMethodProps {
     dataPayment: any;
     setShowPaymentMethodComponent: React.Dispatch<React.SetStateAction<boolean>>;
     selectedMethod: string | null;
+    orderId: string | null | undefined;
 }
 
-const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPaymentMethodComponent, selectedMethod }) => {
+const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPaymentMethodComponent, selectedMethod, orderId }) => {
     const [paymentAmount, setPaymentAmount] = useState<string>(""); // Nominal pembayaran
     const [errorMessage, setErrorMessage] = useState(""); // Pesan error
     const [change, setChange] = useState(0); // Kembalian
@@ -56,7 +57,14 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
 
             console.log("Response other payment:", response);
 
-            setShowNotification(true);
+            // setShowNotification(true);
+
+            navigate('/payment-success', {
+                state: {
+                    orderId: orderId ?? "dummy-order-id",
+                    amount: dataPayment.amount ?? 0,
+                },
+            });
 
         } catch (error) {
             console.error("Error:", error);

@@ -676,7 +676,7 @@ const Casheer = () => {
 
             {showDetailProduct && <DetailProduct product={selectedProduct} variants={variants} setShowDetailProduct={setShowDetailProduct} basket={basket} setBasket={setBasket} showService={showService} />}
 
-            {showService.show && showService.service !== null && <OrderSummary references={serviceRef} setBasket={setBasket} basket={basket} setShowService={setShowService} showService={showService} />}
+            {showService.show && showService.service !== null && <OrderSummary references={serviceRef} setBasket={setBasket} basket={basket} setShowService={setShowService} showService={showService} setSelectedProduct={setSelectedProduct} setShowDetailProduct={setShowDetailProduct} />}
         </>
     )
 }

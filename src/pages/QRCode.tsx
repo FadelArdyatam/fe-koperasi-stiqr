@@ -173,6 +173,8 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
 
     console.log("dataForPaymentMethod", dataForPaymentMethod);
 
+    console.log("OrderId", orderId)
+
     const shareContent = async () => {
         try {
             if (navigator.share) {
@@ -575,7 +577,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                 </div>
             </div>
 
-            {showPaymentMehodComponent && <PaymentMethod dataPayment={dataForPaymentMethod} setShowPaymentMethodComponent={setShowPaymentMethodComponent} selectedMethod={selectedMethod} />}
+            {showPaymentMehodComponent && <PaymentMethod dataPayment={dataForPaymentMethod} setShowPaymentMethodComponent={setShowPaymentMethodComponent} selectedMethod={selectedMethod} orderId={orderId} />}
         </>
     );
 };

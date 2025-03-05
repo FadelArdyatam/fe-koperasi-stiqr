@@ -114,6 +114,9 @@ const Dashboard = () => {
     const [uangMasuk, setUangMasuk] = useState(0);
     const [uangKeluar, setUangKeluar] = useState(0);
     const [histories, setHistories] = useState<History[]>([]);
+
+    const [section, setSection] = useState("Penjualan");
+
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
@@ -203,7 +206,6 @@ const Dashboard = () => {
 
         fetchTransactions();
     }, [currentPage]);
-
 
     return (
         <div className="w-full">
@@ -411,6 +413,16 @@ const Dashboard = () => {
 
             <div id="date" className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg p-5 bg-white shadow-lg">
                 <p className="text-center font-semibold text-lg my-5">Riwayat Transaksi Hari Ini</p>
+
+                <div className="md:w-[30%] lg:w-[20%] w-[80%] m-auto border border-orange-500 overflow-hidden rounded-lg flex items-center justify-between my-5">
+                    <button onClick={() => setSection("Penjualan")} type="button" className={`${section === "Penjualan" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all border-r w-full border-orange-500`}>
+                        Penjualan
+                    </button>
+
+                    <button onClick={() => setSection("Pembelian")} type="button" className={`${section === "Pembelian" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all border-l w-full border-orange-500`}>
+                        Pembelian
+                    </button>
+                </div>
 
                 <div className="mt-10 flex flex-col gap-5">
                     {histories.length > 0 ? (
