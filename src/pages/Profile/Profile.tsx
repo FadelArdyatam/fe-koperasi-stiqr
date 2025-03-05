@@ -147,23 +147,22 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/customer-data"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/payment-data"} className="flex items-center gap-5 justify-between">
                         <div>
-                            <p>Data Pelanggan</p>
+                            <p>Data Pembayaran</p>
 
-                            <p className="text-sm text-gray-500">Nama Pemesan, No Hp, Email, Nomor Lain</p>
+                            <p className="text-sm text-gray-500">Akun Bank & e-wallet</p>
                         </div>
 
                         <ChevronRight />
                     </Link>
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
-
-                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/payment-data"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/employee"} className="flex items-center gap-5 justify-between">
                         <div>
-                            <p>Data Pembayaran</p>
+                            <p>Data Pegawai</p>
 
-                            <p className="text-sm text-gray-500">Nama, Bank, Nomer Bank</p>
+                            <p className="text-sm text-gray-500">Pengaturan Seputar Pegawaimu</p>
                         </div>
 
                         <ChevronRight />
@@ -175,7 +174,7 @@ const Profile = () => {
                         <div className="flex flex-col items-start">
                             <p>Syarat & Ketentuan</p>
 
-                            <p className="text-sm text-gray-500">Syarat & Peraturan</p>
+                            <p className="text-sm text-gray-500">Syarat & Ketentuan</p>
                         </div>
 
                         <ChevronRight />
@@ -187,7 +186,7 @@ const Profile = () => {
                         <div>
                             <p>Riwayat</p>
 
-                            <p className="text-sm text-gray-500">Uang Masuk, Pembelian</p>
+                            <p className="text-sm text-gray-500">Penjualan & Pembelian</p>
                         </div>
 
                         <ChevronRight />
@@ -195,11 +194,11 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/employee"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/customer-data"} className="flex items-center gap-5 justify-between">
                         <div>
-                            <p>Pegawai</p>
+                            <p>Data Pelanggan</p>
 
-                            <p className="text-sm text-gray-500">Pengaturan Seputar Pegawaimu</p>
+                            <p className="text-sm text-gray-500">Nama Pemesan, No Hp, Email, Nomor Lain</p>
                         </div>
 
                         <ChevronRight />

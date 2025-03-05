@@ -16,6 +16,7 @@ import Notification from "@/components/Notification"
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { convertDate, convertTime } from "@/hooks/convertDate";
+import Joyride from 'react-joyride';
 
 export const admissionFees = [
     {
@@ -114,6 +115,9 @@ const Dashboard = () => {
     const [uangMasuk, setUangMasuk] = useState(0);
     const [uangKeluar, setUangKeluar] = useState(0);
     const [histories, setHistories] = useState<History[]>([]);
+
+    const [section, setSection] = useState("Penjualan");
+
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
@@ -205,6 +209,36 @@ const Dashboard = () => {
     }, [currentPage]);
 
 
+    // GUIDANCE 
+    const [run, setRun] = useState(false);
+
+
+    const steps = [
+        { target: "#inbox", content: <h2>Icon untuk mengakses <strong>Notifikasi</strong></h2> },
+        { target: "#balance", content: <h2>Icon untuk melihat/menyembunyikan total saldo STIQR</h2> },
+        { target: "#kasir-pelanggan-pemesanan", content: <h2>Akses <strong>halaman Kasir, Pelanggan, dan Pemesanan</strong></h2> },
+        { target: "#ppob", content: <h2>Akses menu <strong>PPOB</strong></h2> },
+        { target: "#navbar", content: <h2>Navigation Bar untuk mengakses 5 menu utama STIQR</h2> },
+        { target: "#all-balance", content: <h2>Pengguna dapat melihat <strong>total uang masuk (Penjualan), total uang keluar (PPOB dan Penarikan), dan total saldo yang ada di aplkasi STIQR</strong> <br /> <strong>Saldo pengguna juga dibedakan menjadi saldo non tunai dan saldo tunai</strong></h2> },
+        { target: "#date", content: <h2>Di halaman home, pengguna dapat melihat seluruh transaksi atau transaksi per tanggal yang didapatkan dari penjualan melalui kasir</h2> }
+    ];
+    useEffect(() => {
+        const tourCompleted = localStorage.getItem("joyride-home");
+
+        if (!tourCompleted) {
+            setRun(true);
+        }
+    }, [])
+
+    const handleJoyrideCallback = (data: any) => {
+        const { status } = data
+
+        if (status === 'finished' || status === 'skipped') {
+            localStorage.setItem('joyride-home', 'finished')
+            setRun(false)
+        }
+    }
+    // 
     return (
         <div className="w-full">
             <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -412,6 +446,16 @@ const Dashboard = () => {
             <div id="date" className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg p-5 bg-white shadow-lg">
                 <p className="text-center font-semibold text-lg my-5">Riwayat Transaksi Hari Ini</p>
 
+                <div className="md:w-[30%] lg:w-[20%] w-[80%] m-auto border border-orange-500 overflow-hidden rounded-lg flex items-center justify-between my-5">
+                    <button onClick={() => setSection("Penjualan")} type="button" className={`${section === "Penjualan" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all border-r w-full border-orange-500`}>
+                        Penjualan
+                    </button>
+
+                    <button onClick={() => setSection("Pembelian")} type="button" className={`${section === "Pembelian" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all border-l w-full border-orange-500`}>
+                        Pembelian
+                    </button>
+                </div>
+
                 <div className="mt-10 flex flex-col gap-5">
                     {histories.length > 0 ? (
                         <div>
@@ -446,7 +490,7 @@ const Dashboard = () => {
                             {/* Pagination */}
                             <div className="flex flex-col items-center w-full mt-10">
                                 <div className="flex md:flex-row flex-col justify-between items-center w-full mb-5 md:gap-3 gap-5">
-                                    <Button onClick={()=> navigate('/profile/history')} className="bg-orange-500 text-white hover:cursor-pointer">Lihat Semua Transaksi</Button>
+                                    <Button onClick={() => navigate('/profile/history')} className="bg-orange-500 text-white hover:cursor-pointer">Lihat Semua Transaksi</Button>
                                     <div className="flex items-center justify-end gap-5 flex-1">
                                         <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
                                             onClick={() => setCurrentPage(1)}
@@ -486,7 +530,7 @@ const Dashboard = () => {
                     ) : (
                         <div className="flex flex-col items-center gap-5">
                             <img className="p-5" src={imgNoTransaction} alt="No transactions" />
-                            <Button onClick={()=> navigate('/profile/history')} className="bg-orange-500 text-white hover:cursor-pointer">Lihat Semua Transaksi</Button>
+                            <Button onClick={() => navigate('/profile/history')} className="bg-orange-500 text-white hover:cursor-pointer">Lihat Semua Transaksi</Button>
                             <p className="font-semibold text-lg text-orange-500">Belum ada transaksi hari ini</p>
                         </div>)
                     }
@@ -496,7 +540,7 @@ const Dashboard = () => {
             {/* Notification for BPJS */}
             {showNotificationBPJS && <Notification message={"Fitur ini akan segera hadir"} onClose={() => { setShowNotificationBPJS(false) }} status={"error"} />}
 
-            {/* {run && (
+            {run && (
                 <Joyride
                     callback={handleJoyrideCallback}
                     steps={steps}
@@ -510,7 +554,7 @@ const Dashboard = () => {
                     showProgress={true} // Menyembunyikan indikator progress
                     spotlightClicks={true} // Menyorot klik pada elemen
                 />
-            )} */}
+            )}
         </div >
     );
 };

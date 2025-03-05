@@ -31,9 +31,11 @@ interface OrderSummaryProps {
     showService: { show: boolean; service: string | null };
     setShowService: React.Dispatch<React.SetStateAction<{ show: boolean; service: string | null }>>;
     references: React.MutableRefObject<HTMLDivElement | null>;
+    setSelectedProduct: any;
+    setShowDetailProduct: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showService, setShowService, references }) => {
+const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showService, setShowService, references, setSelectedProduct, setShowDetailProduct }) => {
     const [mergedBasket, setMergedBasket] = useState<any[]>([]);
     const [showOrderProcess, setShowOrderProcess] = useState(false);
     const [noMeja, setNoMeja] = useState("");
@@ -50,6 +52,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
     }, []);
 
     console.log("Show Service: ", showService);
+
+    console.log("merged Basket: ", mergedBasket);
 
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
@@ -211,7 +215,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
 
                     <p className="font-semibold text-lg">{showService.service === "Pay Now" ? "Bayar Sekarang" : "Bayar Nanti"}</p>
 
-                    <Button type="button" onClick={() => setShowService({ show: false, service: null })} className="block bg-orange-100 text-orange-400 rounded-full">Ubah</Button>
+                    <Button type="button" onClick={() => setShowService({ show: true, service: null })} className="block bg-orange-100 text-orange-400 rounded-full">Ubah</Button>
                 </div>
 
                 <Popover open={openSearch} onOpenChange={setOpenSearch}>
@@ -366,7 +370,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                             </div>
 
                             <div className="mt-10 flex items-center justify-between gap-5">
-                                <button onClick={() => setShowService({ show: false, service: null })} className="flex items-center gap-3 font-semibold text-orange-400 rounded-lg">
+                                <button onClick={() => { setShowService({ show: false, service: null }); setShowDetailProduct(true); setSelectedProduct(basket[index]) }} className="flex items-center gap-3 font-semibold text-orange-400 rounded-lg">
                                     <Pencil />
 
                                     <p>Edit</p>
