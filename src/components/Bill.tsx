@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
-import { Check } from 'lucide-react';
+import { Check, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '@/hooks/axiosInstance';
 import Notification from './Notification';
 import { formatRupiah } from '@/hooks/convertRupiah';
+import Invoice from './Invoice';
 // import { convertDate, convertTime } from '../hooks/convertDate';
 
 // interface BillProps {
@@ -38,6 +39,8 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    const [showInvoice, setShowInvoice] = useState(false)
 
     const [refNumber, setRefnumber] = useState<string>("")
     const [token, setToken] = useState<string | null>(null)
@@ -126,9 +129,9 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
 
     return (
         <>
-            <div className={`${marginTop ? 'mt-[130px]' : 'mt-[-90px] bg-white'} w-[90%] m-auto shadow-lg p-10 rounded-lg`}>
+            <div className={`${marginTop ? 'mt-[130px]' : 'mt-[-90px] bg-white'} ${showInvoice ? 'hidden' : 'block'} w-[90%] m-auto shadow-lg p-10 rounded-lg`}>
                 <div className='w-16 h-16 flex items-center justify-center border-2 border-black bg-orange-400 rounded-full m-auto'>
-                    <Check className='scale-[2] text-white' />
+                    <Info className='scale-[2] text-white' />
                 </div>
 
                 <p className='font-semibold text-xl text-center text-orange-400 uppercase mt-7'>{`${token != null ? 'Pembayaran Berhasil' : 'Detail Tagihan'}`}</p>
@@ -254,7 +257,10 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                     </Button>
                 )
             }
-            <Button onClick={() => setShowPinInput(true)} className={`${token != null ? 'hidden' : 'block'} uppercase translate-y-10 text-center w-[90%] m-auto bg-green-500 mb-32 text-white`}>
+            <Button onClick={() => {
+                // setShowPinInput(true)
+                setShowInvoice(true)
+            }} className={`${token != null ? 'hidden' : 'block'} ${showInvoice ? 'hidden' : 'block'} uppercase translate-y-10 text-center w-[90%] m-auto bg-green-500 mb-32 text-white`}>
                 Bayar
             </Button >
 
@@ -340,9 +346,11 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
 
                     <p className='text-base'>Transaksi pembayaran Anda Berhasil.</p>
 
-                    <Button onClick={backToHomeHandler} className="w-full">Kembali ke Dashboard</Button>
+                    <Button onClick={backToHomeHandler} className="w-full">Lanjutkan</Button>
                 </div>
             </div>
+
+            {showInvoice && <Invoice data={data} marginTop={marginTop} />}
 
             {/* Loading */}
             {

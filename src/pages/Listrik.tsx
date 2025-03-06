@@ -214,6 +214,7 @@ const Listrik = () => {
             </div>
 
             {showBill && dataBill && <Bill data={dataBill} marginTop={false} />}
+
             {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
             {
                 loading && (

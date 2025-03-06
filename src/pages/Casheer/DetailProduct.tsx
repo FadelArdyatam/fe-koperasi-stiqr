@@ -110,7 +110,13 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                                                     id={`checkbox-${valueIndex}-${i}`}
                                                     value={detail.variant.variant_name}
                                                     className="w-4 h-4 border-gray-300 rounded"
-                                                // onChange={(e) => handleVariantChange(variant.variant_id, variant.variant_name, value.name, e.target.checked)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setPrice(price + variant.price);
+                                                        } else {
+                                                            setPrice(price - variant.price);
+                                                        }
+                                                    }}
                                                 />
                                                 <label htmlFor={`checkbox-${valueIndex}-${i}`} className="text-gray-700">
                                                     {variant.name}

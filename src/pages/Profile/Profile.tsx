@@ -10,6 +10,7 @@ import "aos/dist/aos.css";
 const Profile = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(false)
     const [data, setData] = useState<any>()
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -20,24 +21,37 @@ const Profile = () => {
     }, [])
 
     const navigate = useNavigate()
+
     const handleSignOut = async () => {
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/logout`, {}, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
-                    'X-Access-Token': `${localStorage.getItem('token') || ''}`
+            setLoading(true);
+
+            const response = await axios.post(
+                `${import.meta.env.VITE_API_URL}/auth/logout`,
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
+                        'X-Access-Token': `${localStorage.getItem('token') || ''}`
+                    }
                 }
-            })
+            );
+
             if (response.data.status) {
-                localStorage.removeItem('token')
-                sessionStorage.removeItem('user')
-                navigate('/')
+                localStorage.removeItem('token');
+                sessionStorage.removeItem('user');
+                navigate('/');
             }
-            console.log(response)
+
+            console.log(response);
         } catch (error) {
-            console.log(error)
+            console.log(error);
+        } finally {
+            setLoading(false);
         }
-    }
+    };
+
+    console.log("loading", loading)
 
     return (
         <>
@@ -204,7 +218,7 @@ const Profile = () => {
                         <ChevronRight />
                     </Link>
 
-                    <div className="w-full h-[2px] my-5 bg-gray-200"></div>
+                    {/* <div className="w-full h-[2px] my-5 bg-gray-200"></div> */}
 
                     {/* <Link data-aos="fade-up" data-aos-once="true" to={"/profile/printer"} className="flex items-center gap-5 justify-between ">
                         <div>
@@ -216,6 +230,12 @@ const Profile = () => {
                         <ChevronRight />
                     </Link> */}
                 </div>
+
+                {loading && (
+                    <div className="absolute z-30 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                    </div>
+                )}
             </div>
 
             {showTermsandConditions && <TermsandConditionInProfile setShowTermsandConditions={setShowTermsandConditions} />}
