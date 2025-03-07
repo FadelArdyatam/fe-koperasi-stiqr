@@ -37,7 +37,7 @@ const DataCustomer = () => {
                     <ChevronLeft className='scale-[1.3] text-white' />
                 </Link>
 
-                <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>Data Pelanggan</p>
+                <p data-aos="zoom-in" className='font-semibold m-auto text-xl text-white text-center'>Pengaturan Data Pelanggan</p>
             </div>
 
             <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">

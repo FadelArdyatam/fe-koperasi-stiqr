@@ -18,6 +18,7 @@ interface INotification {
     description: string;
     title: string;
     type?: string;
+    is_read: boolean;
     created_at: Date;
 }
 const Inbox = () => {
@@ -29,9 +30,9 @@ const Inbox = () => {
         AOS.init({ duration: 500, once: true });
     }, []);
 
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
     useEffect(() => {
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
         const fetchNotification = async () => {
             try {
                 const response = await axiosInstance.get(`/notifications/${userData.merchant.id}`);
@@ -42,6 +43,19 @@ const Inbox = () => {
         };
         fetchNotification();
     }, []);
+
+    const readNotification = async (id: number) => {
+        try {
+            await axiosInstance.patch(`/notifications/${userData.merchant.id}/${id}/read`);
+            setNotifications((prev) =>
+                prev.map((notif) =>
+                    notif.id === id ? { ...notif, is_read: true } : notif
+                )
+            );
+        } catch (error) {
+            console.error("Error marking notification as read:", error);
+        }
+    };
     return (
         <div>
             <div className="p-5 w-full bg-orange-400">
@@ -91,7 +105,7 @@ const Inbox = () => {
                 </Link>
             </div>
 
-            <div className={`mt-10 w-[90%] m-auto mb-32 ${notifications.length === 0 ? '' : 'border p-5 rounded-md'} `}>
+            <div className={`mt-10 w-[90%] m-auto mb-32 ${notifications.length === 0 ? '' : 'border rounded-md'} `}>
                 {
                     notifications.length === 0 && (
                         <div data-aos="fade-up" data-aos-delay="100" className="flex items-center flex-col justify-center gap-10">
@@ -102,40 +116,50 @@ const Inbox = () => {
                 }
 
                 {notifications.map((notification, index) => (
-                    <div data-aos="fade-up" data-aos-delay={index * 100} key={index}>
+                    <div
+                        key={notification.id}
+                        className="px-5 py-3 cursor-pointer"
+                        onClick={(e) => {
+                            // Find the animated element and remove AOS attributes
+                            const animatedElement = e.currentTarget.querySelector('[data-aos]');
+                            if (animatedElement) {
+                                animatedElement.removeAttribute('data-aos');
+                                animatedElement.removeAttribute('data-aos-delay');
+                            }
+                            // Call your notification handler
+                            readNotification(notification.id);
+                        }}
+                    >
                         <div
-                            className={`${index === 0 ? "hidden" : "block"
-                                } w-full h-[2px] my-5 bg-gray-300`}
-                        ></div>
-
-                        <div className="flex items-center gap-5">
-                            {/* <img className="w-10 h-10 rounded-full" src={notification.image} alt="" /> */}
-                            <div className="w-full">
-                                <div className="flex items-center gap-5 justify-between">
-                                    <p className="font-semibold text-black">
-                                        {notification.title}
-                                    </p>
-
-                                    <p className="text-xs text-gray-500">
-                                        {new Intl.DateTimeFormat("id-ID", {
-                                            day: "2-digit",
-                                            month: "long",
-                                            year: "numeric",
-                                        }).format(new Date(notification.created_at))}
-                                        , {new Intl.DateTimeFormat("id-ID", {
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                        }).format(new Date(notification.created_at))}
-                                    </p>
+                            data-aos="fade-up"
+                            data-aos-delay={index * 100}
+                            title={!notification.is_read ? 'Tandai sudah dibaca' : ''}
+                            className={`px-5 py-3 ${!notification.is_read ? 'bg-orange-100 rounded-md' : ''}`}
+                        >
+                            <div className="flex items-center gap-5">
+                                <div className="w-full">
+                                    <div className="flex items-center gap-5 justify-between">
+                                        <p className="font-semibold text-black">{notification.title}</p>
+                                        <p className="text-xs text-gray-500">
+                                            {new Intl.DateTimeFormat("id-ID", {
+                                                day: "2-digit",
+                                                month: "long",
+                                                year: "numeric",
+                                            }).format(new Date(notification.created_at))},
+                                            {new Intl.DateTimeFormat("id-ID", {
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                            }).format(new Date(notification.created_at))}
+                                        </p>
+                                    </div>
+                                    <p className="mt-1 text-sm text-gray-500 mb-5">{notification.description}</p>
                                 </div>
-
-                                <p className="mt-1 text-sm text-gray-500">
-                                    {notification.description}
-                                </p>
                             </div>
                         </div>
+                        <div className="w-full h-[2px] bg-gray-300"></div>
                     </div>
                 ))}
+
             </div>
         </div>
     );

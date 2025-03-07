@@ -11,13 +11,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, CircleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { formatRupiah } from "@/hooks/convertRupiah";
 import axios from "axios";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@radix-ui/react-alert-dialog";
+import { AlertDialogHeader, AlertDialogFooter } from "./ui/alert-dialog";
 
 interface Choice {
     name: string;
@@ -57,7 +59,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
     const [error, setError] = useState<string | null>(null);
     const [displayChoises, setDisplayChoises] = useState<Choice[]>([]);
     const [showChoisesInput, setShowChoisesInput] = useState(false);
-    const [showEditChoisesInput, setShowEditChoisesInput] = useState({ status: false, index: -1 });
+    // const [showEditChoisesInput, setShowEditChoisesInput] = useState({ status: false, index: -1 });
     const [newChoiceName, setNewChoiceName] = useState("");
     const [newChoicePrice, setNewChoicePrice] = useState<number | "">("");
     const [showChoice, setShowChoice] = useState(false);
@@ -216,10 +218,6 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
         setDisplayChoises(updatedChoises);
     };
 
-    console.log("variantToEdit", variantToEdit);
-
-    console.log("showEditChoisesInput", showEditChoisesInput);
-
     return (
         <div className="pt-5 w-full mb-32">
             <div className="flex items-center gap-5 text-black">
@@ -279,7 +277,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                                         <div className="flex items-center gap-5 justify-between">
                                             <p>{choise.name}</p>
 
-                                            <button type="button" onClick={() => setShowEditChoisesInput({ status: true, index: index })} className="text-orange-400">Ubah</button>
+                                            {/* <button type="button" onClick={() => setShowEditChoisesInput({ status: true, index: index })} className="text-orange-400">Ubah</button> */}
                                         </div>
 
                                         <div className="mt-3 flex items-center gap-5 justify-between">
@@ -322,10 +320,15 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
 
                                         <Input
                                             className="mt-3"
-                                            type="number"
+                                            inputMode="numeric"  // Menampilkan keyboard angka di mobile
+                                            pattern="[0-9]*"     // Mencegah karakter non-angka
+                                            type="text"
                                             placeholder="Harga"
-                                            value={newChoicePrice}
-                                            onChange={(e) => setNewChoicePrice(Number(e.target.value))}
+                                            value={formatRupiah(newChoicePrice.toString())}
+                                            onChange={(e) => {
+                                                const rawValue = e.target.value.replace(/[^0-9]/g, ""); // Hanya ambil angka
+                                                setNewChoicePrice(rawValue ? Number(rawValue) : ""); // Simpan angka saja tanpa format
+                                            }}
                                         />
 
                                         {showError && <p className="text-red-500 text-sm">Harga harus positif</p>}
@@ -431,13 +434,40 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                             Simpan Perubahan
                         </Button>
 
-                        <Button
-                            type="button"
-                            onClick={deleteHandler}
-                            className="w-full bg-red-500 text-white"
-                        >
-                            Hapus Varian
-                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button data-aos="fade-up" data-aos-delay="400" className={`w-full !mt-5 m-auto bg-red-400`}>
+                                    Hapus Varian
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent
+                                className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm"
+                            >
+                                <div data-aos="zoom-in" className="bg-white text-center p-5 rounded-lg shadow-lg w-[90%]">
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle className="font-semibold text-lg">
+                                            <CircleAlert className="m-auto" />
+
+                                            <p className="text-center">Apakah Anda benar-benar yakin?</p>
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription className="text-center">
+                                            Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pembayaran Anda secara permanen.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter className="mt-5 flex flex-col gap-3">
+                                        <AlertDialogAction
+                                            className="w-full p-2 rounded-lg bg-green-500 text-white"
+                                            onClick={deleteHandler}
+                                        >
+                                            Lanjutkan
+                                        </AlertDialogAction>
+                                        <AlertDialogCancel className="w-full p-2 rounded-lg bg-red-500 text-white">
+                                            Batalkan
+                                        </AlertDialogCancel>
+                                    </AlertDialogFooter>
+                                </div>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </form>
                 </Form>
             )}

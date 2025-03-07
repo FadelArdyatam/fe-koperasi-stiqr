@@ -6,6 +6,7 @@ import React, { useEffect } from 'react';
 import AOS from "aos";
 import "aos/dist/aos.css";
 import noProduct from '../../images/no-product.png'
+import imgNoCatalog from "@/images/no-data-catalog.png";
 
 
 interface Merchant {
@@ -194,6 +195,12 @@ const Product: React.FC<ProductProps> = ({
                             </button>
                         </div>
                     ))}
+                    {products?.length === 0 && (
+                        <div className="flex justify-center gap-3 flex-col">
+                            <img className="md:w-3/12 place-items-center self-center mt-10" src={imgNoCatalog} />
+                            <p className="text-center text-orange-400 font-bold md:text-xl">Belum ada produk yang ditambahkan</p>
+                        </div>
+                    )}
                 </div>
 
                 <Button

@@ -10,6 +10,7 @@ import { Input } from "./ui/input";
 import axiosInstance from "@/hooks/axiosInstance";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Notification from "./Notification";
 
 interface AddEmployeeProps {
     setAddEmployee: (value: boolean) => void;
@@ -32,15 +33,21 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
     const FormSchema = z.object({
         name: z.string().min(3, {
             message: "Nama Tidak boleh Kosong",
-        }).max(50),
-        phone_number: z.string().min(10, {
-            message: "Nomor telepon tidak boleh kosong",
-        }).max(13),
-        email: z.string().email(),
-        role_name: z.string().min(2).max(50),
+        }),
+        phone_number: z.string().min(9, {
+            message: "Nomor HP minimal 9 digit",
+        }).max(13, {
+            message: "Nomor telepon maksimal 13 digit",
+        }),
+        email: z.string().email({
+            message: "Email tidak valid",
+        }),
+        role_name: z.string().min(2, {
+            message: "Role tidak boleh kosong",
+        }),
         password: z.string().min(6, {
             message: "Password tidak boleh kurang dari 6 karakter",
-        }).max(50),
+        }),
     });
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -80,6 +87,9 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
             setAddEmployee(false)
     }
 
+    const [errorNotification, setErrorNotification] = useState(false);
+    const [message, setMessage] = useState("");
+
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
@@ -99,9 +109,11 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
             console.log("Employee added successfully:", response.data);
             setShowNotification(true);
             setIsSuccess(true);
-        } catch (error) {
-            console.error("Error while adding employee:", error);
-            alert("Failed to add employee. Please try again.");
+            setMessage(response.data.message)
+        } catch (error: any) {
+            console.log(error)
+            setErrorNotification(true),
+                setMessage(error.response.data.message);
         }
     }
 
@@ -117,7 +129,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                 </div>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-10 bg-white p-5 rounded-lg">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 mt-10 bg-white p-5 rounded-lg">
                         {/* Name */}
                         <FormField
                             control={form.control}
@@ -128,7 +140,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                                     <FormControl>
                                         <div className="relative">
                                             <Input
-                                                placeholder="Enter employee name"
+                                                placeholder="Masukkan nama pegawai"
                                                 {...field}
                                                 onChange={(e) => {
                                                     field.onChange(e);
@@ -151,18 +163,18 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                             name="phone_number"
                             render={({ field }) => (
                                 <FormItem data-aos="fade-up" data-aos-delay="200">
-                                    <FormLabel>No Hp</FormLabel>
+                                    <FormLabel>Nomor HP</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="Enter phone number"
+                                            placeholder="Masukkan Nomor HP"
                                             type="text" // Gunakan text agar tidak ada spinner di input number
                                             inputMode="numeric" // Menampilkan keyboard angka di mobile
                                             pattern="[0-9]*" // Memastikan hanya angka yang bisa diketik
-                                            maxLength={15} // Batasi maksimal 15 digit
+                                            maxLength={13} // Batasi maksimal 15 digit
                                             {...field}
                                             onChange={(e) => {
                                                 const rawValue = e.target.value.replace(/\D/g, ""); // Hanya izinkan angka
-                                                if (rawValue.length <= 15) {
+                                                if (rawValue.length <= 13) {
                                                     field.onChange(rawValue);
                                                 }
                                             }}
@@ -182,7 +194,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="Enter email"
+                                            placeholder="Masukkan Email"
                                             {...field}
                                             onChange={(e) => {
                                                 field.onChange(e);
@@ -193,6 +205,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                                 </FormItem>
                             )}
                         />
+                        <span className="text-xs text-gray-500 italic">*Email tidak boleh sama dengan email pemilik</span>
 
                         {/* Password */}
                         <FormField
@@ -204,7 +217,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                                     <FormControl>
                                         <div className="relative">
                                             <Input
-                                                placeholder="Enter password"
+                                                placeholder="Masukkan Password"
                                                 {...field}
                                                 onChange={(e) => {
                                                     field.onChange(e);
@@ -278,7 +291,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                         />
 
                         <Button data-aos="fade-up" data-aos-delay="600" type="submit" className="w-full bg-green-500 text-white">
-                            Submit
+                            Simpan
                         </Button>
                     </form>
                 </Form>
@@ -289,13 +302,19 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ setAddEmployee, setIsSuccess 
                 <div className="p-10">
                     <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
 
-                    <p className="mt-10 font-semibold text-xl text-center">Employee added successfully!</p>
+                    <p className="mt-10 font-semibold text-xl text-center">{message}</p>
 
                     <Button onClick={handleDone} className="w-full bg-green-500 text-white mt-10">
                         Done
                     </Button>
                 </div>
             )}
+
+            {
+                errorNotification && (
+                    <Notification status="error" message={message} onClose={() => setErrorNotification(false)} />
+                )
+            }
         </>
     );
 };

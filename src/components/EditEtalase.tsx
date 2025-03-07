@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, CircleCheck, Package } from "lucide-react";
+import { ChevronLeft, CircleAlert, CircleCheck, Package } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@radix-ui/react-alert-dialog";
+import { AlertDialogHeader, AlertDialogFooter } from "./ui/alert-dialog";
 
 interface EditEtalaseProps {
     setOpen: (open: { id: string; status: boolean }) => void;
@@ -96,23 +98,17 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
     }, [editIndex, form]);
 
     const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-
         const payload = {
             showcase_id: etalaseToEdit?.showcase_id,
             products: data.products,
         }
-
-        console.log("Form submitted:", payload);
-
         try {
             if (etalaseToEdit) {
                 const response = await axiosInstance.patch(
                     `/showcase/${etalaseToEdit.showcase_id}/update`, payload
                 );
-
                 console.log("API Response:", response.data);
             }
-
             setShowNotification(true);
         } catch (error) {
             console.error("Error updating showcase:", error);
@@ -247,9 +243,40 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
                             Update
                         </Button>
 
-                        <Button data-aos="fade-up" data-aos-delay="400" type="button" onClick={deleteHandler} className="w-full m-auto block bg-red-500 text-white">
-                            Delete
-                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button data-aos="fade-up" data-aos-delay="400" className={`w-full !mt-5 m-auto bg-red-400`}>
+                                    Hapus Etalase
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent
+                                className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm"
+                            >
+                                <div data-aos="zoom-in" className="bg-white text-center p-5 rounded-lg shadow-lg w-[90%]">
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle className="font-semibold text-lg">
+                                            <CircleAlert className="m-auto" />
+
+                                            <p className="text-center">Apakah Anda benar-benar yakin?</p>
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription className="text-center">
+                                            Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pembayaran Anda secara permanen.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter className="mt-5 flex flex-col gap-3">
+                                        <AlertDialogAction
+                                            className="w-full p-2 rounded-lg bg-green-500 text-white"
+                                            onClick={deleteHandler}
+                                        >
+                                            Lanjutkan
+                                        </AlertDialogAction>
+                                        <AlertDialogCancel className="w-full p-2 rounded-lg bg-red-500 text-white">
+                                            Batalkan
+                                        </AlertDialogCancel>
+                                    </AlertDialogFooter>
+                                </div>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </form>
                 </Form>
             </div>

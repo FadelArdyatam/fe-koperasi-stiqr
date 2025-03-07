@@ -107,10 +107,6 @@ const options = ["Semua", "Aktif", "Non-aktif"];
 const Catalog = () => {
     const [show, setShow] = useState('Produk');
     const [products, setProducts] = useState<Product[]>([]);
-    // Untuk keperluan Filter
-    // const [originalProducts, setOriginalProducts] = useState<Product[]>([]); // Semua data asli
-    // const [allProducts, setAllProducts] = useState<Product[]>([]); // Menyimpan semua produk asli
-    // 
     const [variants, setVariants] = useState<Variant[]>([]);
     const [variantsProduct, setVariantsProduct] = useState<Variant[]>([]);
     const [etalases, setEtalases] = useState<Etalase[]>([]);
@@ -249,9 +245,8 @@ const Catalog = () => {
         )
         : [];
 
+    console.log(reset)
     console.log("Error", error)
-
-    console.log("Products", products)
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center bg-orange-50">

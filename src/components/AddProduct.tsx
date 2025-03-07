@@ -542,7 +542,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                             name="product_price"
                             render={({ field }) => {
                                 const [displayValue, setDisplayValue] = useState(formatRupiah(field.value || "0"));
-
                                 return (
                                     <FormItem data-aos="fade-up" data-aos-delay="400">
                                         <FormLabel>Harga</FormLabel>
@@ -550,7 +549,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                             <Input
                                                 type="text"
                                                 inputMode="numeric" // Tampilkan keyboard angka di mobile
-                                                pattern="[0-9]*"
                                                 placeholder="Enter price"
                                                 value={displayValue} // Gunakan nilai yang sudah diformat
                                                 maxLength={16}
@@ -917,15 +915,18 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
                                             <div className="mt-5">
                                                 <p>Harga</p>
-
                                                 <Input
                                                     className="mt-3"
-                                                    type="number"
+                                                    inputMode="numeric"  // Menampilkan keyboard angka di mobile
+                                                    pattern="[0-9]*"     // Mencegah karakter non-angka
+                                                    type="text"
                                                     placeholder="Harga"
-                                                    value={newChoicePrice}
-                                                    onChange={(e) => setNewChoicePrice(Number(e.target.value))}
+                                                    value={formatRupiah(newChoicePrice.toString())}
+                                                    onChange={(e) => {
+                                                        const rawValue = e.target.value.replace(/[^0-9]/g, ""); // Hanya ambil angka
+                                                        setNewChoicePrice(rawValue ? Number(rawValue) : ""); // Simpan angka saja tanpa format
+                                                    }}
                                                 />
-
                                                 {showError && <p className="text-red-500 text-sm">Harga harus positif</p>}
                                             </div>
 

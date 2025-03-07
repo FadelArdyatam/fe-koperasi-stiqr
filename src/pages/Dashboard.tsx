@@ -60,6 +60,23 @@ const Dashboard = () => {
         non_cash_amount: 0,
     });
     const [user, setUser] = useState<any>();
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    useEffect(() => {
+        const fetchUnreadNotifications = async () => {
+            try {
+                if (user?.merchant?.id) {
+                    const response = await axiosInstance.get(`/notifications/${user.merchant.id}/unread-count`);
+                    setUnreadCount(response.data.unread_count);
+                }
+            } catch (error) {
+                console.error("Error fetching unread notifications:", error);
+            }
+        };
+
+        fetchUnreadNotifications();
+    }, [user]);
+
 
     const [showNotificationBPJS, setShowNotificationBPJS] = useState(false);
 
@@ -232,8 +249,15 @@ const Dashboard = () => {
                 <div className="flex items-center gap-5">
                     <p className="text-2xl m-auto uppercase font-semibold text-center text-white" data-aos="zoom-in">Home</p>
 
-                    <Link id="inbox" to={'/inbox'} className="bg-transparent text-white absolute right-5 hover:bg-transparent">
+                    <Link id="inbox" to={'/inbox'} className="bg-transparent text-white absolute right-5 hover:bg-transparent relative">
                         <Mail className="scale-[1.3]" />
+
+                        {/* Notif Badge */}
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                                {unreadCount}
+                            </span>
+                        )}
                     </Link>
                 </div>
 

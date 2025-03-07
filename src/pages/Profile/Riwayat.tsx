@@ -333,7 +333,7 @@ const Riwayat = () => {
 
                                     {/* Pagination */}
                                     <div className="flex flex-col items-center w-full mt-10">
-                                        <div className="flex justify-between items-center w-full mb-5">
+                                        <div className="flex justify-between w-full mb-5">
                                             {/* Select di pojok kiri */}
                                             <select
                                                 className="h-10 border border-gray-300 rounded-md md:w-20 w-14 text-center"
@@ -347,39 +347,44 @@ const Riwayat = () => {
                                             </select>
 
                                             {/* Pagination di tengah */}
-                                            <div className="flex items-center md:justify-center justify-end gap-5 flex-1">
-                                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
-                                                    onClick={() => setCurrentPageSales(1)}
-                                                    disabled={currentPageSales === 1}
-                                                >
-                                                    <ChevronsLeft />
-                                                </Button>
+                                            <div className="flex flex-col md:justify-center justify-end items-center flex-1 md:gap-5 ">
+                                                <div className="flex gap-5 items-center ">
+                                                    <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
+                                                        onClick={() => setCurrentPageSales(1)}
+                                                        disabled={currentPageSales === 1}
+                                                    >
+                                                        <ChevronsLeft />
+                                                    </Button>
 
-                                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
-                                                    onClick={() => setCurrentPageSales(prev => prev - 1)}
-                                                    disabled={currentPageSales === 1}
-                                                >
-                                                    <ChevronLeft />
-                                                </Button>
+                                                    <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
+                                                        onClick={() => setCurrentPageSales(prev => prev - 1)}
+                                                        disabled={currentPageSales === 1}
+                                                    >
+                                                        <ChevronLeft />
+                                                    </Button>
 
-                                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
-                                                    onClick={() => setCurrentPageSales(prev => prev + 1)}
-                                                    disabled={currentPageSales === totalPagesSales}
-                                                >
-                                                    <ChevronRight />
-                                                </Button>
+                                                    <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
+                                                        onClick={() => setCurrentPageSales(prev => prev + 1)}
+                                                        disabled={currentPageSales === totalPagesSales}
+                                                    >
+                                                        <ChevronRight />
+                                                    </Button>
 
-                                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
-                                                    onClick={() => setCurrentPageSales(totalPagesSales)}
-                                                    disabled={currentPageSales === totalPagesSales}
-                                                >
-                                                    <ChevronsRight />
-                                                </Button>
+                                                    <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50"
+                                                        onClick={() => setCurrentPageSales(totalPagesSales)}
+                                                        disabled={currentPageSales === totalPagesSales}
+                                                    >
+                                                        <ChevronsRight />
+                                                    </Button>
+                                                </div>
+                                                <div>
+                                                    <span className="md:block hidden text-center">Halaman {currentPageSales} dari {totalPagesSales}</span>
+                                                </div>
                                             </div>
                                         </div>
 
                                         {/* Info halaman */}
-                                        <span className="text-center">Halaman {currentPageSales} dari {totalPagesSales}</span>
+                                        <span className="text-center md:hidden block">Halaman {currentPageSales} dari {totalPagesSales}</span>
                                     </div>
 
 

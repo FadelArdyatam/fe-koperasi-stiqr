@@ -273,11 +273,9 @@ const Signup = () => {
             const result = await response.json();
             if (result.status) {
                 handleNext();
-
-                // If success, save the registered ID to localStorage, so we can use it later if user not deliberate refresh the page
                 localStorage.setItem("registerID", "12345")
-
                 setShowNotification(false)
+                localStorage.removeItem("token");
             } else {
                 setShowNotification(true)
                 setErrorMessage(result.message)

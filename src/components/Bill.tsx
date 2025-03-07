@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { Check, Info } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import axiosInstance from '@/hooks/axiosInstance';
 import Notification from './Notification';
 import { formatRupiah } from '@/hooks/convertRupiah';
@@ -38,12 +37,12 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
     const [showNotification, setShowNotification] = useState(false);
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const [showInvoice, setShowInvoice] = useState(false)
 
     const [refNumber, setRefnumber] = useState<string>("")
-    const [token, setToken] = useState<string | null>(null)
+    // const [token, setToken] = useState<string | null>(null)
     const [total, setTotal] = useState(0);
     const [amount, setAmount] = useState(0);
     useEffect(() => {
@@ -90,11 +89,14 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                 if (data.category == 'Listrik' && data.productName != "PLN Postpaid") {
                     setTimeout(() => {
                         setLoading(false);
-                        setShowNotification(true);
-                    }, 3000);
+                        // setShowNotification(true);
+                        setShowInvoice(true)
+                    }, 6000);
                 } else {
                     setLoading(false);
-                    setShowNotification(true);
+                    // setShowNotification(true);
+                    setShowInvoice(true)
+
                 }
                 setRefnumber(response.data.data.refNumber)
             }
@@ -108,24 +110,26 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
         setPin([]);
     };
 
-    const [productDetails, setProductDetails] = useState<any[]>([])
-    const backToHomeHandler = async () => {
-        if (data.category == "Listrik" && data.productName != "PLN Postpaid") {
-            const response = await axiosInstance.post("/ayoconnect/inquiry/status", {
-                refNumber: refNumber
-            });
-            if (response.data.success) {
-                setToken(response.data.data.token);
-                setProductDetails(response.data.data.productDetails)
-                setShowNotification(false);
-            }
-        } else {
-            navigate('/dashboard');
-            setShowNotification(false);
-        }
+    // const [productDetails, setProductDetails] = useState<any[]>([])
+    const backToHomeHandler = () => {
+        // if (data.category == "Listrik" && data.productName != "PLN Postpaid") {
+        //     const response = await axiosInstance.post("/ayoconnect/inquiry/status", {
+        //         refNumber: refNumber
+        //     });
+        //     if (response.data.success) {
+        //         setToken(response.data.data.token);
+        //         setProductDetails(response.data.data.productDetails)
+        //         setShowNotification(false);
+        //     }
+        // } else {
+        //     navigate('/dashboard');
+        //     setShowNotification(false);
+        // }
+        setShowInvoice(true)
+        setShowNotification(false);
+
     };
 
-    console.log(token)
 
     return (
         <>
@@ -134,7 +138,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                     <Info className='scale-[2] text-white' />
                 </div>
 
-                <p className='font-semibold text-xl text-center text-orange-400 uppercase mt-7'>{`${token != null ? 'Pembayaran Berhasil' : 'Detail Tagihan'}`}</p>
+                <p className='font-semibold text-xl text-center text-orange-400 uppercase mt-7'>Detail Tagihan</p>
 
                 <div className='mt-10 w-full'>
 
@@ -226,7 +230,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                         )
                     }
 
-                    {
+                    {/* {
                         token && productDetails.length > 0 && (
                             <div>
                                 {productDetails.map((detail: any, index: number) => (
@@ -237,7 +241,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                                 ))}
                             </div>
                         )
-                    }
+                    } */}
 
                     <div className='w-full my-5 h-[2px] bg-gray-200'></div>
 
@@ -250,17 +254,17 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                 </div>
             </div>
 
-            {
+            {/* {
                 token && (
                     <Button onClick={() => navigate('/dashboard')} className='uppercase translate-y-10 block text-center w-[90%] m-auto bg-blue-500 mb-32 text-white'>
                         Kembali ke Dashboard
                     </Button>
                 )
-            }
+            } */}
             <Button onClick={() => {
-                // setShowPinInput(true)
-                setShowInvoice(true)
-            }} className={`${token != null ? 'hidden' : 'block'} ${showInvoice ? 'hidden' : 'block'} uppercase translate-y-10 text-center w-[90%] m-auto bg-green-500 mb-32 text-white`}>
+                setShowPinInput(true)
+                // setShowInvoice(true)
+            }} className={`${showInvoice ? 'hidden' : 'block'} uppercase translate-y-10 text-center w-[90%] m-auto bg-green-500 mb-32 text-white`}>
                 Bayar
             </Button >
 
@@ -343,14 +347,13 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                     </div>
 
                     <p className="font-semibold text-xl">Terimakasih</p>
-
                     <p className='text-base'>Transaksi pembayaran Anda Berhasil.</p>
 
                     <Button onClick={backToHomeHandler} className="w-full">Lanjutkan</Button>
                 </div>
             </div>
 
-            {showInvoice && <Invoice data={data} marginTop={marginTop} />}
+            {showInvoice && <Invoice data={data} refNumber={refNumber} marginTop={marginTop} />}
 
             {/* Loading */}
             {

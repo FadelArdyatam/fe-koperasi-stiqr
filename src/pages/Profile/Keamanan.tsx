@@ -50,7 +50,7 @@ const Keamanan = () => {
             .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' })
             .regex(/[@#$%^&*!_]/, { message: "Kata sandi harus mengandung setidaknya satu karakter unik (@, #, $, dll.)." }),
     }).refine((data) => data.newPassword === data.confirmPassword, {
-        message: 'Passwords do not match.',
+        message: 'Kata sandi dan konfirmasi kata sandi tidak cocok.',
         path: ['confirmPassword'], // Fokuskan error pada confirmPassword
     })
 

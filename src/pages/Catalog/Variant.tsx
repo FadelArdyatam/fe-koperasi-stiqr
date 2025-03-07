@@ -6,6 +6,7 @@ import axiosInstance from "@/hooks/axiosInstance";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
+import imgNoCatalog from "@/images/no-data-catalog.png";
 
 interface VariantProps {
     variants: Array<{
@@ -170,6 +171,12 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                             </div>
                         </div>
                     ))}
+                    {variants?.length === 0 && (
+                        <div className="flex justify-center gap-3 flex-col">
+                            <img className="md:w-3/12 place-items-center self-center mt-10" src={imgNoCatalog} />
+                            <p className="text-center text-orange-400 font-bold md:text-xl">Belum ada varian yang ditambahkan</p>
+                        </div>
+                    )}
                 </div>
 
                 <Button onClick={() => { setAddVariant(true); setReset(false) }} className="fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500">

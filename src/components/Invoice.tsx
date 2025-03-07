@@ -5,13 +5,15 @@ import logo from "../images/logo.png";
 import { Button } from "./ui/button";
 import html2canvas from "html2canvas";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "@/hooks/axiosInstance";
 
 interface InvoiceProps {
     data: any;
+    refNumber: string;
     marginTop: boolean;
 }
 
-const Invoice: React.FC<InvoiceProps> = ({ data, marginTop }) => {
+const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
     const captureRef = useRef<HTMLDivElement>(null);
 
     const [total, setTotal] = useState(0);
@@ -19,10 +21,20 @@ const Invoice: React.FC<InvoiceProps> = ({ data, marginTop }) => {
 
     const navigate = useNavigate();
 
+    const [productDetails, setProductDetails] = useState<any[]>([])
     useEffect(() => {
-        setAmount(data.amount - data.processingFee - data.totalAdmin);
-        setTotal(data.amount);
-    }, [data]);
+        const fetchDetail = async () => {
+            const response = await axiosInstance.post("/ayoconnect/inquiry/status", {
+                refNumber: refNumber
+            });
+            if (response.data.success) {
+                setProductDetails(response.data.data.productDetails)
+            }
+            setAmount(data.amount - data.processingFee - data.totalAdmin);
+            setTotal(data.amount);
+        }
+        fetchDetail()
+    }, [data, refNumber]);
 
     const handleDownloadJPEG = async () => {
         const element = document.getElementById("downloadable-content"); // ID dari elemen yang ingin di-download
@@ -33,7 +45,10 @@ const Invoice: React.FC<InvoiceProps> = ({ data, marginTop }) => {
 
         const link = document.createElement("a");
         link.href = imgData;
-        link.download = "pembayaran_berhasil.jpeg"; // Nama file yang akan di-download
+        const date = new Date();
+        const formattedDate = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+
+        link.download = `${data.productName}-${data.accountNumber}-${formattedDate}.jpeg`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -49,7 +64,10 @@ const Invoice: React.FC<InvoiceProps> = ({ data, marginTop }) => {
 
             // Konversi ke file Blob
             const blob = await (await fetch(dataUrl)).blob();
-            const file = new File([blob], "screenshot.jpg", { type: "image/jpeg" });
+            const date = new Date();
+            const formattedDate = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+            const fileName = `${data.productName}-${data.accountNumber}-${formattedDate}.jpg`;
+            const file = new File([blob], `${fileName}`, { type: "image/jpeg" });
 
             // Cek apakah Web Share API didukung
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -158,6 +176,18 @@ const Invoice: React.FC<InvoiceProps> = ({ data, marginTop }) => {
                                     ))}
                                 </div>
                             )}
+                        {
+                            productDetails.length > 0 && (
+                                <div>
+                                    {productDetails.map((detail: any, index: number) => (
+                                        <div key={index} className="flex justify-between gap-5 mt-5">
+                                            <p>{detail.key}</p>
+                                            <p>{detail.value}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )
+                        }
 
                         {data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
@@ -165,6 +195,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, marginTop }) => {
                                 <p>{formatRupiah(data.processingFee)}</p>
                             </div>
                         )}
+
 
                         {data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
@@ -210,27 +241,25 @@ const Invoice: React.FC<InvoiceProps> = ({ data, marginTop }) => {
                         className="grid -rotate-[15deg] justify-center items-center scale-[1.5]"
                         style={{
                             display: "grid",
-                            gridTemplateColumns: "repeat(auto-fill, minmax(50px, 1fr))", // Mengisi seluruh area
-                            // gridAutoRows: "50px", // Tinggi setiap baris
-                            gap: "30px", // Jarak antar logo
-                            // transform: "rotate(-15deg)", // Merotasi logo
+                            gridTemplateColumns: "repeat(auto-fill, minmax(50px, 1fr))",
+                            gap: "50px", // Jarak antar logo diperbesar
                             width: "100%",
                             height: "100%",
-                            justifyContent: "center", // Memastikan grid memenuhi area
-                            alignContent: "center", // Memastikan grid memenuhi area
-                            // padding: "100px", // Menjaga jarak dari tepi
+                            justifyContent: "center",
+                            alignContent: "center",
                         }}
                     >
-                        {Array.from({ length: 100 }).map((_, index) => ( // Tambah jumlah logo agar cukup
+                        {Array.from({ length: 100 }).map((_, index) => (
                             <img
                                 key={index}
                                 src={logo}
                                 alt="Background Logo"
-                                style={{ width: "50px", height: "50px", opacity: 0.2 }}
+                                style={{ width: "50px", height: "50px", opacity: 0.1 }}
                             />
                         ))}
                     </div>
                 </div>
+
 
                 {/* Konten Utama */}
                 <div className="relative z-10">
@@ -315,12 +344,27 @@ const Invoice: React.FC<InvoiceProps> = ({ data, marginTop }) => {
                                 </div>
                             )}
 
+                        {
+                            productDetails.length > 0 && (
+                                <div>
+                                    {productDetails.map((detail: any, index: number) => (
+                                        <div key={index} className="flex justify-between gap-5 mt-5">
+                                            <p>{detail.key}</p>
+                                            <p>{detail.value}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )
+                        }
+
                         {data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
                                 <p>Biaya Penanganan</p>
                                 <p>{formatRupiah(data.processingFee)}</p>
                             </div>
                         )}
+
+
 
                         {data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
