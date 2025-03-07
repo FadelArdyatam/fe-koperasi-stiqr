@@ -249,7 +249,7 @@ const Dashboard = () => {
                 <div className="flex items-center gap-5">
                     <p className="text-2xl m-auto uppercase font-semibold text-center text-white" data-aos="zoom-in">Home</p>
 
-                    <Link id="inbox" to={'/inbox'} className="bg-transparent text-white absolute right-5 hover:bg-transparent relative">
+                    <Link id="inbox" to={'/inbox'} className="bg-transparent text-white right-5 hover:bg-transparent relative">
                         <Mail className="scale-[1.3]" />
 
                         {/* Notif Badge */}

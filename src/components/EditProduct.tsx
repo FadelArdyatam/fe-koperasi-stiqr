@@ -811,6 +811,14 @@ const EditProduct: React.FC<EditProductProps> = ({
 
                                 <p className="mt-5 text-gray-500">Atur jumlah stok produk ini.</p>
 
+                                <div className={`${showField.variant ? "flex" : "hidden"} w-full flex-col mt-5 items-center gap-3`}>
+                                    {selectedVariants.map((variant) => (
+                                        <p key={variant} className="p-3 border w-full border-orange-500 rounded-lg flex items-center mt-5 gap-3 font-semibold">
+                                            {variants.find((v) => v.variant_id === variant)?.variant_name}
+                                        </p>
+                                    ))}
+                                </div>
+
                                 <div className={`${showField.variant ? 'flex' : 'hidden'} flex-col mt-5 items-center gap-3`}>
                                     <Button onClick={() => setShowAddVariant(true)} className="bg-transparent border border-orange-500 text-black w-full">
                                         <p>Pilih Variant</p>

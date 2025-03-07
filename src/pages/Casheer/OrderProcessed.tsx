@@ -18,6 +18,7 @@ interface OrderProcessedProps {
     tagih?: boolean;
     setTagih?: React.Dispatch<React.SetStateAction<boolean>>;
     sales_id?: string
+    selectedCustomer: any;
 }
 interface SalesDetail {
     product: {
@@ -33,7 +34,7 @@ interface ProductItem {
     quantity: number;
 }
 
-const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderProcess, type, orderId, tagih, setTagih, sales_id }) => {
+const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderProcess, type, orderId, tagih, setTagih, sales_id, selectedCustomer }) => {
     const [showQRCode, setShowQRCode] = useState(false);
     // const [orderId, setOrderId] = useState<string>(null);
     const [stringQR, setStringQR] = useState<string | null>(null);
@@ -207,19 +208,19 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                             <p className="font-bold">Informasi Pelanggan</p>
                             <div className="flex justify-between">
                                 <p className="font-semibold text-gray-500">Nama</p>
-                                <p className="font-semibold">{basket?.customer_details?.name ?? '-'}</p>
+                                <p className="font-semibold">{selectedCustomer?.customer?.name ?? '-'}</p>
                             </div>
                             <div className="flex justify-between">
                                 <p className="font-semibold text-gray-500">Email</p>
-                                <p className="font-semibold">{basket?.customer_details?.email ?? '-'}</p>
+                                <p className="font-semibold">{selectedCustomer?.customer?.email ?? '-'}</p>
                             </div>
                             <div className="flex justify-between">
                                 <p className="font-semibold text-gray-500">Nomor Handphone</p>
-                                <p className="font-semibold">{basket?.customer_details?.phone ?? '-'}</p>
+                                <p className="font-semibold">{selectedCustomer?.customer?.phone ?? '-'}</p>
                             </div>
                             <div className="flex justify-between">
                                 <p className="font-semibold text-gray-500">Nomor Lainnya</p>
-                                <p className="font-semibold">{basket?.customer_details?.other_number ?? '-'}</p>
+                                <p className="font-semibold">{selectedCustomer?.customer?.other_number ?? '-'}</p>
                             </div>
                         </div>
                     </div>

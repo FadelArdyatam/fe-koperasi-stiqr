@@ -158,6 +158,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
     const [showAddVariant, setShowAddVariant] = useState(false);
     const [allData, setAllData] = useState<any>([]);
     const [stock, setStock] = useState({ stock: 0, minimumStock: 0 });
+    const [loading, setloading] = useState(false);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -355,6 +356,8 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
         console.log("Merged Data:", mergedData);
         try {
+            setloading(true)
+
             const response = await axiosInstance.post("/product/create", mergedData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
@@ -378,6 +381,8 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         } catch (error) {
             console.error("Error while adding product to API:", error);
             setShowErrorForAddProduct(true);
+        } finally {
+            setloading(false)
         }
     };
 
@@ -761,7 +766,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
                     <Button onClick={() => { setSection({ addProduct: true, detailProduct: false }) }} className="w-full bg-orange-500 text-white">Kembali</Button>
 
-                    <Button onClick={addProductHandler}>Simpan</Button>
+                    <Button onClick={addProductHandler} disabled={loading ? true : false}>Simpan</Button>
                 </div>
 
                 {/* Variant Control */}
