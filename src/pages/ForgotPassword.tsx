@@ -54,14 +54,14 @@ const ForgotPassword = () => {
 
     async function onSubmitEmail(data: z.infer<typeof FormEmailSchema>) {
         try {
-            // Kirim data ke endpoint menggunakan Axios
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
                 email: data.email,
             });
 
-            console.log("Success:", response.data);
+            console.log(response.data)
 
             setNotification({ status: true, address: data.email, notificationSuccess: true })
+            startTimer();
         } catch (error) {
             console.error("Error submitting email:", error);
 
@@ -188,7 +188,6 @@ const ForgotPassword = () => {
                             />
 
                             <Button
-                                onClick={startTimer}
                                 className={`${isCounting ? 'bg-gray-300 text-orange-500' : 'bg-[#7ED321] text-white'} transition-all px-5 py-3 mt-10 w-full rounded-lg`}
                                 disabled={isCounting}
                             >

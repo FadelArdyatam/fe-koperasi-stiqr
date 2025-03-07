@@ -22,16 +22,18 @@ const ResetPassword = () => {
     const FormNewPasswordSchema = z.object({
         password: z
             .string()
-            .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
-            .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
-            .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
-            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
+            .min(8, { message: "Kata sandi harus terdiri dari minimal 8 karakter." })
+            .regex(/[a-z]/, { message: "Kata sandi harus mengandung setidaknya satu huruf kecil." })
+            .regex(/[A-Z]/, { message: "Kata sandi harus mengandung setidaknya satu huruf besar." })
+            .regex(/\d/, { message: "Kata sandi harus mengandung setidaknya satu angka." })
+            .regex(/[@#$%^&*!_]/, { message: "Kata sandi harus mengandung setidaknya satu karakter unik (@, #, $, dll.)." }),
         confirmPassword: z
             .string()
-            .min(8, { message: 'Kata sandi harus terdiri dari minimal 8 karakter.' })
-            .regex(/[a-z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf kecil.' })
-            .regex(/[A-Z]/, { message: 'Kata sandi harus mengandung setidaknya satu huruf besar.' })
-            .regex(/\d/, { message: 'Kata sandi harus mengandung setidaknya satu angka.' }),
+            .min(8, { message: "Kata sandi harus terdiri dari minimal 8 karakter." })
+            .regex(/[a-z]/, { message: "Kata sandi harus mengandung setidaknya satu huruf kecil." })
+            .regex(/[A-Z]/, { message: "Kata sandi harus mengandung setidaknya satu huruf besar." })
+            .regex(/\d/, { message: "Kata sandi harus mengandung setidaknya satu angka." })
+            .regex(/[@#$%^&*!_]/, { message: "Kata sandi harus mengandung setidaknya satu karakter unik (@, #, $, dll.)." }),
     }).refine((data) => data.password === data.confirmPassword, {
         message: 'Kata sandi dan konfirmasi kata sandi tidak cocok.',
         path: ['confirmPassword'],

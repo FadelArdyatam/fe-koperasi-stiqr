@@ -1,7 +1,7 @@
 import TermsandConditionInProfile from "@/components/TermsandConditionInProfile"
 import { Button } from "@/components/ui/button"
 import axios from "axios"
-import { ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, User, UserRound, FileText } from "lucide-react"
+import { ChevronLeft, ChevronRight, CreditCard, Home, ScanQrCode, User, UserRound, FileText, LogOut } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import AOS from "aos";
@@ -10,6 +10,7 @@ import "aos/dist/aos.css";
 const Profile = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(false)
     const [data, setData] = useState<any>()
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -20,24 +21,37 @@ const Profile = () => {
     }, [])
 
     const navigate = useNavigate()
+
     const handleSignOut = async () => {
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/logout`, {}, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
-                    'X-Access-Token': `${localStorage.getItem('token') || ''}`
+            setLoading(true);
+
+            const response = await axios.post(
+                `${import.meta.env.VITE_API_URL}/auth/logout`,
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
+                        'X-Access-Token': `${localStorage.getItem('token') || ''}`
+                    }
                 }
-            })
+            );
+
             if (response.data.status) {
-                localStorage.removeItem('token')
-                sessionStorage.removeItem('user')
-                navigate('/')
+                localStorage.removeItem('token');
+                sessionStorage.removeItem('user');
+                navigate('/');
             }
-            console.log(response)
+
+            console.log(response);
         } catch (error) {
-            console.log(error)
+            console.log(error);
+        } finally {
+            setLoading(false);
         }
-    }
+    };
+
+    console.log("loading", loading)
 
     return (
         <>
@@ -47,7 +61,7 @@ const Profile = () => {
                         <ChevronLeft className='scale-[1.3] text-white' />
                     </Link>
 
-                    <p data-aos="zoom-in" data-aos-once="true" className='font-semibold m-auto text-xl text-white text-center'>Settings</p>
+                    <p data-aos="zoom-in" data-aos-once="true" className='font-semibold m-auto text-xl text-white text-center'>Profile</p>
                 </div>
 
                 <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -105,7 +119,7 @@ const Profile = () => {
                     </div>
 
                     <Button data-aos="fade-up" data-aos-once="true" onClick={handleSignOut} className="w-full mt-5 bg-orange-400">
-                        Sign Out
+                        <LogOut /> Keluar
                     </Button>
                 </div>
 
@@ -147,23 +161,22 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/customer-data"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/payment-data"} className="flex items-center gap-5 justify-between">
                         <div>
-                            <p>Data Pelanggan</p>
+                            <p>Data Pembayaran</p>
 
-                            <p className="text-sm text-gray-500">Nama Pemesan, No Hp, Email, Nomor Lain</p>
+                            <p className="text-sm text-gray-500">Akun Bank & e-wallet</p>
                         </div>
 
                         <ChevronRight />
                     </Link>
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
-
-                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/payment-data"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/employee"} className="flex items-center gap-5 justify-between">
                         <div>
-                            <p>Data Pembayaran</p>
+                            <p>Data Pegawai</p>
 
-                            <p className="text-sm text-gray-500">Nama, Bank, Nomer Bank</p>
+                            <p className="text-sm text-gray-500">Pengaturan Seputar Pegawaimu</p>
                         </div>
 
                         <ChevronRight />
@@ -175,7 +188,7 @@ const Profile = () => {
                         <div className="flex flex-col items-start">
                             <p>Syarat & Ketentuan</p>
 
-                            <p className="text-sm text-gray-500">Syarat & Peraturan</p>
+                            <p className="text-sm text-gray-500">Syarat & Ketentuan</p>
                         </div>
 
                         <ChevronRight />
@@ -187,7 +200,7 @@ const Profile = () => {
                         <div>
                             <p>Riwayat</p>
 
-                            <p className="text-sm text-gray-500">Uang Masuk, Pembelian</p>
+                            <p className="text-sm text-gray-500">Penjualan & Pembelian</p>
                         </div>
 
                         <ChevronRight />
@@ -195,17 +208,17 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/employee"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/customer-data"} className="flex items-center gap-5 justify-between">
                         <div>
-                            <p>Pegawai</p>
+                            <p>Pengaturan Data Pelanggan</p>
 
-                            <p className="text-sm text-gray-500">Pengaturan Seputar Pegawaimu</p>
+                            <p className="text-sm text-gray-500">Nama Pemesan, No Hp, Email, Nomor Lain</p>
                         </div>
 
                         <ChevronRight />
                     </Link>
 
-                    <div className="w-full h-[2px] my-5 bg-gray-200"></div>
+                    {/* <div className="w-full h-[2px] my-5 bg-gray-200"></div> */}
 
                     {/* <Link data-aos="fade-up" data-aos-once="true" to={"/profile/printer"} className="flex items-center gap-5 justify-between ">
                         <div>
@@ -217,6 +230,12 @@ const Profile = () => {
                         <ChevronRight />
                     </Link> */}
                 </div>
+
+                {loading && (
+                    <div className="absolute z-30 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                    </div>
+                )}
             </div>
 
             {showTermsandConditions && <TermsandConditionInProfile setShowTermsandConditions={setShowTermsandConditions} />}

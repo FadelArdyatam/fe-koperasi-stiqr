@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
+import imgNoCatalog from "@/images/no-data-catalog.png";
 interface Merchant {
     id: string;
     name: string;
@@ -86,23 +87,29 @@ const Etalase: React.FC<EtalaseProps> = ({ etalases, setEtalases, addEtalase, se
             id: id,
             status: true,
         });
-
         setReset(false)
     };
-
-    console.log(open)
 
     return (
         <div className="w-full px-5 mb-32">
             <div className={`${addEtalase || open.status ? 'hidden' : 'block'} w-full`}>
                 <div>
                     {etalases?.map((etalase, index) => (
-                        <div data-aos="fade-up" data-aos-delay={index * 100} key={etalase.id} onClick={() => handleOpen(etalase.showcase_id)} className="shadow-sm mt-5 bg-white p-5 rounded-lg">
+                        <div data-aos="fade-up" data-aos-delay={index * 100} key={etalase.id}
+                            onClick={() => {
+                                handleOpen(etalase.showcase_id);
+                            }}
+                            className="shadow-sm mt-5 bg-white p-5 rounded-lg">
                             <h3 className="text-lg font-semibold text-start">{etalase?.showcase_name}</h3>
-
                             <p className="text-sm text-gray-400">{etalase?.showcase_product?.length} Produk</p>
                         </div>
                     ))}
+                    {etalases.length === 0 && (
+                        <div className="flex justify-center gap-3 flex-col">
+                            <img className="md:w-3/12 place-items-center self-center mt-10" src={imgNoCatalog} />
+                            <p className="text-center text-orange-400 font-bold md:text-xl">Belum ada etalase yang ditambahkan</p>
+                        </div>
+                    )}
                 </div>
 
                 <Button onClick={() => { setAddEtalase(true); setReset(false) }} className="fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500">

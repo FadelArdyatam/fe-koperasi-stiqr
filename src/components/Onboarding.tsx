@@ -77,10 +77,10 @@ const Onboarding = ({ setShowOnboarding }: OnboardingProps) => {
             {/* Tombol Navigasi */}
             <div className="mt-10 flex items-center gap-5">
                 <button onClick={prevSlide} disabled={slide === 0} className="px-5 py-2 bg-gray-300 rounded disabled:opacity-50">
-                    Previous
+                    Sebelumnya
                 </button>
                 <button onClick={nextSlide} className={`px-5 py-2 rounded ${slide === slides.length - 1 ? "bg-green-500 text-white" : "bg-orange-400 text-white"}`}>
-                    {slide === slides.length - 1 ? "Get Started" : "Next"}
+                    {slide === slides.length - 1 ? "Ayo Mulai!" : "Selanjutnya"}
                 </button>
             </div>
 

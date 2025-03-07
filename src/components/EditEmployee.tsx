@@ -89,15 +89,18 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, editIndex, setIsSu
 
     console.log("employeeToEdit", employeeToEdit);
 
-    // Validasi schema untuk form
     const FormSchema = z.object({
-        name: z.string().min(3,
+        name: z.string().min(1,
             { message: "Nama pegawai Tidak Boleh Kosong" }
         ).max(50),
-        phone_number: z.string().min(10,
-            { message: "Nomor telepon tidak boleh kurang dari 10 karakter" }
-        ).max(13),
-        email: z.string().email(),
+        phone_number: z.string().min(9,
+            { message: "Nomor telepon minimal 9 digit" }
+        ).max(13, {
+            message: "Nomor telepon maksimal 13 digit"
+        }),
+        email: z.string().email({
+            message: "Email tidak valid"
+        }),
         role_name: z.string().min(3).max(50),
         password: z.string().min(6,
             { message: "Password minimal 6 karakter" }
@@ -136,11 +139,8 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, editIndex, setIsSu
     const deleteEmployeeHandler = async () => {
         try {
             const response = await axiosInstance.delete(`/employee/deleted/${editIndex}`);
-
-            console.log("Delete Employee Response:", response.data);
-
+            console.log(response.data)
             setOpen({ id: "", status: false });
-
             setIsSuccess(true);
         } catch (error: any) {
             console.error("Failed to delete Employee details:", error.message);

@@ -7,6 +7,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import Notification from "./Notification";
 
 interface EditVarianProductProps {
     setShowVariantProductHandler: (showVariantProductHandler: { id: string; status: boolean }) => void;
@@ -49,22 +50,13 @@ const EditVarianProduct: React.FC<EditVarianProductProps> = ({ setShowVariantPro
         }
     }, [variantProductToEdit]);
 
-    console.log("SelectedProduct", selectedProducts)
-
-    const token = localStorage.getItem("token");
-
     useEffect(() => {
-        if (!token) return;
-
         const fetchVariantDetails = async () => {
             try {
-                const response = await axiosInstance.get(`/varian/${variantId}/detail`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                const response = await axiosInstance.get(`/varian/${variantId}/detail`);
 
                 setVariantProductToEdit(response.data);
             } catch (err: any) {
-                console.error("Error fetching variant details:", err);
                 setError("Failed to fetch variant details.");
             } finally {
                 setLoading(false);
@@ -86,11 +78,11 @@ const EditVarianProduct: React.FC<EditVarianProductProps> = ({ setShowVariantPro
             products: [],
         },
     });
+    const [showNotification, setShowNotification] = useState(false)
+    const [message, setMessage] = useState("")
 
     const onSubmit = async (data: z.infer<typeof FormSchema>) => {
         try {
-            console.log("data: ", data)
-
             const payload = {
                 variant_id: variantProductToEdit.variant_id,
                 products: data.products,
@@ -99,20 +91,24 @@ const EditVarianProduct: React.FC<EditVarianProductProps> = ({ setShowVariantPro
             const response = await axiosInstance.put(
                 `/varian/add/product`,
                 payload,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
             );
 
-            console.log("Variant updated successfully:", response.data);
-            setShowVariantProductHandler({ id: "", status: false });
-            setReset(true);
+            if (response.data.success) {
+                setShowNotification(true);
+                setMessage(response.data.message)
+            }
+
         } catch (err: any) {
             console.error("Error updating variant:", err.response?.data || err.message);
         }
     };
 
-    console.log("variantProductToEdit:", variantProductToEdit);
+    const handleBack = () => {
+        setReset(true);
+        setShowVariantProductHandler({ id: "", status: false });
+        setShowNotification(false)
+    }
+
 
     return (
         <div className="pt-5 w-full mb-32">
@@ -187,6 +183,11 @@ const EditVarianProduct: React.FC<EditVarianProductProps> = ({ setShowVariantPro
                     </form>
                 </Form>
             )}
+            {
+                showNotification && (
+                    <Notification status="success" message={message} onClose={handleBack} />
+                )
+            }
         </div>
     )
 }

@@ -266,12 +266,12 @@ const Settlement = () => {
 
                     <div className="w-full flex flex-col gap-5">
                         <div className="w-full flex items-center gap-5 justify-between">
-                            <p className="text-gray-500">Saldo Pemasukan</p>
+                            <p className="text-gray-500">Total Uang Masuk</p>
                             <p className="font-semibold text-lg">{formatRupiah(uangMasuk)}</p>
                         </div>
 
                         <div className="w-full flex items-center gap-5 justify-between">
-                            <p className="text-gray-500">Saldo Pengeluaran</p>
+                            <p className="text-gray-500">Total Uang Keluar</p>
                             <p className="font-semibold text-lg">{formatRupiah(uangKeluar)}</p>
                         </div>
 
@@ -287,7 +287,7 @@ const Settlement = () => {
                     </div>
                 </div>
 
-                <p className="text-xs text-gray-500 mt-3">*Saldo hanya bisa dilakukan menggunakan saldo non tunai</p>
+                <p className="text-xs text-gray-500 mt-3">*Saldo yang dapat ditarik adalah Saldo Non Tunai</p>
 
                 {/* Withdrawal Form */}
                 <Form {...form}>
