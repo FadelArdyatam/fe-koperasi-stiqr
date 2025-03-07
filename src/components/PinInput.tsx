@@ -174,7 +174,8 @@ const PinInput = ({ email }: { email: string }) => {
                         <p className="text-gray-500 text-sm text-center">
                             Mohon untuk tidak memberitahukan PIN Anda kepada siapapun demi keamanan Anda.
                         </p>
-                        <Button onClick={() => navigate('/dashboard')} className="uppercase text-white bg-green-400">
+                        <Button onClick={() => navigate('/')
+                        } className="uppercase text-white bg-green-400">
                             Saya, Mengerti
                         </Button>
                     </div>
