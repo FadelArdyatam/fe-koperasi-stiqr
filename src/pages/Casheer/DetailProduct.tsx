@@ -108,16 +108,32 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                                         <div key={i} className="flex flex-row justify-between">
                                             <div className="flex gap-3 items-center">
                                                 <input
-                                                    type={detail.variant.is_multiple ? 'checkbox' : 'radio'}
+                                                    type={detail.variant.is_multiple ? "checkbox" : "radio"}
                                                     id={`checkbox-${valueIndex}-${i}`}
                                                     name={!detail.variant.is_multiple ? "variant-option" : `checkbox-${valueIndex}`}
                                                     value={detail.variant.variant_name}
                                                     className="w-4 h-4 border-gray-300 rounded"
+                                                    checked={
+                                                        detail.variant.is_multiple
+                                                            ? detailVariant.some((v) => v.detail_variant_id === variant.detail_variant_id) // ✅ Checkbox tetap checked jika ada di detailVariant
+                                                            : tempVariantId === variant.detail_variant_id // ✅ Radio tetap checked jika sesuai state
+                                                    }
+                                                    onClick={() => {
+                                                        if (!detail.variant.is_multiple && tempVariantId === variant.detail_variant_id) {
+                                                            // ✅ Jika radio diklik lagi, uncheck
+                                                            setTempVariantId("");
+                                                            setTempPrice(0);
+                                                            setDetailVariant((prev) =>
+                                                                prev.filter((v) => v.detail_variant_id !== variant.detail_variant_id)
+                                                            );
+                                                            setPrice(price - tempPrice);
+                                                        }
+                                                    }}
                                                     onChange={(e) => {
                                                         let newPrice = price;
 
                                                         if (detail.variant.is_multiple) {
-                                                            // Jika checkbox, tambahkan atau kurangkan harga sesuai dengan status checked
+                                                            // ✅ Untuk Checkbox
                                                             if (e.target.checked) {
                                                                 newPrice += variant.price;
                                                                 setDetailVariant((prev) => [...prev, { detail_variant_id: variant.detail_variant_id }]);
@@ -126,22 +142,14 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                                                                 setDetailVariant((prev) => prev.filter((v) => v.detail_variant_id !== variant.detail_variant_id));
                                                             }
                                                         } else {
-                                                            // Jika radio, set harga sesuai dengan variant yang dipilih
-                                                            if (e.target.checked) {
-                                                                setTempPrice(variant.price);
-
-                                                                const previousVariantId = tempVariantId; // Simpan nilai sebelum diubah
+                                                            // ✅ Untuk Radio Button
+                                                            if (tempVariantId !== variant.detail_variant_id) {
                                                                 setTempVariantId(variant.detail_variant_id);
-
+                                                                setTempPrice(variant.price);
                                                                 newPrice = (newPrice - tempPrice) + variant.price;
 
                                                                 setDetailVariant((prev) => {
-                                                                    // Jika sebelumnya ada varian yang dipilih, hapus yang lama
-                                                                    const updatedVariants = previousVariantId
-                                                                        ? prev.filter((v) => v.detail_variant_id !== previousVariantId)
-                                                                        : prev;
-
-                                                                    // Tambahkan varian baru
+                                                                    const updatedVariants = prev.filter((v) => v.detail_variant_id !== tempVariantId);
                                                                     return [...updatedVariants, { detail_variant_id: variant.detail_variant_id }];
                                                                 });
                                                             }
