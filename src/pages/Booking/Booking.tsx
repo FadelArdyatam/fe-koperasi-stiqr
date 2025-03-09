@@ -307,7 +307,8 @@ const Booking = () => {
                     setTagih={setTagih}
                     orderId={datas[index].orderId}
                     type="detail"
-                    selectedCustomer={undefined} />
+                    selectedCustomer={undefined}
+                    noMeja={""} />
             )}
 
             {showReceipt.show && (

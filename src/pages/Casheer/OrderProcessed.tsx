@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { formatRupiah } from "@/hooks/convertRupiah";
-import { ArrowLeft, Computer } from "lucide-react"
+import { ArrowLeft, CircleAlert, Computer } from "lucide-react"
 import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, useState, useEffect } from "react";
 import QRCodePage from "../QRCode";
 import axiosInstance from "@/hooks/axiosInstance";
@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import noProduct from '../../images/no-product.png'
+import { AlertDialogHeader, AlertDialogFooter } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@radix-ui/react-alert-dialog";
 // import { ISales } from "../Booking/Booking";
 
 interface OrderProcessedProps {
@@ -19,6 +21,7 @@ interface OrderProcessedProps {
     setTagih?: React.Dispatch<React.SetStateAction<boolean>>;
     sales_id?: string
     selectedCustomer: any;
+    noMeja: string;
 }
 interface SalesDetail {
     product: {
@@ -34,7 +37,7 @@ interface ProductItem {
     quantity: number;
 }
 
-const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderProcess, type, orderId, tagih, setTagih, sales_id, selectedCustomer }) => {
+const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderProcess, type, orderId, tagih, setTagih, sales_id, selectedCustomer, noMeja }) => {
     const [showQRCode, setShowQRCode] = useState(false);
     // const [orderId, setOrderId] = useState<string>(null);
     const [stringQR, setStringQR] = useState<string | null>(null);
@@ -44,7 +47,6 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
-
 
     const calculateTotalAmount = () => {
         if (Array.isArray((basket as { sales_details?: SalesDetail[] }).sales_details)) {
@@ -151,7 +153,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
         }
     };
 
-    console.log("Basket:", basket);
+    console.log("Basket from OrderProcessed:", basket);
 
     return (
         <>
@@ -182,10 +184,18 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                         </div>
                     </div>
 
-                    <div data-aos="fade-up" data-aos-delay="200" className="w-full p-5 bg-orange-300 rounded-lg mt-5 flex items-center gap-5 justify-between">
-                        <p className="font-semibold">No. Antrian</p>
+                    <div className="w-full mt-5 flex items-center gap-5 justify-between">
+                        <div data-aos="fade-up" data-aos-delay="200" className="w-full p-5 bg-orange-300 rounded-lg flex items-center gap-5 justify-between">
+                            <p className="font-semibold">No. Antrian</p>
 
-                        <p className="font-semibold">{basket.queue_number}</p>
+                            <p className="font-semibold">{basket.queue_number}</p>
+                        </div>
+
+                        <div data-aos="fade-up" data-aos-delay="200" className="w-full p-5 bg-orange-300 rounded-lg flex items-center gap-5 justify-between">
+                            <p className="font-semibold">No. Meja</p>
+
+                            <p className="font-semibold">{noMeja}</p>
+                        </div>
                     </div>
 
                     <div data-aos="fade-up" data-aos-delay="300" className="w-full mt-5">
@@ -236,8 +246,39 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                     <div data-aos="fade-up" data-aos-delay="500" className="w-full mt-5 bg-white rounded-lg shadow-lg p-3">
                         <div className="w-full flex items-center gap-5 justify-between">
                             <p className="text-xl font-semibold">Daftar Pesanan</p>
-                            <button onClick={handleCancelPayment} className={`${basket.status === 'done' || basket.status === 'cancel' ? 'hidden' : 'block'} font-semibold text-orange-500`}>Pembatalan</button>
 
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button data-aos="fade-up" data-aos-delay="400" className={`${basket.status === 'done' || basket.status === 'cancel' ? 'hidden' : 'block'} font-semibold text-orange-500 bg-transparent`}>Pembatalan</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent
+                                    className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm"
+                                >
+                                    <div data-aos="zoom-in" className="bg-white text-center p-5 rounded-lg shadow-lg w-[90%]">
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle className="font-semibold text-lg">
+                                                <CircleAlert className="m-auto" />
+
+                                                <p className="text-center">Apakah Anda benar-benar yakin?</p>
+                                            </AlertDialogTitle>
+                                            <AlertDialogDescription className="text-center">
+                                                Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus Pemesanan Anda secara permanen.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter className="mt-5 flex flex-col gap-3">
+                                            <AlertDialogAction
+                                                className="w-full p-2 rounded-lg bg-green-500 text-white"
+                                                onClick={handleCancelPayment}
+                                            >
+                                                Lanjutkan
+                                            </AlertDialogAction>
+                                            <AlertDialogCancel className="w-full p-2 rounded-lg bg-red-500 text-white">
+                                                Batalkan
+                                            </AlertDialogCancel>
+                                        </AlertDialogFooter>
+                                    </div>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </div>
 
                         <div className="w-full h-[1px] bg-gray-200 my-5"></div>
