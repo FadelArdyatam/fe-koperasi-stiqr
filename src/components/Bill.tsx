@@ -4,7 +4,7 @@ import { Check, Info } from 'lucide-react';
 import axiosInstance from '@/hooks/axiosInstance';
 import Notification from './Notification';
 import { formatRupiah } from '@/hooks/convertRupiah';
-import Invoice from './Invoice';
+import InprogressPPOB from './InprogressPPOB';
 // import { convertDate, convertTime } from '../hooks/convertDate';
 
 // interface BillProps {
@@ -39,7 +39,8 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
     const [loading, setLoading] = useState(false);
     // const navigate = useNavigate();
 
-    const [showInvoice, setShowInvoice] = useState(false)
+    // const [showInproggresStep, setShowInvoice] = useState(false)
+    const [showInproggresStep, setShowInproggresStep] = useState(false)
 
     const [refNumber, setRefnumber] = useState<string>("")
     // const [token, setToken] = useState<string | null>(null)
@@ -86,24 +87,18 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
             const response = await axiosInstance.post("/ayoconnect/payment", payload);
 
             if (response.data.success) {
-                if (data.category == 'Listrik' && data.productName != "PLN Postpaid") {
-                    setTimeout(() => {
-                        setLoading(false);
-                        // setShowNotification(true);
-                        setShowInvoice(true)
-                    }, 6000);
-                } else {
-                    setLoading(false);
-                    // setShowNotification(true);
-                    setShowInvoice(true)
-
-                }
+                setLoading(false);
+                // setShowNotification(true);
+                // setShowInvoice(true)
+                setShowInproggresStep(true)
                 setRefnumber(response.data.data.refNumber)
+            } else {
+                setShowInproggresStep(false)
+                setError(response.data.message || "Pembayaran gagal, silahkan coba lagi nanti.");
             }
-
         } catch (error: any) {
-            console.error("Error saat melakukan pembayaran:", error);
             setError(error.response?.data?.message || "Terjadi kesalahan saat proses pembayaran.");
+            setShowInproggresStep(false)
         }
 
         setShowPinInput(false);
@@ -125,7 +120,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
         //     navigate('/dashboard');
         //     setShowNotification(false);
         // }
-        setShowInvoice(true)
+        // setShowInvoice(true)
         setShowNotification(false);
 
     };
@@ -133,7 +128,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
 
     return (
         <>
-            <div className={`${marginTop ? 'mt-[130px]' : 'mt-[-90px] bg-white'} ${showInvoice ? 'hidden' : 'block'} w-[90%] m-auto shadow-lg p-10 rounded-lg`}>
+            <div className={`${marginTop ? 'mt-[130px]' : 'mt-[-90px] bg-white'} ${showInproggresStep ? 'hidden' : 'block'} w-[90%] m-auto shadow-lg p-10 rounded-lg`}>
                 <div className='w-16 h-16 flex items-center justify-center border-2 border-black bg-orange-400 rounded-full m-auto'>
                     <Info className='scale-[2] text-white' />
                 </div>
@@ -264,7 +259,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
             <Button onClick={() => {
                 setShowPinInput(true)
                 // setShowInvoice(true)
-            }} className={`${showInvoice ? 'hidden' : 'block'} uppercase translate-y-10 text-center w-[90%] m-auto bg-green-500 mb-32 text-white`}>
+            }} className={`${showInproggresStep ? 'hidden' : 'block'} uppercase translate-y-10 text-center w-[90%] m-auto bg-green-500 mb-32 text-white`}>
                 Bayar
             </Button >
 
@@ -353,7 +348,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                 </div>
             </div>
 
-            {showInvoice && <Invoice data={data} refNumber={refNumber} marginTop={marginTop} />}
+            {showInproggresStep && <InprogressPPOB data={data} refNumber={refNumber} marginTop={marginTop} />}
 
             {/* Loading */}
             {

@@ -56,7 +56,7 @@ const PaymentSuccess: React.FC = () => {
             <span className="font-semibold ml-2">{orderId || "N/A"}</span>
           </p>
           <p className="text-gray-700">
-            Amount Paid:
+            Total Bayar:
             <span className="font-semibold ml-2">
               {amount ? formatRupiah(amount.toLocaleString()) : "N/A"}
             </span>

@@ -1,5 +1,5 @@
 import { formatRupiah } from "@/hooks/convertRupiah";
-import { Check, Download, Share2 } from "lucide-react";
+import { Check, Download, Hourglass, Share2, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import logo from "../images/logo.png";
 import { Button } from "./ui/button";
@@ -18,7 +18,9 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
 
     const [total, setTotal] = useState(0);
     const [amount, setAmount] = useState(0);
-
+    const [success, setSuccess] = useState(true)
+    const [responseCode, setResponseCode] = useState(0)
+    console.log(success)
     const navigate = useNavigate();
 
     const [productDetails, setProductDetails] = useState<any[]>([])
@@ -27,9 +29,12 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
             const response = await axiosInstance.post("/ayoconnect/inquiry/status", {
                 refNumber: refNumber
             });
+            console.log(response.data.responseCode)
             if (response.data.success) {
                 setProductDetails(response.data.data.productDetails)
             }
+            setSuccess(response.data.success)
+            setResponseCode(response.data.responseCode)
             setAmount(data.amount - data.processingFee - data.totalAdmin);
             setTotal(data.amount);
         }
@@ -91,11 +96,15 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
                 <div className="relative z-10">
                     {/* Icon Sukses */}
                     <div className="w-16 h-16 flex items-center justify-center border-2 border-black bg-orange-400 rounded-full m-auto">
-                        <Check className="scale-[2] text-white" />
+                        {success && responseCode == 0 && (<Check className="scale-[2] text-white" />)}
+                        {!success && (responseCode >= 100 && responseCode <= 199) && (<X className="scale-[2] text-white" />)}
+                        {success && (responseCode == 188 || (responseCode >= 200 && responseCode <= 299)) && (<Hourglass className="scale-[2] text-white" />)}
                     </div>
 
                     <p className="font-semibold text-xl text-center text-orange-400 uppercase mt-7">
-                        Pembayaran Berhasil
+                        {success && responseCode == 0 && ('Pembayaran Berhasil')}
+                        {!success && (responseCode >= 100 && responseCode <= 199) && ('Pembayaran Gagal')}
+                        {success && (responseCode == 188 || (responseCode >= 200 && responseCode <= 299)) && ('Pembayaran Dalam Proses')}
                     </p>
 
                     <div className="mt-10 w-full">
@@ -216,11 +225,11 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
 
             <div className="w-[90%] m-auto mt-10 mb-20 flex items-center justify-end">
                 <div className="flex items-center gap-5">
-                    <button onClick={handleShare} type="button" className="border border-orange-500 rounded-full scale-[1.2] p-1 text-orange-500">
+                    <button onClick={handleShare} type="button" className={`${!success ? 'hidden' : ''} border border-orange-500 rounded-full scale-[1.2] p-1 text-orange-500`}>
                         <Share2 />
                     </button>
 
-                    <button onClick={handleDownloadJPEG} type="button" className="text-orange-500 scale-[1.2]">
+                    <button onClick={handleDownloadJPEG} type="button" className={`text-orange-500 scale-[1.2] ${!success ? 'hidden' : ''} `}>
                         <Download />
                     </button>
 

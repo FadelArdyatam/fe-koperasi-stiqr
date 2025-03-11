@@ -1230,7 +1230,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                 <div className="p-10">
                     <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
 
-                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Product edited successfully!</p>
+                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Berhasil mengubah produk</p>
 
                     <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setOpen({ id: "", status: false })} className="w-full bg-green-500 text-white mt-10">
                         Done

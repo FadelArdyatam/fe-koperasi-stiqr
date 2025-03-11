@@ -5,6 +5,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
 import imgNoCatalog from "@/images/no-data-catalog.png";
+import { Plus } from "lucide-react";
 interface Merchant {
     id: string;
     name: string;
@@ -106,13 +107,16 @@ const Etalase: React.FC<EtalaseProps> = ({ etalases, setEtalases, addEtalase, se
                     ))}
                     {etalases.length === 0 && (
                         <div className="flex justify-center gap-3 flex-col">
-                            <img className="md:w-3/12 place-items-center self-center mt-10" src={imgNoCatalog} />
+                            <img className="md:w-3/12 w-2/3 place-items-center self-center mt-10" src={imgNoCatalog} />
                             <p className="text-center text-orange-400 font-bold md:text-xl">Belum ada etalase yang ditambahkan</p>
+                            <Button onClick={() => { setAddEtalase(true); setReset(false) }} className={`bg-orange-500 w-fit self-center`}>
+                                <Plus />  Tambah Etalase
+                            </Button>
                         </div>
                     )}
                 </div>
 
-                <Button onClick={() => { setAddEtalase(true); setReset(false) }} className="fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500">
+                <Button onClick={() => { setAddEtalase(true); setReset(false) }} className={`fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500 ${etalases.length === 0 ? 'hidden' : 'block'}`}>
                     Tambah Etalase
                 </Button>
             </div>
