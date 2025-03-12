@@ -84,6 +84,7 @@ const Keamanan = () => {
                 form.reset({ password: '', newPassword: '', confirmPassword: '' });
             }
         } catch (error: any) {
+            setShowNotificationError(true)
             setErrorPassword(error.response.data?.message || "Terjadi Kesalahan")
         }
     }
@@ -251,7 +252,7 @@ const Keamanan = () => {
                                     name="confirmPassword"
                                     render={({ field }) => (
                                         <FormItem data-aos="fade-up" data-aos-delay="200" className="w-full">
-                                            <FormLabel className="text-gray-500">Retype Password Baru</FormLabel>
+                                            <FormLabel className="text-gray-500">Konfirmasi Password Baru</FormLabel>
 
                                             <FormControl>
                                                 <div className="relative w-full">

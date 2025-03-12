@@ -7,6 +7,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import noProduct from '../../images/no-product.png'
 import imgNoCatalog from "@/images/no-data-catalog.png";
+import { Plus } from 'lucide-react';
 
 
 interface Merchant {
@@ -153,59 +154,71 @@ const Product: React.FC<ProductProps> = ({
                             data-aos="fade-up"
                             data-aos-delay={index * 100}
                             key={product.id}
-                            className="flex w-full justify-between items-center p-4 gap-2 bg-white rounded-md shadow-sm mt-5"
+                            className="flex w-full justify-between items-center p-4 gap-4 bg-white rounded-md shadow-sm mt-5 cursor-pointer hover:cursor-pointer hover:bg-orange-100 transition-all"
                             onClick={() => handleOpen(product.product_id)}
                         >
-                            <button className="flex items-center">
-                                <div className="h-12 w-12 min-w-12 bg-gray-200 rounded-md mr-4">
+                            {/* Kiri: Gambar & Detail Produk */}
+                            <div className="flex items-center gap-4 min-w-0">
+                                {/* Gambar Produk */}
+                                <div className="h-12 w-12 min-w-12 bg-gray-200 rounded-md overflow-hidden">
                                     <img
-                                        src={`${product.product_image ?? noProduct}`}
+                                        src={product.product_image ?? noProduct}
                                         alt={product.product_name}
-                                        className="h-12 w-12 object-cover rounded-md"
+                                        className="h-full w-full object-cover rounded-md"
                                     />
                                 </div>
-                                <div className="flex flex-col items-start">
-                                    <h3 className="text-lg font-semibold text-start text-wrap">
-                                        {product.product_name.length > 15
-                                            ? product.product_name.slice(0, 15) + "..."
-                                            : product.product_name}
-                                    </h3>
 
+                                {/* Informasi Produk */}
+                                <div className="flex flex-col items-start min-w-0">
+                                    <h3 className="text-lg font-semibold text-start truncate w-full">
+                                        {product.product_name}
+                                    </h3>
 
                                     <p className="text-sm text-gray-600">
                                         Rp {new Intl.NumberFormat('id-ID').format(Number(product.product_price))}
                                     </p>
-                                    {
-                                        product?.detail_product?.is_stok && (
-                                            <span className='bg-orange-100 p-1 mt-2 px-3 rounded-full text-orange-500 font-normal text-xs'> stok : {product.detail_product.stok}</span>
-                                        )
-                                    }
-                                </div>
-                            </button>
 
+                                    {product?.detail_product?.is_stok && (
+                                        <span className="bg-orange-100 px-3 py-1 mt-1 rounded-full text-orange-500 font-normal text-xs">
+                                            Stok: {product.detail_product.stok}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Kanan: Switch Button */}
                             <button
                                 className={`flex items-center justify-center w-14 min-w-14 h-8 p-1 rounded-full cursor-pointer 
-                                ${product.product_status ? 'bg-orange-500' : 'bg-gray-300'} transition-colors`}
-                                onClick={(event) => handleSwitchChange(product.product_id, event)}
+                            ${product.product_status ? 'bg-orange-500' : 'bg-gray-300'} transition-colors`}
+                                onClick={(event) => {
+                                    event.stopPropagation(); // Hindari trigger handleOpen saat klik switch
+                                    handleSwitchChange(product.product_id, event);
+                                }}
                             >
                                 <div
                                     className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform 
-                                    ${product.product_status ? 'transform translate-x-3' : 'transform -translate-x-3'}`}
+                                ${product.product_status ? 'translate-x-3' : '-translate-x-3'}`}
                                 />
                             </button>
                         </div>
                     ))}
                     {products?.length === 0 && (
                         <div className="flex justify-center gap-3 flex-col">
-                            <img className="md:w-3/12 place-items-center self-center mt-10" src={imgNoCatalog} />
+                            <img className="md:w-3/12 w-2/3 place-items-center self-center mt-10" src={imgNoCatalog} />
                             <p className="text-center text-orange-400 font-bold md:text-xl">Belum ada produk yang ditambahkan</p>
+                            <Button
+                                onClick={() => { setAddProduct(true); setReset(false) }}
+                                className={`bg-orange-500 w-fit self-center`}
+                            >
+                                <Plus /> Tambah Produk
+                            </Button>
                         </div>
                     )}
                 </div>
 
                 <Button
                     onClick={() => { setAddProduct(true); setReset(false) }}
-                    className="fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500"
+                    className={`fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500 ${products?.length === 0 ? 'hidden' : 'block'}`}
                 >
                     Tambah Produk
                 </Button>

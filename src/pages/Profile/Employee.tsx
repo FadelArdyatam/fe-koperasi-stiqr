@@ -1,12 +1,13 @@
 import AddEmployee from "@/components/AddEmployee";
 import EditEmployee from "@/components/EditEmployee";
 import axiosInstance from "@/hooks/axiosInstance";
-import { ChevronLeft, ChevronRight, CreditCard, FileText, Home, ScanQrCode, User, UserRound } from "lucide-react"
+import { ChevronLeft, ChevronRight, CreditCard, FileText, Home, Plus, ScanQrCode, User, UserRound } from "lucide-react"
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom"
 import noPegawai from "@/images/no-data-image/no-pegawai.png";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { Button } from "@/components/ui/button";
 
 // const initialEmployees = [
 //     {
@@ -151,10 +152,16 @@ const Employee = () => {
 
                 <div className="mt-10 w-[90%] flex flex-col gap-5 mb-24">
                     {employees.length === 0 ? (
-                        <div data-aos="fade-up" data-aos-delay="100" className="flex flex-col items-center justify-center">
-                            <img src={noPegawai} className="md:max-w-max max-w-[300px]" alt="" />
-
-                            <p className="font-semibold text-orange-500 text-xl">Tidak ada Pegawai yang terdaftar</p>
+                        <div data-aos="fade-up" data-aos-delay="100" className="flex flex-col items-center justify-center gap-3">
+                            <img src={noPegawai} className="md:w-3/12 w-2/3 " alt="" />
+                            <p className="font-semibold text-orange-500 md:text-xl text-center">Belum ada Pegawai yang terdaftar</p>
+                            <Button onClick={() => {
+                                setAddEmployee(true)
+                                setIsSuccess(false)
+                            }}
+                                className={` bg-orange-500 w-fit self-center `}>
+                                <Plus /> Tambah Pegawai
+                            </Button>
                         </div>
                     ) : employees?.map((employee, index) => (
                         <div data-aos="fade-up" data-aos-delay={index * 100} key={index} onClick={() => handleOpen(employee?.employee_id)} className="bg-white w-full p-5 flex items-center gap-5 rounded-lg justify-between shadow-lg hover:cursor-pointer">
@@ -179,7 +186,7 @@ const Employee = () => {
                     setAddEmployee(true)
                     setIsSuccess(false)
                 }}
-                    className="fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500 p-3 rounded-full text-white">
+                    className={`${employees.length === 0 ? 'hidden' : 'block'} fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500 p-3 rounded-full text-white`}>
                     Tambah Pegawai
                 </button>
             </div>

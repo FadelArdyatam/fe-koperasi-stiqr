@@ -1,6 +1,6 @@
 import axiosInstance from "@/hooks/axiosInstance";
 import { formatRupiah } from "@/hooks/convertRupiah";
-import { ChevronLeft, Package } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "./ui/form";
@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Notification from "./Notification";
+import noProduct from "@/images/no-product.png";
 
 interface EditVarianProductProps {
     setShowVariantProductHandler: (showVariantProductHandler: { id: string; status: boolean }) => void;
@@ -152,10 +153,13 @@ const EditVarianProduct: React.FC<EditVarianProductProps> = ({ setShowVariantPro
                                                     />
 
                                                     <div className="flex items-center gap-5">
-                                                        <div className="h-20 w-20 flex items-center justify-center bg-gray-200 rounded-md">
-                                                            <Package className="scale-[1.5] text-gray-500" />
+                                                        <div className="h-12 w-12 min-w-12 bg-gray-200 rounded-md ml-4">
+                                                            <img
+                                                                src={`${product.product_image ?? noProduct}`}
+                                                                alt={product.product_name}
+                                                                className="h-12 w-12 object-cover rounded-md"
+                                                            />
                                                         </div>
-
                                                         <div className="flex flex-col items-start gap-1">
                                                             <p className="font-semibold">{product.product_name.length > 20
                                                                 ? product.product_name.slice(0, 20) + "..."

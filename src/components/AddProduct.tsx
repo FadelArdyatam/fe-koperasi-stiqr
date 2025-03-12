@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
-import { ChevronLeft, CircleCheck } from "lucide-react";
+import { ChevronLeft, CircleCheck, X } from "lucide-react";
 import Notification from "./Notification";
 import { useState, useEffect } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
@@ -158,7 +158,8 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
     const [showAddVariant, setShowAddVariant] = useState(false);
     const [allData, setAllData] = useState<any>([]);
     const [stock, setStock] = useState({ stock: 0, minimumStock: 0 });
-
+    const [loading, setloading] = useState(false);
+    const [message, setMessage] = useState("")
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
     }, []);
@@ -355,6 +356,8 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
         console.log("Merged Data:", mergedData);
         try {
+            setloading(true)
+
             const response = await axiosInstance.post("/product/create", mergedData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
@@ -375,9 +378,12 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             }
 
             setShowNotification(true);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error while adding product to API:", error);
             setShowErrorForAddProduct(true);
+            setMessage(error.response?.data?.message || "Terjadi kesalahan")
+        } finally {
+            setloading(false)
         }
     };
 
@@ -638,7 +644,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                     <FormLabel className="flex items-center gap-5">
                                         <p>Etalase</p>
 
-                                        <button onClick={() => setShowPopUpAddEtalase(true)} className="p-2 rounded-lg bg-orange-500 text-white" type="button">+ Add Etalase</button>
+                                        <button onClick={() => setShowPopUpAddEtalase(true)} className="p-2 rounded-lg bg-orange-500 text-white" type="button">+ Tambah Etalase</button>
                                     </FormLabel>
 
                                     {etalases
@@ -761,7 +767,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
                     <Button onClick={() => { setSection({ addProduct: true, detailProduct: false }) }} className="w-full bg-orange-500 text-white">Kembali</Button>
 
-                    <Button onClick={addProductHandler}>Simpan</Button>
+                    <Button onClick={addProductHandler} disabled={loading ? true : false}>Simpan</Button>
                 </div>
 
                 {/* Variant Control */}
@@ -799,9 +805,10 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                 <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div data-aos="fade-up" className="bg-white p-5 rounded-lg w-[90%]">
                         <div className="flex items-center justify-between">
-                            <p className="font-semibold text-xl">Add Etalase</p>
+                            <p className="font-semibold text-xl">Tambah Etalase
+                            </p>
                             <button onClick={() => setShowPopUpAddEtalase(false)}>
-                                <ChevronLeft />
+                                <X />
                             </button>
                         </div>
 
@@ -1172,14 +1179,14 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             {showNotificationAddProduct && <Notification message="Produk berhasil ditambahkan!" onClose={() => setShowNotificationAddProduct(false)} status="success" />}
 
             {/* Error Notification */}
-            {showErrorForAddProduct && <Notification message="Terjadi kesalahan saat menambahkan produk" onClose={() => setShowErrorForAddProduct(false)} status="error" />}
+            {showErrorForAddProduct && <Notification message={message} onClose={() => setShowErrorForAddProduct(false)} status="error" />}
 
             {/* Success Notification */}
             {showNotification && (
                 <div className="p-10">
                     <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
 
-                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Product added successfully!</p>
+                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Berhasil menambahkan produk</p>
 
                     <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setAddProduct(false)} className="w-full bg-green-500 text-white mt-10">
                         Done

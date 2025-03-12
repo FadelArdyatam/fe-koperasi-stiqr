@@ -25,6 +25,9 @@ interface MerchantData {
     village: string;
 }
 const DataMerchant = () => {
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
+
     const [showEdit, setShowEdit] = useState(false)
     const [showNotification, setShowNotification] = useState(false)
     const [merchantData, setMerchantData] = useState<MerchantData>();
@@ -118,6 +121,7 @@ const DataMerchant = () => {
             });
             console.log("Data merchant berhasil diubah:", response.data);
             setShowNotification(true)
+            sessionStorage.setItem("user", JSON.stringify({ ...userData, merchant: response.data.data }));
         } catch (error: any) {
             console.log(error)
         }
@@ -126,9 +130,6 @@ const DataMerchant = () => {
     const [isUpdate, setIsUpdate] = useState(false)
 
     useEffect(() => {
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
-
         const fetchMerchant = async () => {
             try {
                 const response = await axiosInstance.get(

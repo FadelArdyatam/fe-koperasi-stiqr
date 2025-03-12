@@ -53,8 +53,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
 
     console.log("Show Service: ", showService);
 
-    console.log("merged Basket: ", mergedBasket);
-
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
 
@@ -138,8 +136,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 quantity: item.quantity,
                 price: item.price,
                 subtotal: (item.price) * (item.quantity),
-                detail_variants: []
+                detail_variants: item.detail_variants
             }));
+
+            console.log("Modify Basket: ", modifyBasket);
 
             const generateRandomString = (length = 10) => {
                 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -169,7 +169,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
             };
 
             const response = await axiosInstance.post('/sales/create', requestBody);
-            console.log(response)
+
+            console.log("Response create order:", response);
 
             if (status == 'tagih') {
                 setTagih(true)
@@ -408,7 +409,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 </div>
             </div>
 
-            {showOrderProcess && <OrderProcessed setShowOrderProcess={setShowOrderProcess} basket={mergedBasket} type="" sales_id={responseSalesCreate} orderId={orderId} tagih={tagih} setTagih={setTagih} />}
+            {showOrderProcess && <OrderProcessed setShowOrderProcess={setShowOrderProcess} basket={mergedBasket} type="" sales_id={responseSalesCreate} orderId={orderId} tagih={tagih} setTagih={setTagih} selectedCustomer={selectedCustomer} noMeja={noMeja} />}
         </div>
     )
 }

@@ -273,9 +273,9 @@ const Booking = () => {
 
                                     <div className="w-full mt-5">
                                         <div className={`${status === 'cancel' ? 'hidden' : 'flex'} w-full items-center gap-5`}>
-                                            <Button className={`${status === 'done' || status === 'cancel' ? 'hidden' : 'block'} w-full rounded-full bg-transparent border border-orange-500 text-orange-500`}>
+                                            <Link to={"/casheer"} className={`${status === 'done' || status === 'cancel' ? 'hidden' : 'block'} hover:bg-gray-800 transition-all p-2 text-center w-full rounded-full bg-transparent border border-orange-500 text-orange-500`}>
                                                 Tambah Pesanan
-                                            </Button>
+                                            </Link>
 
                                             <Button onClick={() => setShowReceipt({ type: "", show: true, index: index })} className="w-full rounded-full bg-orange-200 border border-orange-500 text-orange-500">
                                                 Cetak Struk
@@ -306,7 +306,9 @@ const Booking = () => {
                     tagih={tagih}
                     setTagih={setTagih}
                     orderId={datas[index].orderId}
-                    type="detail" />
+                    type="detail"
+                    selectedCustomer={undefined}
+                    noMeja={""} />
             )}
 
             {showReceipt.show && (
