@@ -128,7 +128,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
             <div className={`${addVariant || open.status || showVariantProductHandler.status ? 'hidden' : 'block'}`}>
                 <div>
                     {variants.map((variant, index) => (
-                        <div data-aos="fade-up" data-aos-delay={index * 100} key={variant.id} className="shadow-sm flex flex-col mb-3 bg-white hover:cursor-pointer hover:bg-orange-100 transition ease-in-out rounded-md duration-500">
+                        <div data-aos="fade-up" data-aos-delay={index * 100} key={variant.id} className="shadow-sm flex flex-col mb-3 bg-white hover:cursor-pointer hover:bg-orange-100 transition-all rounded-md duration-500">
                             <div onClick={() => handleOpen(variant.variant_id)} className="">
                                 <div
                                     className="flex w-full justify-between items-center p-4 rounded-md mt-3 hover:cursor-pointer"
