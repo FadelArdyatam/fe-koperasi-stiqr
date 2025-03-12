@@ -28,7 +28,12 @@ const InprogressPPOB: React.FC<BillProps> = ({ data, marginTop, refNumber }) => 
                         <div className='w-16 h-16 flex items-center justify-center border-2 border-black bg-orange-400 rounded-full m-auto'>
                             <Hourglass className="scale-[2] text-white" />
                         </div>
-                        <p className="text-orange-500 font-bold text-xl">Mohon tunggu...</p>
+                        <div className="flex items-center justify-center gap-2">
+                            <p className="text-orange-500 font-bold text-xl">Mohon tunggu</p>
+                            <span className="text-orange-500 animate-bounce">.</span>
+                            <span className="text-orange-500 animate-bounce delay-200">.</span>
+                            <span className="text-orange-500 animate-bounce delay-400">.</span>
+                        </div>
                         <img src={waitingImg} className="" />
                         <p>Pesanan anda sedang di proses, mohon untuk menunggu</p>
                     </div>

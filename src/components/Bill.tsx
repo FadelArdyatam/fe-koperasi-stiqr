@@ -140,7 +140,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                     {
                         data.category !== 'Pulsa' && data.category !== 'Paket Data' && (
                             <div>
-                                <p className="font-bold text-xl">Detail Pengguna</p>
+                                <p className="font-bold text-xl">Detail Pelanggan</p>
                                 <div className="w-full my-2 h-[2px] bg-gray-200"></div>
 
                                 {data.customerDetails && data.customerDetails.length > 0 &&

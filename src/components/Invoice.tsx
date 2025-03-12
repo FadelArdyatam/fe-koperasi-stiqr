@@ -11,16 +11,19 @@ interface InvoiceProps {
     data: any;
     refNumber: string;
     marginTop: boolean;
+    isDetail?: boolean;
 }
 
-const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
+const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail }) => {
     const captureRef = useRef<HTMLDivElement>(null);
+    console.log(data)
 
     const [total, setTotal] = useState(0);
     const [amount, setAmount] = useState(0);
     const [success, setSuccess] = useState(true)
     const [responseCode, setResponseCode] = useState(0)
-    console.log(success)
+    const [message, setMessage] = useState("")
+    const [loading, setLoading] = useState(true)
     const navigate = useNavigate();
 
     const [productDetails, setProductDetails] = useState<any[]>([])
@@ -29,14 +32,16 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
             const response = await axiosInstance.post("/ayoconnect/inquiry/status", {
                 refNumber: refNumber
             });
-            console.log(response.data.responseCode)
+            console.log(response.data)
             if (response.data.success) {
                 setProductDetails(response.data.data.productDetails)
             }
             setSuccess(response.data.success)
             setResponseCode(response.data.responseCode)
-            setAmount(data.amount - data.processingFee - data.totalAdmin);
-            setTotal(data.amount);
+            setMessage(response.data.message.ID)
+            setAmount(response.data.data.amount - response.data.data.processingFee - response.data.data.totalAdmin);
+            setTotal(response.data.data.amount);
+            setLoading(false)
         }
         fetchDetail()
     }, [data, refNumber]);
@@ -91,7 +96,14 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
 
     return (
         <>
-            <div className={`${marginTop ? 'mt-[130px]' : 'mt-[-90px] bg-white'} w-[90%] m-auto shadow-lg z-0 p-10 rounded-lg relative bg-gray-50 overflow-hidden`}>
+            {
+                loading && (
+                    <div className={`fixed top-0 bottom-0 left-0 right-0 ${!isDetail ? 'bg-black bg-opacity-50' : 'mt-48 '}  w-full h-full flex items-center justify-center`}>
+                        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                    </div>
+                )
+            }
+            <div className={`${marginTop ? 'mt-[130px]' : 'mt-[-90px] bg-white'} ${loading ? 'hidden' : ''} w-[90%] m-auto shadow-lg z-0 p-10 rounded-lg relative bg-gray-50 overflow-hidden`}>
                 {/* Konten Utama */}
                 <div className="relative z-10">
                     {/* Icon Sukses */}
@@ -102,15 +114,14 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
                     </div>
 
                     <p className="font-semibold text-xl text-center text-orange-400 uppercase mt-7">
-                        {success && responseCode == 0 && ('Pembayaran Berhasil')}
-                        {!success && (responseCode >= 100 && responseCode <= 199) && ('Pembayaran Gagal')}
-                        {success && (responseCode == 188 || (responseCode >= 200 && responseCode <= 299)) && ('Pembayaran Dalam Proses')}
+                        {message}
                     </p>
 
                     <div className="mt-10 w-full">
-                        {data.category !== "Pulsa" && data.category !== "Paket Data" && (
+                        {/* Hanya tampilkan jika responseCode di luar range 100-199 */}
+                        {!(responseCode >= 100 && responseCode <= 199) && data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <div>
-                                <p className="font-bold text-xl">Detail Pengguna</p>
+                                <p className="font-bold text-xl">Detail Pelanggan</p>
                                 <div className="w-full my-2 h-[2px] bg-gray-200"></div>
 
                                 {data.customerDetails &&
@@ -124,12 +135,13 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
                             </div>
                         )}
 
+                        {/* Detail Tagihan tetap ditampilkan */}
                         <p className="font-bold text-xl mt-5">Detail Tagihan</p>
                         <div className="w-full my-2 h-[2px] bg-gray-200"></div>
 
                         {(data.category === "Pulsa" || data.category === "Paket Data") && (
                             <div className="flex items-start gap-5 justify-between mt-5">
-                                <p>Nomor HP Pengguna</p>
+                                <p>Nomor HP Pelanggan</p>
                                 <p>{data.accountNumber}</p>
                             </div>
                         )}
@@ -143,7 +155,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
                                         : "hidden"
                                         } `}
                                 >
-                                    1 x {formatRupiah(data.amount)}
+                                    1 x {formatRupiah(amount)}
                                 </p>
                             </div>
                             <p
@@ -152,10 +164,11 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
                                     : "hidden"
                                     }`}
                             >
-                                {formatRupiah(data.amount)}
+                                {formatRupiah(amount)}
                             </p>
                         </div>
 
+                        {/* Tampilkan billDetails jika ada */}
                         {data.category !== "Pulsa" &&
                             data.category !== "Paket Data" &&
                             data.billDetails.length > 0 && (
@@ -185,51 +198,53 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
                                     ))}
                                 </div>
                             )}
-                        {
-                            productDetails.length > 0 && (
-                                <div>
-                                    {productDetails.map((detail: any, index: number) => (
-                                        <div key={index} className="flex justify-between gap-5 mt-5">
-                                            <p>{detail.key}</p>
-                                            <p>{detail.value}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            )
-                        }
 
-                        {data.category !== "Pulsa" && data.category !== "Paket Data" && (
-                            <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
-                                <p>Biaya Penanganan</p>
-                                <p>{formatRupiah(data.processingFee)}</p>
+                        {/* Tampilkan productDetails jika ada */}
+                        {productDetails.length > 0 && (
+                            <div>
+                                {productDetails.map((detail: any, index: number) => (
+                                    <div key={index} className="flex justify-between gap-5 mt-5">
+                                        <p>{detail.key}</p>
+                                        <p>{detail.value}</p>
+                                    </div>
+                                ))}
                             </div>
                         )}
 
+                        {/* Biaya Penanganan & Total Belanja hanya jika responseCode bukan 100-199 */}
+                        <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
+                            <p>Biaya Penanganan</p>
+                            <p>{formatRupiah(data.processingFee)}</p>
+                        </div>
 
                         {data.category !== "Pulsa" && data.category !== "Paket Data" && (
-                            <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
-                                <p>Total Belanja</p>
-                                <p>{formatRupiah(amount)}</p>
-                            </div>
+                            <>
+
+                                <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
+                                    <p>Total Belanja</p>
+                                    <p>{formatRupiah(Number(amount))}</p>
+                                </div>
+                            </>
                         )}
 
                         <div className="w-full my-5 h-[2px] bg-gray-200"></div>
 
                         <div className="flex items-center gap-5 justify-between">
                             <p className="font-bold">Total Bayar</p>
-                            <p className="text-orange-400 font-bold">{formatRupiah(total)}</p>
+                            <p className="text-orange-400 font-bold">{formatRupiah(Number(total))}</p>
                         </div>
                     </div>
+
                 </div>
             </div>
 
-            <div className="w-[90%] m-auto mt-10 mb-20 flex items-center justify-end">
+            <div className={` ${loading ? 'hidden' : 'w-[90%] m-auto mt-10 mb-20 flex items-center justify-end'} `}>
                 <div className="flex items-center gap-5">
-                    <button onClick={handleShare} type="button" className={`${!success ? 'hidden' : ''} border border-orange-500 rounded-full scale-[1.2] p-1 text-orange-500`}>
+                    <button onClick={handleShare} type="button" className={`${success && responseCode == 0 ? '' : 'hidden'} border border-orange-500 rounded-full scale-[1.2] p-1 text-orange-500`}>
                         <Share2 />
                     </button>
 
-                    <button onClick={handleDownloadJPEG} type="button" className={`text-orange-500 scale-[1.2] ${!success ? 'hidden' : ''} `}>
+                    <button onClick={handleDownloadJPEG} type="button" className={`text-orange-500 scale-[1.2] ${success && responseCode == 0 ? '' : 'hidden'} `}>
                         <Download />
                     </button>
 
@@ -277,7 +292,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
                     <div className="mt-10 w-full">
                         {data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <div>
-                                <p className="font-bold text-xl">Detail Pengguna</p>
+                                <p className="font-bold text-xl">Detail Pelanggan</p>
                                 <div className="w-full my-2 h-[2px] bg-gray-200"></div>
 
                                 {data.customerDetails &&
@@ -296,7 +311,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
 
                         {(data.category === "Pulsa" || data.category === "Paket Data") && (
                             <div className="flex items-start gap-5 justify-between mt-5">
-                                <p>Nomor HP Pengguna</p>
+                                <p>Nomor HP Pelanggan</p>
                                 <p>{data.accountNumber}</p>
                             </div>
                         )}
@@ -310,7 +325,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
                                         : "hidden"
                                         } `}
                                 >
-                                    1 x {formatRupiah(data.amount)}
+                                    1 x {formatRupiah(amount)}
                                 </p>
                             </div>
                             <p
@@ -319,7 +334,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop }) => {
                                     : "hidden"
                                     }`}
                             >
-                                {formatRupiah(data.amount)}
+                                {formatRupiah(amount)}
                             </p>
                         </div>
 

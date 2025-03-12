@@ -156,7 +156,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                             <div className="flex flex-row justify-between w-full p-4">
                                 {/* Elemen kiri */}
                                 <div className="w-auto">
-                                    <p>Diterapkan ke {variant?.product_variant?.length} produk</p>
+                                    <p>Diterapkan ke {variant?.product_variant?.length ?? 0} produk</p>
                                 </div>
 
                                 {/* Elemen kanan */}
