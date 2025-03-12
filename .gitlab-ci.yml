@@ -70,7 +70,7 @@ generate-variables:
   when: on_success
 
 
-build-app-onprem:
+build-app-onstag:
   stage: build
   image: harbor-regs.wachid.web.id/library/docker:24.0.5
   script:
@@ -82,6 +82,17 @@ build-app-onprem:
     - development
     - main
     - dev
+
+build-app-ondev:
+  stage: build
+  image: harbor-regs.wachid.web.id/library/docker:24.0.5
+  script:
+    - source variables.env
+    - echo "Building Docker image..."
+    - docker build -t "$IMAGE_TAG_PRE" . -f Dockerfile.ondev
+    - docker push "$IMAGE_TAG_PRE"
+  only: 
+    - on-development
 
 
 build-app-cloud:
@@ -132,7 +143,7 @@ release:
     - docker commit "$CI_REG_PROJECT_NAME" "$IMAGE_TAG_LATEST"
     - docker push "$IMAGE_TAG_LATEST"
 
-deploy:
+deploy-onstag:
   stage: deploy
   script:
     - source variables.env
@@ -169,7 +180,7 @@ deploy:
     - main
     - dev
 
-deploy:
+deploy-ondev:
   stage: deploy
   script:
     - source variables.env
