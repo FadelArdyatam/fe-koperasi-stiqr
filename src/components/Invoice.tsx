@@ -8,15 +8,16 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "@/hooks/axiosInstance";
 
 interface InvoiceProps {
-    data: any;
+    // data: any;
     refNumber: string;
     marginTop: boolean;
     isDetail?: boolean;
 }
 
-const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail }) => {
+// const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail }) => {
+const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => {
     const captureRef = useRef<HTMLDivElement>(null);
-    console.log(data)
+    // console.log(data)
 
     const [total, setTotal] = useState(0);
     const [amount, setAmount] = useState(0);
@@ -25,17 +26,30 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
     const [message, setMessage] = useState("")
     const [loading, setLoading] = useState(true)
     const navigate = useNavigate();
+    interface Data {
+        productName: string;
+        accountNumber: string;
+        amount: number;
+        processingFee: number;
+        totalAdmin: number;
+        category: string;
+        customerDetails?: { key: string; value: string }[];
+        billDetails?: { key: string; value: number; billInfo?: { key: string; value: string }[] }[];
+    }
 
+    const [data, setData] = useState<Data | null>(null);
     const [productDetails, setProductDetails] = useState<any[]>([])
     useEffect(() => {
         const fetchDetail = async () => {
             const response = await axiosInstance.post("/ayoconnect/inquiry/status", {
                 refNumber: refNumber
             });
+            console.log('inquiry status:')
             console.log(response.data)
             if (response.data.success) {
                 setProductDetails(response.data.data.productDetails)
             }
+            setData(response.data.data)
             setSuccess(response.data.success)
             setResponseCode(response.data.responseCode)
             setMessage(response.data.message.ID)
@@ -44,7 +58,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
             setLoading(false)
         }
         fetchDetail()
-    }, [data, refNumber]);
+    }, [refNumber]);
 
     const handleDownloadJPEG = async () => {
         const element = document.getElementById("downloadable-content"); // ID dari elemen yang ingin di-download
@@ -58,7 +72,9 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
         const date = new Date();
         const formattedDate = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
 
-        link.download = `${data.productName}-${data.accountNumber}-${formattedDate}.jpeg`;
+        if (data) {
+            link.download = `${data.productName}-${data.accountNumber}-${formattedDate}.jpeg`;
+        }
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -76,7 +92,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
             const blob = await (await fetch(dataUrl)).blob();
             const date = new Date();
             const formattedDate = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
-            const fileName = `${data.productName}-${data.accountNumber}-${formattedDate}.jpg`;
+            const fileName = `${data?.productName}-${data?.accountNumber}-${formattedDate}.jpg`;
             const file = new File([blob], `${fileName}`, { type: "image/jpeg" });
 
             // Cek apakah Web Share API didukung
@@ -119,27 +135,30 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
 
                     <div className="mt-10 w-full">
                         {/* Hanya tampilkan jika responseCode di luar range 100-199 */}
-                        {!(responseCode >= 100 && responseCode <= 199) && data.category !== "Pulsa" && data.category !== "Paket Data" && (
-                            <div>
-                                <p className="font-bold text-xl">Detail Pelanggan</p>
-                                <div className="w-full my-2 h-[2px] bg-gray-200"></div>
+                        {data && !(responseCode >= 100 && responseCode <= 199)
+                            && !(responseCode == 188 || (responseCode >= 200 && responseCode <= 299))
+                            && data.category !== "Pulsa"
+                            && data.category !== "Paket Data" && (
+                                <div>
+                                    <p className="font-bold text-xl">Detail Pelanggan</p>
+                                    <div className="w-full my-2 h-[2px] bg-gray-200"></div>
 
-                                {data.customerDetails &&
-                                    data.customerDetails.length > 0 &&
-                                    data.customerDetails.map((detail: any, index: number) => (
-                                        <div key={index} className="flex justify-between gap-5 mt-5">
-                                            <p>{detail.key}</p>
-                                            <p>{detail.value}</p>
-                                        </div>
-                                    ))}
-                            </div>
-                        )}
+                                    {data.customerDetails &&
+                                        data.customerDetails.length > 0 &&
+                                        data.customerDetails.map((detail: any, index: number) => (
+                                            <div key={index} className="flex justify-between gap-5 mt-5">
+                                                <p>{detail.key}</p>
+                                                <p>{detail.value}</p>
+                                            </div>
+                                        ))}
+                                </div>
+                            )}
 
                         {/* Detail Tagihan tetap ditampilkan */}
                         <p className="font-bold text-xl mt-5">Detail Tagihan</p>
                         <div className="w-full my-2 h-[2px] bg-gray-200"></div>
 
-                        {(data.category === "Pulsa" || data.category === "Paket Data") && (
+                        {data && (data.category === "Pulsa" || data.category === "Paket Data") && (
                             <div className="flex items-start gap-5 justify-between mt-5">
                                 <p>Nomor HP Pelanggan</p>
                                 <p>{data.accountNumber}</p>
@@ -148,9 +167,9 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
 
                         <div className="flex items-start gap-5 justify-between mt-5">
                             <div>
-                                <p>{data.productName}</p>
+                                <p>{data?.productName}</p>
                                 <p
-                                    className={`text-sm text-gray-400 mt-2 ${data.category === "Pulsa" || data.category === "Paket Data"
+                                    className={`text-sm text-gray-400 mt-2 ${data?.category === "Pulsa" || data?.category === "Paket Data"
                                         ? "block"
                                         : "hidden"
                                         } `}
@@ -159,7 +178,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
                                 </p>
                             </div>
                             <p
-                                className={`${data.category === "Pulsa" || data.category === "Paket Data"
+                                className={`${data?.category === "Pulsa" || data?.category === "Paket Data"
                                     ? "block"
                                     : "hidden"
                                     }`}
@@ -169,9 +188,9 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
                         </div>
 
                         {/* Tampilkan billDetails jika ada */}
-                        {data.category !== "Pulsa" &&
+                        {data && data.category !== "Pulsa" &&
                             data.category !== "Paket Data" &&
-                            data.billDetails.length > 0 && (
+                            data.billDetails && data.billDetails.length > 0 && (
                                 <div>
                                     {data.billDetails.map((bill: any, index: number) => (
                                         <div key={index} className="flex flex-col gap-5 mt-5">
@@ -200,7 +219,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
                             )}
 
                         {/* Tampilkan productDetails jika ada */}
-                        {productDetails.length > 0 && (
+                        {data && productDetails.length > 0 && (
                             <div>
                                 {productDetails.map((detail: any, index: number) => (
                                     <div key={index} className="flex justify-between gap-5 mt-5">
@@ -212,14 +231,24 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
                         )}
 
                         {/* Biaya Penanganan & Total Belanja hanya jika responseCode bukan 100-199 */}
-                        <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
-                            <p>Biaya Penanganan</p>
-                            <p>{formatRupiah(data.processingFee)}</p>
-                        </div>
 
-                        {data.category !== "Pulsa" && data.category !== "Paket Data" && (
+                        {data && (
+                            <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
+                                <p>Biaya Penanganan</p>
+                                <p>{formatRupiah(data?.processingFee)}</p>
+                            </div>
+                        )}
+
+                        {data && data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <>
-
+                                {
+                                    (responseCode == 188 || (responseCode >= 200 && responseCode <= 299)) && (
+                                        <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
+                                            <p>Biaya Admin</p>
+                                            <p>{formatRupiah(data?.totalAdmin)}</p>
+                                        </div>
+                                    )
+                                }
                                 <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
                                     <p>Total Belanja</p>
                                     <p>{formatRupiah(Number(amount))}</p>
@@ -240,15 +269,15 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
 
             <div className={` ${loading ? 'hidden' : 'w-[90%] m-auto mt-10 mb-20 flex items-center justify-end'} `}>
                 <div className="flex items-center gap-5">
-                    <button onClick={handleShare} type="button" className={`${success && responseCode == 0 ? '' : 'hidden'} border border-orange-500 rounded-full scale-[1.2] p-1 text-orange-500`}>
+                    <button onClick={handleShare} title="Bagikan" type="button" className={`${success && responseCode == 0 ? '' : 'hidden'} border border-orange-500 rounded-full scale-[1.2] p-1 text-orange-500`}>
                         <Share2 />
                     </button>
 
-                    <button onClick={handleDownloadJPEG} type="button" className={`text-orange-500 scale-[1.2] ${success && responseCode == 0 ? '' : 'hidden'} `}>
+                    <button onClick={handleDownloadJPEG} title="Unduh" type="button" className={`text-orange-500 scale-[1.2] ${success && responseCode == 0 ? '' : 'hidden'} `}>
                         <Download />
                     </button>
 
-                    <Button onClick={() => navigate("/dashboard")} type="button" className="bg-green-500 text-white w-[150px]">Kembali</Button>
+                    <Button onClick={() => navigate("/dashboard")} type="button" className={`${isDetail ? 'hidden' : ''} bg-green-500 text-white w-[150px]`}>Kembali</Button>
                 </div>
             </div>
 
@@ -290,7 +319,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
                     <img className="w-[40%] m-auto" src={logo} alt="" />
 
                     <div className="mt-10 w-full">
-                        {data.category !== "Pulsa" && data.category !== "Paket Data" && (
+                        {data && data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <div>
                                 <p className="font-bold text-xl">Detail Pelanggan</p>
                                 <div className="w-full my-2 h-[2px] bg-gray-200"></div>
@@ -309,7 +338,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
                         <p className="font-bold text-xl mt-5">Detail Tagihan</p>
                         <div className="w-full my-2 h-[2px] bg-gray-200"></div>
 
-                        {(data.category === "Pulsa" || data.category === "Paket Data") && (
+                        {data && (data.category === "Pulsa" || data.category === "Paket Data") && (
                             <div className="flex items-start gap-5 justify-between mt-5">
                                 <p>Nomor HP Pelanggan</p>
                                 <p>{data.accountNumber}</p>
@@ -318,9 +347,9 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
 
                         <div className="flex items-start gap-5 justify-between mt-5">
                             <div>
-                                <p>{data.productName}</p>
+                                <p>{data?.productName}</p>
                                 <p
-                                    className={`text-sm text-gray-400 mt-2 ${data.category === "Pulsa" || data.category === "Paket Data"
+                                    className={`text-sm text-gray-400 mt-2 ${data?.category === "Pulsa" || data?.category === "Paket Data"
                                         ? "block"
                                         : "hidden"
                                         } `}
@@ -329,7 +358,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
                                 </p>
                             </div>
                             <p
-                                className={`${data.category === "Pulsa" || data.category === "Paket Data"
+                                className={`${data?.category === "Pulsa" || data?.category === "Paket Data"
                                     ? "block"
                                     : "hidden"
                                     }`}
@@ -338,9 +367,9 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
                             </p>
                         </div>
 
-                        {data.category !== "Pulsa" &&
+                        {data && data.category !== "Pulsa" &&
                             data.category !== "Paket Data" &&
-                            data.billDetails.length > 0 && (
+                            data.billDetails && data.billDetails.length > 0 && (
                                 <div>
                                     {data.billDetails.map((bill: any, index: number) => (
                                         <div key={index} className="flex flex-col gap-5 mt-5">
@@ -381,7 +410,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
                             )
                         }
 
-                        {data.category !== "Pulsa" && data.category !== "Paket Data" && (
+                        {data && data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
                                 <p>Biaya Penanganan</p>
                                 <p>{formatRupiah(data.processingFee)}</p>
@@ -390,7 +419,7 @@ const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail 
 
 
 
-                        {data.category !== "Pulsa" && data.category !== "Paket Data" && (
+                        {data && data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
                                 <p>Total Belanja</p>
                                 <p>{formatRupiah(amount)}</p>

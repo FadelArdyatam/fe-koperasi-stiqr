@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
-import { Check, Info } from 'lucide-react';
+import {  Info } from 'lucide-react';
 import axiosInstance from '@/hooks/axiosInstance';
 import Notification from './Notification';
 import { formatRupiah } from '@/hooks/convertRupiah';
@@ -34,7 +34,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
     console.log(data)
     const [showPinInput, setShowPinInput] = useState(false);
     const [pin, setPin] = useState<string[]>([]);
-    const [showNotification, setShowNotification] = useState(false);
+    // const [showNotification, setShowNotification] = useState(false);
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState(false);
     // const navigate = useNavigate();
@@ -104,27 +104,6 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
         setShowPinInput(false);
         setPin([]);
     };
-
-    // const [productDetails, setProductDetails] = useState<any[]>([])
-    const backToHomeHandler = () => {
-        // if (data.category == "Listrik" && data.productName != "PLN Postpaid") {
-        //     const response = await axiosInstance.post("/ayoconnect/inquiry/status", {
-        //         refNumber: refNumber
-        //     });
-        //     if (response.data.success) {
-        //         setToken(response.data.data.token);
-        //         setProductDetails(response.data.data.productDetails)
-        //         setShowNotification(false);
-        //     }
-        // } else {
-        //     navigate('/dashboard');
-        //     setShowNotification(false);
-        // }
-        // setShowInvoice(true)
-        setShowNotification(false);
-
-    };
-
 
     return (
         <>
@@ -333,20 +312,6 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                     setLoading(false)
                 }} message={error} status="error" />
             }
-
-            {/* Notifikasi Sukses */}
-            <div className={`${showNotification ? 'flex' : 'hidden'} fixed items-center justify-center top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50`}>
-                <div className="w-[90%] bg-white p-5 mt-5 rounded-lg flex items-center flex-col gap-5">
-                    <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-green-400'>
-                        <Check />
-                    </div>
-
-                    <p className="font-semibold text-xl">Terimakasih</p>
-                    <p className='text-base'>Transaksi pembayaran Anda Berhasil.</p>
-
-                    <Button onClick={backToHomeHandler} className="w-full">Lanjutkan</Button>
-                </div>
-            </div>
 
             {showInproggresStep && <InprogressPPOB data={data} refNumber={refNumber} marginTop={marginTop} />}
 

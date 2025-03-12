@@ -10,16 +10,19 @@ interface BillProps {
     data: any;
     marginTop: boolean;
     refNumber: string;
+    isDetail?: boolean;
 }
-const InprogressPPOB: React.FC<BillProps> = ({ data, marginTop, refNumber }) => {
+const InprogressPPOB: React.FC<BillProps> = ({ data, marginTop, refNumber, isDetail }) => {
     const navigate = useNavigate()
     const [showInvoice, setShowInvoice] = useState(false);
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setShowInvoice(true);
-        }, 10000);
-        return () => clearTimeout(timer);
-    }, []);
+        if (!isDetail) {
+            const timer = setTimeout(() => {
+                setShowInvoice(true);
+            }, 10000);
+            return () => clearTimeout(timer);
+        }
+    }, [isDetail]);
     return (
         <>
             <div className={`${marginTop ? 'mt-[130px]' : 'mt-[-90px] bg-white'} ${showInvoice ? 'hidden' : 'block'} w-[90%] m-auto shadow-lg z-0 p-10 rounded-lg relative bg-white overflow-hidden`}>
@@ -42,27 +45,27 @@ const InprogressPPOB: React.FC<BillProps> = ({ data, marginTop, refNumber }) => 
                         <div className="w-full my-2 h-[2px] bg-gray-200"></div>
                         <div className="flex justify-between w-full">
                             <p className="text-gray-500">Nomor Akun</p>
-                            <p>{data.accountNumber}</p>
+                            <p>{data?.accountNumber}</p>
                         </div>
                         <div className="flex justify-between w-full">
-                            <p className="text-gray-500">{data.category} - {data.productName}</p>
-                            <p>{formatRupiah(data.amount)}</p>
+                            <p className="text-gray-500">{data?.category} - {data?.productName}</p>
+                            <p>{formatRupiah(data?.amount)}</p>
                         </div>
                         <div className="w-full my-2 h-[2px] bg-gray-200 mb-3"></div>
                         <div className="flex justify-between w-full">
                             <p className="text-gray-500">Total Tagihan</p>
-                            <p>{formatRupiah(data.amount)}</p>
+                            <p>{formatRupiah(data?.amount)}</p>
                         </div>
                     </div>
                     <div className="flex md:flex-row flex-col justify-center gap-5 mt-5 w-full">
                         <Button onClick={() => navigate('/dashboard')} className="w-full bg-orange-400"><X /> Tutup</Button>
                         <Button onClick={() => navigate('/profile/history', {
-                            state: { type: "Uang Keluar" }
+                            state: { type: "Pembelian" }
                         })} className="w-full bg-green-400"><ListCheck /> Lihat Riwayat</Button>
                     </div>
                 </div>
             </div>
-            {showInvoice && <Invoice data={data} refNumber={refNumber} marginTop={marginTop} />}
+            {showInvoice && <Invoice refNumber={refNumber} marginTop={marginTop} />}
         </>
     );
 };

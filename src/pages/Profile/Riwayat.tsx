@@ -591,9 +591,9 @@ const Riwayat = () => {
                 ) : (
                     <div>
                         {
-                            purchases[showDescription.index]?.log_purchases.length > 0 && (
+                            purchases[showDescription.index] && (
                                 <>
-                                    <Invoice data={purchases[showDescription.index]?.log_purchases[0]?.callback_response?.data} refNumber={purchases[showDescription.index]?.refnumber} marginTop={!showDescription.status} isDetail={true} />
+                                    <Invoice refNumber={purchases[showDescription.index]?.refnumber} marginTop={!showDescription.status} isDetail={true} />
                                 </>
                             )
                         }
