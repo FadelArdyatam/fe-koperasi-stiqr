@@ -436,7 +436,7 @@ const Casheer = () => {
 
                                 <Input
                                     type="number"
-                                    className="text-center xs:w-24 w-14 border rounded-md appearance-none px-2"
+                                    className="text-center xs:w-24 w-16 border rounded-md appearance-none px-2"
                                     value={
                                         basket
                                             .filter((item) => item.product === product.product_name)
@@ -551,7 +551,7 @@ const Casheer = () => {
 
                                 <Input
                                     type="number"
-                                    className="text-center xs:w-24 w-14 border rounded-md appearance-none px-2"
+                                    className="text-center xs:w-24 w-16 border rounded-md appearance-none px-2"
                                     disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
                                     value={
                                         basket

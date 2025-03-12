@@ -112,7 +112,8 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                                                     id={`checkbox-${valueIndex}-${i}`}
                                                     name={!detail.variant.is_multiple ? "variant-option" : `checkbox-${valueIndex}`}
                                                     value={detail.variant.variant_name}
-                                                    className="w-4 h-4 border-gray-300 rounded"
+                                                    className={`border-gray-300 rounded ${detail.variant.is_multiple ? "w-4 h-4" : "scale-[1.5]"
+                                                        }`}
                                                     checked={
                                                         detail.variant.is_multiple
                                                             ? detailVariant.some((v) => v.detail_variant_id === variant.detail_variant_id) // ✅ Checkbox tetap checked jika ada di detailVariant

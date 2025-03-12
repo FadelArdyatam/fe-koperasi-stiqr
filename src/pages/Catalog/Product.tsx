@@ -153,7 +153,7 @@ const Product: React.FC<ProductProps> = ({
                             data-aos="fade-up"
                             data-aos-delay={index * 100}
                             key={product.id}
-                            className="flex w-full justify-between items-center p-4 gap-4 bg-white rounded-md shadow-sm mt-5 cursor-pointer"
+                            className="flex w-full justify-between items-center p-4 gap-4 bg-white rounded-md shadow-sm mt-5 cursor-pointer hover:cursor-pointer hover:bg-orange-100 transition-all"
                             onClick={() => handleOpen(product.product_id)}
                         >
                             {/* Kiri: Gambar & Detail Produk */}
