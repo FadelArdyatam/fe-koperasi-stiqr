@@ -102,7 +102,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                         {product?.product_variant?.map((detail: any, valueIndex: number) => (
                             <div key={valueIndex} className="flex flex-col gap-2">
                                 <p className="font-semibold">{detail.variant.variant_name}</p>
-                                <p className="text-gray-500">{detail.variant.is_multiple ? 'Pilih lebih dari 1' : 'Pilih Maksimal 1'}</p>
+                                <p className="text-gray-500">{detail.variant.is_multiple ? 'Opsional' : 'Pilih 1'}</p>
                                 {
                                     detail?.variant?.detail_variant.map((variant: any, i: number) => (
                                         <div key={i} className="flex flex-row justify-between">

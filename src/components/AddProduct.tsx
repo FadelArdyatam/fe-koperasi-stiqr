@@ -141,7 +141,16 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
     const [showNotificationVariant, setShowNotificationVariant] = useState(false);
     const [showNotificationAddProduct, setShowNotificationAddProduct] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
+    // const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
+    const [selectedEtalase, setSelectedEtalase] = useState<string[]>([]);
+    const handleCheckboxChange = (etalaseId: string) => {
+        setSelectedEtalase((prev) =>
+            prev.includes(etalaseId)
+                ? prev.filter((id) => id !== etalaseId) // Hapus jika sudah dipilih
+                : [...prev, etalaseId] // Tambahkan jika belum ada
+        );
+    };
+    console.log(selectedEtalase);
     const [selectedVariants, setSelectedVariants] = useState<{ variant_id: string }[]>([]);
     const [showPopUpAddEtalase, setShowPopUpAddEtalase] = useState(false);
     const [showPopUpAddVariant, setShowPopUpAddVariant] = useState(false);
@@ -217,7 +226,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         formData.append("product_price", data.product_price.toString()); // Pastikan angka dikonversi ke string
         formData.append("product_status", "true"); // FormData tidak mendukung boolean langsung
         formData.append("product_description", data.product_description || "");
-        formData.append("showcase_id", selectedEtalase || "1"); // Jika tidak ada etalase yang dipilih, gunakan etalase "Semua Produk"
+        // formData.append("showcase_id", selectedEtalase.join(',')); // Jika tidak ada etalase yang dipilih, gunakan etalase "Semua Produk"
 
         // Ambil merchant_id dari sessionStorage
         const merchantId = sessionStorage.getItem("user")
@@ -368,14 +377,15 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
             setProducts([...products, response.data.data]);
 
-            if (selectedEtalase) {
+            if (selectedEtalase.length > 0) {
                 const response2 = await axiosInstance.post("/showcase-product/create", {
                     product_id: response?.data?.data?.product_id,
-                    showcase_id: selectedEtalase,
+                    showcase_id: selectedEtalase, // Kirim sebagai array
                 });
-
+            
                 console.log(response2);
             }
+            
 
             setShowNotification(true);
         } catch (error: any) {
@@ -647,16 +657,15 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                         <button onClick={() => setShowPopUpAddEtalase(true)} className="p-2 rounded-lg bg-orange-500 text-white" type="button">+ Tambah Etalase</button>
                                     </FormLabel>
 
-                                    {etalases
-                                        ?.filter((etalase) => etalase?.showcase_name !== "Semua Produk")
+                                    {etalases?.filter((etalase) => etalase?.showcase_name !== "Semua Produk")
                                         .map((etalase, index) => (
                                             <label key={etalase.showcase_id || `etalase-${index}`} className="flex items-center mt-2 gap-2">
                                                 <input
-                                                    type="radio"
+                                                    type="checkbox"
                                                     name="etalase"
                                                     value={etalase.showcase_id}
-                                                    checked={selectedEtalase === etalase.showcase_id}
-                                                    onChange={() => setSelectedEtalase(etalase.showcase_id)}
+                                                    checked={selectedEtalase.includes(etalase.showcase_id)}
+                                                    onChange={() => handleCheckboxChange(etalase.showcase_id)}
                                                 />
                                                 {etalase?.showcase_name}
                                             </label>
@@ -756,7 +765,16 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                             </button>
                         </div>
 
-                        <p className="mt-5 text-gray-500">Atur jumlah stok produk ini.</p>
+                        <p className="mt-5 text-gray-500">Atur variant produk ini.</p>
+
+                        <div className={`${showField.variant ? "flex" : "hidden"} w-full flex-col mt-5 items-center gap-3`}>
+                            {selectedVariants.map((variant, i) => (
+                                <p key={i} className="p-3 border w-full border-orange-500 rounded-lg flex items-center  gap-3 font-semibold">
+                                    {variants.find((v) => v.variant_id === variant.variant_id)?.variant_name}
+                                </p>
+                            ))}
+                        </div>
+
 
                         <div className={`${showField.variant ? 'flex' : 'hidden'} flex-col mt-5 items-center gap-3`}>
                             <Button onClick={() => setShowAddVariant(true)} className="bg-transparent border border-orange-500 text-black w-full">
@@ -796,6 +814,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                 </label>
                             ))}
                         </div>
+                        <Button onClick={() => setShowAddVariant(false)} className="w-full mt-5 bg-green-400">Submit</Button>
                     </div>
                 )}
             </div>

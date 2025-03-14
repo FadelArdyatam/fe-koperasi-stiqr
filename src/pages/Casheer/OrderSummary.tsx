@@ -302,16 +302,20 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     </div>
 
                     <div data-aos="fade-up" data-aos-delay="400" className="mt-5">
-                        <p className="font-semibold">No. Telephone</p>
+                        <p className="font-semibold">No HP</p>
 
                         <Input
                             value={selectedCustomer?.customer?.phone ? selectedCustomer?.customer?.phone : dataCustomer.phone}
                             onChange={(e) => {
+                                // maksimal 15 karakter 
+                                if (e.target.value.length > 15) return;
                                 setDataCustomer({ name: dataCustomer.name, phone: e.target.value, email: dataCustomer.email, other_number: dataCustomer.other_number });
                                 setSelectedCustomer({ ...selectedCustomer, customer: { ...selectedCustomer?.customer, phone: null } });
                             }}
-                            placeholder="No. Telphone"
+                            placeholder="No HP"
                             type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             className="w-full bg-white p-3 rounded-lg mt-2"
                         />
                     </div>
@@ -336,10 +340,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                         <Input
                             value={selectedCustomer?.customer?.other_number ? selectedCustomer?.customer?.other_number : dataCustomer.other_number}
                             onChange={(e) => {
+                                if (e.target.value.length > 20) return;
                                 setDataCustomer({ name: dataCustomer.name, phone: dataCustomer.phone, email: dataCustomer.email, other_number: e.target.value });
                                 setSelectedCustomer({ ...selectedCustomer, customer: { ...selectedCustomer?.customer, other_number: null } });
                             }}
                             placeholder="Other Number"
+                            type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             className="w-full bg-white p-3 rounded-lg mt-2" />
                     </div>
 

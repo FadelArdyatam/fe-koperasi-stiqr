@@ -610,7 +610,15 @@ const DataMerchant = () => {
                                     render={({ field }) => (
                                         <FormItem className="w-full">
                                             <FormControl>
-                                                <Input data-aos="fade-up" data-aos-delay="700" className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp Merchant" {...field} />
+                                                <Input data-aos="fade-up" data-aos-delay="700" className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp Merchant" {...field}
+                                                    onInput={(e) => {
+                                                        const input = e.target as HTMLInputElement;
+                                                        if (input.value.length > 15) {
+                                                            input.value = input.value.slice(0, 15);
+                                                        }
+                                                        field.onChange(input.value);
+                                                    }}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
