@@ -23,6 +23,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
     const [detailVariant, setDetailVariant] = useState<any[]>([]);
     const [tempPrice, setTempPrice] = useState(0);
     const [tempVariantId, setTempVariantId] = useState("");
+    const [priceWithVariant, setPriceWithVariant] = useState(0);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
@@ -60,6 +61,8 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
     console.log("detailVariant", detailVariant);
 
     console.log(product)
+
+    console.log("price with variant", priceWithVariant);
 
     return (
         <div className="flex w-full flex-col min-h-screen items-center bg-orange-50 pb-[150px]">
@@ -102,7 +105,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                         {product?.product_variant?.map((detail: any, valueIndex: number) => (
                             <div key={valueIndex} className="flex flex-col gap-2">
                                 <p className="font-semibold">{detail.variant.variant_name}</p>
-                                <p className="text-gray-500">{detail.variant.is_multiple ? 'Opsional' : 'Pilih 1'}</p>
+                                <p className="text-gray-500">{detail.variant.is_multiple ? 'Opsional' : 'Harus Dipilih - Pilih 1'}</p>
                                 {
                                     detail?.variant?.detail_variant.map((variant: any, i: number) => (
                                         <div key={i} className="flex flex-row justify-between">
@@ -128,6 +131,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                                                                 prev.filter((v) => v.detail_variant_id !== variant.detail_variant_id)
                                                             );
                                                             setPrice(price - tempPrice);
+                                                            setPriceWithVariant(priceWithVariant - tempPrice);
                                                         }
                                                     }}
                                                     onChange={(e) => {
@@ -157,6 +161,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                                                         }
 
                                                         setPrice(newPrice);
+                                                        setPriceWithVariant(newPrice);
                                                     }}
                                                 />
 
@@ -193,7 +198,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                             onClick={() => {
                                 if (quantity > 1) {
                                     setQuantity(quantity - 1);
-                                    setPrice(product.product_price || product.price);
+                                    setPrice(priceWithVariant);
                                 }
                             }}
                             disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
@@ -232,7 +237,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                         <button
                             onClick={() => {
                                 setQuantity(quantity + 1);
-                                setPrice(product.product_price || product.price);
+                                setPrice(priceWithVariant);
                             }}
                             disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
                             className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
