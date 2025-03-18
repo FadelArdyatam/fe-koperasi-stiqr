@@ -336,10 +336,12 @@ const Settlement = () => {
                                         <FormControl>
                                             <Input
                                                 type="text"
+                                                inputMode="numeric" // Menampilkan numpad di mobile
+                                                autoComplete="off"
                                                 value={formatRupiah(String(field.value) || "0")}
                                                 placeholder="Masukkan Jumlah Saldo"
                                                 onChange={(e) => {
-                                                    let value = e.target.value.replace(/\D/g, "");
+                                                    let value = e.target.value.replace(/\D/g, ""); // Hanya angka
                                                     value = value.slice(0, 7);
                                                     const maxAmount = balance.non_cash_amount;
                                                     if (Number(value) > maxAmount) {
