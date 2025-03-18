@@ -7,6 +7,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
 import imgNoCatalog from "@/images/no-data-catalog.png";
+import { Plus } from "lucide-react";
 
 interface VariantProps {
     variants: Array<{
@@ -127,7 +128,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
             <div className={`${addVariant || open.status || showVariantProductHandler.status ? 'hidden' : 'block'}`}>
                 <div>
                     {variants.map((variant, index) => (
-                        <div data-aos="fade-up" data-aos-delay={index * 100} key={variant.id} className="shadow-sm flex flex-col mb-3 bg-white hover:cursor-pointer hover:bg-orange-100 transition ease-in-out rounded-md duration-500">
+                        <div data-aos="fade-up" data-aos-delay={index * 100} key={variant.id} className="shadow-sm flex flex-col mb-3 bg-white hover:cursor-pointer hover:bg-orange-100 transition-all rounded-md duration-500">
                             <div onClick={() => handleOpen(variant.variant_id)} className="">
                                 <div
                                     className="flex w-full justify-between items-center p-4 rounded-md mt-3 hover:cursor-pointer"
@@ -155,7 +156,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                             <div className="flex flex-row justify-between w-full p-4">
                                 {/* Elemen kiri */}
                                 <div className="w-auto">
-                                    <p>Diterapkan ke {variant?.product_variant?.length} produk</p>
+                                    <p>Diterapkan ke {variant?.product_variant?.length ?? 0} produk</p>
                                 </div>
 
                                 {/* Elemen kanan */}
@@ -173,13 +174,17 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                     ))}
                     {variants?.length === 0 && (
                         <div className="flex justify-center gap-3 flex-col">
-                            <img className="md:w-3/12 place-items-center self-center mt-10" src={imgNoCatalog} />
+                            <img className="md:w-3/12 w-2/3 place-items-center self-center mt-10" src={imgNoCatalog} />
                             <p className="text-center text-orange-400 font-bold md:text-xl">Belum ada varian yang ditambahkan</p>
+                            <Button onClick={() => { setAddVariant(true); setReset(false) }} className={` bg-orange-500 w-fit self-center`}>
+                               <Plus/> Tambah Varian
+                            </Button>
                         </div>
+
                     )}
                 </div>
 
-                <Button onClick={() => { setAddVariant(true); setReset(false) }} className="fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500">
+                <Button onClick={() => { setAddVariant(true); setReset(false) }} className={`${variants?.length === 0 ? 'hidden' : 'block'} fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500`}>
                     Tambah Varian
                 </Button>
             </div>

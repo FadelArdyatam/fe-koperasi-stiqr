@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, CircleAlert, CircleCheck, Package } from "lucide-react";
+import { ChevronLeft, CircleAlert, CircleCheck } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
@@ -11,6 +11,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@radix-ui/react-alert-dialog";
 import { AlertDialogHeader, AlertDialogFooter } from "./ui/alert-dialog";
+import noProduct from "@/images/no-product.png";
 
 interface EditEtalaseProps {
     setOpen: (open: { id: string; status: boolean }) => void;
@@ -48,6 +49,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
                 product_id: string;
                 product_name: string;
                 product_price: string;
+                product_image: string;
             };
         }[];
     }
@@ -55,7 +57,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
     const [etalaseToEdit, setEtalaseToEdit] = useState<Showcase | null>(null);
     const [showSetProductInput, setShowSetProductInput] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState<{ product_id: string }[]>([]);
-    const [showProductAfterSelected, setShowProductAfterSelected] = useState<{ product_id: string; product_name: string; product_price: number }[]>([]);
+    const [showProductAfterSelected, setShowProductAfterSelected] = useState<{ product_id: string; product_name: string; product_price: number, product_image: string }[]>([]);
     const [showNotification, setShowNotification] = useState(false);
     // const [searchTerm, setSearchTerm] = useState("");
 
@@ -197,8 +199,12 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
                             <div className="mt-5 space-y-5">
                                 {showProductAfterSelected.length === 0 ? etalaseToEdit?.showcase_product?.map((item, index) => (
                                     <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="flex items-center gap-4 p-2 border rounded-md">
-                                        <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-md">
-                                            <Package className="text-gray-500" />
+                                        <div className="h-12 w-12 min-w-12 bg-gray-200 rounded-md ml-4">
+                                            <img
+                                                src={`${item.product.product_image ?? noProduct}`}
+                                                alt={item.product.product_name}
+                                                className="h-12 w-12 object-cover rounded-md"
+                                            />
                                         </div>
 
                                         <div className="flex-1">
@@ -217,10 +223,13 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
                                 )) : (
                                     showProductAfterSelected.map((product, index) => (
                                         <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="flex items-center gap-4 p-2 border rounded-md">
-                                            <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-md">
-                                                <Package className="text-gray-500" />
+                                            <div className="h-12 w-12 min-w-12 bg-gray-200 rounded-md ml-4">
+                                                <img
+                                                    src={`${product.product_image ?? noProduct}`}
+                                                    alt={product.product_name}
+                                                    className="h-12 w-12 object-cover rounded-md"
+                                                />
                                             </div>
-
                                             <div className="flex-1">
                                                 <p className="text-lg font-medium">{product.product_name}</p>
                                                 <p className="text-sm text-gray-500">
@@ -294,10 +303,13 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
                     <div className="mt-5 space-y-5">
                         {products.map((product, index) => (
                             <label data-aos="fade-up" data-aos-delay={index * 100} key={product.id} className="flex items-center gap-4 p-2 border rounded-md">
-                                <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-md">
-                                    <Package className="text-gray-500" />
+                                <div className="h-12 w-12 min-w-12 bg-gray-200 rounded-md ml-4">
+                                    <img
+                                        src={`${product.product_image ?? noProduct}`}
+                                        alt={product.product_name}
+                                        className="h-12 w-12 object-cover rounded-md"
+                                    />
                                 </div>
-
                                 <div className="flex-1">
                                     <p className="text-lg font-medium">{product.product_name}</p>
                                     <p className="text-sm text-gray-500">
@@ -330,7 +342,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
                 <div className="p-10">
                     <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
 
-                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Etalase edited successfully!</p>
+                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Berhasil menambahkan etalase</p>
 
                     <Button data-aos="fade-up" data-aos-delay="200" onClick={() => { setOpen({ id: "", status: false }); setReset(true); }} className="w-full bg-green-500 text-white mt-10">
                         Done

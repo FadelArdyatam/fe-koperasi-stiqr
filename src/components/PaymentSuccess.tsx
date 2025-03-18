@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Check } from "lucide-react";
 import axiosInstance from "@/hooks/axiosInstance";
 import BluetoothPrinter from "./BluetoothPrinter";
+import { formatRupiah } from "@/hooks/convertRupiah";
 
 const PaymentSuccess: React.FC = () => {
   const location = useLocation();
@@ -55,9 +56,9 @@ const PaymentSuccess: React.FC = () => {
             <span className="font-semibold ml-2">{orderId || "N/A"}</span>
           </p>
           <p className="text-gray-700">
-            Amount Paid:
+            Total Bayar:
             <span className="font-semibold ml-2">
-              Rp {amount ? amount.toLocaleString() : "N/A"}
+              {amount ? formatRupiah(amount.toLocaleString()) : "N/A"}
             </span>
           </p>
         </div>

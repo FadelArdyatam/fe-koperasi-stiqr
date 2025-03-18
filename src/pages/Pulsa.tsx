@@ -190,8 +190,10 @@ const Pulsa = () => {
                             }
                         }}
                         value={phoneNumber}
-                        type="text"
-                        placeholder="No Telephone"
+                        type="tel"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        placeholder="0812..."
                         className="w-full p-5 bg-white shadow-lg"
                     />
 

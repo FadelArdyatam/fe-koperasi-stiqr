@@ -22,6 +22,7 @@ import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, 
 import { AlertDialogHeader, AlertDialogFooter } from "./ui/alert-dialog";
 
 interface Choice {
+    detail_variant_id?: string | null;
     name: string;
     price: number;
     show: boolean;
@@ -67,12 +68,16 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
 
     useEffect(() => {
         const choises = variantToEdit?.detail_variant.map((item: any) => ({
+            detail_variant_id: item.detail_variant_id,
             name: item.name,
             price: item.price,
             show: item.status,
         }));
+        console.log(choises)
 
         setDisplayChoises(choises);
+        form.setValue("choises", choises); // Pastikan set ke form
+
     }, [variantToEdit]);
 
     console.log("displayChoises", displayChoises);
@@ -115,6 +120,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
         name: z.string().min(1, { message: "Nama varian wajib diisi." }),
         choises: z.array(
             z.object({
+                detail_variant_id: z.string().optional().nullable(),
                 name: z.string().nonempty("Nama pilihan wajib diisi"),
                 price: z.number().positive("Harga harus positif"),
                 show: z.boolean(),  // Tambahkan atribut show
@@ -140,7 +146,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
         try {
             const payload = {
                 variant_name: data.name,
-                detail_variant: data.choises,
+                detail_variants: data.choises,
                 mustBeSelected: data.mustBeSelected,
                 is_multiple: data.methods === "single" ? false : true,
             };
@@ -192,13 +198,17 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                 return;
             }
 
+
             const newChoice = {
+                detail_variant_id: null, // Tambahkan detail_variant_id
                 name: newChoiceName,
                 price: Number(newChoicePrice),
                 show: showChoice,
             };
 
-            const updatedChoices = [...form.getValues("choises"), newChoice];
+            const updatedChoices = [...displayChoises, newChoice];
+            console.log('updatechoises')
+            console.log(updatedChoices)
             form.setValue("choises", updatedChoices);
             setDisplayChoises(updatedChoices);
 

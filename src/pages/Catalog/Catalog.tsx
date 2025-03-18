@@ -10,24 +10,6 @@ import Product from "./Product";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-// const initialProducts = [
-//     { id: 1, photo: '', name: 'Ayam', SKU: 'GAG10131', price: '15000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
-//     { id: 2, photo: '', name: 'Soda', SKU: 'GAG10121', price: '10000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
-//     { id: 3, photo: '', name: 'Kentang', SKU: 'GAG10731', price: '21000', weight: '6g', variants: [] as number[], description: '', etalase: ['semua produk'], showProduct: false },
-// ];
-
-// const initialVariants = [
-//     { id: 1, name: 'Topping', choises: [] as Array<{ name: string; price: number, show: boolean }>, mustBeSelected: false, methods: 'single', products: [] as number[], showVariant: false },
-//     { id: 2, name: 'Size', choises: [{ name: 'small', price: 12000, show: true }, { name: 'medium', price: 20000, show: false }], mustBeSelected: true, methods: 'single', products: [] as number[], showVariant: false },
-//     { id: 3, name: 'Rasa', choises: [{ name: 'manis', price: 12000, show: false }, { name: 'asin', price: 20000, show: true }], mustBeSelected: true, methods: 'single', products: [] as number[], showVariant: false },
-// ];
-
-// const initialEtalases = [
-//     { id: 1, name: 'semua produk', products: [1, 2, 3] },
-//     { id: 2, name: 'makanan', products: [] as number[] },
-//     { id: 3, name: 'minuman', products: [] as number[] },
-// ];
-
 interface Product {
     id: number;
     detail_product: any;

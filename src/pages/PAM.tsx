@@ -149,7 +149,7 @@ const PAM = () => {
                     </div>
                 </div>
 
-                <Button onClick={sendBill} className={`${phoneNumber.length === 0 || region.length === 0 ? 'hidden' : 'block'} uppercase text-center w-[90%] mb-10 bg-green-500 fixed bottom-5 left-[50%] -translate-x-[50%] text-white z-0`}>
+                <Button onClick={sendBill} className={`${phoneNumber.length === 0 || region.length === 0 ? 'hidden' : 'block'} uppercase text-center w-[90%] mb-10 bg-green-500 fixed bottom-[20%] left-[50%] -translate-x-[50%] text-white z-0`}>
                     Lanjutkan
                 </Button>
             </div>

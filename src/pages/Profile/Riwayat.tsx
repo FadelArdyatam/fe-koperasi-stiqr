@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, Filter, FileText, ChevronsLeft, ChevronsRight, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import html2canvas from "html2canvas";
+// import html2canvas from "html2canvas";
 import axiosInstance from "@/hooks/axiosInstance";
 import noTransactionImage from "../../images/no-transaction.png"
 import { formatRupiah } from "@/hooks/convertRupiah";
@@ -10,6 +10,7 @@ import { convertDate, convertTime } from "@/hooks/convertDate";
 import noIssuerImg from "@/images/no-issuer.png";
 import DatePicker from "react-datepicker";
 import imgNoTransaction from "@/images/no-transaction.png";
+import Invoice from "@/components/Invoice";
 
 
 interface Purchase {
@@ -21,6 +22,7 @@ interface Purchase {
     image?: string;
     status: string;
     biller?: string;
+    log_purchases: any;
 }
 
 interface ISales {
@@ -70,7 +72,7 @@ const Riwayat = () => {
         setStartDate(start);
         setEndDate(end);
     };
-    const [dataUser, setDataUser] = useState<any>();
+    // const [dataUser, setDataUser] = useState<any>();
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [currentPageSales, setCurrentPageSales] = useState(1);
@@ -112,7 +114,7 @@ const Riwayat = () => {
             limit: 10,
             status: filterStatus
         }
-        setDataUser(userData);
+        // setDataUser(userData);
 
         const fetchPurchase = async () => {
             const response = await axiosInstance.get(`/history/purchases/${userData.merchant.id}`, { params });
@@ -130,9 +132,11 @@ const Riwayat = () => {
             limit: limit
         };
 
-        if (filter === "dateRange" && dateRange.startDate && dateRange.endDate) {
+        console.log(dateRange.startDate);
+
+        if (filter === "dateRange" && dateRange.startDate) {
             params.startDate = dateRange.startDate;
-            params.endDate = dateRange.endDate;
+            params.endDate = dateRange.endDate ?? dateRange.startDate;
         }
         const fetchPurchase = async () => {
             const response = await axiosInstance.get(`/history/sales/${userData.merchant.id}`, { params });
@@ -143,33 +147,33 @@ const Riwayat = () => {
         fetchPurchase();
     }, [currentPageSales, filter, dateRange, limit]);
 
-    const downloadImage = async () => {
-        if (contentRef.current) {
-            try {
-                const canvas = await html2canvas(contentRef.current, { useCORS: true });
-                const dataURL = canvas.toDataURL("image/png");
+    // const downloadImage = async () => {
+    //     if (contentRef.current) {
+    //         try {
+    //             const canvas = await html2canvas(contentRef.current, { useCORS: true });
+    //             const dataURL = canvas.toDataURL("image/png");
 
-                const link = document.createElement("a");
-                link.href = dataURL;
-                link.download = "CodePayment.png";
-                link.click();
-            } catch (error) {
-                console.error("Error generating image:", error);
-            }
-        }
-    };
+    //             const link = document.createElement("a");
+    //             link.href = dataURL;
+    //             link.download = "CodePayment.png";
+    //             link.click();
+    //         } catch (error) {
+    //             console.error("Error generating image:", error);
+    //         }
+    //     }
+    // };
 
 
     useEffect(() => {
         if (location.state?.type) {
             setType(location.state.type);
         }
-        setDataUser(userData);
+        // setDataUser(userData);
 
     }, [location.state]);
 
     return (
-        <div className="relative h-screen overflow-y-hidden">
+        <div className={`relative h-screen ${!showDescription.status ? 'overflow-y-hidden' : ''} `}>
             {/* Header */}
             <div className={`${showDescription.status ? 'pb-32' : 'pb-0'} fixed w-full top-0 z-10 pt-5 flex flex-col items-center justify-center bg-orange-400`}>
                 <div className="flex items-center px-5 justify-center w-full">
@@ -207,7 +211,7 @@ const Riwayat = () => {
             </div>
 
             {/* Navigation */}
-            <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
+            <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-50">
                 <Link to="/dashboard" className="flex gap-3 flex-col items-center">
                     <Home />
                     <p className="uppercase">Home</p>
@@ -512,9 +516,9 @@ const Riwayat = () => {
 
             {
                 type != "Uang Masuk" && (
-                    <div className="fixed bottom-32 w-full m-auto flex items-center justify-center">
+                    <div className={`${showDescription.status ? 'hidden' : 'fixed bottom-32 w-full m-auto flex items-center justify-center'} `}>
                         <div className="flex relative items-center justify-center py-3 px-5 rounded-full bg-white shadow-lg gap-5">
-                            <button onClick={() => setIsOpenFilter(!isOpenFilter)} className="flex items-center gap-2 text-gray-500">
+                            <button onClick={() => setIsOpenFilter(!isOpenFilter)} className={`flex items-center gap-2 text-gray-500`}>
                                 <Filter />
 
                                 <p>Filter Status</p>
@@ -549,9 +553,8 @@ const Riwayat = () => {
                 )
             }
 
-
             {/* Deskripsi Pembelian */}
-            <div ref={contentRef} className={`${showDescription.status ? 'block' : 'hidden'} w-[90%] mt-24 left-[50%] -translate-x-[50%] p-5 z-20 absolute bg-white rounded-lg shadow-lg`}>
+            <div ref={contentRef} className={`${showDescription.status ? 'block' : 'hidden'} w-full xs:w-[90%] mt-24 left-[50%] -translate-x-[50%] p-5 z-20 absolute rounded-lg `}>
                 {type === "Uang Masuk" ? (
                     <div>
                         {/* <div className="flex items-center gap-3">
@@ -602,62 +605,13 @@ const Riwayat = () => {
                     </div>
                 ) : (
                     <div>
-                        <div className="flex items-center gap-3">
-                            <img src={`https://is3.cloudhost.id/stiqr/ppob/${purchases[showDescription.index]?.biller}.png`} className="w-10 min-w-10 h-10 min-h-10 rounded-full" alt="" />
-
-                            <div>
-                                <p>{purchases[showDescription.index]?.type}</p>
-                            </div>
-                        </div>
-
-                        <div className="p-5 bg-gray-200 rounded-lg flex flex-col gap-5 items-center mt-10">
-                            <p className="text-gray-500">Amount</p>
-
-                            <p className="text-3xl text-orange-400 font-semibold">Rp {new Intl.NumberFormat('id-ID').format(Number(purchases[showDescription.index]?.amount))}</p>
-                        </div>
-
-                        <div className="flex flex-col w-full">
-                            <div className="mt-10 flex items-center gap-5 justify-between w-full">
-                                <div className="flex flex-col items-start">
-                                    <p className="text-gray-500">user</p>
-
-                                    <p className="mt-2">{dataUser?.merchant.name}</p>
-                                </div>
-
-                                <div className="flex flex-col items-end">
-                                    <p className="text-gray-500">No. Referensi</p>
-
-                                    <p className="mt-2">{purchases[showDescription.index]?.refnumber}</p>
-                                </div>
-                            </div>
-
-                            <div className="mt-10 flex items-center gap-5 justify-between w-full">
-                                <div className="flex flex-col items-start">
-                                    <p className="text-gray-500">Status</p>
-
-                                    <p className="mt-2">{purchases[showDescription.index]?.status}</p>
-                                </div>
-
-                                <div className="flex flex-col items-end">
-                                    <p className="text-gray-500">Tanggal & Waktu</p>
-
-                                    <p className="mt-2">
-                                        {new Date(purchases[showDescription.index]?.date).toLocaleDateString("id-ID", {
-                                            day: "numeric",
-                                            month: "long",
-                                            year: "numeric",
-                                        })}{" "}
-                                        |{" "}
-                                        {new Date(purchases[showDescription.index]?.date).toLocaleTimeString("id-ID", {
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                        })}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <Button onClick={downloadImage} className="text-green-400 mt-10 bg-transparent w-full">+ Unduh File</Button>
-                        </div>
+                        {
+                            purchases[showDescription.index] && (
+                                <>
+                                    <Invoice refNumber={purchases[showDescription.index]?.refnumber} marginTop={!showDescription.status} isDetail={true} />
+                                </>
+                            )
+                        }
                     </div>
                 )}
             </div >

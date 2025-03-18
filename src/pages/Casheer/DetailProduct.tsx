@@ -20,13 +20,14 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
     const [quantity, setQuantity] = useState(1);
     const [price, setPrice] = useState(product.product_price);
     const [notes, setNotes] = useState("");
-    // const [detailVariant, setDetailVariant] = useState<any[]>([]);
+    const [detailVariant, setDetailVariant] = useState<any[]>([]);
+    const [tempPrice, setTempPrice] = useState(0);
+    const [tempVariantId, setTempVariantId] = useState("");
+    const [priceWithVariant, setPriceWithVariant] = useState(0);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
-
-
 
     // const handleVariantChange = (variantId: string, variantName: string, checked: boolean) => {
     //     setDetailVariant((prev) => {
@@ -40,7 +41,6 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
     //     });
     // };
 
-
     const addBasketHandler = () => {
         const payload = {
             product_id: product.product_id || product.id,
@@ -50,14 +50,19 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
             price: price || product.product_price || product.price,
             notes: notes || "",
             date: new Date().toLocaleString(),
-            // detail_variant: detailVariant,
+            detail_variants: detailVariant,
             service: showService?.service,
         };
 
         setBasket([...basket, payload]);
         setShowDetailProduct(false);
     };
+
+    console.log("detailVariant", detailVariant);
+
     console.log(product)
+
+    console.log("price with variant", priceWithVariant);
 
     return (
         <div className="flex w-full flex-col min-h-screen items-center bg-orange-50 pb-[150px]">
@@ -100,24 +105,66 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                         {product?.product_variant?.map((detail: any, valueIndex: number) => (
                             <div key={valueIndex} className="flex flex-col gap-2">
                                 <p className="font-semibold">{detail.variant.variant_name}</p>
-                                <p className="text-gray-500">{detail.variant.is_multiple ? 'Pilih lebih dari 1' : 'Pilih Maksimal 1'}</p>
+                                <p className="text-gray-500">{detail.variant.is_multiple ? 'Boleh pilih lebih dari 1' : 'Pilih 1'}</p>
                                 {
                                     detail?.variant?.detail_variant.map((variant: any, i: number) => (
                                         <div key={i} className="flex flex-row justify-between">
                                             <div className="flex gap-3 items-center">
                                                 <input
-                                                    type={detail.variant.is_multiple ? 'checkbox' : 'radio'}
+                                                    type={detail.variant.is_multiple ? "checkbox" : "radio"}
                                                     id={`checkbox-${valueIndex}-${i}`}
+                                                    name={!detail.variant.is_multiple ? "variant-option" : `checkbox-${valueIndex}`}
                                                     value={detail.variant.variant_name}
-                                                    className="w-4 h-4 border-gray-300 rounded"
-                                                    onChange={(e) => {
-                                                        if (e.target.checked) {
-                                                            setPrice(price + variant.price);
-                                                        } else {
-                                                            setPrice(price - variant.price);
+                                                    className={`border-gray-300 rounded ${detail.variant.is_multiple ? "w-4 h-4" : "scale-[1.5]"
+                                                        }`}
+                                                    checked={
+                                                        detail.variant.is_multiple
+                                                            ? detailVariant.some((v) => v.detail_variant_id === variant.detail_variant_id) // ✅ Checkbox tetap checked jika ada di detailVariant
+                                                            : tempVariantId === variant.detail_variant_id // ✅ Radio tetap checked jika sesuai state
+                                                    }
+                                                    onClick={() => {
+                                                        if (!detail.variant.is_multiple && tempVariantId === variant.detail_variant_id) {
+                                                            // ✅ Jika radio diklik lagi, uncheck
+                                                            setTempVariantId("");
+                                                            setTempPrice(0);
+                                                            setDetailVariant((prev) =>
+                                                                prev.filter((v) => v.detail_variant_id !== variant.detail_variant_id)
+                                                            );
+                                                            setPrice(price - tempPrice);
+                                                            setPriceWithVariant(priceWithVariant - tempPrice);
                                                         }
                                                     }}
+                                                    onChange={(e) => {
+                                                        let newPrice = price;
+
+                                                        if (detail.variant.is_multiple) {
+                                                            // ✅ Untuk Checkbox
+                                                            if (e.target.checked) {
+                                                                newPrice += variant.price;
+                                                                setDetailVariant((prev) => [...prev, { detail_variant_id: variant.detail_variant_id }]);
+                                                            } else {
+                                                                newPrice -= variant.price;
+                                                                setDetailVariant((prev) => prev.filter((v) => v.detail_variant_id !== variant.detail_variant_id));
+                                                            }
+                                                        } else {
+                                                            // ✅ Untuk Radio Button
+                                                            if (tempVariantId !== variant.detail_variant_id) {
+                                                                setTempVariantId(variant.detail_variant_id);
+                                                                setTempPrice(variant.price);
+                                                                newPrice = (newPrice - tempPrice) + variant.price;
+
+                                                                setDetailVariant((prev) => {
+                                                                    const updatedVariants = prev.filter((v) => v.detail_variant_id !== tempVariantId);
+                                                                    return [...updatedVariants, { detail_variant_id: variant.detail_variant_id }];
+                                                                });
+                                                            }
+                                                        }
+
+                                                        setPrice(newPrice);
+                                                        setPriceWithVariant(newPrice);
+                                                    }}
                                                 />
+
                                                 <label htmlFor={`checkbox-${valueIndex}-${i}`} className="text-gray-700">
                                                     {variant.name}
                                                 </label>
@@ -151,7 +198,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                             onClick={() => {
                                 if (quantity > 1) {
                                     setQuantity(quantity - 1);
-                                    setPrice(product.product_price || product.price);
+                                    setPrice(priceWithVariant !== 0 ? priceWithVariant : price);
                                 }
                             }}
                             disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
@@ -172,7 +219,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                                 // Validasi input angka positif
                                 if (!isNaN(inputValue) && inputValue > 0) {
                                     setQuantity(inputValue);
-                                    setPrice(product.product_price || product.price);
+                                    setPrice(priceWithVariant !== 0 ? priceWithVariant : price);
                                 } else if (e.target.value === "") {
                                     setQuantity(1); // Default jika input kosong
                                 }
@@ -190,7 +237,7 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                         <button
                             onClick={() => {
                                 setQuantity(quantity + 1);
-                                setPrice(product.product_price || product.price);
+                                setPrice(priceWithVariant !== 0 ? priceWithVariant : price);
                             }}
                             disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
                             className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"

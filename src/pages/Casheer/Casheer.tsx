@@ -396,68 +396,72 @@ const Casheer = () => {
                             {/* Detail Produk */}
                             <div
                                 onClick={() => detailProductHandler(index)}
-                                className="flex items-center gap-5 w-full cursor-pointer"
+                                className="flex items-center gap-5 flex-1 cursor-pointer overflow-hidden"
                             >
-                                <img src={`${product.product_image ?? noProduct}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
+                                {/* Gambar Produk */}
+                                <div className="h-12 w-12 min-w-12 bg-gray-200 rounded-md overflow-hidden">
+                                    <img
+                                        src={product.product_image ?? noProduct}
+                                        alt={product?.product_name}
+                                        className="h-full w-full object-cover rounded-md"
+                                    />
+                                </div>
 
-                                <div className="flex flex-col justify-start items-start">
-                                    <p className="font-semibold">{product.product_name.length > 10
-                                        ? product.product_name.slice(0, 10) + "..."
-                                        : product.product_name}
+                                {/* Informasi Produk */}
+                                <div className="flex flex-col justify-start items-start min-w-0 overflow-hidden">
+                                    <p className="text-lg font-semibold text-start truncate w-full">
+                                        {product.product_name}
                                     </p>
 
-                                    <p className="font-semibold text-wrap">
+                                    <p className="font-semibold">
                                         {formatRupiah(product.product_price)}
                                     </p>
-                                    {
-                                        product?.detail_product?.is_stok && (
-                                            <span className='bg-orange-100 p-1 mt-2 px-3 rounded-full text-orange-500 font-normal text-xs'> stok : {product.detail_product.stok}</span>
-                                        )
-                                    }
+
+                                    {product?.detail_product?.is_stok && (
+                                        <span className="bg-orange-100 px-3 py-1 mt-1 rounded-full text-orange-500 font-normal text-xs">
+                                            Stok: {product?.detail_product?.stok}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Tombol Tambah dan Kurangi Kuantitas */}
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                                {/* Tombol Kurangi */}
                                 <button
                                     onClick={() => removeQuantityHandler(index)}
-                                    className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
+                                    className="w-8 h-8 flex items-center justify-center text-2xl font-semibold rounded-full bg-orange-100"
                                 >
                                     -
                                 </button>
 
+                                {/* Input Jumlah */}
                                 <Input
                                     type="number"
-                                    className="text-center w-10 xs:w-20 border rounded-md appearance-none"
+                                    className="text-center xs:w-24 w-16 border rounded-md appearance-none px-2"
                                     value={
                                         basket
                                             .filter((item) => item.product === product.product_name)
-                                            .reduce((total, item) => total + item.quantity, 0) || "" // Tampilkan input kosong jika kuantitas 0
+                                            .reduce((total, item) => total + item.quantity, 0) || ""
                                     }
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
+                                        const newQuantity = inputValue === "" ? 0 : parseInt(inputValue, 10);
 
-                                        // Validasi input hanya angka positif
-                                        if (inputValue === "" || (Number(inputValue) >= 0 && !isNaN(Number(inputValue)))) {
-                                            const newQuantity = inputValue === "" ? 0 : parseInt(inputValue, 10);
-
+                                        if (inputValue === "" || (!isNaN(newQuantity) && newQuantity >= 0 && newQuantity <= product?.detail_product?.stok)) {
                                             setBasket((prevBasket) => {
                                                 const existingProductIndex = prevBasket.findIndex(
                                                     (item) => item.product === product.product_name
                                                 );
 
                                                 if (existingProductIndex >= 0) {
-                                                    // Jika kuantitas 0, hapus produk dari basket
                                                     if (newQuantity === 0) {
                                                         return prevBasket.filter((_, idx) => idx !== existingProductIndex);
                                                     }
-
-                                                    // Update kuantitas jika produk ada di basket
                                                     return prevBasket.map((item, idx) =>
                                                         idx === existingProductIndex ? { ...item, quantity: newQuantity } : item
                                                     );
                                                 } else if (newQuantity > 0) {
-                                                    // Tambahkan produk baru ke basket jika belum ada
                                                     return [
                                                         ...prevBasket,
                                                         {
@@ -477,19 +481,27 @@ const Casheer = () => {
                                         }
                                     }}
                                     onBlur={(e) => {
-                                        // Jika input kosong atau < 1, hapus dari basket
                                         if (e.target.value === "" || Number(e.target.value) < 1) {
                                             setBasket((prevBasket) =>
                                                 prevBasket.filter((item) => item.product !== product.product_name)
                                             );
                                         }
                                     }}
-                                    min={0} // Mencegah angka negatif
+                                    min={0}
+                                    max={product?.detail_product?.stok} // Tambahkan batas maksimal
                                 />
 
+                                {/* Tombol Tambah */}
                                 <button
-                                    onClick={() => addQuantityHandler(index)}
-                                    className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
+                                    onClick={() => {
+                                        const currentQuantity = basket
+                                            .filter((item) => item.product === product.product_name)
+                                            .reduce((total, item) => total + item.quantity, 0);
+                                        if (currentQuantity < product?.detail_product?.stok) {
+                                            addQuantityHandler(index);
+                                        }
+                                    }}
+                                    className="w-8 h-8 flex items-center justify-center text-2xl font-semibold rounded-full bg-orange-100"
                                 >
                                     +
                                 </button>
@@ -499,77 +511,83 @@ const Casheer = () => {
                         <div
                             data-aos="fade-up"
                             data-aos-delay={index * 100}
-                            key={index}
-                            title={`${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'Stok Habis' : ''}`}
-                            className={`flex items-center gap-5 w-full p-5  rounded-lg justify-between ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? ' bg-red-100 ' : 'bg-white'}`}
+                            key={product.id}
+                            title={product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'Stok Habis' : ''}
+                            className={`flex items-center gap-5 w-full p-5 rounded-lg justify-between 
+        ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'bg-red-100' : 'bg-white'}`}
                         >
                             {/* Detail Produk */}
                             <div
                                 onClick={() => detailProductHandler(index)}
-                                className="flex items-center gap-5 w-full cursor-pointer"
+                                className="flex items-center gap-4 flex-1 cursor-pointer overflow-hidden"
                             >
-                                <img src={`${product.product_image ?? noProduct}`} alt={product?.product_name} className="h-12 w-12 object-cover rounded-md" />
+                                {/* Gambar Produk */}
+                                <div className="h-12 w-12 min-w-12 bg-gray-200 rounded-md overflow-hidden">
+                                    <img
+                                        src={product.product_image ?? noProduct}
+                                        alt={product?.product_name}
+                                        className="h-full w-full object-cover rounded-md"
+                                    />
+                                </div>
 
-                                <div className="flex flex-col justify-start items-start">
-                                    <p className="font-semibold">{product.product_name.length > 10
-                                        ? product.product_name.slice(0, 10) + "..."
-                                        : product.product_name}
+                                {/* Informasi Produk */}
+                                <div className="flex flex-col justify-start items-start min-w-0 overflow-hidden">
+                                    <p className="text-lg font-semibold text-start truncate w-full">
+                                        {product.product_name}
                                     </p>
 
                                     <p className="font-semibold text-wrap">
                                         {formatRupiah(product.product_price)}
                                     </p>
-                                    {
-                                        product?.detail_product?.is_stok && (
-                                            <span className='bg-orange-100 p-1 mt-2 px-3 rounded-full text-orange-500 font-normal text-xs'> stok : {product.detail_product.stok}</span>
-                                        )
-                                    }
+
+                                    {product?.detail_product?.is_stok && (
+                                        <span className="bg-orange-100 px-3 py-1 mt-1 rounded-full text-orange-500 font-normal text-xs">
+                                            Stok: {product?.detail_product?.stok}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
-                            {/* Tombol Tambah dan Kurangi Kuantitas */}
-                            <div className="flex items-center gap-3">
+                            {/* Tombol Tambah & Kurangi Kuantitas */}
+                            <div className="flex items-center gap-2">
+                                {/* Tombol Kurangi */}
                                 <button
                                     onClick={() => removeQuantityHandler(index)}
-                                    disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
-                                    className={`w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'cursor-not-allowed' : ''}`}
+                                    disabled={product?.detail_product?.is_stok === false ? false : product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
+                                    className={`w-8 h-8 flex items-center justify-center text-2xl font-semibold rounded-full 
+      ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'bg-gray-200 cursor-not-allowed opacity-50' : 'bg-orange-100'}`}
                                 >
                                     -
                                 </button>
 
+                                {/* Input Jumlah */}
                                 <Input
                                     type="number"
-                                    className="text-center w-10 xs:w-20 border rounded-md appearance-none"
-                                    disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
+                                    className="text-center xs:w-24 w-16 border rounded-md appearance-none px-2"
+                                    disabled={product?.detail_product?.is_stok === false ? false : product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
                                     value={
                                         basket
                                             .filter((item) => item.product === product.product_name)
-                                            .reduce((total, item) => total + item.quantity, 0) || "" // Tampilkan input kosong jika kuantitas 0
+                                            .reduce((total, item) => total + item.quantity, 0) || ""
                                     }
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
+                                        const newQuantity = inputValue === "" ? 0 : parseInt(inputValue, 10);
 
-                                        // Validasi input hanya angka positif
-                                        if (inputValue === "" || (Number(inputValue) >= 0 && !isNaN(Number(inputValue)))) {
-                                            const newQuantity = inputValue === "" ? 0 : parseInt(inputValue, 10);
-
+                                        if (inputValue === "" || (!isNaN(newQuantity) && newQuantity >= 0 && (product?.detail_product?.is_stok === false || newQuantity <= product?.detail_product?.stok))) {
                                             setBasket((prevBasket) => {
                                                 const existingProductIndex = prevBasket.findIndex(
                                                     (item) => item.product === product.product_name
                                                 );
 
                                                 if (existingProductIndex >= 0) {
-                                                    // Jika kuantitas 0, hapus produk dari basket
                                                     if (newQuantity === 0) {
                                                         return prevBasket.filter((_, idx) => idx !== existingProductIndex);
                                                     }
-
-                                                    // Update kuantitas jika produk ada di basket
                                                     return prevBasket.map((item, idx) =>
                                                         idx === existingProductIndex ? { ...item, quantity: newQuantity } : item
                                                     );
                                                 } else if (newQuantity > 0) {
-                                                    // Tambahkan produk baru ke basket jika belum ada
                                                     return [
                                                         ...prevBasket,
                                                         {
@@ -590,20 +608,29 @@ const Casheer = () => {
                                         }
                                     }}
                                     onBlur={(e) => {
-                                        // Jika input kosong atau < 1, hapus dari basket
                                         if (e.target.value === "" || Number(e.target.value) < 1) {
                                             setBasket((prevBasket) =>
                                                 prevBasket.filter((item) => item.product !== product.product_name)
                                             );
                                         }
                                     }}
-                                    min={0} // Mencegah angka negatif
+                                    min={0}
+                                    max={product?.detail_product?.stok} // Tambahkan max di HTML
                                 />
 
+                                {/* Tombol Tambah */}
                                 <button
-                                    onClick={() => addQuantityHandler(index)}
-                                    disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
-                                    className={`w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'cursor-not-allowed' : ''}`}
+                                    onClick={() => {
+                                        const currentQuantity = basket
+                                            .filter((item) => item.product === product.product_name)
+                                            .reduce((total, item) => total + item.quantity, 0);
+                                        if (product?.detail_product?.is_stok === false || currentQuantity < product?.detail_product?.stok) {
+                                            addQuantityHandler(index);
+                                        }
+                                    }}
+                                    disabled={product?.detail_product?.is_stok === false ? false : product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
+                                    className={`w-8 h-8 flex items-center justify-center text-2xl font-semibold rounded-full 
+      ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'bg-gray-200 cursor-not-allowed opacity-50' : 'bg-orange-100'}`}
                                 >
                                     +
                                 </button>

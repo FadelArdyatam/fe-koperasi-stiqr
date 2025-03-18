@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
-import { ChevronLeft, CircleCheck } from "lucide-react";
+import { ChevronLeft, CircleCheck, X } from "lucide-react";
 import Notification from "./Notification";
 import { useState, useEffect } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
@@ -141,7 +141,16 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
     const [showNotificationVariant, setShowNotificationVariant] = useState(false);
     const [showNotificationAddProduct, setShowNotificationAddProduct] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
+    // const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
+    const [selectedEtalase, setSelectedEtalase] = useState<string[]>([]);
+    const handleCheckboxChange = (etalaseId: string) => {
+        setSelectedEtalase((prev) =>
+            prev.includes(etalaseId)
+                ? prev.filter((id) => id !== etalaseId) // Hapus jika sudah dipilih
+                : [...prev, etalaseId] // Tambahkan jika belum ada
+        );
+    };
+    console.log(selectedEtalase);
     const [selectedVariants, setSelectedVariants] = useState<{ variant_id: string }[]>([]);
     const [showPopUpAddEtalase, setShowPopUpAddEtalase] = useState(false);
     const [showPopUpAddVariant, setShowPopUpAddVariant] = useState(false);
@@ -158,7 +167,8 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
     const [showAddVariant, setShowAddVariant] = useState(false);
     const [allData, setAllData] = useState<any>([]);
     const [stock, setStock] = useState({ stock: 0, minimumStock: 0 });
-
+    const [loading, setloading] = useState(false);
+    const [message, setMessage] = useState("")
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
     }, []);
@@ -216,7 +226,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         formData.append("product_price", data.product_price.toString()); // Pastikan angka dikonversi ke string
         formData.append("product_status", "true"); // FormData tidak mendukung boolean langsung
         formData.append("product_description", data.product_description || "");
-        formData.append("showcase_id", selectedEtalase || "1"); // Jika tidak ada etalase yang dipilih, gunakan etalase "Semua Produk"
+        // formData.append("showcase_id", selectedEtalase.join(',')); // Jika tidak ada etalase yang dipilih, gunakan etalase "Semua Produk"
 
         // Ambil merchant_id dari sessionStorage
         const merchantId = sessionStorage.getItem("user")
@@ -314,11 +324,9 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             product_id: data.products.join(","), // Konversi array ke string dengan koma
             variant_description: "Deskripsi untuk variant", // Bisa diambil dari form jika diperlukan
             is_multiple: data.methods === "more",
-            multiple_value: displayChoises.map((choice) => choice.name).join(", "), // Semua pilihan nama
+            multiple_value: displayChoises, // Semua pilihan nama
             merchant_id: userData?.merchant?.id, // ID merchant
         };
-
-        console.log(data);
 
         try {
             const response = await axiosInstance.post(
@@ -326,9 +334,13 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                 payload
             );
 
+            console.log("variant");
+            console.log(response.data.data);
+
             if (response.status === 200 || response.status === 201) {
                 // Agar varian yang baru ditambahkan langsung muncul di halaman varian
-                setVariants([...variants, response.data.data]);
+
+                setVariants(prevVariants => [...prevVariants, response.data.data]);
 
                 setShowPopUpAddVariant(false)
                 setShowNotificationVariant(true);
@@ -355,6 +367,8 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
         console.log("Merged Data:", mergedData);
         try {
+            setloading(true)
+
             const response = await axiosInstance.post("/product/create", mergedData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
@@ -365,19 +379,23 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
             setProducts([...products, response.data.data]);
 
-            if (selectedEtalase) {
+            if (selectedEtalase.length > 0) {
                 const response2 = await axiosInstance.post("/showcase-product/create", {
                     product_id: response?.data?.data?.product_id,
-                    showcase_id: selectedEtalase,
+                    showcase_id: selectedEtalase, // Kirim sebagai array
                 });
-
+            
                 console.log(response2);
             }
+            
 
             setShowNotification(true);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error while adding product to API:", error);
             setShowErrorForAddProduct(true);
+            setMessage(error.response?.data?.message || "Terjadi kesalahan")
+        } finally {
+            setloading(false)
         }
     };
 
@@ -638,19 +656,18 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                     <FormLabel className="flex items-center gap-5">
                                         <p>Etalase</p>
 
-                                        <button onClick={() => setShowPopUpAddEtalase(true)} className="p-2 rounded-lg bg-orange-500 text-white" type="button">+ Add Etalase</button>
+                                        <button onClick={() => setShowPopUpAddEtalase(true)} className="p-2 rounded-lg bg-orange-500 text-white" type="button">+ Tambah Etalase</button>
                                     </FormLabel>
 
-                                    {etalases
-                                        ?.filter((etalase) => etalase?.showcase_name !== "Semua Produk")
+                                    {etalases?.filter((etalase) => etalase?.showcase_name !== "Semua Produk")
                                         .map((etalase, index) => (
                                             <label key={etalase.showcase_id || `etalase-${index}`} className="flex items-center mt-2 gap-2">
                                                 <input
-                                                    type="radio"
+                                                    type="checkbox"
                                                     name="etalase"
                                                     value={etalase.showcase_id}
-                                                    checked={selectedEtalase === etalase.showcase_id}
-                                                    onChange={() => setSelectedEtalase(etalase.showcase_id)}
+                                                    checked={selectedEtalase.includes(etalase.showcase_id)}
+                                                    onChange={() => handleCheckboxChange(etalase.showcase_id)}
                                                 />
                                                 {etalase?.showcase_name}
                                             </label>
@@ -750,7 +767,16 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                             </button>
                         </div>
 
-                        <p className="mt-5 text-gray-500">Atur jumlah stok produk ini.</p>
+                        <p className="mt-5 text-gray-500">Atur variant produk ini.</p>
+
+                        <div className={`${showField.variant ? "flex" : "hidden"} w-full flex-col mt-5 items-center gap-3`}>
+                            {selectedVariants.map((variant, i) => (
+                                <p key={i} className="p-3 border w-full border-orange-500 rounded-lg flex items-center  gap-3 font-semibold">
+                                    {variants.find((v) => v.variant_id === variant.variant_id)?.variant_name}
+                                </p>
+                            ))}
+                        </div>
+
 
                         <div className={`${showField.variant ? 'flex' : 'hidden'} flex-col mt-5 items-center gap-3`}>
                             <Button onClick={() => setShowAddVariant(true)} className="bg-transparent border border-orange-500 text-black w-full">
@@ -761,7 +787,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
                     <Button onClick={() => { setSection({ addProduct: true, detailProduct: false }) }} className="w-full bg-orange-500 text-white">Kembali</Button>
 
-                    <Button onClick={addProductHandler}>Simpan</Button>
+                    <Button onClick={addProductHandler} disabled={loading ? true : false}>Simpan</Button>
                 </div>
 
                 {/* Variant Control */}
@@ -790,6 +816,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                 </label>
                             ))}
                         </div>
+                        <Button onClick={() => setShowAddVariant(false)} className="w-full mt-5 bg-green-400">Submit</Button>
                     </div>
                 )}
             </div>
@@ -799,9 +826,10 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                 <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div data-aos="fade-up" className="bg-white p-5 rounded-lg w-[90%]">
                         <div className="flex items-center justify-between">
-                            <p className="font-semibold text-xl">Add Etalase</p>
+                            <p className="font-semibold text-xl">Tambah Etalase
+                            </p>
                             <button onClick={() => setShowPopUpAddEtalase(false)}>
-                                <ChevronLeft />
+                                <X />
                             </button>
                         </div>
 
@@ -1172,14 +1200,14 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             {showNotificationAddProduct && <Notification message="Produk berhasil ditambahkan!" onClose={() => setShowNotificationAddProduct(false)} status="success" />}
 
             {/* Error Notification */}
-            {showErrorForAddProduct && <Notification message="Terjadi kesalahan saat menambahkan produk" onClose={() => setShowErrorForAddProduct(false)} status="error" />}
+            {showErrorForAddProduct && <Notification message={message} onClose={() => setShowErrorForAddProduct(false)} status="error" />}
 
             {/* Success Notification */}
             {showNotification && (
                 <div className="p-10">
                     <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
 
-                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Product added successfully!</p>
+                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Berhasil menambahkan produk</p>
 
                     <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setAddProduct(false)} className="w-full bg-green-500 text-white mt-10">
                         Done

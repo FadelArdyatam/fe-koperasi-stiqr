@@ -811,6 +811,14 @@ const EditProduct: React.FC<EditProductProps> = ({
 
                                 <p className="mt-5 text-gray-500">Atur jumlah stok produk ini.</p>
 
+                                <div className={`${showField.variant ? "flex" : "hidden"} w-full flex-col mt-5 items-center gap-3`}>
+                                    {selectedVariants.map((variant) => (
+                                        <p key={variant} className="p-3 border w-full border-orange-500 rounded-lg flex items-center mt-5 gap-3 font-semibold">
+                                            {variants.find((v) => v.variant_id === variant)?.variant_name}
+                                        </p>
+                                    ))}
+                                </div>
+
                                 <div className={`${showField.variant ? 'flex' : 'hidden'} flex-col mt-5 items-center gap-3`}>
                                     <Button onClick={() => setShowAddVariant(true)} className="bg-transparent border border-orange-500 text-black w-full">
                                         <p>Pilih Variant</p>
@@ -1222,7 +1230,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                 <div className="p-10">
                     <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
 
-                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Product edited successfully!</p>
+                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Berhasil mengubah produk</p>
 
                     <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setOpen({ id: "", status: false })} className="w-full bg-green-500 text-white mt-10">
                         Done

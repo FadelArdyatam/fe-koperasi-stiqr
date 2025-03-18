@@ -21,6 +21,7 @@ import Notification from "@/components/Notification";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { formatRupiah } from "@/hooks/convertRupiah";
+import CalculatorComponent from "@/components/CalculatorComponent";
 
 const payments = [visa, masterCard, gopay, ovo, dana, linkAja];
 
@@ -43,6 +44,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
     const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
     const [dataForPaymentMethod, setDataForPaymentMethod] = useState<any>(null);
     const [showPaymentMehodComponent, setShowPaymentMethodComponent] = useState(false);
+    const [showCalculator, setShowCalculator] = useState(false);
     // const [stringQR, setStringQR] = useState("");
     const [error, setError] = useState({ show: false, message: "" });
     const [isLoading, setIsLoading] = useState(false); // State untuk loading
@@ -489,9 +491,15 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </div>
                 </div>
 
-                <Button onClick={showShareLinkGenerator} disabled={Number(amount) <= 0 ? true : false} className={`${Number(amount) <= 0 ? 'bg-gray-500' : 'bg-green-400'} transition-all uppercase !mt-10 w-[90%] m-auto block`}>
-                    Buat
-                </Button>
+                <div className="m-auto flex items-center gap-5 w-[90%] !mt-10">
+                    <button type="button" onClick={() => setShowCalculator(true)} className="bg-orange-500 text-white rounded-lg p-2"><Calculator /></button>
+
+                    <Button onClick={showShareLinkGenerator} disabled={Number(amount) <= 0 ? true : false} className={`${Number(amount) <= 0 ? 'bg-gray-500' : 'bg-green-400'} transition-all uppercase w-full m-auto block`}>
+                        Buat
+                    </Button>
+                </div>
+
+                {showCalculator && <CalculatorComponent setAmount={setAmount} amount={amount} setShowCalculator={setShowCalculator} />}
             </div>
 
             {/* Loading */}

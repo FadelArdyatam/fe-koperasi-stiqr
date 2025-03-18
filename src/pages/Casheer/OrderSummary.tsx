@@ -53,8 +53,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
 
     console.log("Show Service: ", showService);
 
-    console.log("merged Basket: ", mergedBasket);
-
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
 
@@ -73,6 +71,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         fetchData();
     }, []);
 
+    console.log("Merged Basket", basket)
 
     console.log("Total Quantity: ", mergedBasket.reduce((acc, curr) => acc + curr.quantity, 0))
     console.log("Total Price: ", mergedBasket.reduce((acc, curr) => acc + curr.price * curr.quantity, 0))
@@ -138,8 +137,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 quantity: item.quantity,
                 price: item.price,
                 subtotal: (item.price) * (item.quantity),
-                detail_variants: []
+                detail_variants: item.detail_variants
             }));
+
+            console.log("Modify Basket: ", modifyBasket);
 
             const generateRandomString = (length = 10) => {
                 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -169,7 +170,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
             };
 
             const response = await axiosInstance.post('/sales/create', requestBody);
-            console.log(response)
+
+            console.log("Response create order:", response);
 
             if (status == 'tagih') {
                 setTagih(true)
@@ -301,16 +303,20 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     </div>
 
                     <div data-aos="fade-up" data-aos-delay="400" className="mt-5">
-                        <p className="font-semibold">No. Telephone</p>
+                        <p className="font-semibold">No HP</p>
 
                         <Input
                             value={selectedCustomer?.customer?.phone ? selectedCustomer?.customer?.phone : dataCustomer.phone}
                             onChange={(e) => {
+                                // maksimal 15 karakter 
+                                if (e.target.value.length > 15) return;
                                 setDataCustomer({ name: dataCustomer.name, phone: e.target.value, email: dataCustomer.email, other_number: dataCustomer.other_number });
                                 setSelectedCustomer({ ...selectedCustomer, customer: { ...selectedCustomer?.customer, phone: null } });
                             }}
-                            placeholder="No. Telphone"
+                            placeholder="No HP"
                             type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             className="w-full bg-white p-3 rounded-lg mt-2"
                         />
                     </div>
@@ -335,10 +341,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                         <Input
                             value={selectedCustomer?.customer?.other_number ? selectedCustomer?.customer?.other_number : dataCustomer.other_number}
                             onChange={(e) => {
+                                if (e.target.value.length > 20) return;
                                 setDataCustomer({ name: dataCustomer.name, phone: dataCustomer.phone, email: dataCustomer.email, other_number: e.target.value });
                                 setSelectedCustomer({ ...selectedCustomer, customer: { ...selectedCustomer?.customer, other_number: null } });
                             }}
                             placeholder="Other Number"
+                            type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             className="w-full bg-white p-3 rounded-lg mt-2" />
                     </div>
 
@@ -408,7 +418,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 </div>
             </div>
 
-            {showOrderProcess && <OrderProcessed setShowOrderProcess={setShowOrderProcess} basket={mergedBasket} type="" sales_id={responseSalesCreate} orderId={orderId} tagih={tagih} setTagih={setTagih} />}
+            {showOrderProcess && <OrderProcessed setShowOrderProcess={setShowOrderProcess} basket={mergedBasket} type="" sales_id={responseSalesCreate} orderId={orderId} tagih={tagih} setTagih={setTagih} selectedCustomer={selectedCustomer} noMeja={noMeja} />}
         </div>
     )
 }

@@ -215,9 +215,9 @@ const Settlement = () => {
                 limit: 10,
             }
 
-            if (filter === "dateRange" && dateRange.startDate && dateRange.endDate) {
+            if (filter === "dateRange" && dateRange.startDate) {
                 params.startDate = dateRange.startDate;
-                params.endDate = dateRange.endDate;
+                params.endDate = dateRange.endDate ?? dateRange.startDate;
             }
             const res = await axiosInstance.get(`/settlement/${userData.merchant.id}`, { params })
             setSettlements(res.data.data)
@@ -293,7 +293,7 @@ const Settlement = () => {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5">
                         <div data-aos="fade-up" data-aos-delay="300" className="flex flex-col gap-3">
-                            <p>Pilih Bank</p>
+                            <p>Pilih Akun</p>
                             <FormField
                                 control={form.control}
                                 name="account_id"
@@ -302,7 +302,7 @@ const Settlement = () => {
                                         <FormControl>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger className="w-full p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center justify-between rounded-lg border border-gray-300">
-                                                    {accounts.find(account => account.account_id === field.value)?.bank_name || "Pilih Akun Bank"}
+                                                    {accounts.find(account => account.account_id === field.value)?.bank_name || "Pilih Akun Penarikan"}
                                                     <ChevronDown className="ml-2 h-4 w-4" />
                                                 </DropdownMenuTrigger>
 
@@ -336,10 +336,12 @@ const Settlement = () => {
                                         <FormControl>
                                             <Input
                                                 type="text"
+                                                inputMode="numeric" // Menampilkan numpad di mobile
+                                                autoComplete="off"
                                                 value={formatRupiah(String(field.value) || "0")}
                                                 placeholder="Masukkan Jumlah Saldo"
                                                 onChange={(e) => {
-                                                    let value = e.target.value.replace(/\D/g, "");
+                                                    let value = e.target.value.replace(/\D/g, ""); // Hanya angka
                                                     value = value.slice(0, 7);
                                                     const maxAmount = balance.non_cash_amount;
                                                     if (Number(value) > maxAmount) {
@@ -500,7 +502,11 @@ const Settlement = () => {
                                 endDate={endDate}
                                 selectsRange
                                 inline
-                                maxDate={startDate ? new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000) : undefined}
+                                maxDate={
+                                    startDate
+                                        ? new Date(Math.min(new Date().getTime(), startDate.getTime() + 6 * 24 * 60 * 60 * 1000))
+                                        : new Date()
+                                }
                                 className="w-full"
                                 monthsShown={months}
                             />

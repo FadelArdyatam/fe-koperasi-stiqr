@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
-import { Check, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import axiosInstance from '@/hooks/axiosInstance';
 import Notification from './Notification';
 import { formatRupiah } from '@/hooks/convertRupiah';
-import Invoice from './Invoice';
+import InprogressPPOB from './InprogressPPOB';
 // import { convertDate, convertTime } from '../hooks/convertDate';
 
 // interface BillProps {
@@ -34,12 +34,13 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
     console.log(data)
     const [showPinInput, setShowPinInput] = useState(false);
     const [pin, setPin] = useState<string[]>([]);
-    const [showNotification, setShowNotification] = useState(false);
+    // const [showNotification, setShowNotification] = useState(false);
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState(false);
     // const navigate = useNavigate();
 
-    const [showInvoice, setShowInvoice] = useState(false)
+    // const [showInproggresStep, setShowInvoice] = useState(false)
+    const [showInproggresStep, setShowInproggresStep] = useState(false)
 
     const [refNumber, setRefnumber] = useState<string>("")
     // const [token, setToken] = useState<string | null>(null)
@@ -86,54 +87,27 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
             const response = await axiosInstance.post("/ayoconnect/payment", payload);
 
             if (response.data.success) {
-                if (data.category == 'Listrik' && data.productName != "PLN Postpaid") {
-                    setTimeout(() => {
-                        setLoading(false);
-                        // setShowNotification(true);
-                        setShowInvoice(true)
-                    }, 6000);
-                } else {
-                    setLoading(false);
-                    // setShowNotification(true);
-                    setShowInvoice(true)
-
-                }
+                setLoading(false);
+                // setShowNotification(true);
+                // setShowInvoice(true)
+                setShowInproggresStep(true)
                 setRefnumber(response.data.data.refNumber)
+            } else {
+                setShowInproggresStep(false)
+                setError(response.data.message || "Pembayaran gagal, silahkan coba lagi nanti.");
             }
-
         } catch (error: any) {
-            console.error("Error saat melakukan pembayaran:", error);
             setError(error.response?.data?.message || "Terjadi kesalahan saat proses pembayaran.");
+            setShowInproggresStep(false)
         }
 
         setShowPinInput(false);
         setPin([]);
     };
 
-    // const [productDetails, setProductDetails] = useState<any[]>([])
-    const backToHomeHandler = () => {
-        // if (data.category == "Listrik" && data.productName != "PLN Postpaid") {
-        //     const response = await axiosInstance.post("/ayoconnect/inquiry/status", {
-        //         refNumber: refNumber
-        //     });
-        //     if (response.data.success) {
-        //         setToken(response.data.data.token);
-        //         setProductDetails(response.data.data.productDetails)
-        //         setShowNotification(false);
-        //     }
-        // } else {
-        //     navigate('/dashboard');
-        //     setShowNotification(false);
-        // }
-        setShowInvoice(true)
-        setShowNotification(false);
-
-    };
-
-
     return (
         <>
-            <div className={`${marginTop ? 'mt-[130px]' : 'mt-[-90px] bg-white'} ${showInvoice ? 'hidden' : 'block'} w-[90%] m-auto shadow-lg p-10 rounded-lg`}>
+            <div className={`${marginTop ? 'mt-[130px]' : 'mt-[-90px] bg-white'} ${showInproggresStep ? 'hidden' : 'block'} w-[90%] m-auto shadow-lg p-10 rounded-lg`}>
                 <div className='w-16 h-16 flex items-center justify-center border-2 border-black bg-orange-400 rounded-full m-auto'>
                     <Info className='scale-[2] text-white' />
                 </div>
@@ -145,7 +119,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                     {
                         data.category !== 'Pulsa' && data.category !== 'Paket Data' && (
                             <div>
-                                <p className="font-bold text-xl">Detail Pengguna</p>
+                                <p className="font-bold text-xl">Detail Pelanggan</p>
                                 <div className="w-full my-2 h-[2px] bg-gray-200"></div>
 
                                 {data.customerDetails && data.customerDetails.length > 0 &&
@@ -245,6 +219,13 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
 
                     <div className='w-full my-5 h-[2px] bg-gray-200'></div>
 
+                    {/* <div className='flex items-center gap-5 justify-between'>
+                        <p className='font-bold'>Margin</p>
+                    
+                    </div> */}
+
+                    <div className='w-full my-5 h-[2px] bg-gray-200'></div>
+
                     <div className='flex items-center gap-5 justify-between'>
                         <p className='font-bold'>Total Bayar</p>
                         <p className='text-orange-400 font-bold'>{formatRupiah(total)}</p>
@@ -264,7 +245,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
             <Button onClick={() => {
                 setShowPinInput(true)
                 // setShowInvoice(true)
-            }} className={`${showInvoice ? 'hidden' : 'block'} uppercase translate-y-10 text-center w-[90%] m-auto bg-green-500 mb-32 text-white`}>
+            }} className={`${showInproggresStep ? 'hidden' : 'block'} uppercase translate-y-10 text-center w-[90%] m-auto bg-green-500 mb-32 text-white`}>
                 Bayar
             </Button >
 
@@ -339,21 +320,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                 }} message={error} status="error" />
             }
 
-            {/* Notifikasi Sukses */}
-            <div className={`${showNotification ? 'flex' : 'hidden'} fixed items-center justify-center top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50`}>
-                <div className="w-[90%] bg-white p-5 mt-5 rounded-lg flex items-center flex-col gap-5">
-                    <div className='w-20 h-20 flex items-center justify-center text-white rounded-full bg-green-400'>
-                        <Check />
-                    </div>
-
-                    <p className="font-semibold text-xl">Terimakasih</p>
-                    <p className='text-base'>Transaksi pembayaran Anda Berhasil.</p>
-
-                    <Button onClick={backToHomeHandler} className="w-full">Lanjutkan</Button>
-                </div>
-            </div>
-
-            {showInvoice && <Invoice data={data} refNumber={refNumber} marginTop={marginTop} />}
+            {showInproggresStep && <InprogressPPOB data={data} refNumber={refNumber} marginTop={marginTop} />}
 
             {/* Loading */}
             {

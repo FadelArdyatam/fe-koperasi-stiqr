@@ -25,6 +25,9 @@ interface MerchantData {
     village: string;
 }
 const DataMerchant = () => {
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
+
     const [showEdit, setShowEdit] = useState(false)
     const [showNotification, setShowNotification] = useState(false)
     const [merchantData, setMerchantData] = useState<MerchantData>();
@@ -118,6 +121,7 @@ const DataMerchant = () => {
             });
             console.log("Data merchant berhasil diubah:", response.data);
             setShowNotification(true)
+            sessionStorage.setItem("user", JSON.stringify({ ...userData, merchant: response.data.data }));
         } catch (error: any) {
             console.log(error)
         }
@@ -126,9 +130,6 @@ const DataMerchant = () => {
     const [isUpdate, setIsUpdate] = useState(false)
 
     useEffect(() => {
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
-
         const fetchMerchant = async () => {
             try {
                 const response = await axiosInstance.get(
@@ -609,7 +610,15 @@ const DataMerchant = () => {
                                     render={({ field }) => (
                                         <FormItem className="w-full">
                                             <FormControl>
-                                                <Input data-aos="fade-up" data-aos-delay="700" className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp Merchant" {...field} />
+                                                <Input data-aos="fade-up" data-aos-delay="700" className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" placeholder="No Hp Merchant" {...field}
+                                                    onInput={(e) => {
+                                                        const input = e.target as HTMLInputElement;
+                                                        if (input.value.length > 15) {
+                                                            input.value = input.value.slice(0, 15);
+                                                        }
+                                                        field.onChange(input.value);
+                                                    }}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
