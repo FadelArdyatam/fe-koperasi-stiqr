@@ -154,7 +154,7 @@ const DataPemilik = () => {
 
     return (
         <>
-            <div className={`${showEdit ? 'hidden' : 'flex'} w-full flex-col min-h-screen items-center`}>
+            <div className={`${showEdit ? 'hidden' : 'flex'} w-full flex-col min-h-screen md:mb-10 mb-36 items-center`}>
                 <div className='w-full px-5 pt-5 pb-32 flex items-center justify-center bg-orange-400'>
                     <Link to={'/profile'} className='absolute left-5 bg-transparent hover:bg-transparent'>
                         <ChevronLeft className='scale-[1.3] text-white' />
@@ -324,7 +324,14 @@ const DataPemilik = () => {
                                             <FormLabel className="text-gray-500">Nomor HP</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field} />
+                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field}
+                                                    onInput={(e) => {
+                                                        const input = e.target as HTMLInputElement;
+                                                        if (input.value.length > 15) {
+                                                            input.value = input.value.slice(0, 15);
+                                                        }
+                                                        field.onChange(input.value);
+                                                    }} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

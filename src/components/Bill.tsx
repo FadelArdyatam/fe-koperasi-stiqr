@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
-import {  Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import axiosInstance from '@/hooks/axiosInstance';
 import Notification from './Notification';
 import { formatRupiah } from '@/hooks/convertRupiah';
@@ -216,6 +216,13 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                             </div>
                         )
                     } */}
+
+                    <div className='w-full my-5 h-[2px] bg-gray-200'></div>
+
+                    <div className='flex items-center gap-5 justify-between'>
+                        <p className='font-bold'>Margin</p>
+                    
+                    </div>
 
                     <div className='w-full my-5 h-[2px] bg-gray-200'></div>
 

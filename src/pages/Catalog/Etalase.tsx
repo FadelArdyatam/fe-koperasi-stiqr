@@ -102,7 +102,7 @@ const Etalase: React.FC<EtalaseProps> = ({ etalases, setEtalases, addEtalase, se
                             }}
                             className="shadow-sm mt-5 bg-white p-5 rounded-lg cursor-pointer hover:cursor-pointer hover:bg-orange-100 transition-all">
                             <h3 className="text-lg font-semibold text-start">{etalase?.showcase_name}</h3>
-                            <p className="text-sm text-gray-400">{etalase?.showcase_product?.length} Produk</p>
+                            <p className="text-sm text-gray-400">{etalase?.showcase_product?.length ?? 0} Produk</p>
                         </div>
                     ))}
                     {etalases.length === 0 && (

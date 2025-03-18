@@ -419,7 +419,7 @@ const Casheer = () => {
 
                                     {product?.detail_product?.is_stok && (
                                         <span className="bg-orange-100 px-3 py-1 mt-1 rounded-full text-orange-500 font-normal text-xs">
-                                            Stok: {product.detail_product.stok}
+                                            Stok: {product?.detail_product?.stok}
                                         </span>
                                     )}
                                 </div>
@@ -427,6 +427,7 @@ const Casheer = () => {
 
                             {/* Tombol Tambah dan Kurangi Kuantitas */}
                             <div className="flex items-center gap-2">
+                                {/* Tombol Kurangi */}
                                 <button
                                     onClick={() => removeQuantityHandler(index)}
                                     className="w-8 h-8 flex items-center justify-center text-2xl font-semibold rounded-full bg-orange-100"
@@ -434,6 +435,7 @@ const Casheer = () => {
                                     -
                                 </button>
 
+                                {/* Input Jumlah */}
                                 <Input
                                     type="number"
                                     className="text-center xs:w-24 w-16 border rounded-md appearance-none px-2"
@@ -444,9 +446,9 @@ const Casheer = () => {
                                     }
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
-                                        if (inputValue === "" || (Number(inputValue) >= 0 && !isNaN(Number(inputValue)))) {
-                                            const newQuantity = inputValue === "" ? 0 : parseInt(inputValue, 10);
+                                        const newQuantity = inputValue === "" ? 0 : parseInt(inputValue, 10);
 
+                                        if (inputValue === "" || (!isNaN(newQuantity) && newQuantity >= 0 && newQuantity <= product?.detail_product?.stok)) {
                                             setBasket((prevBasket) => {
                                                 const existingProductIndex = prevBasket.findIndex(
                                                     (item) => item.product === product.product_name
@@ -456,7 +458,6 @@ const Casheer = () => {
                                                     if (newQuantity === 0) {
                                                         return prevBasket.filter((_, idx) => idx !== existingProductIndex);
                                                     }
-
                                                     return prevBasket.map((item, idx) =>
                                                         idx === existingProductIndex ? { ...item, quantity: newQuantity } : item
                                                     );
@@ -487,10 +488,19 @@ const Casheer = () => {
                                         }
                                     }}
                                     min={0}
+                                    max={product?.detail_product?.stok} // Tambahkan batas maksimal
                                 />
 
+                                {/* Tombol Tambah */}
                                 <button
-                                    onClick={() => addQuantityHandler(index)}
+                                    onClick={() => {
+                                        const currentQuantity = basket
+                                            .filter((item) => item.product === product.product_name)
+                                            .reduce((total, item) => total + item.quantity, 0);
+                                        if (currentQuantity < product?.detail_product?.stok) {
+                                            addQuantityHandler(index);
+                                        }
+                                    }}
                                     className="w-8 h-8 flex items-center justify-center text-2xl font-semibold rounded-full bg-orange-100"
                                 >
                                     +
@@ -532,7 +542,7 @@ const Casheer = () => {
 
                                     {product?.detail_product?.is_stok && (
                                         <span className="bg-orange-100 px-3 py-1 mt-1 rounded-full text-orange-500 font-normal text-xs">
-                                            Stok: {product.detail_product.stok}
+                                            Stok: {product?.detail_product?.stok}
                                         </span>
                                     )}
                                 </div>
@@ -540,19 +550,21 @@ const Casheer = () => {
 
                             {/* Tombol Tambah & Kurangi Kuantitas */}
                             <div className="flex items-center gap-2">
+                                {/* Tombol Kurangi */}
                                 <button
                                     onClick={() => removeQuantityHandler(index)}
-                                    disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
+                                    disabled={product?.detail_product?.is_stok === false ? false : product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
                                     className={`w-8 h-8 flex items-center justify-center text-2xl font-semibold rounded-full 
-                ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'bg-gray-200 cursor-not-allowed opacity-50' : 'bg-orange-100'}`}
+      ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'bg-gray-200 cursor-not-allowed opacity-50' : 'bg-orange-100'}`}
                                 >
                                     -
                                 </button>
 
+                                {/* Input Jumlah */}
                                 <Input
                                     type="number"
                                     className="text-center xs:w-24 w-16 border rounded-md appearance-none px-2"
-                                    disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
+                                    disabled={product?.detail_product?.is_stok === false ? false : product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
                                     value={
                                         basket
                                             .filter((item) => item.product === product.product_name)
@@ -560,9 +572,9 @@ const Casheer = () => {
                                     }
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
-                                        if (inputValue === "" || (Number(inputValue) >= 0 && !isNaN(Number(inputValue)))) {
-                                            const newQuantity = inputValue === "" ? 0 : parseInt(inputValue, 10);
+                                        const newQuantity = inputValue === "" ? 0 : parseInt(inputValue, 10);
 
+                                        if (inputValue === "" || (!isNaN(newQuantity) && newQuantity >= 0 && (product?.detail_product?.is_stok === false || newQuantity <= product?.detail_product?.stok))) {
                                             setBasket((prevBasket) => {
                                                 const existingProductIndex = prevBasket.findIndex(
                                                     (item) => item.product === product.product_name
@@ -572,7 +584,6 @@ const Casheer = () => {
                                                     if (newQuantity === 0) {
                                                         return prevBasket.filter((_, idx) => idx !== existingProductIndex);
                                                     }
-
                                                     return prevBasket.map((item, idx) =>
                                                         idx === existingProductIndex ? { ...item, quantity: newQuantity } : item
                                                     );
@@ -604,13 +615,22 @@ const Casheer = () => {
                                         }
                                     }}
                                     min={0}
+                                    max={product?.detail_product?.stok} // Tambahkan max di HTML
                                 />
 
+                                {/* Tombol Tambah */}
                                 <button
-                                    onClick={() => addQuantityHandler(index)}
-                                    disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
+                                    onClick={() => {
+                                        const currentQuantity = basket
+                                            .filter((item) => item.product === product.product_name)
+                                            .reduce((total, item) => total + item.quantity, 0);
+                                        if (product?.detail_product?.is_stok === false || currentQuantity < product?.detail_product?.stok) {
+                                            addQuantityHandler(index);
+                                        }
+                                    }}
+                                    disabled={product?.detail_product?.is_stok === false ? false : product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
                                     className={`w-8 h-8 flex items-center justify-center text-2xl font-semibold rounded-full 
-                ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'bg-gray-200 cursor-not-allowed opacity-50' : 'bg-orange-100'}`}
+      ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'bg-gray-200 cursor-not-allowed opacity-50' : 'bg-orange-100'}`}
                                 >
                                     +
                                 </button>

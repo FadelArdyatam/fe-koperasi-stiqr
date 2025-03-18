@@ -273,13 +273,16 @@ const Booking = () => {
 
                                     <div className="w-full mt-5">
                                         <div className={`${status === 'cancel' ? 'hidden' : 'flex'} w-full items-center gap-5`}>
-                                            <Link to={"/casheer"} className={`${status === 'done' || status === 'cancel' ? 'hidden' : 'block'} hover:bg-gray-800 transition-all p-2 text-center w-full rounded-full bg-transparent border border-orange-500 text-orange-500`}>
+                                            <Link to={"/casheer"} className={`${status === 'done' || status === 'cancel' ? 'hidden' : 'block'} hover:bg-gray-800 transition-all p-2 text-center w-full md:text-base text-sm rounded-full bg-transparent border border-orange-500 text-orange-500`}>
                                                 Tambah Pesanan
                                             </Link>
 
-                                            <Button onClick={() => setShowReceipt({ type: "", show: true, index: index })} className="w-full rounded-full bg-orange-200 border border-orange-500 text-orange-500">
-                                                Cetak Struk
+                                            <Button onClick={() => setShowReceipt({ type: "", show: true, index: index })} className="w-full rounded-full bg-orange-200 border border-orange-500 text-sm md:text-base text-orange-500">
+                                                <p className="md:text-base text-sm">
+                                                    Cetak Struk
+                                                </p>
                                             </Button>
+
                                         </div>
 
                                         <Button

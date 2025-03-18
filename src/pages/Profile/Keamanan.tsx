@@ -288,22 +288,20 @@ const Keamanan = () => {
                                     render={({ field }) => (
                                         <FormItem data-aos="fade-up" className="w-full">
                                             <FormLabel className="text-gray-500">PIN Saat Ini</FormLabel>
-
                                             <FormControl>
                                                 <div className="relative w-full">
                                                     <Input
                                                         type={showPIN.oldPIN ? 'text' : 'password'}
                                                         className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                        maxLength={6} // Membatasi jumlah karakter input maksimal
+                                                        maxLength={6}
+                                                        inputMode="numeric"
+                                                        pattern="[0-9]*"
                                                         {...field}
-                                                        onInput={(e) => {
-                                                            const input = e.target as HTMLInputElement;
-                                                            // Hanya mengizinkan angka dan membatasi maksimal 6 karakter
-                                                            input.value = input.value.replace(/\D/g, '').slice(0, 6);
-                                                            field.onChange(input.value); // Mengupdate nilai di form
+                                                        onChange={(e) => {
+                                                            const value = e.target.value.replace(/\D/g, ''); // Hanya angka
+                                                            field.onChange(value.slice(0, 6)); // Batasi 6 karakter
                                                         }}
                                                     />
-
                                                     <button
                                                         onClick={() => setShowPIN({ oldPIN: !showPIN.oldPIN, newPIN: showPIN.newPIN })}
                                                         className="block absolute top-2 right-5"
@@ -324,19 +322,18 @@ const Keamanan = () => {
                                     render={({ field }) => (
                                         <FormItem data-aos="fade-up" data-aos-delay="100" className="w-full">
                                             <FormLabel className="text-gray-500">PIN Baru</FormLabel>
-
                                             <FormControl>
                                                 <div className="relative">
                                                     <Input
                                                         type={showPIN.newPIN ? 'text' : 'password'}
                                                         className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                        maxLength={6} // Membatasi jumlah karakter input maksimal
+                                                        maxLength={6}
+                                                        inputMode="numeric"
+                                                        pattern="[0-9]*"
                                                         {...field}
-                                                        onInput={(e) => {
-                                                            const input = e.target as HTMLInputElement;
-                                                            // Hanya mengizinkan angka dan membatasi maksimal 6 karakter
-                                                            input.value = input.value.replace(/\D/g, '').slice(0, 6);
-                                                            field.onChange(input.value); // Mengupdate nilai di form
+                                                        onChange={(e) => {
+                                                            const value = e.target.value.replace(/\D/g, ''); // Hanya angka
+                                                            field.onChange(value.slice(0, 6)); // Batasi 6 karakter
                                                         }}
                                                     />
                                                     <button
@@ -352,6 +349,7 @@ const Keamanan = () => {
                                         </FormItem>
                                     )}
                                 />
+
                             </div>
 
                             <Button data-aos="fade-up" data-aos-delay="200" type="submit" className="w-full bg-green-400 mt-7">Simpan Data</Button>

@@ -124,17 +124,17 @@ const Profile = () => {
                 </div>
 
 
-                <div className="bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20 mb-20">
-                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/security"} className="flex items-center gap-5 justify-between">
-                        <div>
-                            <p>Keamanan</p>
 
-                            <p className="text-sm text-gray-500">Password & Pin</p>
+                <div className="bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20 mb-20">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/history"} className="flex items-center gap-5 justify-between">
+                        <div>
+                            <p>Riwayat</p>
+
+                            <p className="text-sm text-gray-500">Penjualan & Pembelian</p>
                         </div>
 
                         <ChevronRight />
                     </Link>
-
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
                     <Link data-aos="fade-up" data-aos-once="true" to={"/profile/owner-data"} className="flex items-center gap-5 justify-between">
@@ -142,6 +142,19 @@ const Profile = () => {
                             <p>Data Pemilik</p>
 
                             <p className="text-sm text-gray-500">Nama, Email, No Hp, Alamat</p>
+                        </div>
+
+                        <ChevronRight />
+                    </Link>
+
+                    <div className="w-full h-[2px] my-5 bg-gray-200"></div>
+
+
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/security"} className="flex items-center gap-5 justify-between">
+                        <div>
+                            <p>Keamanan</p>
+
+                            <p className="text-sm text-gray-500">Password & Pin</p>
                         </div>
 
                         <ChevronRight />
@@ -193,18 +206,6 @@ const Profile = () => {
 
                         <ChevronRight />
                     </button>
-
-                    <div className="w-full h-[2px] my-5 bg-gray-200"></div>
-
-                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/history"} className="flex items-center gap-5 justify-between">
-                        <div>
-                            <p>Riwayat</p>
-
-                            <p className="text-sm text-gray-500">Penjualan & Pembelian</p>
-                        </div>
-
-                        <ChevronRight />
-                    </Link>
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 

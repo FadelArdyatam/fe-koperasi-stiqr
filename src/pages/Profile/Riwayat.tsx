@@ -553,9 +553,8 @@ const Riwayat = () => {
                 )
             }
 
-
             {/* Deskripsi Pembelian */}
-            <div ref={contentRef} className={`${showDescription.status ? 'block' : 'hidden'} w-[90%] mt-24 left-[50%] -translate-x-[50%] p-5 z-20 absolute rounded-lg `}>
+            <div ref={contentRef} className={`${showDescription.status ? 'block' : 'hidden'} w-full xs:w-[90%] mt-24 left-[50%] -translate-x-[50%] p-5 z-20 absolute rounded-lg `}>
                 {type === "Uang Masuk" ? (
                     <div>
                         {/* <div className="flex items-center gap-3">
