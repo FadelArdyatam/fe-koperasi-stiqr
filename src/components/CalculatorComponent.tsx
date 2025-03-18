@@ -48,8 +48,8 @@ const CalculatorComponent: React.FC<CalculatorProps> = ({ setAmount, amount, set
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen absolute top-0 left-[50%] bg-black w-full h-screen bg-opacity-50 -translate-x-[50%] text-white">
-            <div className="w-[40%] p-4 bg-white rounded-lg shadow-lg text-black">
+        <div className="flex flex-col items-center justify-center absolute top-0 left-[50%] bg-black w-full h-screen bg-opacity-50 -translate-x-[50%] text-white">
+            <div className="md:w-[40%] p-4 bg-white  mb-20 mt-20 rounded-lg shadow-lg text-black ">
                 <div className="mb-4 p-3 text-right bg-transparent text-3xl font-semibold text-orange-600">{amount}</div>
 
                 <div className="grid grid-cols-4 gap-2">
@@ -57,7 +57,7 @@ const CalculatorComponent: React.FC<CalculatorProps> = ({ setAmount, amount, set
                         .map((char, index) => (
                             <button
                                 key={index}
-                                className={`p-4 text-xl font-bold rounded shadow ${["C", "±", "%"].includes(char)
+                                className={`p-4 text-xl font-bold rounded shadow ${["C", "±", "%","⌫"].includes(char)
                                     ? "bg-gray-700 text-white"
                                     : ["/", "*", "-", "+", "="].includes(char)
                                         ? "bg-green-500 text-white"
@@ -85,7 +85,7 @@ const CalculatorComponent: React.FC<CalculatorProps> = ({ setAmount, amount, set
                 <div className="mt-4 flex flex-col gap-3">
                     <button type="button" onClick={() => setShowCalculator(false)} className="w-full p-3 bg-green-500 text-white font-bold rounded">Selesai</button>
 
-                    <button type="button" onClick={() => setShowCalculator(false)} className="w-full p-3 bg-red-500 text-white font-bold rounded">Batal</button>
+                    <button type="button" onClick={() => { setShowCalculator(false); setAmount("0") }} className="w-full p-3 bg-red-500 text-white font-bold rounded">Batal</button>
                 </div>
             </div>
         </div>

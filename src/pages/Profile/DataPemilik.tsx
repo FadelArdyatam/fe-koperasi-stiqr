@@ -324,7 +324,14 @@ const DataPemilik = () => {
                                             <FormLabel className="text-gray-500">Nomor HP</FormLabel>
 
                                             <FormControl>
-                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field} />
+                                                <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field}
+                                                    onInput={(e) => {
+                                                        const input = e.target as HTMLInputElement;
+                                                        if (input.value.length > 15) {
+                                                            input.value = input.value.slice(0, 15);
+                                                        }
+                                                        field.onChange(input.value);
+                                                    }} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

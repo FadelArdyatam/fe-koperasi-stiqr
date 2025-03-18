@@ -233,10 +233,10 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
 
                         {/* Biaya Penanganan & Total Belanja hanya jika responseCode bukan 100-199 */}
 
-                        {data && (
+                        {data && data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
                                 <p>Biaya Penanganan</p>
-                                <p>{formatRupiah(data?.processingFee)}</p>
+                                <p>{formatRupiah(data.processingFee)}</p>
                             </div>
                         )}
 

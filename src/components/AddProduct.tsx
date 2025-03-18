@@ -324,11 +324,9 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             product_id: data.products.join(","), // Konversi array ke string dengan koma
             variant_description: "Deskripsi untuk variant", // Bisa diambil dari form jika diperlukan
             is_multiple: data.methods === "more",
-            multiple_value: displayChoises.map((choice) => choice.name).join(", "), // Semua pilihan nama
+            multiple_value: displayChoises, // Semua pilihan nama
             merchant_id: userData?.merchant?.id, // ID merchant
         };
-
-        console.log(data);
 
         try {
             const response = await axiosInstance.post(
@@ -336,9 +334,13 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                 payload
             );
 
+            console.log("variant");
+            console.log(response.data.data);
+
             if (response.status === 200 || response.status === 201) {
                 // Agar varian yang baru ditambahkan langsung muncul di halaman varian
-                setVariants([...variants, response.data.data]);
+
+                setVariants(prevVariants => [...prevVariants, response.data.data]);
 
                 setShowPopUpAddVariant(false)
                 setShowNotificationVariant(true);
