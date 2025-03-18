@@ -219,10 +219,10 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
 
                     <div className='w-full my-5 h-[2px] bg-gray-200'></div>
 
-                    <div className='flex items-center gap-5 justify-between'>
+                    {/* <div className='flex items-center gap-5 justify-between'>
                         <p className='font-bold'>Margin</p>
                     
-                    </div>
+                    </div> */}
 
                     <div className='w-full my-5 h-[2px] bg-gray-200'></div>
 
