@@ -175,7 +175,7 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
                                         : "hidden"
                                         } `}
                                 >
-                                    1 x {formatRupiah(amount)}
+                                    1 x {formatRupiah(Number(data?.amount))}
                                 </p>
                             </div>
                             <p
@@ -184,7 +184,7 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
                                     : "hidden"
                                     }`}
                             >
-                                {formatRupiah(amount)}
+                                {formatRupiah(Number(data?.amount))}
                             </p>
                         </div>
 
@@ -355,7 +355,7 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
                                             : "hidden"
                                             } `}
                                     >
-                                        1 x {formatRupiah(amount)}
+                                        1 x {formatRupiah(Number(data?.amount))}
                                     </p>
                                 </div>
                                 <p
@@ -364,7 +364,7 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
                                         : "hidden"
                                         }`}
                                 >
-                                    {formatRupiah(amount)}
+                                    {formatRupiah(Number(data?.amount))}
                                 </p>
                             </div>
 
