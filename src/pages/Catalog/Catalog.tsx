@@ -85,6 +85,7 @@ interface Variant {
 }
 
 const options = ["Semua", "Aktif", "Non-aktif"];
+const stok_options = ["Stok Tersedia", "Stok Habis"]
 
 const Catalog = () => {
     const [show, setShow] = useState('Produk');
@@ -103,11 +104,13 @@ const Catalog = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    console.log(error)
 
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
     const [showFilterSection, setShowFilterSection] = useState(false);
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'new' | 'highest' | 'lowest' | 'Semua' | 'Aktif' | 'Non-aktif'>('new');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'new' | 'highest' | 'lowest' | 'Semua' | 'Aktif' | 'Non-aktif' | 'Stok Tersedia' | 'Stok Habis'>('new');
+    const [sortOrderVarian, setSortOrderVarian] = useState<'asc' | 'desc' | 'new' | 'Semua' | 'Aktif' | 'Non-aktif'>('new');
 
     const [reset, setReset] = useState(false);
 
@@ -167,7 +170,7 @@ const Catalog = () => {
                 console.error("Error saat mengambil data varian:", err);
             } finally {
                 setLoading(false);
-            };
+            }
         };
 
         fetchProducts();
@@ -175,9 +178,26 @@ const Catalog = () => {
         fetchVariants();
     }, [reset]);
 
+    const [tempSortOrder, setTempSortOrder] = useState(sortOrder);
+    const [tempSortOrderVarian, setTempSortOrderVarian] = useState(sortOrderVarian);
+
+    const applyFilter = () => {
+        if (show == 'Produk') {
+            setSortOrder(tempSortOrder);
+        } else {
+            setSortOrderVarian(tempSortOrderVarian);
+        }
+        setShowFilterSection(false);
+    };
+
     useEffect(() => {
         fetchProducts();
     }, [sortOrder]);
+
+    useEffect(() => {
+
+        fetchVariants();
+    }, [sortOrderVarian]);
 
     const fetchProducts = async () => {
         setLoading(true);
@@ -187,6 +207,10 @@ const Catalog = () => {
             if (sortOrder === 'Aktif') status = 'active';
             if (sortOrder === 'Non-aktif') status = 'inactive';
 
+            let is_stok = undefined;
+            if (sortOrder === 'Stok Tersedia') is_stok = 'Tersedia';
+            if (sortOrder === 'Stok Habis') is_stok = 'Habis';
+
             // Only pass sort parameter if it's a sorting option
             const sortParam = ['asc', 'desc', 'new', 'highest', 'lowest'].includes(sortOrder)
                 ? sortOrder
@@ -195,11 +219,40 @@ const Catalog = () => {
             const response = await axiosInstance.get(`/product/${userData?.merchant?.id}`, {
                 params: {
                     sort: sortParam,
-                    status: status
+                    status: status,
+                    is_stok: is_stok
                 }
             });
 
             setProducts(response.data);
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data produk.");
+            console.error("Error saat mengambil data produk:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+    const fetchVariants = async () => {
+        setLoading(true);
+        try {
+            let status = undefined;
+            if (sortOrderVarian === 'Aktif') status = 'active';
+            if (sortOrderVarian === 'Non-aktif') status = 'inactive';
+
+            // Only pass sort parameter if it's a sorting option
+            const sortParam = ['asc', 'desc', 'new'].includes(sortOrderVarian)
+                ? sortOrderVarian
+                : undefined;
+
+            const response = await axiosInstance.get(`/varian/${userData?.merchant?.id}`, {
+                params: {
+                    sort: sortParam,
+                    status: status,
+                    filter: 'all'
+                }
+            });
+
+            setVariants(response.data.data);
         } catch (err: any) {
             setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data produk.");
             console.error("Error saat mengambil data produk:", err);
@@ -227,8 +280,13 @@ const Catalog = () => {
         )
         : [];
 
-    console.log(reset)
-    console.log("Error", error)
+    let allOptions = [...options];
+
+    if (show === 'Produk') {
+        allOptions = [...options, ...stok_options];
+    }
+
+
 
     return (
         <div className="w-full flex flex-col min-h-screen items-center bg-orange-50">
@@ -263,21 +321,27 @@ const Catalog = () => {
                         <div data-aos="fade-up" className="w-full bg-white rounded-t-xl p-5">
                             <div className="flex items-center justify-between w-full">
                                 <p className="font-semibold text-2xl">Kondisi Produk</p>
-
                                 <button type="button" onClick={() => setShowFilterSection(false)}>
                                     <X />
                                 </button>
                             </div>
 
                             <div className="mt-5 flex flex-wrap gap-2">
-                                {options.map((option) => (
+                                {allOptions.map((option) => (
                                     <button
                                         key={option}
-                                        onClick={() => setSortOrder(option as 'Semua' | 'Aktif' | 'Non-aktif' | 'asc' | 'desc' | 'new' | 'highest' | 'lowest')}
-                                        className={`px-4 py-2 rounded-full border ${sortOrder === option
-                                            ? "bg-blue-100 text-blue-600 border-blue-500"
-                                            : "border-gray-300 text-gray-600 hover:bg-gray-100"
-                                            } transition`}
+                                        onClick={() => {
+                                            if (show !== 'Varian') {
+                                                setTempSortOrder(option as 'Semua' | 'Aktif' | 'Non-aktif' | 'asc' | 'desc' | 'new' | 'highest' | 'lowest' | 'Stok Tersedia' | 'Stok Habis');
+                                            } else {
+                                                setTempSortOrderVarian(option as 'Semua' | 'Aktif' | 'Non-aktif' | 'asc' | 'desc' | 'new');
+                                            }
+                                        }}
+                                        className={`px-4 py-2 rounded-full border transition 
+                                            ${show === 'Produk'
+                                                ? (tempSortOrder === option ? "bg-blue-100 text-blue-600 border-blue-500" : "border-gray-300 text-gray-600 hover:bg-gray-100")
+                                                : (tempSortOrderVarian === option ? "bg-blue-100 text-blue-600 border-blue-500" : "border-gray-300 text-gray-600 hover:bg-gray-100")
+                                            }`}
                                     >
                                         {option}
                                     </button>
@@ -290,16 +354,17 @@ const Catalog = () => {
 
                             <div className="mt-5 flex flex-col gap-3">
                                 {/* Produk Terbaru */}
+                                {/* Produk Terbaru */}
                                 <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
                                     <input
                                         type="radio"
                                         name="sort"
                                         value="new"
-                                        checked={sortOrder === 'new'}
-                                        onChange={() => setSortOrder('new')}
+                                        checked={show == 'Varian' ? tempSortOrderVarian === 'new' : tempSortOrder === 'new'}
+                                        onChange={() => { show !== 'Varian' ? setTempSortOrder('new') : setTempSortOrderVarian('new'); }}
                                         className="w-5 h-5 text-orange-500 focus:ring-orange-500"
                                     />
-                                    <span className="text-orange-500 font-medium">Produk Terbaru</span>
+                                    <span className="text-orange-500 font-medium">{`${show === "Varian" ? 'Varian' : 'Produk'}`} Terbaru</span>
                                 </label>
 
                                 {/* Abjad A-Z */}
@@ -308,8 +373,8 @@ const Catalog = () => {
                                         type="radio"
                                         name="sort"
                                         value="asc"
-                                        checked={sortOrder === 'asc'}
-                                        onChange={() => setSortOrder('asc')}
+                                        checked={show == 'Varian' ? tempSortOrderVarian === 'asc' : tempSortOrder === 'asc'}
+                                        onChange={() => { show !== 'Varian' ? setTempSortOrder('asc') : setTempSortOrderVarian('asc'); }}
                                         className="w-5 h-5 text-orange-500 focus:ring-orange-500"
                                     />
                                     <span className="text-orange-500 font-medium">Abjad A-Z</span>
@@ -321,12 +386,13 @@ const Catalog = () => {
                                         type="radio"
                                         name="sort"
                                         value="desc"
-                                        checked={sortOrder === 'desc'}
-                                        onChange={() => setSortOrder('desc')}
+                                        checked={show == 'Varian' ? tempSortOrderVarian === 'desc' : tempSortOrder === 'desc'}
+                                        onChange={() => { show !== 'Varian' ? setTempSortOrder('desc') : setTempSortOrderVarian('desc'); }}
                                         className="w-5 h-5 text-orange-500 focus:ring-orange-500"
                                     />
                                     <span className="text-orange-500 font-medium">Abjad Z-A</span>
                                 </label>
+
 
                                 {/* Highest Price */}
                                 <label className={`${show === "Varian" ? 'hidden' : 'flex'} items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer`}>
@@ -334,8 +400,8 @@ const Catalog = () => {
                                         type="radio"
                                         name="sort"
                                         value="highest"
-                                        checked={sortOrder === 'highest'}
-                                        onChange={() => setSortOrder('highest')}
+                                        checked={tempSortOrder === 'highest'}
+                                        onChange={() => setTempSortOrder('highest')}
                                         className="w-5 h-5 text-orange-500 focus:ring-orange-500"
                                     />
                                     <span className="text-orange-500 font-medium">Harga Tertinggi</span>
@@ -347,17 +413,17 @@ const Catalog = () => {
                                         type="radio"
                                         name="sort"
                                         value="lowest"
-                                        checked={sortOrder === 'lowest'}
-                                        onChange={() => setSortOrder('lowest')}
+                                        checked={tempSortOrder === 'lowest'}
+                                        onChange={() => setTempSortOrder('lowest')}
                                         className="w-5 h-5 text-orange-500 focus:ring-orange-500"
                                     />
                                     <span className="text-orange-500 font-medium">Harga Terendah</span>
                                 </label>
                             </div>
 
-                            {/* Tombol Tutup */}
+                            {/* Tombol Tampilkan */}
                             <Button
-                                onClick={() => setShowFilterSection(false)}
+                                onClick={applyFilter}
                                 className="mt-5 w-full h-12 bg-orange-500 text-white rounded-xl"
                             >
                                 Tampilkan
@@ -367,7 +433,7 @@ const Catalog = () => {
                 )}
 
                 <div data-aos="zoom-in" data-aos-delay="200" className="mt-5 flex items-center gap-5 justify-between">
-                    <Button onClick={() => setShow('Produk')} className={`${show === 'Produk' ? 'bg-orange-100' : 'bg-transparent'} transition-all text-orange-500 rounded-full w-full`}>Produk</Button>
+                    <Button onClick={() => { setShow('Produk') }} className={`${show === 'Produk' ? 'bg-orange-100' : 'bg-transparent'} transition-all text-orange-500 rounded-full w-full`}>Produk</Button>
 
                     <Button onClick={() => setShow('Varian')} className={`${show === 'Varian' ? 'bg-orange-100' : 'bg-transparent'} transition-all text-orange-500 rounded-full w-full`}>Varian</Button>
 

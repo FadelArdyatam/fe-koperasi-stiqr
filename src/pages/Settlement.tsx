@@ -97,7 +97,7 @@ const Settlement = () => {
         setCurrentPage(1);
     };
     const FormSchema = z.object({
-        amount: z.number().min(12000, {
+        amount: z.number({ message: '' }).min(12000, {
             message: "Minimal Penarikan Rp 12.000",
         }),
         account_id: z.string().min(2, {
@@ -246,7 +246,7 @@ const Settlement = () => {
                             <Info className="w-5 min-w-5 h-5 text-blue-500" />
 
                             <p className="text-sm text-black">
-                                Penarikan dana hanya bisa dilakukan pada jam 18:00 s/d 23:59. Maksimal penarikan akan kembali semula setiap harinya pada jam 00:00
+                                Penarikan dana hanya bisa dilakukan pada jam 18:00 s/d 23:59. Limit penarikan akan kembali semula setiap harinya pada jam 00:00
                             </p>
                         </div>
 

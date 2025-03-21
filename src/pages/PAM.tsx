@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axiosInstance from "@/hooks/axiosInstance";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
-import { ChevronDown, ChevronLeft } from "lucide-react"
+import { ChevronDown, ChevronLeft, History } from "lucide-react"
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom"
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Notification from "@/components/Notification";
+import RecomendationModalPPOB from "@/components/RecomendationModalPPOB";
 
 // interface BillData {
 //     product: string;
@@ -103,6 +104,8 @@ const PAM = () => {
         setregion(value)
     };
 
+    const [showRecomendation, setShowRecomendation] = useState(false)
+
     return (
         <>
             <div className='w-full p-10 pb-32 flex items-center justify-center bg-orange-400 bg-opacity-100'>
@@ -144,8 +147,11 @@ const PAM = () => {
 
                     <div data-aos="fade-up" data-aos-delay="300" className="mt-5">
                         <p>Nomor Pelanggan</p>
+                        <div className="flex flex-row items-center gap-5">
+                            <Input onChange={(e) => setphoneNumber(e.target.value)} type="number" value={phoneNumber} className="border border-black" />
+                            <History onClick={() => setShowRecomendation(true)} className="text-orange-500 hover:cursor-pointer  shadow-md rounded-full w-9 h-9" />
+                        </div>
 
-                        <Input onChange={(e) => setphoneNumber(e.target.value)} type="number" className="mt-3 border border-black" />
                     </div>
                 </div>
 
@@ -153,7 +159,9 @@ const PAM = () => {
                     Lanjutkan
                 </Button>
             </div>
-
+            {showRecomendation && (
+                <RecomendationModalPPOB category="PDAM" setAccountNumber={setphoneNumber} setShowRecomendation={setShowRecomendation} />
+            )}
             {showBill && dataBill && <Bill data={dataBill} marginTop={false} />}
             {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
             {

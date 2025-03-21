@@ -7,7 +7,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import noProduct from '../../images/no-product.png'
 import imgNoCatalog from "@/images/no-data-catalog.png";
-import { Plus } from 'lucide-react';
+import { Info, Plus } from 'lucide-react';
 
 
 interface Merchant {
@@ -154,9 +154,17 @@ const Product: React.FC<ProductProps> = ({
                             data-aos="fade-up"
                             data-aos-delay={index * 100}
                             key={product.id}
-                            className={`${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'bg-red-100' : 'bg-white'} flex w-full justify-between items-center p-4 gap-4 rounded-md shadow-sm mt-5 cursor-pointer hover:cursor-pointer hover:bg-orange-100 transition-all`}
+                            className={`relative ${product?.detail_product?.is_stok && product?.detail_product?.stok === 0 ? 'bg-red-100' : 'bg-white'} flex w-full justify-between items-center p-4 gap-4 rounded-md shadow-sm mt-5 cursor-pointer hover:bg-orange-100 transition-all`}
                             onClick={() => handleOpen(product.product_id)}
                         >
+                            {/* Tampilkan ikon peringatan jika stok kurang dari stok minimum */}
+                            {product?.detail_product?.is_stok && product?.detail_product?.stok <= product?.detail_product?.stok_minimum && product?.detail_product?.stok != 0 && (
+                                <div className="absolute top-0 right-0 bg-orange-500 text-white p-1 rounded-tr-md rounded-bl-md text-xs flex items-center gap-1">
+                                    <Info className="md:w-4 md:h-4 w-3 h-3" />
+                                    <span className="md:text-xs text-[10px]">Stok Hampir Habis</span>
+                                </div>
+                            )}
+
                             {/* Kiri: Gambar & Detail Produk */}
                             <div className="flex items-center gap-4 min-w-0">
                                 {/* Gambar Produk */}
@@ -189,7 +197,7 @@ const Product: React.FC<ProductProps> = ({
                             {/* Kanan: Switch Button */}
                             <button
                                 className={`flex items-center justify-center w-14 min-w-14 h-8 p-1 rounded-full cursor-pointer 
-                            ${product.product_status ? 'bg-orange-500' : 'bg-gray-300'} transition-colors`}
+        ${product.product_status ? 'bg-orange-500' : 'bg-gray-300'} transition-colors`}
                                 onClick={(event) => {
                                     event.stopPropagation(); // Hindari trigger handleOpen saat klik switch
                                     handleSwitchChange(product.product_id, event);
@@ -197,18 +205,19 @@ const Product: React.FC<ProductProps> = ({
                             >
                                 <div
                                     className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform 
-                                ${product.product_status ? 'translate-x-3' : '-translate-x-3'}`}
+          ${product.product_status ? 'translate-x-3' : '-translate-x-3'}`}
                                 />
                             </button>
                         </div>
                     ))}
+
                     {products?.length === 0 && (
                         <div className="flex justify-center gap-3 flex-col">
                             <img className="md:w-3/12 w-2/3 place-items-center self-center mt-10" src={imgNoCatalog} />
                             <p className="text-center text-orange-400 font-bold md:text-xl">Belum ada produk yang ditambahkan</p>
                             <Button
                                 onClick={() => { setAddProduct(true); setReset(false) }}
-                                className={`bg-orange-500 w-fit self-center`}
+                                className="bg-orange-500 w-fit self-center"
                             >
                                 <Plus /> Tambah Produk
                             </Button>

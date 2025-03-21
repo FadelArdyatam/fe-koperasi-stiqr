@@ -2,7 +2,7 @@ import Bill from "@/components/Bill"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
-import { ChevronLeft, ChevronDown } from "lucide-react"
+import { ChevronLeft, ChevronDown, History } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import axiosInstance from "@/hooks/axiosInstance"
 import Notification from "@/components/Notification"
+import RecomendationModalPPOB from "@/components/RecomendationModalPPOB"
 
 interface BillData {
     product: string;
@@ -91,6 +92,8 @@ const BPJS = () => {
         setProductCode(value);
     };
 
+    const [showRecomendation, setShowRecomendation] = useState(false);
+
     return (
         <>
             <div className='w-full p-10 pb-32 flex items-center justify-center bg-orange-400 bg-opacity-100'>
@@ -140,8 +143,19 @@ const BPJS = () => {
 
                     <div data-aos="fade-up" data-aos-delay="300" className="mt-5">
                         <p>Nomor BPJS</p>
+                        <div className="flex fle-row gap-5 items-center mt-2">
+                            <Input
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/\D/g, '').slice(0, 20);
+                                    setKTP(value);
+                                }}
+                                type="text"
+                                value={KTP}
+                                className="border border-black"
+                            />
+                            <History onClick={() => setShowRecomendation(true)} className="text-orange-500 hover:cursor-pointer  shadow-md rounded-full w-9 h-9" />
+                        </div>
 
-                        <Input onChange={(e) => setKTP(e.target.value)} type="number" className="mt-3 border border-black" />
                     </div>
 
                     <DropdownMenu>
@@ -179,6 +193,9 @@ const BPJS = () => {
                     </div>
                 )
             }
+            {showRecomendation && (
+                <RecomendationModalPPOB category="BPJS" setAccountNumber={setKTP} setShowRecomendation={setShowRecomendation} />
+            )}
             {showBill && dataBill && <Bill data={dataBill} marginTop={false} />}
         </>
     )

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronLeft, ChevronUp } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronUp, History } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import Bill from "@/components/Bill"
@@ -8,6 +8,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import Notification from "@/components/Notification"
 import provider from "@/data/provider.json"
+import RecomendationModalPPOB from "@/components/RecomendationModalPPOB"
 
 interface BillData {
     product: string;
@@ -119,6 +120,8 @@ const Pulsa = () => {
         fetchProduct()
     }, [category, selectedProvider]);
 
+    const [showRecomendation, setShowRecomendation] = useState(false)
+
 
     return (
         <div>
@@ -161,6 +164,9 @@ const Pulsa = () => {
 
                         {dropdownOpen ? <ChevronUp /> : <ChevronDown />}
                     </button>
+                    {selectedProvider == 'Telkomsel' && (
+                        <span className="text-gray-500 text-xs italic">*Pembelian atau transaksi produk Telkomsel tidak dapat diproses pada 23:30 - 00:30 WIB.</span>
+                    )}
 
                     {dropdownOpen && (
                         <ul className="left-0 mt-1 w-full bg-white border rounded-md shadow-lg max-h-64 overflow-y-auto z-50">
@@ -181,21 +187,24 @@ const Pulsa = () => {
 
                 </div>
 
-                <div data-aos="fade-up" data-aos-delay="300" className="mt-10 w-[90%] m-auto flex flex-col items-center gap-5 z-0">
-                    <input
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            if (/^\d*$/.test(value) && value.length <= 15) {
-                                setPhoneNumber(value);
-                            }
-                        }}
-                        value={phoneNumber}
-                        type="tel"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        placeholder="0812..."
-                        className="w-full p-5 bg-white shadow-lg"
-                    />
+                <div data-aos="fade-up" data-aos-delay="300" className="mt-5 w-[90%] m-auto flex flex-col items-center gap-5 z-0">
+                    <div className="flex flex-row w-full bg-white items-center shadow-sm p-3 border rounded-md gap-3">
+                        <input
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (/^\d*$/.test(value) && value.length <= 15) {
+                                    setPhoneNumber(value);
+                                }
+                            }}
+                            value={phoneNumber}
+                            type="tel"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            placeholder="08xx..."
+                            className="w-full p-2"
+                        />
+                        <History onClick={() => setShowRecomendation(true)} className="text-orange-500 hover:cursor-pointer  shadow-md rounded-full w-9 h-9" />
+                    </div>
 
                     <div className="w-[90%] h-[2px] bg-gray-200 -translate-y-[35px]"></div>
                 </div>
@@ -216,6 +225,9 @@ const Pulsa = () => {
                     Lanjutkan
                 </Button>
             </div>
+            {showRecomendation && (
+                <RecomendationModalPPOB category="Pulsa" setAccountNumber={setPhoneNumber} setShowRecomendation={setShowRecomendation} />
+            )}
 
             {showBill && dataBill && <Bill data={dataBill} marginTop={true} />}
 

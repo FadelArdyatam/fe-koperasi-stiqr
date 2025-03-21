@@ -46,6 +46,10 @@ interface EditVariantProps {
         created_at: string;
         updated_at: string;
         merchant_id: string;
+        detail_product: {
+            is_stok: boolean;
+            stok: number;
+        }
         product_variant: Array<{
             variant: any;
             variant_id: string;

@@ -218,15 +218,20 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                             <p className="font-bold">Informasi Pelanggan</p>
                             <div className="flex justify-between">
                                 <p className="font-semibold text-gray-500">Nama</p>
-                                <p className="font-semibold">{selectedCustomer?.customer?.name ?? '-'}</p>
-                            </div>
-                            <div className="flex justify-between">
-                                <p className="font-semibold text-gray-500">Email</p>
-                                <p className="font-semibold">{selectedCustomer?.customer?.email ?? '-'}</p>
+                                <p className="font-semibold">
+                                    {basket?.customer_name || selectedCustomer?.customer?.name || '-'}
+                                </p>
                             </div>
                             <div className="flex justify-between">
                                 <p className="font-semibold text-gray-500">Nomor Handphone</p>
-                                <p className="font-semibold">{selectedCustomer?.customer?.phone ?? '-'}</p>
+                                <p className="font-semibold">
+                                    {basket?.customer_number || selectedCustomer?.customer?.phone || '-'}
+                                </p>
+                            </div>
+
+                            <div className="flex justify-between">
+                                <p className="font-semibold text-gray-500">Email</p>
+                                <p className="font-semibold">{selectedCustomer?.customer?.email ?? '-'}</p>
                             </div>
                             <div className="flex justify-between">
                                 <p className="font-semibold text-gray-500">Nomor Lainnya</p>

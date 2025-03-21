@@ -4,6 +4,10 @@ import axiosInstance from "@/hooks/axiosInstance";
 import noDataImg from "@/images/no-data-image/product.png";
 import {
     ArrowLeft,
+    ChevronLeft,
+    ChevronRight,
+    ChevronsLeft,
+    ChevronsRight,
     ClipboardList,
     Computer,
     CookingPot,
@@ -145,15 +149,29 @@ const Booking = () => {
     ];
     const handleChangeStatus = (value: string) => {
         setStatus(value);
+        setCurrentPage(1);
+        setTotalPages(1);
     };
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    console.log(currentPage)
+    console.log(totalPages)
 
     useEffect(() => {
         const fetchData = async () => {
+            const params: any = {
+                page: currentPage,
+                limit: 5,
+                status: status,
+            }
+            console.log('params')
+            console.log(params)
             try {
-                const response = await axiosInstance.get(
-                    `/sales/${userData.merchant.id}?status=${status}`
-                );
-                setDatas(response.data);
+
+                const response = await axiosInstance.get(`/sales/${userData.merchant.id}`, { params });
+                setDatas(response.data.data);
+                setTotalPages(response.data.pagination.totalPages)
                 console.log(response.data);
             } catch (err: any) {
                 console.error(err);
@@ -161,7 +179,7 @@ const Booking = () => {
         };
 
         fetchData();
-    }, [status]);
+    }, [status, currentPage]);
 
     console.log(datas);
     return (
@@ -300,6 +318,31 @@ const Booking = () => {
                         </div>
                     </div>
                 ))}
+
+                {
+                    datas.length > 0 && (
+                        <div className="flex flex-col items-center">
+                            <div className="flex items-center mt-12 justify-center gap-5 mb-3 ">
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                                    <ChevronsLeft />
+                                </Button>
+
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
+                                    <ChevronLeft />
+                                </Button>
+
+
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
+                                    <ChevronRight />
+                                </Button>
+
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+                                    <ChevronsRight />
+                                </Button>
+                            </div>
+                            <span className="text-center">Halaman {currentPage} dari {totalPages}</span>
+                        </div>
+                    )}
             </div>
 
             {showOrderProcess && (

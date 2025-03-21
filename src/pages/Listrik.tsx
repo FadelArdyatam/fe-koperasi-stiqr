@@ -6,7 +6,7 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ChevronDown, ChevronLeft } from "lucide-react";
+import { ChevronDown, ChevronLeft, History } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { formatRupiah } from "@/hooks/convertRupiah";
 import Notification from "@/components/Notification";
+import RecomendationModalPPOB from "@/components/RecomendationModalPPOB";
 
 // interface BillData {
 //     product: string;
@@ -113,7 +114,8 @@ const Listrik = () => {
         }
     };
 
-    console.log(selectedProduct)
+    const [showRecomendation, setShowRecomendation] = useState(false)
+
     return (
         <>
             <div className="w-full p-10 pb-32 flex items-center justify-center bg-orange-400 bg-opacity-100">
@@ -151,19 +153,25 @@ const Listrik = () => {
 
                     <div data-aos="fade-up" data-aos-delay="300" className="mt-10">
                         <p>No. Meter/ID Pel</p>
+                        <div className="flex flex-row gap-5 items-center mt-2">
+                            <Input
+                                onChange={(e) => setNoMeter(e.target.value)}
+                                type="number"
+                                value={noMeter}
+                                className="w-full p-5 border border-black bg-white shadow-sm"
+                            />
+                            <History onClick={() => setShowRecomendation(true)} className="text-orange-500 hover:cursor-pointer shadow-md rounded-full w-9 h-9" />
+                        </div>
 
-                        <Input
-                            onChange={(e) => setNoMeter(e.target.value)}
-                            type="number"
-                            className="w-full p-5 border border-black bg-white shadow-lg mt-2"
-                        />
+                        <span className="text-gray-500 text-xs italic">*Pembelian atau transaksi produk PLN tidak dapat diproses pada 23:45 - 00:30 WIB.</span>
+
                     </div>
 
                     {/* Dropdown hanya muncul jika tipe adalah "Token Listrik" */}
                     {type === "Token Listrik" && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <div data-aos="fade-up" className="mt-10 w-full">
+                                <div data-aos="fade-up" className="mt-3 w-full">
                                     <p>Nominal</p>
 
                                     <div className="flex items-center gap-5 border mt-2 text-gray-400 border-black rounded-lg p-2 justify-between">
@@ -191,7 +199,7 @@ const Listrik = () => {
                     )}
                 </div>
 
-                <div className={`${type.length === 0 || noMeter.length === 0 || (type === "Token Listrik" && nominal.length === 0) ? "hidden" : "block"} w-[90%] m-auto shadow-lg -translate-y-10 rounded-lg p-5`}>
+                {/* <div className={`w-[90%] m-auto shadow-sm -translate-y-10 rounded-lg p-5`}>
                     <p className="font-semibold">Keterangan</p>
 
                     <p className="mt-3">
@@ -203,7 +211,7 @@ const Listrik = () => {
                         2. Pembelian token listrik tidak dapat dilakukan pada{" "}
                         <span className="font-semibold">jam 23:00 - 00:59.</span>
                     </p>
-                </div>
+                </div> */}
 
                 <Button
                     onClick={sendBill}
@@ -212,6 +220,10 @@ const Listrik = () => {
                     Lanjutkan
                 </Button>
             </div>
+
+            {showRecomendation && (
+                <RecomendationModalPPOB category="Listrik" setAccountNumber={setNoMeter} setShowRecomendation={setShowRecomendation} />
+            )}
 
             {showBill && dataBill && <Bill data={dataBill} marginTop={false} />}
 

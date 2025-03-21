@@ -27,6 +27,10 @@ interface EditVarianProductProps {
         created_at: string;
         updated_at: string;
         merchant_id: string;
+        detail_product : {
+            is_stok:boolean;
+            stok:number;
+        }
         product_variant: Array<{
             variant: any;
             variant_id: string;
@@ -167,8 +171,8 @@ const EditVarianProduct: React.FC<EditVarianProductProps> = ({ setShowVariantPro
 
                                                             <p className="font-semibold text-gray-500">{formatRupiah(product.product_price)}</p>
 
-                                                            <div className={`${product.product_status ? 'bg-green-100 text-green-500' : 'bg-red-100 text-red-500'} py-1 px-3 rounded-full text-center`}>
-                                                                <p className="text-sm">{product.product_status ? 'stok tersedia' : 'stok tidak tersedia'}</p>
+                                                            <div className={`${product.detail_product.is_stok && product.detail_product.stok > 0 || !product.detail_product.is_stok ? 'bg-green-100 text-green-500' : 'bg-red-100 text-red-500'} py-1 px-3 rounded-full text-center`}>
+                                                                <p className="text-sm">{product.detail_product.is_stok && product.detail_product.stok > 0 || !product.detail_product.is_stok ? 'Stok Tersedia' : 'Stok Habis'}</p>
                                                             </div>
                                                         </div>
                                                     </div>

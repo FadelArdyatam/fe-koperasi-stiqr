@@ -60,6 +60,10 @@ interface VariantProps {
         created_at: string;
         updated_at: string;
         merchant_id: string;
+        detail_product: {
+            is_stok: boolean;
+            stok: number;
+        }
         product_variant: Array<{
             variant: any;
             variant_id: string;
@@ -177,7 +181,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                             <img className="md:w-3/12 w-2/3 place-items-center self-center mt-10" src={imgNoCatalog} />
                             <p className="text-center text-orange-400 font-bold md:text-xl">Belum ada varian yang ditambahkan</p>
                             <Button onClick={() => { setAddVariant(true); setReset(false) }} className={` bg-orange-500 w-fit self-center`}>
-                               <Plus/> Tambah Varian
+                                <Plus /> Tambah Varian
                             </Button>
                         </div>
 
