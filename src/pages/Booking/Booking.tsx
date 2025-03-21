@@ -162,7 +162,7 @@ const Booking = () => {
         const fetchData = async () => {
             const params: any = {
                 page: currentPage,
-                limit: 5,
+                limit: 10,
                 status: status,
             }
             console.log('params')
@@ -181,7 +181,10 @@ const Booking = () => {
         fetchData();
     }, [status, currentPage]);
 
-    console.log(datas);
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [currentPage]);
+
     return (
         <div>
             <div className={`${showOrderProcess || !showReceipt.show && showReceipt.type !== "" ? "hidden" : "flex"} pb-10 w-full flex-col min-h-screen items-center bg-orange-50`}>
@@ -236,88 +239,114 @@ const Booking = () => {
                     </div>
                 )}
 
-                {datas.map((data, index) => (
-                    <div data-aos="zoom-in" data-aos-delay={index * 100} key={data.sales_id} className="mt-5 w-[90%] bg-white p-5 rounded-lg shadow-lg">
-                        <div className="w-full">
-                            <div className="w-full">
-                                <div className="w-full flex items-center gap-5 justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <p className="font-semibold text-lg">
-                                            Antrian {data.queue_number}
-                                        </p>
-                                        <LabelStatus status={status} />
-                                    </div>
+                {datas.map((data, index) => {
+                    // Get current date and transaction date
+                    const today = new Date();
+                    const transactionDate = new Date(data.created_at);
 
-                                    <div className="flex items-center gap-2">
-                                        <Computer />
-                                        <p className="font-semibold">Kasir</p>
+                    // Format date for display (e.g., "12 Maret 2025")
+                    const formatDisplayDate = (date) => {
+                        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                        return date.toLocaleDateString('id-ID', options);
+                    };
+
+                    // Check if transaction is from today
+                    const isToday = today.toDateString() === transactionDate.toDateString();
+
+                    // Check if we need to show a date separator (first item or date changed)
+                    const needsDateSeparator = index === 0 ||
+                        new Date(datas[index - 1].created_at).toDateString() !== transactionDate.toDateString();
+
+                    return (
+                        <>
+                            {needsDateSeparator && (
+                                <div className="w-[90%] flex items-center mb-5 mt-10">
+                                    <div className="h-[2px] flex-grow bg-gray-300"></div>
+                                    <div className="mx-4 font-semibold text-gray-600">
+                                        {isToday ? "Hari Ini" : formatDisplayDate(transactionDate)}
                                     </div>
+                                    <div className="h-[2px] flex-grow bg-gray-300"></div>
                                 </div>
+                            )}
 
-                                <div className="w-full h-[1px] bg-gray-300 my-5"></div>
+                            <div data-aos="zoom-in" data-aos-delay={index * 100} key={data.sales_id} className="mt-5 w-[90%] bg-white p-5 rounded-lg shadow-lg">
+                                <div className="w-full">
+                                    <div className="w-full">
+                                        <div className="w-full flex items-center gap-5 justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <p className="font-semibold text-lg">
+                                                    Antrian {data.queue_number}
+                                                </p>
+                                                <LabelStatus status={status} />
+                                            </div>
 
-                                <div>
-                                    <div className="flex items-center gap-5">
-                                        <img src={`${data?.sales_details[0]?.product?.product_image ?? noProduct}`} alt={data?.sales_details[0]?.product?.product_image} className="h-12 w-12 object-cover rounded-md" />
+                                            <div className="flex items-center gap-2">
+                                                <Computer />
+                                                <p className="font-semibold">Kasir</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="w-full h-[1px] bg-gray-300 my-5"></div>
 
                                         <div>
-                                            <p className="text-lg font-semibold">
-                                                {data.sales_details[0]?.product.product_name}
-                                            </p>
+                                            <div className="flex items-center gap-5">
+                                                <img src={`${data?.sales_details[0]?.product?.product_image ?? noProduct}`} alt={data?.sales_details[0]?.product?.product_image} className="h-12 w-12 object-cover rounded-md" />
 
-                                            <p className="text-base text-gray-500">
-                                                {convertDate(data.created_at)} |{" "}
-                                                {convertTime(data.created_at)}{" "}
-                                            </p>
+                                                <div>
+                                                    <p className="text-lg font-semibold">
+                                                        {data.sales_details[0]?.product.product_name}
+                                                    </p>
 
-                                            <p
-                                                className={`${data.sales_details.length > 1 ? "block" : "hidden"
-                                                    } text-base text-gray-500`}
-                                            >
-                                                +{data.sales_details.length - 1} produk lainnya
-                                            </p>
-                                        </div>
-                                    </div>
+                                                    <p className="text-base text-gray-500">
+                                                        {convertDate(data.created_at)} | {convertTime(data.created_at)}{" "}
+                                                    </p>
 
-                                    <div className="mt-5 flex items-center gap-2">
-                                        <p className="font-semibold text-xl">
-                                            {formatRupiah(data.subtotal)}
-                                        </p>
+                                                    <p className={`${data.sales_details.length > 1 ? "block" : "hidden"} text-base text-gray-500`}>
+                                                        +{data.sales_details.length - 1} produk lainnya
+                                                    </p>
+                                                </div>
+                                            </div>
 
-                                        <p className="font-semibold text-gray-500">
-                                            ({data.quantity} produk)
-                                        </p>
-                                    </div>
-
-                                    <div className="w-full mt-5">
-                                        <div className={`${status === 'cancel' ? 'hidden' : 'flex'} w-full items-center gap-5`}>
-                                            <Link to={"/casheer"} className={`${status === 'done' || status === 'cancel' ? 'hidden' : 'block'} hover:bg-gray-800 transition-all p-2 text-center w-full md:text-base text-sm rounded-full bg-transparent border border-orange-500 text-orange-500`}>
-                                                Tambah Pesanan
-                                            </Link>
-
-                                            <Button onClick={() => setShowReceipt({ type: "", show: true, index: index })} className="w-full rounded-full bg-orange-200 border border-orange-500 text-sm md:text-base text-orange-500">
-                                                <p className="md:text-base text-sm">
-                                                    Cetak Struk
+                                            <div className="mt-5 flex items-center gap-2">
+                                                <p className="font-semibold text-xl">
+                                                    {formatRupiah(data.subtotal)}
                                                 </p>
-                                            </Button>
 
+                                                <p className="font-semibold text-gray-500">
+                                                    ({data.quantity} produk)
+                                                </p>
+                                            </div>
+
+                                            <div className="w-full mt-5">
+                                                <div className={`${status === 'cancel' ? 'hidden' : 'flex'} w-full items-center gap-5`}>
+                                                    <Link to={"/casheer"} className={`${status === 'done' || status === 'cancel' ? 'hidden' : 'block'} hover:bg-gray-800 transition-all p-2 text-center w-full md:text-base text-sm rounded-full bg-transparent border border-orange-500 text-orange-500`}>
+                                                        Tambah Pesanan
+                                                    </Link>
+
+                                                    <Button onClick={() => setShowReceipt({ type: "", show: true, index: index })} className="w-full rounded-full bg-orange-200 border border-orange-500 text-sm md:text-base text-orange-500">
+                                                        <p className="md:text-base text-sm">
+                                                            Cetak Struk
+                                                        </p>
+                                                    </Button>
+                                                </div>
+
+                                                <Button
+                                                    onClick={() => {
+                                                        setShowOrderProcess(true);
+                                                        setIndex(index);
+                                                    }}
+                                                    className="mt-5 bg-orange-500 text-white w-full rounded-full"
+                                                >
+                                                    Detail Pemesanan
+                                                </Button>
+                                            </div>
                                         </div>
-
-                                        <Button
-                                            onClick={() => {
-                                                setShowOrderProcess(true);
-                                                setIndex(index);
-                                            }}
-                                            className="mt-5 bg-orange-500 text-white w-full rounded-full"
-                                        >
-                                            Detail Pemesanan
-                                        </Button>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                ))}
+                        </>
+                    );
+                })}
 
                 {
                     datas.length > 0 && (
