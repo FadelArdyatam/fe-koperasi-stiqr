@@ -245,8 +245,8 @@ const Booking = () => {
                     const transactionDate = new Date(data.created_at);
 
                     // Format date for display (e.g., "12 Maret 2025")
-                    const formatDisplayDate = (date) => {
-                        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                    const formatDisplayDate = (date: Date) => {
+                        const options = { day: 'numeric' as const, month: 'long' as const, year: 'numeric' as const };
                         return date.toLocaleDateString('id-ID', options);
                     };
 

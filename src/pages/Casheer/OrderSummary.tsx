@@ -298,7 +298,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 <div className="mt-5 w-[90%]">
                     <div data-aos="fade-up" data-aos-delay="300" className="flex items-center gap-5">
                         <div className="w-[65%]">
-                            <p className="font-semibold">Nama Pemesan (Opsional)</p>
+                            <p className="font-semibold">Nama Pemesan</p>
 
                             <Input
                                 value={selectedCustomer?.customer?.name !== null ? selectedCustomer?.customer?.name : dataCustomer.name}
