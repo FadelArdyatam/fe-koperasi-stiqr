@@ -120,19 +120,33 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
                 )
             }
 
-            <div className={`${marginTop ? 'mt-[130px]' : 'mt-[0px] bg-white'} ${loading ? 'hidden' : ''} w-full m-auto shadow-lg z-0 p-10 rounded-lg relative bg-gray-50 overflow-hidden`}>
+            <div className={`${marginTop ? 'mt-[130px]' : 'mt-[0px] bg-white'} ${loading ? 'hidden' : ''} w-[90%] m-auto shadow-lg z-0 p-10 rounded-lg relative bg-gray-50 overflow-hidden`}>
                 {/* Konten Utama */}
                 <div className="relative z-10">
-                    {/* Icon Sukses */}
-                    <div className="w-16 h-16 flex items-center justify-center border-2 border-black bg-orange-400 rounded-full m-auto">
-                        {success && responseCode == 0 && (<Check className="scale-[2] text-white" />)}
-                        {!success && (responseCode >= 100 && responseCode <= 199) && (<X className="scale-[2] text-white" />)}
-                        {success && (responseCode == 188 || (responseCode >= 200 && responseCode <= 299)) && (<Hourglass className="scale-[2] text-white" />)}
-                    </div>
+                    <div className="flex items-start w-full relative">
+                        <div className="m-auto">
+                            {/* Icon Sukses */}
+                            <div className="w-16 h-16 flex items-center justify-center border-2 border-black bg-orange-400 rounded-full m-auto">
+                                {success && responseCode == 0 && (<Check className="scale-[2] text-white" />)}
+                                {!success && (responseCode >= 100 && responseCode <= 199) && (<X className="scale-[2] text-white" />)}
+                                {success && (responseCode == 188 || (responseCode >= 200 && responseCode <= 299)) && (<Hourglass className="scale-[2] text-white" />)}
+                            </div>
 
-                    <p className="font-semibold text-xl text-center text-orange-400 uppercase mt-7">
-                        {message}
-                    </p>
+                            <p className="font-semibold text-xl text-center text-orange-400 uppercase mt-7">
+                                {message}
+                            </p>
+                        </div>
+
+                        <div className="absolute right-0 top-0 flex items-center gap-5">
+                            <button onClick={handleShare} title="Bagikan" type="button" className={`${success && responseCode == 0 ? '' : 'hidden'} border border-orange-500 rounded-full scale-[1.2] p-1 text-orange-500`}>
+                                <Share2 />
+                            </button>
+
+                            <button onClick={handleDownloadJPEG} title="Unduh" type="button" className={`text-orange-500 scale-[1.2] ${success && responseCode == 0 ? '' : 'hidden'} `}>
+                                <Download />
+                            </button>
+                        </div>
+                    </div>
 
                     <div className="mt-10 w-full">
                         {/* Hanya tampilkan jika responseCode di luar range 100-199 */}
@@ -270,14 +284,6 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
 
             <div className={` ${loading ? 'hidden' : 'w-[90%] m-auto mt-10 mb-20 flex items-center justify-end'} `}>
                 <div className="flex items-center gap-5">
-                    <button onClick={handleShare} title="Bagikan" type="button" className={`${success && responseCode == 0 ? '' : 'hidden'} border border-orange-500 rounded-full scale-[1.2] p-1 text-orange-500`}>
-                        <Share2 />
-                    </button>
-
-                    <button onClick={handleDownloadJPEG} title="Unduh" type="button" className={`text-orange-500 scale-[1.2] ${success && responseCode == 0 ? '' : 'hidden'} `}>
-                        <Download />
-                    </button>
-
                     <Button onClick={() => navigate("/dashboard")} type="button" className={`${isDetail ? 'hidden' : ''} bg-green-500 text-white w-[150px]`}>Kembali</Button>
                 </div>
             </div>

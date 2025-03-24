@@ -207,18 +207,21 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                             -
                         </button>
 
-                        {/* Input Kuantitas */}
                         <Input
                             type="number"
-                            className="text-center w-10 border rounded-md"
+                            className="text-center w-20 border rounded-md"
                             value={quantity}
                             disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
                             onChange={(e) => {
                                 const inputValue = parseInt(e.target.value, 10);
 
-                                // Validasi input angka positif
+                                // Validasi input angka positif dan tidak melebihi stok
                                 if (!isNaN(inputValue) && inputValue > 0) {
-                                    setQuantity(inputValue);
+                                    if (product?.detail_product?.is_stok && inputValue > product?.detail_product?.stok) {
+                                        setQuantity(product?.detail_product?.stok); // Set ke stok maksimal
+                                    } else {
+                                        setQuantity(inputValue);
+                                    }
                                     setPrice(priceWithVariant !== 0 ? priceWithVariant : price);
                                 } else if (e.target.value === "") {
                                     setQuantity(1); // Default jika input kosong
@@ -231,15 +234,18 @@ const DetailProduct: React.FC<DetailProductProps> = ({ product, setShowDetailPro
                                 }
                             }}
                             min={1} // Mencegah angka negatif melalui UI
+                            max={product?.detail_product?.is_stok ? product?.detail_product?.stok : undefined} // Set batas maksimal stok
                         />
 
                         {/* Tombol Tambah */}
                         <button
                             onClick={() => {
-                                setQuantity(quantity + 1);
-                                setPrice(priceWithVariant !== 0 ? priceWithVariant : price);
+                                if (!product?.detail_product?.is_stok || quantity < product?.detail_product?.stok) {
+                                    setQuantity(quantity + 1);
+                                    setPrice(priceWithVariant !== 0 ? priceWithVariant : price);
+                                }
                             }}
-                            disabled={product?.detail_product?.is_stok && product?.detail_product?.stok === 0}
+                            disabled={product?.detail_product?.is_stok && quantity >= product?.detail_product?.stok}
                             className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl"
                         >
                             +
