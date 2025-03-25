@@ -242,6 +242,7 @@ const Product: React.FC<ProductProps> = ({
                     etalases={etalases}
                     setVariants={setVariants}
                     variants={variants}
+                    setReset={setReset}
                 />
             )}
 

@@ -348,6 +348,7 @@ const DataPemilik = () => {
                                                 <Input
                                                     type="date"
                                                     className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                    max={new Date().toISOString().split("T")[0]} // Menetapkan batas maksimum ke hari ini
                                                     {...field}
                                                 />
                                             </FormControl>

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
-import { ChevronLeft, CircleAlert } from "lucide-react";
+import { ChevronLeft, CircleAlert, CircleCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
 import AOS from "aos";
@@ -69,6 +69,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
     const [newChoicePrice, setNewChoicePrice] = useState<number | "">("");
     const [showChoice, setShowChoice] = useState(false);
     const [showError, setShowError] = useState(false);
+    const [showNotification, setShowNotification] = useState(false);
 
     useEffect(() => {
         const choises = variantToEdit?.detail_variant.map((item: any) => ({
@@ -165,9 +166,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
 
             console.log("Variant updated successfully:", response.data);
 
-            setOpen({ id: "", status: false });
-
-            setReset(true);
+            setShowNotification(true);
         } catch (err: any) {
             console.error("Error updating variant:", err.response?.data || err.message);
         }
@@ -233,259 +232,274 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
     };
 
     return (
-        <div className="pt-5 w-full mb-32">
-            <div className="flex items-center gap-5 text-black">
-                <button onClick={() => setOpen({ id: "", status: false })}>
-                    <ChevronLeft />
-                </button>
+        <>
+            <div className={`${showNotification ? 'hidden' : 'block'} pt-5 w-full mb-32`}>
+                <div className="flex items-center gap-5 text-black">
+                    <button onClick={() => setOpen({ id: "", status: false })}>
+                        <ChevronLeft />
+                    </button>
 
-                <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Edit Varian</p>
-            </div>
-
-            {loading && <p className="text-center text-gray-500 mt-5">Loading variant details...</p>}
-
-            {error && (
-                <div className="bg-red-100 text-red-600 p-3 rounded-lg mt-5 text-center">
-                    {error}
+                    <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Edit Varian</p>
                 </div>
-            )}
 
-            {!loading && !error && (
-                <Form {...form}>
-                    <form
-                        onSubmit={form.handleSubmit((data) => {
-                            console.log("Form submitted with data:", data);
-                            onSubmit(data);
-                        },
-                            (errors) => {
-                                console.error("Form validation errors:", errors);
-                            })}
-                        className="space-y-8 mt-6 bg-white p-5 rounded-lg"
-                    >
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem data-aos="fade-up" data-aos-delay={100}>
-                                    <FormLabel>Nama Varian</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder="Masukkan nama varian"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                {loading && <p className="text-center text-gray-500 mt-5">Loading variant details...</p>}
 
-                        <Button data-aos="fade-up" data-aos-delay="200" type="button" onClick={() => setShowChoisesInput(true)} className="bg-transparent hover:bg-transparent border-2 border-orange-400 w-full text-orange-400">Tambah Pilihan</Button>
+                {error && (
+                    <div className="bg-red-100 text-red-600 p-3 rounded-lg mt-5 text-center">
+                        {error}
+                    </div>
+                )}
 
-                        {/* Choises */}
-                        <div className="mt-5">
-                            {displayChoises?.map((choise, index) => (
-                                <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="mt-5">
-                                    <p>Pilihan {index + 1}</p>
-
-                                    <div className="border border-gray-500 p-5 rounded-lg mt-3">
-                                        <div className="flex items-center gap-5 justify-between">
-                                            <p>{choise.name}</p>
-
-                                            {/* <button type="button" onClick={() => setShowEditChoisesInput({ status: true, index: index })} className="text-orange-400">Ubah</button> */}
-                                        </div>
-
-                                        <div className="mt-3 flex items-center gap-5 justify-between">
-                                            <p className="text-gray-500">{formatRupiah(choise.price)}</p>
-
-                                            <button
-                                                onClick={() => updateShowChoises(index)}
-                                                type="button"
-                                                className={`w-14 h-8 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${choise.show ? "bg-orange-400" : "bg-gray-300"}`}
-                                            >
-                                                <div
-                                                    className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${choise.show ? "translate-x-6" : "translate-x-0"}`}
-                                                ></div>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Popup untuk Input Harga dan Nama */}
-                        {showChoisesInput && (
-                            <div className="fixed bg-black bg-opacity-50 inset-0 z-20 h-screen -translate-y-8">
-                                <div data-aos="fade-up" className="bg-white p-4 rounded-t-lg mt-10 absolute bottom-0 w-full">
-                                    <p className="text-center mb-10 text-lg font-semibold">Tambah Pilihan</p>
-
-                                    <div>
-                                        <p>Nama Pilihan</p>
-
-                                        <Input
-                                            className="mt-3"
-                                            placeholder="Nama Pilihan"
-                                            value={newChoiceName}
-                                            onChange={(e) => setNewChoiceName(e.target.value)}
-                                        />
-                                    </div>
-
-                                    <div className="mt-5">
-                                        <p>Harga</p>
-
-                                        <Input
-                                            className="mt-3"
-                                            inputMode="numeric"  // Menampilkan keyboard angka di mobile
-                                            pattern="[0-9]*"     // Mencegah karakter non-angka
-                                            type="text"
-                                            placeholder="Harga"
-                                            value={formatRupiah(newChoicePrice.toString())}
-                                            onChange={(e) => {
-                                                const rawValue = e.target.value.replace(/[^0-9]/g, ""); // Hanya ambil angka
-                                                setNewChoicePrice(rawValue ? Number(rawValue) : ""); // Simpan angka saja tanpa format
-                                            }}
-                                        />
-
-                                        {showError && <p className="text-red-500 text-sm">Harga harus positif</p>}
-                                    </div>
-
-                                    <div className="mt-5">
-                                        <p>Tampilkan</p>
-
-                                        <div
-                                            onClick={() => setShowChoice(!showChoice)}
-                                            className={`w-14 h-8 mt-3 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${showChoice ? "bg-orange-400" : "bg-gray-300"
-                                                }`}
-                                        >
-                                            <div
-                                                className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${showChoice ? "translate-x-6" : "translate-x-0"
-                                                    }`}
-                                            ></div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-5 mt-5">
-                                        <Button
-                                            onClick={addNewChoice}
-                                            className="bg-green-500 w-full"
-                                        >
-                                            Simpan
-                                        </Button>
-
-                                        <Button
-                                            type="button"
-                                            onClick={() => setShowChoisesInput(false)}
-                                            className="bg-gray-300 w-full"
-                                        >
-                                            Tutup
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        <FormField
-                            control={form.control}
-                            name="mustBeSelected"
-                            render={({ field }) => (
-                                <FormItem data-aos="fade-up" data-aos-delay={400}>
-                                    <div className="flex items-center gap-5 justify-between">
-                                        <FormLabel>Harus Dipilih?</FormLabel>
+                {!loading && !error && (
+                    <Form {...form}>
+                        <form
+                            onSubmit={form.handleSubmit((data) => {
+                                console.log("Form submitted with data:", data);
+                                onSubmit(data);
+                            },
+                                (errors) => {
+                                    console.error("Form validation errors:", errors);
+                                })}
+                            className="space-y-8 mt-6 bg-white p-5 rounded-lg"
+                        >
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem data-aos="fade-up" data-aos-delay={100}>
+                                        <FormLabel>Nama Varian</FormLabel>
                                         <FormControl>
+                                            <Input
+                                                placeholder="Masukkan nama varian"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <Button data-aos="fade-up" data-aos-delay="200" type="button" onClick={() => setShowChoisesInput(true)} className="bg-transparent hover:bg-transparent border-2 border-orange-400 w-full text-orange-400">Tambah Pilihan</Button>
+
+                            {/* Choises */}
+                            <div className="mt-5">
+                                {displayChoises?.map((choise, index) => (
+                                    <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="mt-5">
+                                        <p>Pilihan {index + 1}</p>
+
+                                        <div className="border border-gray-500 p-5 rounded-lg mt-3">
+                                            <div className="flex items-center gap-5 justify-between">
+                                                <p>{choise.name}</p>
+
+                                                {/* <button type="button" onClick={() => setShowEditChoisesInput({ status: true, index: index })} className="text-orange-400">Ubah</button> */}
+                                            </div>
+
+                                            <div className="mt-3 flex items-center gap-5 justify-between">
+                                                <p className="text-gray-500">{formatRupiah(choise.price)}</p>
+
+                                                <button
+                                                    onClick={() => updateShowChoises(index)}
+                                                    type="button"
+                                                    className={`w-14 h-8 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${choise.show ? "bg-orange-400" : "bg-gray-300"}`}
+                                                >
+                                                    <div
+                                                        className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${choise.show ? "translate-x-6" : "translate-x-0"}`}
+                                                    ></div>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Popup untuk Input Harga dan Nama */}
+                            {showChoisesInput && (
+                                <div className="fixed bg-black bg-opacity-50 inset-0 z-20 h-screen -translate-y-8">
+                                    <div data-aos="fade-up" className="bg-white p-4 rounded-t-lg mt-10 absolute bottom-0 w-full">
+                                        <p className="text-center mb-10 text-lg font-semibold">Tambah Pilihan</p>
+
+                                        <div>
+                                            <p>Nama Pilihan</p>
+
+                                            <Input
+                                                className="mt-3"
+                                                placeholder="Nama Pilihan"
+                                                value={newChoiceName}
+                                                onChange={(e) => setNewChoiceName(e.target.value)}
+                                            />
+                                        </div>
+
+                                        <div className="mt-5">
+                                            <p>Harga</p>
+
+                                            <Input
+                                                className="mt-3"
+                                                inputMode="numeric"  // Menampilkan keyboard angka di mobile
+                                                pattern="[0-9]*"     // Mencegah karakter non-angka
+                                                type="text"
+                                                placeholder="Harga"
+                                                value={formatRupiah(newChoicePrice.toString())}
+                                                onChange={(e) => {
+                                                    const rawValue = e.target.value.replace(/[^0-9]/g, ""); // Hanya ambil angka
+                                                    setNewChoicePrice(rawValue ? Number(rawValue) : ""); // Simpan angka saja tanpa format
+                                                }}
+                                            />
+
+                                            {showError && <p className="text-red-500 text-sm">Harga harus positif</p>}
+                                        </div>
+
+                                        <div className="mt-5">
+                                            <p>Tampilkan</p>
+
                                             <div
-                                                className={`w-14 h-8 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${field.value ? "bg-orange-400" : "bg-gray-300"
+                                                onClick={() => setShowChoice(!showChoice)}
+                                                className={`w-14 h-8 mt-3 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${showChoice ? "bg-orange-400" : "bg-gray-300"
                                                     }`}
-                                                onClick={() => field.onChange(!field.value)}
                                             >
                                                 <div
-                                                    className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${field.value ? "translate-x-6" : "translate-x-0"
+                                                    className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${showChoice ? "translate-x-6" : "translate-x-0"
                                                         }`}
                                                 ></div>
                                             </div>
-                                        </FormControl>
-                                    </div>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="methods"
-                            render={({ field }) => (
-                                <FormItem data-aos="fade-up" data-aos-delay="400">
-                                    <FormLabel>Metode</FormLabel>
-                                    <FormControl>
-                                        <div>
-                                            <label className="flex items-center mb-2">
-                                                <input
-                                                    type="radio"
-                                                    value="single"
-                                                    defaultChecked={variantToEdit?.is_multiple === false ? true : false}
-                                                    onChange={() => field.onChange("single")}
-                                                    className="mr-2"
-                                                />
-                                                <span>Maks. Pilih 1</span>
-                                            </label>
-
-                                            <label className="flex items-center">
-                                                <input
-                                                    type="radio"
-                                                    value="more"
-                                                    defaultChecked={variantToEdit?.is_multiple === true ? true : false}
-                                                    onChange={() => field.onChange("more")}
-                                                    className="mr-2"
-                                                />
-                                                <span>Boleh lebih dari 1</span>
-                                            </label>
                                         </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
 
-                        <Button data-aos="fade-up" data-aos-delay={500} type="submit" className="w-full bg-green-500 text-white">
-                            Simpan Perubahan
-                        </Button>
+                                        <div className="flex items-center gap-5 mt-5">
+                                            <Button
+                                                onClick={addNewChoice}
+                                                className="bg-green-500 w-full"
+                                            >
+                                                Simpan
+                                            </Button>
 
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button data-aos="fade-up" data-aos-delay="400" className={`w-full !mt-5 m-auto bg-red-400`}>
-                                    Hapus Varian
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent
-                                className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm"
-                            >
-                                <div data-aos="zoom-in" className="bg-white text-center p-5 rounded-lg shadow-lg w-[90%]">
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle className="font-semibold text-lg">
-                                            <CircleAlert className="m-auto" />
-
-                                            <p className="text-center">Apakah Anda benar-benar yakin?</p>
-                                        </AlertDialogTitle>
-                                        <AlertDialogDescription className="text-center">
-                                            Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pembayaran Anda secara permanen.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter className="mt-5 flex flex-col gap-3">
-                                        <AlertDialogAction
-                                            className="w-full p-2 rounded-lg bg-green-500 text-white"
-                                            onClick={deleteHandler}
-                                        >
-                                            Lanjutkan
-                                        </AlertDialogAction>
-                                        <AlertDialogCancel className="w-full p-2 rounded-lg bg-red-500 text-white">
-                                            Batalkan
-                                        </AlertDialogCancel>
-                                    </AlertDialogFooter>
+                                            <Button
+                                                type="button"
+                                                onClick={() => setShowChoisesInput(false)}
+                                                className="bg-gray-300 w-full"
+                                            >
+                                                Tutup
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </form>
-                </Form>
+                            )}
+
+                            <FormField
+                                control={form.control}
+                                name="mustBeSelected"
+                                render={({ field }) => (
+                                    <FormItem data-aos="fade-up" data-aos-delay={400}>
+                                        <div className="flex items-center gap-5 justify-between">
+                                            <FormLabel>Harus Dipilih?</FormLabel>
+                                            <FormControl>
+                                                <div
+                                                    className={`w-14 h-8 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${field.value ? "bg-orange-400" : "bg-gray-300"
+                                                        }`}
+                                                    onClick={() => field.onChange(!field.value)}
+                                                >
+                                                    <div
+                                                        className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${field.value ? "translate-x-6" : "translate-x-0"
+                                                            }`}
+                                                    ></div>
+                                                </div>
+                                            </FormControl>
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="methods"
+                                render={({ field }) => (
+                                    <FormItem data-aos="fade-up" data-aos-delay="400">
+                                        <FormLabel>Metode</FormLabel>
+                                        <FormControl>
+                                            <div>
+                                                <label className="flex items-center mb-2">
+                                                    <input
+                                                        type="radio"
+                                                        value="single"
+                                                        defaultChecked={variantToEdit?.is_multiple === false ? true : false}
+                                                        onChange={() => field.onChange("single")}
+                                                        className="mr-2"
+                                                    />
+                                                    <span>Maks. Pilih 1</span>
+                                                </label>
+
+                                                <label className="flex items-center">
+                                                    <input
+                                                        type="radio"
+                                                        value="more"
+                                                        defaultChecked={variantToEdit?.is_multiple === true ? true : false}
+                                                        onChange={() => field.onChange("more")}
+                                                        className="mr-2"
+                                                    />
+                                                    <span>Boleh lebih dari 1</span>
+                                                </label>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <Button data-aos="fade-up" data-aos-delay={500} type="submit" className="w-full bg-green-500 text-white">
+                                Simpan Perubahan
+                            </Button>
+
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button data-aos="fade-up" data-aos-delay="400" className={`w-full !mt-5 m-auto bg-red-400`}>
+                                        Hapus Varian
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent
+                                    className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm"
+                                >
+                                    <div data-aos="zoom-in" className="bg-white text-center p-5 rounded-lg shadow-lg w-[90%]">
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle className="font-semibold text-lg">
+                                                <CircleAlert className="m-auto" />
+
+                                                <p className="text-center">Apakah Anda benar-benar yakin?</p>
+                                            </AlertDialogTitle>
+                                            <AlertDialogDescription className="text-center">
+                                                Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus varian Anda secara permanen.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter className="mt-5 flex flex-col gap-3">
+                                            <AlertDialogAction
+                                                className="w-full p-2 rounded-lg bg-green-500 text-white"
+                                                onClick={deleteHandler}
+                                            >
+                                                Lanjutkan
+                                            </AlertDialogAction>
+                                            <AlertDialogCancel className="w-full p-2 rounded-lg bg-red-500 text-white">
+                                                Batalkan
+                                            </AlertDialogCancel>
+                                        </AlertDialogFooter>
+                                    </div>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </form>
+                    </Form>
+                )}
+            </div>
+
+            {/* Notification */}
+            {showNotification && (
+                <div className="p-10">
+                    <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
+
+                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Berhasil mengubah varian</p>
+
+                    <Button data-aos="fade-up" data-aos-delay="200" onClick={() => { setOpen({ id: "", status: false }); setReset(true) }} className="w-full bg-green-500 text-white mt-10">
+                        Done
+                    </Button>
+                </div>
             )}
-        </div>
+        </>
     );
 };
 

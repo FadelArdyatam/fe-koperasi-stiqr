@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from "path"
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -12,11 +11,11 @@ export default defineConfig({
   },
   server: {
     proxy: {
-        "/api": {
-            target: "https://be-stiqr.dnstech.co.id",
-            changeOrigin: true,
-            secure: false,
-        },
+      "/api": {
+        target: process.env.VITE_CONFIG_API_URL, // Menggunakan env variable
+        changeOrigin: true,
+        secure: false,
+      },
     },
-},
+  },
 })

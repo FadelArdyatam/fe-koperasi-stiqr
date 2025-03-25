@@ -29,6 +29,7 @@ import PaymentSuccess from './components/PaymentSuccess.tsx'
 import ModalExpired from './components/ModalExpired.tsx'
 import DataCustomer from './pages/Profile/DataCustomer.tsx'
 import Customer from './pages/Customer.tsx'
+import NotFound from './pages/NotFound.tsx'
 
 const router = createBrowserRouter([
   {
@@ -134,6 +135,10 @@ const router = createBrowserRouter([
   {
     path: '/customer',
     element: <Customer />
+  },
+  {
+    path: '*',
+    element: <NotFound />
   }
 ], {
   future: {

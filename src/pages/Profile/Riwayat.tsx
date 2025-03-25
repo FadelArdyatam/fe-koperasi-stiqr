@@ -41,6 +41,22 @@ interface ISales {
     payment_method: string;
 }
 
+interface ISales {
+    sales_id: string;
+    total_amount: number;
+    channel: number;
+    transaction_date: string;
+    transaction_id: string;
+    transaction_status: string;
+    sales?: {
+        orderId: string;
+    },
+    qr_transaction?: {
+        orderId: string;
+    }
+    payment_method: string;
+}
+
 const Riwayat = () => {
 
     const location = useLocation();
