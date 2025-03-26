@@ -256,7 +256,7 @@ const Pulsa = () => {
             {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
 
             {
-                showMargin && <MarginPPOB showMargin={showMargin} setShowMargin={setShowMargin} type="Pulsa dan Paket Data" margin={margin} setMargin={setMargin} />
+                showMargin && <MarginPPOB showMargin={showMargin} setShowMargin={setShowMargin} type="Pulsa" margin={margin} setMargin={setMargin} />
             }
             {
                 loading && (
