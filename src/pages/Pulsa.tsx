@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronLeft, ChevronUp, History } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronUp, History, Tag } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import Bill from "@/components/Bill"
@@ -9,6 +9,8 @@ import "aos/dist/aos.css";
 import Notification from "@/components/Notification"
 import provider from "@/data/provider.json"
 import RecomendationModalPPOB from "@/components/RecomendationModalPPOB"
+import MarginPPOB from "@/components/MarginPPOB"
+import useMarginPPOB from "@/hooks/useMarginPPOB"
 
 interface BillData {
     product: string;
@@ -39,6 +41,7 @@ const Pulsa = () => {
     const [loading, setLoading] = useState(false)
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
+
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -120,9 +123,16 @@ const Pulsa = () => {
         fetchProduct()
     }, [category, selectedProvider]);
 
+    const hooksMargin = useMarginPPOB()
     const [showRecomendation, setShowRecomendation] = useState(false)
+    const [showMargin, setShowMargin] = useState(false)
+    const [margin, setMargin] = useState("0");
 
-
+    useEffect(() => {
+        if (hooksMargin.margin.pulsa !== undefined) {
+            setMargin(String(hooksMargin.margin.pulsa)); // Pastikan format string
+        }
+    }, [hooksMargin.margin.pulsa]);
     return (
         <div>
             <div className='fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400 bg-opacity-100'>
@@ -143,7 +153,18 @@ const Pulsa = () => {
                     })}</p>
                 </div>
 
-                <div data-aos="fade-up" data-aos-delay="400" className="mt-10 w-[90%] m-auto flex flex-row items-center justify-center gap-5">
+                <div className="flex justify-end mt-5 mr-12 ">
+                    <div
+                        onClick={() => setShowMargin(true)}
+                        className="flex bg-green-400 flex-row items-center gap-1 text-xs rounded-full px-2 py-1 hover:cursor-pointer hover:bg-green-500 text-white transition ease-in-out duration-300 w-fit"
+                    >
+                        <Tag className="w-3 h-3" />
+                        <p>Atur Biaya Tambahan</p>
+                    </div>
+                </div>
+
+
+                <div data-aos="fade-up" data-aos-delay="400" className="mt-5 w-[90%] m-auto flex flex-row items-center justify-center gap-5 relative">
                     <Button onClick={() => setCategoryHandler("pulsa")} className={`${category == 'pulsa' ? 'hover:bg-orange-400 bg-orange-400 text-white' : 'hover:bg-orange-400 hover:text-white transition ease-in-out 300 bg-[#F4F4F4] text-black'} w-full`}>
                         Pulsa
                     </Button>
@@ -151,16 +172,17 @@ const Pulsa = () => {
                     <Button onClick={() => setCategoryHandler("paket data")} className={`${category == 'paket data' ? 'hover:bg-orange-400 bg-orange-400 text-white' : 'hover:bg-orange-400 hover:text-white transition ease-in-out 300 bg-[#F4F4F4] text-black'} w-full`}>
                         Paket Data
                     </Button>
+
                 </div>
 
-                <div data-aos="fade-up" className="relative w-[90%] m-auto mt-10">
+                <div data-aos="fade-up" className="relative w-[90%] m-auto mt-5">
 
                     <button
                         type="button"
-                        className="p-3 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4] text-left border rounded-md"
+                        className="p-2 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4] text-left border rounded-md text-sm"
                         onClick={() => setDropdownOpen(!dropdownOpen)}
                     >
-                        {selectedProvider || "Select Provider"}
+                        {selectedProvider || "Pilih Provider"}
 
                         {dropdownOpen ? <ChevronUp /> : <ChevronDown />}
                     </button>
@@ -229,10 +251,13 @@ const Pulsa = () => {
                 <RecomendationModalPPOB category="Pulsa" setAccountNumber={setPhoneNumber} setShowRecomendation={setShowRecomendation} />
             )}
 
-            {showBill && dataBill && <Bill data={dataBill} marginTop={true} />}
+            {showBill && dataBill && <Bill data={dataBill} marginTop={true} marginFee={margin} />}
 
             {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
 
+            {
+                showMargin && <MarginPPOB showMargin={showMargin} setShowMargin={setShowMargin} type="Pulsa dan Paket Data" margin={margin} setMargin={setMargin} />
+            }
             {
                 loading && (
                     <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">

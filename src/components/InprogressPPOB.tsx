@@ -11,8 +11,9 @@ interface BillProps {
     marginTop: boolean;
     refNumber: string;
     isDetail?: boolean;
+    marginFee?: any
 }
-const InprogressPPOB: React.FC<BillProps> = ({ data, marginTop, refNumber, isDetail }) => {
+const InprogressPPOB: React.FC<BillProps> = ({ data, marginTop, refNumber, isDetail, marginFee = 0 }) => {
     const navigate = useNavigate()
     const [showInvoice, setShowInvoice] = useState(false);
     useEffect(() => {
@@ -51,10 +52,18 @@ const InprogressPPOB: React.FC<BillProps> = ({ data, marginTop, refNumber, isDet
                             <p className="text-gray-500">{data?.category} - {data?.productName}</p>
                             <p>{formatRupiah(data?.amount)}</p>
                         </div>
+                        {
+                            Number(marginFee) > 0 && (
+                                <div className="flex justify-between w-full">
+                                    <p className="text-gray-500">Biaya Pelayanan</p>
+                                    <p>{formatRupiah(Number(marginFee))}</p>
+                                </div>
+                            )
+                        }
                         <div className="w-full my-2 h-[2px] bg-gray-200 mb-3"></div>
                         <div className="flex justify-between w-full">
                             <p className="text-gray-500">Total Tagihan</p>
-                            <p>{formatRupiah(data?.amount)}</p>
+                            <p>{formatRupiah(data?.amount + Number(marginFee))}</p>
                         </div>
                     </div>
                     <div className="flex md:flex-row flex-col justify-center gap-5 mt-5 w-full">
@@ -65,7 +74,7 @@ const InprogressPPOB: React.FC<BillProps> = ({ data, marginTop, refNumber, isDet
                     </div>
                 </div>
             </div>
-            {showInvoice && <Invoice refNumber={refNumber} marginTop={marginTop} />}
+            {showInvoice && <Invoice refNumber={refNumber} marginTop={marginTop} marginFee={Number(marginFee)} />}
         </>
     );
 };

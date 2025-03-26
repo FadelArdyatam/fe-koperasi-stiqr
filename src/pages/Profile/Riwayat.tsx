@@ -22,6 +22,7 @@ interface Purchase {
     image?: string;
     status: string;
     biller?: string;
+    marginFee?: number;
     log_purchases: any;
 }
 
@@ -37,25 +38,26 @@ interface ISales {
     },
     qr_transaction?: {
         orderId: string;
+        keterangan?: string;
     }
     payment_method: string;
 }
 
-interface ISales {
-    sales_id: string;
-    total_amount: number;
-    channel: number;
-    transaction_date: string;
-    transaction_id: string;
-    transaction_status: string;
-    sales?: {
-        orderId: string;
-    },
-    qr_transaction?: {
-        orderId: string;
-    }
-    payment_method: string;
-}
+// interface ISales {
+//     sales_id: string;
+//     total_amount: number;
+//     channel: number;
+//     transaction_date: string;
+//     transaction_id: string;
+//     transaction_status: string;
+//     sales?: {
+//         orderId: string;
+//     },
+//     qr_transaction?: {
+//         orderId: string;
+//     }
+//     payment_method: string;
+// }
 
 const Riwayat = () => {
 
@@ -336,6 +338,8 @@ const Riwayat = () => {
                                                                 <p>{history.transaction_status}</p>
                                                             </div>
                                                         </div>
+                                                        {history.sales_id == null && history.qr_transaction?.keterangan != null ? <p className="text-sm text-gray-700 break-all">{history.qr_transaction?.keterangan}</p> : ""}
+
                                                         <p className="text-xs text-gray-400 text-start">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                                     </div>
                                                 </div>
@@ -459,7 +463,7 @@ const Riwayat = () => {
 
                                         <div className="flex md:mt-0 mt-5 flex-col items-end">
                                             <p className="text-md font-semibold">
-                                                Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
+                                                Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount + purchase.marginFee))}
                                             </p>
 
                                             <div className="flex items-center">

@@ -6,7 +6,7 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ChevronDown, ChevronLeft, History } from "lucide-react";
+import { ChevronDown, ChevronLeft, History, Tag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,8 @@ import "aos/dist/aos.css";
 import { formatRupiah } from "@/hooks/convertRupiah";
 import Notification from "@/components/Notification";
 import RecomendationModalPPOB from "@/components/RecomendationModalPPOB";
+import MarginPPOB from "@/components/MarginPPOB";
+import useMarginPPOB from "@/hooks/useMarginPPOB";
 
 // interface BillData {
 //     product: string;
@@ -114,8 +116,17 @@ const Listrik = () => {
         }
     };
 
-    const [showRecomendation, setShowRecomendation] = useState(false)
 
+    const hooksMargin = useMarginPPOB()
+    const [showRecomendation, setShowRecomendation] = useState(false)
+    const [showMargin, setShowMargin] = useState(false)
+    const [margin, setMargin] = useState("0");
+
+    useEffect(() => {
+        if (hooksMargin.margin.listrik !== undefined) {
+            setMargin(String(hooksMargin.margin.listrik)); // Pastikan format string
+        }
+    }, [hooksMargin.margin.listrik]);
     return (
         <>
             <div className="w-full p-10 pb-32 flex items-center justify-center bg-orange-400 bg-opacity-100">
@@ -129,10 +140,16 @@ const Listrik = () => {
             </div>
 
             <div className={`${showBill ? "hidden" : "block"}`}>
-                <div className="bg-white w-[90%] -translate-y-[100px] p-10 shadow-lg rounded-md m-auto">
+                <div className="bg-white w-[90%] -translate-y-[100px] p-10 shadow-lg rounded-md m-auto relative">
                     <p data-aos="fade-up" data-aos-delay="100" className="font-semibold m-auto text-xl text-center">
                         Beli Token Atau Bayar Listrik
                     </p>
+                    <div className="absolute top-0 right-0 p-2">
+                        <div onClick={() => setShowMargin(true)} className="flex bg-green-400 flex-row items-center gap-1 text-xs rounded-full px-2 py-1 hover:cursor-pointer hover:bg-green-400 text-white transition ease-in-out duration-300">
+                            <Tag className="w-3 h-3 " />
+                            <p>Atur Biaya Tambahan</p>
+                        </div>
+                    </div>
 
                     <RadioGroup
                         data-aos="fade-up"
@@ -152,7 +169,10 @@ const Listrik = () => {
                     </RadioGroup>
 
                     <div data-aos="fade-up" data-aos-delay="300" className="mt-10">
-                        <p>No. Meter/ID Pel</p>
+                        <div className="flex flex-row justify-between ">
+                            <p>No. Meter/ID Pel</p>
+                            <History onClick={() => setShowRecomendation(true)} className="text-orange-400 hover:cursor-pointer" />
+                        </div>
                         <div className="flex flex-row gap-5 items-center mt-2">
                             <Input
                                 onChange={(e) => setNoMeter(e.target.value)}
@@ -160,7 +180,6 @@ const Listrik = () => {
                                 value={noMeter}
                                 className="w-full p-5 border border-black bg-white shadow-sm"
                             />
-                            <History onClick={() => setShowRecomendation(true)} className="text-orange-500 hover:cursor-pointer shadow-md rounded-full w-9 h-9" />
                         </div>
 
                         <span className="text-gray-500 text-xs italic">*Pembelian atau transaksi produk PLN tidak dapat diproses pada 23:45 - 00:30 WIB.</span>
@@ -225,7 +244,11 @@ const Listrik = () => {
                 <RecomendationModalPPOB category="Listrik" setAccountNumber={setNoMeter} setShowRecomendation={setShowRecomendation} />
             )}
 
-            {showBill && dataBill && <Bill data={dataBill} marginTop={false} />}
+            {
+                showMargin && <MarginPPOB showMargin={showMargin} setShowMargin={setShowMargin} type="Listrik" margin={margin} setMargin={setMargin} />
+            }
+
+            {showBill && dataBill && <Bill data={dataBill} marginTop={false} marginFee={margin} />}
 
             {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
             {

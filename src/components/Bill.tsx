@@ -27,27 +27,24 @@ import InprogressPPOB from './InprogressPPOB';
 interface BillProps {
     data: any;
     marginTop: boolean;
+    marginFee?: any
 }
 
 // const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
-const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
+const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
     console.log(data)
     const [showPinInput, setShowPinInput] = useState(false);
     const [pin, setPin] = useState<string[]>([]);
-    // const [showNotification, setShowNotification] = useState(false);
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState(false);
-    // const navigate = useNavigate();
 
-    // const [showInproggresStep, setShowInvoice] = useState(false)
     const [showInproggresStep, setShowInproggresStep] = useState(false)
 
     const [refNumber, setRefnumber] = useState<string>("")
-    // const [token, setToken] = useState<string | null>(null)
     const [total, setTotal] = useState(0);
-    const [amount, setAmount] = useState(0);
+    // const [amount, setAmount] = useState(0);
     useEffect(() => {
-        setAmount(data.amount - data.processingFee - data.totalAdmin)
+        // setAmount(data.amount - data.processingFee - data.totalAdmin)
         setTotal(data.amount)
     }, []);
 
@@ -60,6 +57,8 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
     const handleDelete = () => {
         setPin(pin.slice(0, -1));
     };
+
+    const [paymentMethod, setPaymentMethod] = useState("qris");
 
     const handleSubmitPin = async () => {
         const userItem = sessionStorage.getItem("user");
@@ -78,6 +77,8 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                 amount: total,
                 merchant_id: userData.merchant.id,
                 pin: pin.join(''),
+                margin: marginFee,
+                metode: paymentMethod
             }
 
             if (data.category === "BPJS") {
@@ -88,8 +89,6 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
 
             if (response.data.success) {
                 setLoading(false);
-                // setShowNotification(true);
-                // setShowInvoice(true)
                 setShowInproggresStep(true)
                 setRefnumber(response.data.data.refNumber)
             } else {
@@ -195,61 +194,49 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                         )
                     }
 
-                    {
+                    <div className='mt-5 flex items-center gap-5 justify-between font-semibold'>
+                        <p>Biaya Layanan</p>
+                        <p>{formatRupiah(Number(marginFee))}</p>
+                    </div>
+
+                    {/* {
                         (data.category != 'Pulsa' && data.category != 'Paket Data') && (
                             <div className='mt-5 flex items-center gap-5 justify-between font-semibold'>
                                 <p>Total Belanja</p>
-                                <p>{formatRupiah(amount)}</p>
-                            </div>
-                        )
-                    }
-
-                    {/* {
-                        token && productDetails.length > 0 && (
-                            <div>
-                                {productDetails.map((detail: any, index: number) => (
-                                    <div key={index} className="flex justify-between gap-5 mt-5">
-                                        <p>{detail.key}</p>
-                                        <p>{detail.value}</p>
-                                    </div>
-                                ))}
+                                <p>{formatRupiah(amount + Number(marginFee))}</p>
                             </div>
                         )
                     } */}
-
-                    {/* <div className='w-full my-5 h-[2px] bg-gray-200'></div> */}
-
-                    {/* <div className='flex items-center gap-5 justify-between'>
-                        <p className='font-bold'>Margin</p>
-                    
-                    </div> */}
 
                     <div className='w-full my-5 h-[2px] bg-gray-200'></div>
 
                     <div className='flex items-center gap-5 justify-between'>
                         <p className='font-bold'>Total Bayar</p>
-                        <p className='text-orange-400 font-bold'>{formatRupiah(total)}</p>
+                        <p className='text-orange-400 font-bold'>{formatRupiah(total + Number(marginFee))}</p>
                     </div>
 
-                    <div className='w-full my-5 h-[2px] bg-gray-200'></div>
+                    <div className='w-full my-3 h-[2px] bg-gray-200'></div>
+                    <div className='flex md:flex-row flex-col md:items-center items-start gap-2 justify-between'>
+                        <p className='font-bold text-start'>Metode Pembayaran</p>
+                        <select
+                            className="h-10 border border-gray-300 rounded-md md:w-52 w-full text-center"
+                            value={paymentMethod}
+                            onChange={(e) => setPaymentMethod(e.target.value)}
+                        >
+                            <option value="qris">QRCode (Non Tunai)</option>
+                            <option value="tunai">Tunai</option>
+                        </select>
+                    </div>
+
                 </div>
             </div>
 
-            {/* {
-                token && (
-                    <Button onClick={() => navigate('/dashboard')} className='uppercase translate-y-10 block text-center w-[90%] m-auto bg-blue-500 mb-32 text-white'>
-                        Kembali ke Dashboard
-                    </Button>
-                )
-            } */}
             <Button onClick={() => {
                 setShowPinInput(true)
-                // setShowInvoice(true)
             }} className={`${showInproggresStep ? 'hidden' : 'block'} uppercase translate-y-10 text-center w-[90%] m-auto bg-green-500 mb-32 text-white`}>
                 Bayar
             </Button >
 
-            {/* Komponen Input PIN */}
             {
                 showPinInput && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -320,7 +307,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
                 }} message={error} status="error" />
             }
 
-            {showInproggresStep && <InprogressPPOB data={data} refNumber={refNumber} marginTop={marginTop} />}
+            {showInproggresStep && <InprogressPPOB data={data} refNumber={refNumber} marginTop={marginTop} marginFee={Number(marginFee)} />}
 
             {/* Loading */}
             {

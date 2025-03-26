@@ -2,7 +2,7 @@ import Bill from "@/components/Bill"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
-import { ChevronLeft, ChevronDown, History } from "lucide-react"
+import { ChevronLeft, ChevronDown, History, Tag } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,8 @@ import "aos/dist/aos.css";
 import axiosInstance from "@/hooks/axiosInstance"
 import Notification from "@/components/Notification"
 import RecomendationModalPPOB from "@/components/RecomendationModalPPOB"
+import MarginPPOB from "@/components/MarginPPOB"
+import useMarginPPOB from "@/hooks/useMarginPPOB"
 
 interface BillData {
     product: string;
@@ -92,8 +94,17 @@ const BPJS = () => {
         setProductCode(value);
     };
 
-    const [showRecomendation, setShowRecomendation] = useState(false);
 
+    const hooksMargin = useMarginPPOB()
+    const [showRecomendation, setShowRecomendation] = useState(false)
+    const [showMargin, setShowMargin] = useState(false)
+    const [margin, setMargin] = useState("0");
+
+    useEffect(() => {
+        if (hooksMargin.margin.bpjs !== undefined) {
+            setMargin(String(hooksMargin.margin.bpjs)); // Pastikan format string
+        }
+    }, [hooksMargin.margin.bpjs]);
     return (
         <>
             <div className='w-full p-10 pb-32 flex items-center justify-center bg-orange-400 bg-opacity-100'>
@@ -105,9 +116,14 @@ const BPJS = () => {
             </div>
 
             <div className={`${showBill ? 'hidden' : 'block'}`}>
-                <div className="bg-white w-[90%] -translate-y-[100px] p-10 shadow-lg rounded-md m-auto">
+                <div className="bg-white w-[90%] -translate-y-[100px] p-10 shadow-lg rounded-md m-auto relative">
                     <p data-aos="fade-up" data-aos-delay="100" className="font-semibold m-auto text-xl text-center">Bayar BPJS</p>
-
+                    <div className="absolute top-0 right-0 p-2">
+                        <div onClick={() => setShowMargin(true)} className="flex bg-green-400 flex-row items-center gap-1 text-xs rounded-full px-2 py-1 hover:cursor-pointer hover:bg-green-400 text-white transition ease-in-out duration-300">
+                            <Tag className="w-3 h-3 " />
+                            <p>Atur Biaya Tambahan</p>
+                        </div>
+                    </div>
                     {/* <RadioGroup
                         data-aos="fade-up"
                         data-aos-delay="200"
@@ -142,7 +158,10 @@ const BPJS = () => {
                     </RadioGroup>
 
                     <div data-aos="fade-up" data-aos-delay="300" className="mt-5">
-                        <p>Nomor BPJS</p>
+                        <div className="flex flex-row justify-between">
+                            <p>Nomor BPJS</p>
+                            <History onClick={() => setShowRecomendation(true)} className="text-orange-400 hover:cursor-pointer" />
+                        </div>
                         <div className="flex fle-row gap-5 items-center mt-2">
                             <Input
                                 onChange={(e) => {
@@ -153,7 +172,6 @@ const BPJS = () => {
                                 value={KTP}
                                 className="border border-black"
                             />
-                            <History onClick={() => setShowRecomendation(true)} className="text-orange-500 hover:cursor-pointer  shadow-md rounded-full w-9 h-9" />
                         </div>
 
                     </div>
@@ -196,7 +214,10 @@ const BPJS = () => {
             {showRecomendation && (
                 <RecomendationModalPPOB category="BPJS" setAccountNumber={setKTP} setShowRecomendation={setShowRecomendation} />
             )}
-            {showBill && dataBill && <Bill data={dataBill} marginTop={false} />}
+            {
+                showMargin && <MarginPPOB showMargin={showMargin} setShowMargin={setShowMargin} type="BPJS" margin={margin} setMargin={setMargin} />
+            }
+            {showBill && dataBill && <Bill data={dataBill} marginTop={false} marginFee={margin} />}
         </>
     )
 }

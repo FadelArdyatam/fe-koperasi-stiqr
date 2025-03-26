@@ -206,6 +206,7 @@ const Signup = () => {
         },
     });
 
+    const [phone, setPhone] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false);
     const onSubmitMerchant = async (data: z.infer<typeof FormSchemaMerchant>) => {
         const userDatas = allData[0] as z.infer<typeof FormSchemaUser>;
@@ -236,8 +237,6 @@ const Signup = () => {
             typeBusinessEntity: data.typeBusinessEntity,
             photo: userDatas.photo instanceof File ? userDatas.photo : "https://via.placeholder.com/150",
         };
-
-        console.log(payload)
 
         const formData = new FormData();
         formData.append("username", payload.username);
@@ -279,6 +278,9 @@ const Signup = () => {
                 localStorage.setItem("registerID", "12345")
                 setShowNotification(false)
                 localStorage.removeItem("token");
+                const formattedPhone = payload.phoneNumber.replace(/^0/, ''); 
+                setPhone(formattedPhone);
+                localStorage.setItem('phone', formattedPhone);
             } else {
                 setIsSubmitting(false)
                 setShowNotification(true)
@@ -1090,7 +1092,7 @@ const Signup = () => {
                             </Form>
                         </div>
 
-                        <OTP currentSection={currentSection} setCreatePin={setCreatePin} />
+                        <OTP currentSection={currentSection} setCreatePin={setCreatePin} phone={phone} />
                     </div>
                     {showNotification && (
                         <>

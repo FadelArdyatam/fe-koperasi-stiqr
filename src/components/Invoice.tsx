@@ -12,15 +12,15 @@ interface InvoiceProps {
     refNumber: string;
     marginTop: boolean;
     isDetail?: boolean;
+    marginFee?: any;
 }
 
 // const Invoice: React.FC<InvoiceProps> = ({ data, refNumber, marginTop, isDetail }) => {
-const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => {
+const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail, marginFee = 0 }) => {
     const captureRef = useRef<HTMLDivElement>(null);
-    // console.log(data)
 
     const [total, setTotal] = useState(0);
-    const [amount, setAmount] = useState(0);
+    // const [amount, setAmount] = useState(0);
     const [success, setSuccess] = useState(true)
     const [responseCode, setResponseCode] = useState(0)
     const [message, setMessage] = useState("")
@@ -39,6 +39,7 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
 
     const [data, setData] = useState<Data | null>(null);
     const [productDetails, setProductDetails] = useState<any[]>([])
+    const [marginFeeRiwayat, setMarginFeeRiwayat] = useState(0)
     useEffect(() => {
         const fetchDetail = async () => {
             const response = await axiosInstance.post("/ayoconnect/inquiry/status", {
@@ -53,8 +54,9 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
             setSuccess(response.data.success)
             setResponseCode(response.data.responseCode)
             setMessage(response.data.message.ID)
-            setAmount(response.data.data.amount - response.data.data.processingFee - response.data.data.totalAdmin);
+            // setAmount(response.data.data.amount - response.data.data.processingFee - response.data.data.totalAdmin);
             setTotal(response.data.data.amount);
+            setMarginFeeRiwayat(response.data.margin_fee_stiqr)
             setLoading(false)
         }
         fetchDetail()
@@ -245,7 +247,6 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
                             </div>
                         )}
 
-                        {/* Biaya Penanganan & Total Belanja hanya jika responseCode bukan 100-199 */}
 
                         {data && data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
@@ -253,6 +254,11 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
                                 <p>{formatRupiah(data.processingFee)}</p>
                             </div>
                         )}
+
+                        <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
+                            <p>Biaya Layanan</p>
+                            <p>{formatRupiah(Number(marginFee || marginFeeRiwayat))}</p>
+                        </div>
 
                         {data && data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <>
@@ -264,10 +270,6 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
                                         </div>
                                     )
                                 }
-                                <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
-                                    <p>Total Belanja</p>
-                                    <p>{formatRupiah(Number(amount))}</p>
-                                </div>
                             </>
                         )}
 
@@ -275,7 +277,7 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
 
                         <div className="flex items-center gap-5 justify-between">
                             <p className="font-bold">Total Bayar</p>
-                            <p className="text-orange-400 font-bold">{formatRupiah(Number(total))}</p>
+                            <p className="text-orange-400 font-bold">{formatRupiah(Number(total + Number(marginFee || marginFeeRiwayat)))}</p>
                         </div>
                     </div>
 
@@ -424,20 +426,23 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail }) => 
                                 </div>
                             )}
 
+                            <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
+                                <p>Biaya Layanan</p>
+                                <p>{formatRupiah(Number(marginFee || marginFeeRiwayat))}</p>
+                            </div>
 
-
-                            {data && data.category !== "Pulsa" && data.category !== "Paket Data" && (
+                            {/* {data && data.category !== "Pulsa" && data.category !== "Paket Data" && (
                                 <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
                                     <p>Total Belanja</p>
-                                    <p>{formatRupiah(amount)}</p>
+                                    <p>{formatRupiah(amount + Number(marginFee || marginFeeRiwayat))}</p>
                                 </div>
-                            )}
+                            )} */}
 
                             <div className="w-full my-5 h-[2px] bg-gray-200"></div>
 
                             <div className="flex items-center gap-5 justify-between">
                                 <p className="font-bold">Total Bayar</p>
-                                <p className="text-orange-400 font-bold">{formatRupiah(total)}</p>
+                                <p className="text-orange-400 font-bold">{formatRupiah(total + Number(marginFee || marginFeeRiwayat))}</p>
                             </div>
                         </div>
                     </div>

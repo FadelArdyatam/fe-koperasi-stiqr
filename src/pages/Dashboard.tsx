@@ -32,6 +32,7 @@ interface History {
     }
     qr_transaction?: {
         orderId: string;
+        keterangan?: string;
     }
 }
 interface Purchase {
@@ -421,7 +422,7 @@ const Dashboard = () => {
                                     <div key={index}>
                                         <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
                                         <div className="flex md:flex-row flex-col md:items-center justify-between">
-                                            <div className="flex items-start gap-2">
+                                            <div className="flex md:items-start gap-2">
                                                 <img src={history?.channel ? `${import.meta.env.VITE_ISSUER_BANK_URL}/${history.channel}.png` : noIssuerImg} className="rounded-full w-10 h-10" alt="IMAGE" />
                                                 <div className="flex flex-col items-start">
                                                     <div className="flex md:flex-row flex-col md:gap-2 items-start">
@@ -430,6 +431,7 @@ const Dashboard = () => {
                                                             <p>{history.transaction_status}</p>
                                                         </div>
                                                     </div>
+                                                    {history.sales_id == null && history.qr_transaction?.keterangan != null ? <p className="text-sm text-gray-700 break-all">{history.qr_transaction?.keterangan}</p> : ""}
                                                     <p className="text-xs text-gray-400 text-start">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                                 </div>
                                             </div>

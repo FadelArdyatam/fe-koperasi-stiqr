@@ -9,18 +9,22 @@ import { CircleCheck } from "lucide-react";
 import Notification from "../components/Notification"; // Import the custom Notification component
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Loading from "./Loading";
 
 interface OTPProps {
 	currentSection: number;
 	setCreatePin: (createPin: boolean) => void;
+	phone: string;
 }
 
-const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
+const OTP = ({ currentSection, setCreatePin, phone }: OTPProps) => {
 	const [value, setValue] = useState("");
-	const [phoneNumber, setPhoneNumber] = useState("");
+	// const [phoneNumber, setPhoneNumber] = useState("");
 	const [codeSent, setCodeSent] = useState(false);
 	const [timeLeft, setTimeLeft] = useState(0); // State for the countdown timer
 	const [otpId, setOtpId] = useState(""); // State untuk menyimpan OTP ID dari response
+	const phoneNumber = phone || localStorage.getItem('phone')
+	const [loading, setLoading] = useState(false)
 
 	const [showNotification, setShowNotification] = useState(false);
 
@@ -35,7 +39,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 
 	const sendCode = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
-
+		setLoading(true)
 		if (!phoneNumber) {
 			setNotification({
 				message: "Please enter a valid phone number.",
@@ -62,15 +66,12 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 				});
 				setCodeSent(true);
 				setTimeLeft(300);
-			} else {
-				setNotification({
-					message: "Masukkan Nomer dengan Format 8xxx",
-					status: "error",
-				});
+				setLoading(false)
 			}
 		} catch (error) {
+			setLoading(false)
 			setNotification({
-				message: "An unexpected error occurred. Please check your connection.",
+				message: "Terjadi Kesalahan",
 				status: "error",
 			});
 		}
@@ -118,7 +119,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 			}
 		} catch (error) {
 			setNotification({
-				message: "An unexpected error occurred. Please check your connection.",
+				message: "Terjadi Kesalahan",
 				status: "error",
 			});
 		}
@@ -165,7 +166,8 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 
 						<input
 							type="number"
-							onChange={(e) => setPhoneNumber(e.target.value)}
+							value={phoneNumber || ''}
+							readOnly
 							placeholder="Masukkan No Hp Anda"
 							className="rounded-sm border border-black px-4 w-full py-3"
 						/>
@@ -174,7 +176,7 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 					<Button
 						onClick={sendCode}
 						className="bg-[#7ED321] px-5 py-3 w-full text-white rounded-lg"
-						disabled={timeLeft > 0} // Disable tombol jika countdown belum selesai
+						disabled={timeLeft > 0 || loading} // Disable tombol jika countdown belum selesai
 					>
 						{timeLeft > 0 ? `Kirim Lagi (${formatTime(timeLeft)})` : "Kirim"}
 					</Button>
@@ -229,12 +231,16 @@ const OTP = ({ currentSection, setCreatePin }: OTPProps) => {
 					/>
 				)}
 
+				{
+					loading && <Loading />
+				}
+
 				{showNotification && (
 					<div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 z-20 flex items-center justify-center">
 						<div className="bg-white w-[90%] rounded-lg m-auto p-5">
 							<CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
 
-							<p className="text-green-500 text-sm text-center mt-10">OTP Berhasil terkirim ke {phoneNumber}</p>
+							<p className="text-green-500 text-sm text-center mt-10">OTP Berhasil terkirim ke +62{phoneNumber}</p>
 							<div className="flex items-center gap-5 mt-5">
 								<Button onClick={() => setShowNotification(false)} className="w-full bg-green-400">Tutup</Button>
 							</div>

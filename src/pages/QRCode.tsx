@@ -40,6 +40,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
     const contentRef = useRef<HTMLDivElement>(null);
     // const [showQRCode, setShowQRCode] = useState(false);
     const [amount, setAmount] = useState("");
+    const [keterangan, setKeterangan] = useState("")
     const [showOtherMethod, setShowOtherMethod] = useState(false);
     const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
     const [dataForPaymentMethod, setDataForPaymentMethod] = useState<any>(null);
@@ -60,6 +61,8 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
     }, []);
 
     useEffect(() => {
+        console.log(orderId)
+        console.log(orderIdInstant)
         if (orderId || orderIdInstant) {
             setDataForPaymentMethod({
                 sales_id: sales_id,
@@ -253,6 +256,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                 const paymentQR = {
                     orderId: generateOrderId,
                     amount: amount,
+                    keterangan: keterangan,
                     merchant_id: userData.merchant.id,
                 }
 
@@ -318,6 +322,16 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
             console.log(error)
         }
     };
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (value.length >= 50) {
+            setError({ show: false, message: "Maksimal 30 karakter." });
+            return;
+        } else {
+            setKeterangan(value);
+        }
+    };
+
 
     return (
         <>
@@ -462,7 +476,11 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     <p className="text-gray-700 font-medium">Keterangan</p>
 
                     <div className="relative mt-3">
-                        <Input type="text" className="pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent" />
+                        <Input onChange={(e) => handleChange(e)} maxLength={50} type="text" className={`pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent `} />
+                        <div className="flex flex-row justify-between mt-2">
+                            <p className="text-xs text-gray-400 italic ">*Maksimal 50 karakter</p>
+                            <p className="text-xs text-gray-400">{`${keterangan.length + 1}/50`}</p>
+                        </div>
                     </div>
 
                     <p className="text-gray-700 font-medium mt-5">Masukan Jumlah</p>
