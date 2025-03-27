@@ -11,7 +11,9 @@ const CalculatorComponent: React.FC<CalculatorProps> = ({ setAmount, amount, set
     const [isCalculated, setIsCalculated] = useState(false);
 
     const handleClick = (value: string) => {
-        if (amount === "0") {
+        if (value === "." && amount.includes(".")) return; // Mencegah lebih dari 1 titik
+
+        if (amount === "0" && value !== ".") {
             setAmount(value);
         } else {
             setAmount(amount + value);
@@ -31,11 +33,15 @@ const CalculatorComponent: React.FC<CalculatorProps> = ({ setAmount, amount, set
 
     const handleCalculate = () => {
         try {
-            setAmount(eval(amount).toString());
-            setIsCalculated(true);
+            const result = eval(amount);
+            if (!isNaN(result)) {
+                setAmount(parseFloat(result.toFixed(2)).toString()); // Menampilkan 2 angka desimal
+                setIsCalculated(true);
+            } else {
+                setAmount("Error");
+            }
         } catch (error) {
             setAmount("Error");
-            setIsCalculated(false);
         }
     };
 
@@ -57,10 +63,22 @@ const CalculatorComponent: React.FC<CalculatorProps> = ({ setAmount, amount, set
         setIsCalculated(false);
     };
 
+    const formatExpression = (expression: string) => {
+        return expression.replace(/(\d+(\.\d+)?)/g, (match) => {
+            const number = parseFloat(match);
+            return isNaN(number)
+                ? match
+                : new Intl.NumberFormat("id-ID", {
+                    minimumFractionDigits: 0, // Tidak menampilkan ,00 jika angka bulat
+                    maximumFractionDigits: 2, // Menampilkan maksimal 2 angka desimal jika ada
+                }).format(number);
+        });
+    };
+
     return (
         <div className="py-[400px] flex flex-col items-center justify-center absolute top-0 left-[50%] bg-black w-full h-screen bg-opacity-50 -translate-x-[50%] text-white">
-            <div className="md:w-[40%] p-4 bg-white rounded-lg shadow-lg text-black ">
-                <div className="mb-4 p-3 break-words text-right bg-transparent text-3xl font-semibold text-orange-600">{amount}</div>
+            <div className="w-[90%] md:w-[40%] p-4 bg-white rounded-lg shadow-lg text-black ">
+                <div className="mb-4 p-3 break-words text-right bg-transparent text-3xl font-semibold text-orange-600">{formatExpression(amount)}</div>
 
                 <div className="grid grid-cols-4 gap-2">
                     {["C", "±", "%", "/", "7", "8", "9", "*", "4", "5", "6", "-", "1", "2", "3", "+", ".", "0", "⌫", "="]
@@ -93,6 +111,8 @@ const CalculatorComponent: React.FC<CalculatorProps> = ({ setAmount, amount, set
                 </div>
 
                 <div className="mt-4 flex flex-col gap-3">
+                    <p className="text-sm text-gray-500 italic">*Pastikan angka sudah bilangan bulat dengan menekan "="</p>
+
                     <button
                         type="button"
                         onClick={() => setShowCalculator(false)}

@@ -24,7 +24,6 @@ import Notification from "@/components/Notification";
 import imgNoTransaction from "@/images/no-transaction.png";
 import DatePicker from "react-datepicker";
 
-
 interface BankAccount {
     account_id: string;
     bank_name: string;
@@ -64,6 +63,7 @@ const Settlement = () => {
         cash_amount: 0,
         non_cash_amount: 0,
     });
+    const [section, setSection] = useState("Penarikan");
     const navigate = useNavigate();
 
     const [startDate, setStartDate] = useState<Date | null>(null);
@@ -96,6 +96,7 @@ const Settlement = () => {
         setFilter(newFilter);
         setCurrentPage(1);
     };
+
     const FormSchema = z.object({
         amount: z.number({ message: '' }).min(12000, {
             message: "Minimal Penarikan Rp 12.000",
@@ -126,8 +127,11 @@ const Settlement = () => {
     const handleDelete = () => {
         setPin(pin.slice(0, -1));
     };
+
     const [showPinInput, setShowPinInput] = useState(false);
+
     const [loading, setLoading] = useState(false);
+
     async function onSubmit(data: FormData) {
         try {
             setShowPinInput(true);
@@ -158,6 +162,29 @@ const Settlement = () => {
             setLoading(false)
             console.error(error);
         }
+    }
+
+    type FormCatat = z.infer<typeof FormSchemaCatat>;
+
+    const FormSchemaCatat = z.object({
+        description: z.string().min(2, {
+            message: "Tidak Boleh Kosong",
+        }),
+        amountCatat: z.number({ message: '' }).min(12000, {
+            message: "Minimal Penarikan Rp 12.000",
+        }),
+    });
+
+    const formCatat = useForm<FormCatat>({
+        resolver: zodResolver(FormSchemaCatat),
+        defaultValues: {
+            description: '',
+            amountCatat: 0,
+        },
+    });
+
+    async function onSubmitCatat(data: FormCatat) {
+        console.log("data From Catat: ", data)
     }
 
     useEffect(() => {
@@ -202,11 +229,13 @@ const Settlement = () => {
         getAccount();
         getSaldo()
     }, []);
+
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
     const [settlements, setSettlements] = useState<ISettlement[]>([])
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+
     useEffect(() => {
         const fetchSettlement = async () => {
             const params: any = {
@@ -289,173 +318,245 @@ const Settlement = () => {
 
                 <p className="text-xs text-gray-500 mt-3">*Saldo yang dapat ditarik adalah Saldo Non Tunai</p>
 
-                {/* Withdrawal Form */}
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5">
-                        <div data-aos="fade-up" data-aos-delay="300" className="flex flex-col gap-3">
-                            <p>Pilih Akun</p>
-                            <FormField
-                                control={form.control}
-                                name="account_id"
-                                render={({ field }) => (
-                                    <FormItem className="w-full">
-                                        <FormControl>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger className="w-full p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center justify-between rounded-lg border border-gray-300">
-                                                    {accounts.find(account => account.account_id === field.value)?.bank_name || "Pilih Akun Penarikan"}
-                                                    <ChevronDown className="ml-2 h-4 w-4" />
-                                                </DropdownMenuTrigger>
+                <div className="w-[90%] md:w-[50%] m-auto items-center justify-center flex mt-10 border-2 border-orange-500 rounded-lg overflow-hidden">
+                    <button onClick={() => setSection("Penarikan")} className={`${section === "Penarikan" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all text-sm w-full text-center p-1 bg-orange-500 font-medium`}>
+                        Penarikan Non Tunai
+                    </button>
 
-                                                <DropdownMenuContent
-                                                    className="bg-white p-3 border mt-2 z-10 rounded-lg w-[var(--radix-popper-anchor-width)] max-h-64 overflow-y-auto flex flex-col gap-2 shadow-lg"
-                                                    align="start"
-                                                >
-                                                    {accounts?.map((account, i) => (
-                                                        <DropdownMenuItem
-                                                            key={i}
-                                                            onSelect={() => field.onChange(account.account_id)}
-                                                            className="cursor-pointer px-4 py-2 hover:bg-gray-100 rounded-md"
-                                                        >
-                                                            {account.bank_name} - {account.account_number}
-                                                        </DropdownMenuItem>
-                                                    ))}
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <div className="w-full h-[1px] bg-gray-300 my-3" />
-                            <p className="">Saldo Yang Ingin Ditarik</p>
-                            <FormField
-                                control={form.control}
-                                name="amount"
-                                render={({ field }) => (
-                                    <FormItem className="w-full font-bold">
-                                        <FormControl>
-                                            <Input
-                                                type="text"
-                                                inputMode="numeric" // Menampilkan numpad di mobile
-                                                autoComplete="off"
-                                                value={formatRupiah(String(field.value) || "0")}
-                                                placeholder="Masukkan Jumlah Saldo"
-                                                onChange={(e) => {
-                                                    let value = e.target.value.replace(/\D/g, ""); // Hanya angka
-                                                    value = value.slice(0, 7);
-                                                    const maxAmount = balance.non_cash_amount;
-                                                    if (Number(value) > maxAmount) {
-                                                        value = String(maxAmount);
-                                                    }
-                                                    field.onChange(value ? Number(value) : "");
-                                                    const margin = Number(value) * 0.007;
-                                                    setMarginMdr(Math.ceil(margin));
-                                                    setMdr(Math.ceil(Number(value) - margin));
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                    <button onClick={() => setSection("Catat")} className={`${section === "Catat" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all text-sm w-full text-center p-1 bg-orange-500 font-medium`}>
+                        Catat Tunai
+                    </button>
+                </div>
 
-                            <div className="flex justify-between">
-                                <p>MDR <i> (0,7%)</i> </p>
-                                <p className="font-bold">{formatRupiah(marginMdr)}</p>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p>Biaya Admin </p>
-                                    <p className="text-xs text-gray-500 italic ">*sementara ditanggung oleh tim STIQR</p>
+                {section === "Penarikan" ? (
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5">
+                            <div data-aos="fade-up" data-aos-delay="300" className="flex flex-col gap-3">
+                                <p>Pilih Akun</p>
+                                <FormField
+                                    control={form.control}
+                                    name="account_id"
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormControl>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger className="w-full p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center justify-between rounded-lg border border-gray-300">
+                                                        {accounts.find(account => account.account_id === field.value)?.bank_name || "Pilih Akun Penarikan"}
+                                                        <ChevronDown className="ml-2 h-4 w-4" />
+                                                    </DropdownMenuTrigger>
+
+                                                    <DropdownMenuContent
+                                                        className="bg-white p-3 border mt-2 z-10 rounded-lg w-[var(--radix-popper-anchor-width)] max-h-64 overflow-y-auto flex flex-col gap-2 shadow-lg"
+                                                        align="start"
+                                                    >
+                                                        {accounts?.map((account, i) => (
+                                                            <DropdownMenuItem
+                                                                key={i}
+                                                                onSelect={() => field.onChange(account.account_id)}
+                                                                className="cursor-pointer px-4 py-2 hover:bg-gray-100 rounded-md"
+                                                            >
+                                                                {account.bank_name} - {account.account_number}
+                                                            </DropdownMenuItem>
+                                                        ))}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <div className="w-full h-[1px] bg-gray-300 my-3" />
+                                <p className="">Saldo Yang Ingin Ditarik</p>
+                                <FormField
+                                    control={form.control}
+                                    name="amount"
+                                    render={({ field }) => (
+                                        <FormItem className="w-full font-bold">
+                                            <FormControl>
+                                                <Input
+                                                    type="text"
+                                                    inputMode="numeric" // Menampilkan numpad di mobile
+                                                    autoComplete="off"
+                                                    value={formatRupiah(String(field.value) || "0")}
+                                                    placeholder="Masukkan Jumlah Saldo"
+                                                    onChange={(e) => {
+                                                        let value = e.target.value.replace(/\D/g, ""); // Hanya angka
+                                                        value = value.slice(0, 7);
+                                                        const maxAmount = balance.non_cash_amount;
+                                                        if (Number(value) > maxAmount) {
+                                                            value = String(maxAmount);
+                                                        }
+                                                        field.onChange(value ? Number(value) : "");
+                                                        const margin = Number(value) * 0.007;
+                                                        setMarginMdr(Math.ceil(margin));
+                                                        setMdr(Math.ceil(Number(value) - margin));
+                                                    }}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <div className="flex justify-between">
+                                    <p>MDR <i> (0,7%)</i> </p>
+                                    <p className="font-bold">{formatRupiah(marginMdr)}</p>
                                 </div>
-                                <p className="font-bold">
-                                    <span className="line-through font-semibold decoration-red-500">{formatRupiah(1000)}</span> {formatRupiah(0)}
-                                </p>
-
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p>Saldo yang Diterima </p>
-                                    <p className="text-xs text-gray-500 italic ">*saldo yang masuk ke rekening Anda.</p>
-                                </div>
-                                <p className="font-bold">{formatRupiah(mdr)}</p>
-                            </div>
-                        </div>
-
-                        <Button type="submit" className="mt-5 w-full text-base bg-orange-500">
-                            Tarik Saldo
-                        </Button>
-
-                        {showPinInput && (
-                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                                <div className="bg-white w-[90%] p-6 rounded-lg">
-                                    <h2 className="text-xl font-semibold text-center mb-4">Masukkan PIN Anda</h2>
-
-                                    {/* PIN Indicator */}
-                                    <div className="flex justify-center mb-6">
-                                        {[...Array(6)].map((_, index) => (
-                                            <div
-                                                key={index}
-                                                className={`w-4 h-4 mx-1 rounded-full ${pin[index] ? 'bg-green-500' : 'bg-gray-300'}`}
-                                            ></div>
-                                        ))}
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p>Biaya Admin </p>
+                                        <p className="text-xs text-gray-500 italic ">*sementara ditanggung oleh tim STIQR</p>
                                     </div>
+                                    <p className="font-bold">
+                                        <span className="line-through font-semibold decoration-red-500">{formatRupiah(1000)}</span> {formatRupiah(0)}
+                                    </p>
 
-                                    {/* Number Pad */}
-                                    <div className="grid grid-cols-3 gap-5 mb-5 max-w-[400px] mx-auto">
-                                        {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((number) => (
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p>Saldo yang Diterima </p>
+                                        <p className="text-xs text-gray-500 italic ">*saldo yang masuk ke rekening Anda.</p>
+                                    </div>
+                                    <p className="font-bold">{formatRupiah(mdr)}</p>
+                                </div>
+                            </div>
+
+                            <Button type="submit" className="mt-5 w-full text-base bg-orange-500">
+                                Tarik Saldo
+                            </Button>
+
+                            {showPinInput && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                    <div className="bg-white w-[90%] p-6 rounded-lg">
+                                        <h2 className="text-xl font-semibold text-center mb-4">Masukkan PIN Anda</h2>
+
+                                        {/* PIN Indicator */}
+                                        <div className="flex justify-center mb-6">
+                                            {[...Array(6)].map((_, index) => (
+                                                <div
+                                                    key={index}
+                                                    className={`w-4 h-4 mx-1 rounded-full ${pin[index] ? 'bg-green-500' : 'bg-gray-300'}`}
+                                                ></div>
+                                            ))}
+                                        </div>
+
+                                        {/* Number Pad */}
+                                        <div className="grid grid-cols-3 gap-5 mb-5 max-w-[400px] mx-auto">
+                                            {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((number) => (
+                                                <button
+                                                    key={number}
+                                                    type="button"
+                                                    onClick={() => handleNumberClick(number)}
+                                                    className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
+                                                >
+                                                    {number}
+                                                </button>
+                                            ))}
+                                            <div></div>
                                             <button
-                                                key={number}
+                                                onClick={() => handleNumberClick("0")}
                                                 type="button"
-                                                onClick={() => handleNumberClick(number)}
                                                 className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
                                             >
-                                                {number}
+                                                0
                                             </button>
-                                        ))}
-                                        <div></div>
-                                        <button
-                                            onClick={() => handleNumberClick("0")}
-                                            type="button"
-                                            className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
-                                        >
-                                            0
-                                        </button>
-                                        <button
-                                            onClick={handleDelete}
-                                            type="button"
-                                            className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold"
-                                        >
-                                            ⌫
-                                        </button>
-                                    </div>
+                                            <button
+                                                onClick={handleDelete}
+                                                type="button"
+                                                className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold"
+                                            >
+                                                ⌫
+                                            </button>
+                                        </div>
 
-                                    <div className="flex justify-between">
-                                        <Button
-                                            onClick={() => setShowPinInput(false)}
-                                            type="button"
-                                            className="w-full mr-2 bg-gray-400 text-white"
-                                        >
-                                            Batal
-                                        </Button>
-                                        <Button
-                                            type="submit"
-                                            className="w-full ml-2 bg-green-500 text-white"
-                                            disabled={pin.length !== 6 || loading}
-                                        >
-                                            Konfirmasi
-                                        </Button>
+                                        <div className="flex justify-between">
+                                            <Button
+                                                onClick={() => setShowPinInput(false)}
+                                                type="button"
+                                                className="w-full mr-2 bg-gray-400 text-white"
+                                            >
+                                                Batal
+                                            </Button>
+                                            <Button
+                                                type="submit"
+                                                className="w-full ml-2 bg-green-500 text-white"
+                                                disabled={pin.length !== 6 || loading}
+                                            >
+                                                Konfirmasi
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
-                    </form>
-                </Form>
+                            )}
+                        </form>
+                    </Form>
+                ) : (
+                    <div>
+                        <div className="flex items-center justify-between gap-3 p-2 mt-5 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+                            <p>* Pencatatan tunai akan tercatat di Riwayat Tunai dibawah</p>
+                        </div>
+
+                        <p className="font-semibold mt-5">Terakhir Pencatatan : 12 Maret 2025 | 12.00</p>
+
+                        <Form {...formCatat}>
+                            <form onSubmit={formCatat.handleSubmit(onSubmitCatat)} className="mt-5">
+                                <div data-aos="fade-up" data-aos-delay="300" className="flex flex-col gap-3">
+                                    <p>Keterangan</p>
+                                    <FormField
+                                        control={formCatat.control}
+                                        name="description"
+                                        render={({ field }) => (
+                                            <FormItem className="w-full">
+                                                <FormControl>
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="Masukkan Keterangan"
+                                                        value={field.value || ""}
+                                                        onChange={field.onChange}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <p>Jumlah</p>
+                                    <FormField
+                                        control={formCatat.control}
+                                        name="amountCatat"
+                                        render={({ field }) => (
+                                            <FormItem className="w-full font-bold">
+                                                <FormControl>
+                                                    <Input
+                                                        type="text"
+                                                        inputMode="numeric" // Menampilkan numpad di mobile
+                                                        autoComplete="off"
+                                                        value={formatRupiah(String(field.value) || "0")}
+                                                        placeholder="Masukkan Jumlah Saldo"
+                                                        onChange={(e) => {
+                                                            let value = e.target.value.replace(/\D/g, ""); // Hanya angka
+                                                            value = value.slice(0, 7);
+                                                            field.onChange(value ? Number(value) : "");
+                                                        }}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <Button type="submit" className="mt-5 w-full text-base bg-orange-500">
+                                        Catat Tunai
+                                    </Button>
+                                </div>
+                            </form>
+                        </Form>
+                    </div>
+                )}
             </div>
 
-
             <div className="pb-32 flex flex-col gap-5 w-[90%] m-auto shadow-lg bg-white rounded-lg">
-                <p className="text-xl text-center font-bold my-3">Riwayat Penarikan</p>
+                <p className="text-xl text-center font-bold my-3">{section === "Penarikan" ? 'Riwayat Penarikan' : 'Riwayat Tunai'}</p>
                 <div className="w-full flex gap-5 overflow-x-auto my-5 p-3">
                     <Button onClick={() => {
                         setShowCalendar(!showCalendar); setFilter("dateRange");

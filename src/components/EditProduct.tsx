@@ -826,7 +826,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                 </div>
 
                                 <div className={`${showField.variant ? 'flex' : 'hidden'} flex-col mt-5 items-center gap-3`}>
-                                    <Button onClick={() => setShowAddVariant(true)} className="bg-transparent border border-orange-500 hover:bg-orange-500 text-black w-full">
+                                    <Button onClick={() => setShowAddVariant(true)} className="bg-orange-500 border border-orange-500 text-white w-full">
                                         <p>Pilih Variant</p>
                                     </Button>
                                 </div>

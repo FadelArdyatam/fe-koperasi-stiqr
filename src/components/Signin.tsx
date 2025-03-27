@@ -75,7 +75,7 @@ const Signin = () => {
 					data-aos-delay="100"
 					type="text"
 					value={email}
-					onChange={(e) => setEmail(e.target.value)}
+					onChange={(e) => setEmail(e.target.value.toLowerCase())}
 					placeholder="Email"
 					className="w-full border border-black px-4 py-3 rounded-lg"
 				/>
