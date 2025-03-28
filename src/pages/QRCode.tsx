@@ -52,6 +52,8 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
     const [timeLeft, setTimeLeft] = useState(300); // 5 menit dalam detik
     const navigate = useNavigate();
 
+    const [showNotification, setShowNotification] = useState(false);
+
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
     const [orderIdInstant, setOrderIdInstant] = useState<string | null>(null)
@@ -182,42 +184,73 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
 
     const shareContent = async () => {
         try {
-            if (navigator.share) {
-                if (contentRef.current) {
-                    // Tunggu gambar selesai dimuat
-                    const images = (contentRef.current as HTMLElement).querySelectorAll("img");
-                    const promises = Array.from(images).map(img => new Promise<void>(resolve => {
-                        if (img.complete) resolve();
-                        img.onload = () => resolve();
-                        img.onerror = () => resolve();
-                    }));
-                    await Promise.all(promises);
+            if (contentRef.current) {
+                // Tunggu semua gambar dalam elemen dimuat sebelum menangkap screenshot
+                const images = contentRef.current.querySelectorAll("img");
+                const promises = Array.from(images).map(img => new Promise<void>(resolve => {
+                    if (img.complete) resolve();
+                    img.onload = () => resolve();
+                    img.onerror = () => resolve();
+                }));
+                await Promise.all(promises);
 
-                    // Tangkap elemen dengan ukuran yang sesuai
-                    const canvas = await html2canvas(contentRef.current, {
-                        useCORS: true,
-                        scale: 5, // Tingkatkan resolusi
-                        width: contentRef.current.offsetWidth,
-                        height: contentRef.current.offsetHeight,
-                    });
+                // Tangkap elemen ke dalam canvas
+                const canvas = await html2canvas(contentRef.current, {
+                    useCORS: true,
+                    scale: 2,
+                    width: contentRef.current.offsetWidth,
+                    height: contentRef.current.offsetHeight,
+                });
 
-                    const dataURL = canvas.toDataURL("image/png");
-                    const response = await fetch(dataURL);
-                    const blob = await response.blob();
-                    const file = new File([blob], "CodePayment.png", { type: "image/png" });
-
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            title: "QR Code Kedai Kopi",
-                            text: "Pindai QR ini untuk melakukan pembayaran.",
-                            files: [file],
-                        });
-                    } else {
-                        alert("Perangkat ini tidak mendukung berbagi file.");
+                // Konversi canvas ke Blob
+                canvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        alert("Gagal membuat gambar.");
+                        return;
                     }
-                }
-            } else {
-                alert("Fitur bagikan tidak didukung di perangkat ini.");
+
+                    const file = new File([blob], "CodePayment.png", { type: "image/png" });
+                    const textMessage = "📌 Pindai QR ini untuk melakukan pembayaran di Kedai Kopi.";
+
+                    try {
+                        // 🔹 1. SALIN TEKS & GAMBAR KE CLIPBOARD
+                        if (navigator.clipboard && window.ClipboardItem) {
+                            const textBlob = new Blob([textMessage], { type: "text/plain" });
+                            const clipboardItems = [
+                                new ClipboardItem({
+                                    "image/png": blob,
+                                    "text/plain": textBlob,
+                                })
+                            ];
+                            await navigator.clipboard.write(clipboardItems);
+                            setShowNotification(true);
+                        } else {
+                            throw new Error("Clipboard API tidak mendukung gambar.");
+                        }
+
+                        // 🔹 2. TAMPILKAN MENU SHARE KE WHATSAPP, TELEPON, DLL.
+                        if (navigator.share && navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                title: "QR Code Kedai Kopi",
+                                text: textMessage,
+                                files: [file], // Gambar yang akan dibagikan
+                            });
+                        } else {
+                            alert("❌ Perangkat ini tidak mendukung fitur berbagi file.");
+                        }
+                    } catch (error) {
+                        console.warn("❌ Gagal membagikan:", error);
+
+                        // Fallback: Unduh gambar jika clipboard tidak mendukung
+                        const link = document.createElement("a");
+                        link.href = URL.createObjectURL(blob);
+                        link.download = "CodePayment.png";
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        setError({ show: true, message: "Gagal membagikan. Gambar berhasil diunduh." });
+                    }
+                }, "image/png");
             }
         } catch (error) {
             console.error("Gagal membagikan:", error);
@@ -602,6 +635,9 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </Button>
                 </div>
             </div>
+
+            {/* Notification */}
+            {showNotification && <Notification message={"Gambar dan teks berhasil disalin ke clipboard!"} onClose={() => setShowNotification(false)} status={"success"} />}
 
             {showPaymentMehodComponent && <PaymentMethod dataPayment={dataForPaymentMethod} setShowPaymentMethodComponent={setShowPaymentMethodComponent} selectedMethod={selectedMethod} orderId={orderId} />}
         </>
