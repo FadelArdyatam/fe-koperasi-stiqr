@@ -203,7 +203,7 @@ const Settlement = () => {
 
                 if (response.data.success) {
                     setErrorNotification(true);
-                    setMessage("Berhasil melakukan penarikan")
+                    setMessage("Berhasil melakukan pencatatan")
                     setIsSuccess(true)
                     setPin([])
                     setShowPinInput(false)
