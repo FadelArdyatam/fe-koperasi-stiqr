@@ -55,7 +55,7 @@ const HelpCenter = () => {
 
       <div className={` bg-white w-[90%] p-5 rounded-lg shadow-lg mt-5 -translate-y-20`}>
         <p>Apabila terdapat kendala bisa hubungi tim STIQR melalui nomor berikut</p>
-        <div onClick={handleRedirect} className="flex flex-row gap-3 w-1/6 cursor-pointer hover:bg-orange-500 hover:text-white transition duration-300 ease-in-out rounded-md p-2 outline outline-orange-500 mt-5 items-center outline-1">
+        <div onClick={handleRedirect} className="flex flex-row gap-3 md:w-1/5  cursor-pointer hover:bg-orange-500 hover:text-white transition duration-300 ease-in-out rounded-md p-2 outline outline-orange-500 mt-5 items-center outline-1">
           <img src={wa} className="w-8 h-8" />
           <p >Whatsapp</p>
         </div>
