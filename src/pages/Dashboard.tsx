@@ -44,6 +44,7 @@ interface Purchase {
     image?: string;
     status: string;
     biller?: string;
+    marginFee?: number;
 }
 interface IBalance {
     amount: number;
@@ -544,6 +545,13 @@ const Dashboard = () => {
                                                 <p className="text-md font-semibold">
                                                     Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
                                                 </p>
+                                                {
+                                                    (purchase.marginFee ?? 0) > 0 && (
+                                                        <p className="text-md text-green-500">
+                                                            + {formatRupiah(purchase.marginFee || 0)}
+                                                        </p>
+                                                    )
+                                                }
 
                                                 <div className="flex items-center">
                                                     <p className="text-xs">

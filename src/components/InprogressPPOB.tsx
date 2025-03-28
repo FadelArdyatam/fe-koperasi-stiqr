@@ -55,7 +55,7 @@ const InprogressPPOB: React.FC<BillProps> = ({ data, marginTop, refNumber, isDet
                         {
                             Number(marginFee) > 0 && (
                                 <div className="flex justify-between w-full">
-                                    <p className="text-gray-500">Biaya Pelayanan</p>
+                                    <p className="text-gray-500">Biaya Layanan</p>
                                     <p>{formatRupiah(Number(marginFee))}</p>
                                 </div>
                             )

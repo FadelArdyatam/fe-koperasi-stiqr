@@ -463,8 +463,15 @@ const Riwayat = () => {
 
                                         <div className="flex md:mt-0 mt-5 flex-col items-end">
                                             <p className="text-md font-semibold">
-                                                Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount + purchase.marginFee))}
+                                                Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
                                             </p>
+                                            {
+                                                (purchase.marginFee ?? 0) > 0 && (
+                                                    <p className="text-md text-green-500">
+                                                        + {formatRupiah(purchase.marginFee || 0)}
+                                                    </p>
+                                                )
+                                            }
 
                                             <div className="flex items-center">
                                                 <p className="text-xs">

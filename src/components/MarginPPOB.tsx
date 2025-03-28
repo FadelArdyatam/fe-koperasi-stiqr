@@ -26,7 +26,7 @@ const MarginPPOB: React.FC<MarginProps> = ({ type, showMargin, setShowMargin, ma
         const newType = type.toLowerCase()
         const payload = {
             merchant_id,
-            [newType]: Number(margin.replace(/\D/g, ""))    
+            [newType]: Number(margin.replace(/\D/g, ""))
         };
 
         try {
@@ -68,6 +68,7 @@ const MarginPPOB: React.FC<MarginProps> = ({ type, showMargin, setShowMargin, ma
                             />
                             <div>
                                 <p className="text-gray-400 italic text-xs">*Biaya Tambahan adalah margin keuntungan yang akan Anda peroleh</p>
+                                <p className="text-gray-400 italic text-xs">*Biaya Tambahan akan tertulis menjadi Biaya Layanan di detail tagihan</p>
                                 <p className="text-gray-400 italic text-xs">*Maksimal Rp2.000</p>
                             </div>
                             <Button className="bg-green-400 flex items-center gap-2" onClick={handleSubmit}>
