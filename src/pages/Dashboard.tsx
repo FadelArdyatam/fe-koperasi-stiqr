@@ -32,6 +32,7 @@ interface History {
     }
     qr_transaction?: {
         orderId: string;
+        keterangan?: string;
     }
 }
 interface Purchase {
@@ -43,6 +44,7 @@ interface Purchase {
     image?: string;
     status: string;
     biller?: string;
+    marginFee?: number;
 }
 interface IBalance {
     amount: number;
@@ -249,7 +251,7 @@ const Dashboard = () => {
                 <div className="flex items-center gap-5">
                     <p className="text-2xl m-auto uppercase font-semibold text-center text-white" data-aos="zoom-in">Home</p>
 
-                    <Link id="inbox" to={'/inbox'} className="bg-transparent text-white right-5 hover:bg-transparent relative">
+                    <Link id="inbox" to={'/inbox'} className="bg-transparent text-white right-5 hover:bg-transparent absolute">
                         <Mail className="scale-[1.3]" />
 
                         {/* Notif Badge */}
@@ -421,7 +423,7 @@ const Dashboard = () => {
                                     <div key={index}>
                                         <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
                                         <div className="flex md:flex-row flex-col md:items-center justify-between">
-                                            <div className="flex items-start gap-2">
+                                            <div className="flex md:items-start gap-2">
                                                 <img src={history?.channel ? `${import.meta.env.VITE_ISSUER_BANK_URL}/${history.channel}.png` : noIssuerImg} className="rounded-full w-10 h-10" alt="IMAGE" />
                                                 <div className="flex flex-col items-start">
                                                     <div className="flex md:flex-row flex-col md:gap-2 items-start">
@@ -430,6 +432,7 @@ const Dashboard = () => {
                                                             <p>{history.transaction_status}</p>
                                                         </div>
                                                     </div>
+                                                    {history.sales_id == null && history.qr_transaction?.keterangan != null ? <p className="text-sm text-gray-700 break-all">{history.qr_transaction?.keterangan}</p> : ""}
                                                     <p className="text-xs text-gray-400 text-start">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
                                                 </div>
                                             </div>
@@ -542,6 +545,13 @@ const Dashboard = () => {
                                                 <p className="text-md font-semibold">
                                                     Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
                                                 </p>
+                                                {
+                                                    (purchase.marginFee ?? 0) > 0 && (
+                                                        <p className="text-md text-green-500">
+                                                            + {formatRupiah(purchase.marginFee || 0)}
+                                                        </p>
+                                                    )
+                                                }
 
                                                 <div className="flex items-center">
                                                     <p className="text-xs">

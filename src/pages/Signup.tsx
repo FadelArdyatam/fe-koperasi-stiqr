@@ -22,6 +22,7 @@ import Notification from "@/components/Notification"
 import { useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Loading from "@/components/Loading"
 
 const Signup = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(true)
@@ -205,11 +206,14 @@ const Signup = () => {
         },
     });
 
+    const [phone, setPhone] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const onSubmitMerchant = async (data: z.infer<typeof FormSchemaMerchant>) => {
         const userDatas = allData[0] as z.infer<typeof FormSchemaUser>;
 
         // Debug email user sebelum membuat payload
         console.log("Email user yang digunakan:", userDatas?.email);
+        setIsSubmitting(true)
 
         const payload = {
             username: userDatas?.ownerName,
@@ -233,8 +237,6 @@ const Signup = () => {
             typeBusinessEntity: data.typeBusinessEntity,
             photo: userDatas.photo instanceof File ? userDatas.photo : "https://via.placeholder.com/150",
         };
-
-        console.log(payload)
 
         const formData = new FormData();
         formData.append("username", payload.username);
@@ -276,7 +278,11 @@ const Signup = () => {
                 localStorage.setItem("registerID", "12345")
                 setShowNotification(false)
                 localStorage.removeItem("token");
+                const formattedPhone = payload.phoneNumber.replace(/^0/, ''); 
+                setPhone(formattedPhone);
+                localStorage.setItem('phone', formattedPhone);
             } else {
+                setIsSubmitting(false)
                 setShowNotification(true)
                 setErrorMessage(result.message)
             }
@@ -285,6 +291,8 @@ const Signup = () => {
             console.error("Error:", error)
             setShowNotification(true)
             setErrorMessage(error.message || "Terjadi Kesalahan")
+        } finally {
+            setIsSubmitting(false); // Set loading state to false when submission ends (whether success or error)
         }
     };
 
@@ -607,14 +615,16 @@ const Signup = () => {
 
                                                                     if (file) {
                                                                         if (file.size > 2 * 1024 * 1024) {
-                                                                            alert("Ukuran file melebihi 2MB.");
+                                                                            setShowNotification(true)
+                                                                            setErrorMessage('File poto profil melebihi 2MB');
                                                                             setIsPhotoUploaded(false)
                                                                             return;
                                                                         }
 
                                                                         const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
                                                                         if (!validImageTypes.includes(file.type)) {
-                                                                            alert("Tipe file tidak valid. Silakan unggah gambar (JPEG, PNG, atau GIF).");
+                                                                            setShowNotification(true)
+                                                                            setErrorMessage('Tipe file tidak valid. Silakan unggah gambar (JPEG, PNG, atau GIF).');
                                                                             setIsPhotoUploaded(false)
                                                                             return;
                                                                         }
@@ -1073,13 +1083,16 @@ const Signup = () => {
 
                                     <div data-aos="fade-up" className="flex items-center w-full justify-between gap-5">
                                         <Button type="button" onClick={() => { setCurrentSection(0) }} className={`${currentSection === 1 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-orange-400 hover:bg-orange-400 rounded-lg`}> <ChevronLeft /> Kembali</Button>
-                                        <Button type="submit" className={`${currentSection === 1 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] hover:bg-[#7ED321] rounded-lg `}> <Save /> Kirim </Button>
+                                        <Button
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                            className={`${currentSection === 1 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] hover:bg-[#7ED321] rounded-lg `}> <Save /> Kirim </Button>
                                     </div>
                                 </form>
                             </Form>
                         </div>
 
-                        <OTP currentSection={currentSection} setCreatePin={setCreatePin} />
+                        <OTP currentSection={currentSection} setCreatePin={setCreatePin} phone={phone} />
                     </div>
                     {showNotification && (
                         <>
@@ -1090,6 +1103,7 @@ const Signup = () => {
                             />
                         </>
                     )}
+                    {isSubmitting && <Loading />}
                     {createPin && <PinInput email={formMerchant.getValues("merchantEmail")} />}</div>
             )}
         </div>

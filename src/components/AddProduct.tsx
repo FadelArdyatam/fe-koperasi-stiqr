@@ -132,9 +132,10 @@ interface AddProductProps {
     }>;
     variants: Variant[];
     setVariants: React.Dispatch<React.SetStateAction<Variant[]>>;
+    setReset: (reset: boolean) => void;
 }
 
-const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddProduct, etalases, setEtalases, variants, setVariants }) => {
+const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddProduct, etalases, setEtalases, variants, setVariants, setReset }) => {
     const [quantity, setQuantity] = useState('g');
     const [showNotification, setShowNotification] = useState(false);
     const [showNotificationEtalase, setShowNotificationEtalase] = useState(false);
@@ -344,6 +345,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
                 setShowPopUpAddVariant(false)
                 setShowNotificationVariant(true);
+                setReset(true)
             } else {
                 console.error("Gagal menambahkan varian:", response.data);
             }
@@ -351,6 +353,8 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             console.error("Terjadi kesalahan saat mengirim data:", error.response?.data || error.message);
         }
     };
+
+    console.log("SelectedVariants", selectedVariants)
 
     const addProductHandler = async () => {
         const data = {
@@ -384,10 +388,10 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                     product_id: response?.data?.data?.product_id,
                     showcase_id: selectedEtalase, // Kirim sebagai array
                 });
-            
+
                 console.log(response2);
             }
-            
+
 
             setShowNotification(true);
         } catch (error: any) {
@@ -777,9 +781,8 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                             ))}
                         </div>
 
-
                         <div className={`${showField.variant ? 'flex' : 'hidden'} flex-col mt-5 items-center gap-3`}>
-                            <Button onClick={() => setShowAddVariant(true)} className="bg-transparent border border-orange-500 text-black w-full">
+                            <Button onClick={() => setShowAddVariant(true)} className="bg-orange-500 text-white border border-orange-500 w-full">
                                 <p>Pilih Variant</p>
                             </Button>
                         </div>

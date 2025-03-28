@@ -70,7 +70,7 @@ generate-variables:
   when: on_success
 
 
-build-app-onprem:
+build-app-onstag:
   stage: build
   image: harbor-regs.wachid.web.id/library/docker:24.0.5
   script:
@@ -82,6 +82,17 @@ build-app-onprem:
     - development
     - main
     - dev
+
+build-app-ondev:
+  stage: build
+  image: harbor-regs.wachid.web.id/library/docker:24.0.5
+  script:
+    - source variables.env
+    - echo "Building Docker image..."
+    - docker build -t "$IMAGE_TAG_PRE" . -f Dockerfile.ondev
+    - docker push "$IMAGE_TAG_PRE"
+  only: 
+    - on-development
 
 
 build-app-cloud:
@@ -132,7 +143,7 @@ release:
     - docker commit "$CI_REG_PROJECT_NAME" "$IMAGE_TAG_LATEST"
     - docker push "$IMAGE_TAG_LATEST"
 
-deploy:
+deploy-onstag:
   stage: deploy
   script:
     - source variables.env
@@ -147,10 +158,15 @@ deploy:
       echo "Error: Required environment variables are not set." >&2;
       exit 1;
       fi
-    - echo "Downloading deployment script..."
-    - >
-      curl --fail -o /tmp/curl-deploy.sh https://gitlab.com/go-public1/ci-library/-/raw/main/script-deployment-k8s.sh ||
-      { echo "Error: Failed to download deployment script." >&2; exit 1; }
+    - echo "Membuat deployment script..."
+    - |
+      cat <<EOF > /tmp/curl-deploy.sh
+      #!/bin/bash
+      curl -v --insecure -L -X PATCH DEPLOYMENT_API \
+      -H 'Content-Type: application/json-patch+json' \
+      -H 'Authorization: AUTHTOKEN' \
+      -d '[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value": "IMAGETAG"}]'
+      EOF
     - echo "Customizing deployment script..."
     - sed -i "s|DEPLOYMENT_API|$DEPLOYMENT_API|g" /tmp/curl-deploy.sh
     - sed -i "s|AUTHTOKEN|$TOKEN_API|g" /tmp/curl-deploy.sh
@@ -163,6 +179,41 @@ deploy:
     - development
     - main
     - dev
+
+deploy-ondev:
+  stage: deploy
+  script:
+    - source variables.env
+    - echo "Deploying $CI_REG_PROJECT_NAME to production..."
+    - apk add curl
+    - echo "Validating required environment variables..."
+    - echo "Using DEPLOYMENT_API ":"" "$DEPLOYMENT_API"
+    - echo "Using TOKEN_API ":"" "(hidden)"
+    - echo "Using IMAGE_TAG ":"" "$IMAGE_TAG"
+    - >
+      if [ -z "$DEPLOYMENT_API_DEV" ] || [ -z "$TOKEN_API_DEV" ] || [ -z "$IMAGE_TAG" ]; then
+      echo "Error: Required environment variables are not set." >&2;
+      exit 1;
+      fi
+    - echo "Membuat deployment script..."
+    - |
+      cat <<EOF > /tmp/curl-deploy.sh
+      #!/bin/bash
+      curl -v --insecure -L -X PATCH DEPLOYMENT_API \
+      -H 'Content-Type: application/json-patch+json' \
+      -H 'Authorization: AUTHTOKEN' \
+      -d '[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value": "IMAGETAG"}]'
+      EOF
+    - echo "Customizing deployment script..."
+    - sed -i "s|DEPLOYMENT_API|$DEPLOYMENT_API_DEV|g" /tmp/curl-deploy.sh
+    - sed -i "s|AUTHTOKEN|$TOKEN_API_DEV|g" /tmp/curl-deploy.sh
+    - sed -i "s|IMAGETAG|$IMAGE_TAG|g" /tmp/curl-deploy.sh
+    - chmod +x /tmp/curl-deploy.sh
+    - cat /tmp/curl-deploy.sh
+    - echo "Executing deployment script..."
+    - sh /tmp/curl-deploy.sh
+  only: 
+    - on-development
 
 
 deploy-oncloud:
@@ -177,17 +228,22 @@ deploy-oncloud:
     - echo "Using RNC_TOKEN ":"" "(hidden)"
     - echo "Using IMAGE_TAG ":"" "$IMAGE_TAG"
     - >
-      if [ -z "$DEPLOYMENT_API_CLOUD" ] || [ -z "$RNC_TOKEN_CLOUD" ] || [ -z "$IMAGE_TAG" ]; then
+      if [ -z "$DEPLOYMENT_API_CLOUD" ] || [ -z "$TOKEN_API_CLOUD" ] || [ -z "$IMAGE_TAG" ]; then
       echo "Error: Required environment variables are not set." >&2;
       exit 1;
       fi
-    - echo "Downloading deployment script..."
-    - >
-      curl --fail -o /tmp/curl-deploy.sh https://dns-gits.dnstech.co.id/go-public/ci-library/-/raw/main/script-deployment-k8s.sh ||
-      { echo "Error: Failed to download deployment script." >&2; exit 1; }
+    - echo "Membuat deployment script..."
+    - |
+      cat <<EOF > /tmp/curl-deploy.sh
+      #!/bin/bash
+      curl -v --insecure -L -X PATCH DEPLOYMENT_API \
+      -H 'Content-Type: application/json-patch+json' \
+      -H 'Authorization: AUTHTOKEN' \
+      -d '[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value": "IMAGETAG"}]'
+      EOF
     - echo "Customizing deployment script..."
     - sed -i "s|DEPLOYMENT_API|$DEPLOYMENT_API_CLOUD|g" /tmp/curl-deploy.sh
-    - sed -i "s|AUTHTOKEN|$RNC_TOKEN_CLOUD|g" /tmp/curl-deploy.sh
+    - sed -i "s|AUTHTOKEN|$TOKEN_API_CLOUD|g" /tmp/curl-deploy.sh
     - sed -i "s|IMAGETAG|$IMAGE_TAG|g" /tmp/curl-deploy.sh
     - chmod +x /tmp/curl-deploy.sh
     - cat /tmp/curl-deploy.sh

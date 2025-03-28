@@ -23,6 +23,7 @@ import {
     CommandList,
 } from "@/components/ui/command"
 import noProduct from '../../images/no-product.png'
+import Notification from "@/components/Notification";
 
 
 interface OrderSummaryProps {
@@ -108,22 +109,52 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
     };
 
     const decreaseHandler = (index: number) => {
-        const updatedBasket = [...basket];
-        const productToUpdate = mergedBasket[index];
+        setBasket((prevBasket) => {
+            const updatedBasket = [...prevBasket];
+            const productToUpdate = mergedBasket[index];
 
-        setBasket(
-            updatedBasket
+            const newBasket = updatedBasket
                 .map((item) =>
                     item.product === productToUpdate.product
                         ? { ...item, quantity: item.quantity - 1 }
                         : item
                 )
-                .filter((item) => item.quantity > 0)
-        );
+                .filter((item) => item.quantity > 0);
+
+            // Pastikan cek `newBasket` bukan `basket`
+            if (newBasket.length === 0) {
+                setShowService({ show: false, service: null });
+            }
+
+            return newBasket;
+        });
     };
+
+    const removeHandler = (index: number) => {
+        setBasket((prevBasket) => {
+            const updatedBasket = prevBasket.filter((_, i) => i !== index);
+    
+            if (updatedBasket.length === 0) {
+                setShowService({ show: false, service: null });
+            }
+    
+            return updatedBasket;
+        });
+    };
+
 
     const [orderId, setOrderId] = useState<string | null>(null)
     const [tagih, setTagih] = useState<boolean>(false)
+
+    const [showNotification, setShowNotification] = useState<{
+        show: boolean;
+        message: string;
+        type: "success" | "error";
+    }>({
+        show: false,
+        message: "",
+        type: "success",
+    });
 
     const openBillHandler = async (status: any) => {
         const userItem = sessionStorage.getItem("user");
@@ -154,10 +185,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
 
             const requestBody = {
                 customer: {
-                    name: selectedCustomer ? selectedCustomer.customer.name : dataCustomer.name,
-                    phone: selectedCustomer ? selectedCustomer.customer.phone : dataCustomer.phone,
-                    email: selectedCustomer ? selectedCustomer.customer.email : dataCustomer.email,
-                    other_number: selectedCustomer ? selectedCustomer.customer.other_number : dataCustomer.other_number,
+                    name: selectedCustomer?.customer?.name != null ? selectedCustomer.customer.name : dataCustomer.name,
+                    phone: selectedCustomer?.customer?.phone != null ? selectedCustomer.customer.phone : dataCustomer.phone,
+                    email: selectedCustomer?.customer?.email != null ? selectedCustomer.customer.email : dataCustomer.email,
+                    other_number: selectedCustomer?.customer?.other_number != null ? selectedCustomer.customer.other_number : dataCustomer.other_number,
                 },
                 status: "inprogress",
                 order_type: showService.service === "Dine In" ? "dinein" : "takeaway",
@@ -171,23 +202,18 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
 
             const response = await axiosInstance.post('/sales/create', requestBody);
 
-            console.log("Response create order:", response);
-
+            if (response.data.success) {
+                setShowOrderProcess(true);
+                bookingDatas.push(mergedBasket);
+                setResponseSalesCreate(response.data.data.sales_id);
+            } else {
+                setShowNotification({ show: true, type: "error", message: response.data.error })
+            }
+            setLoading(false)
             if (status == 'tagih') {
                 setTagih(true)
             }
-
-            setShowOrderProcess(true);
-
-            bookingDatas.push(mergedBasket);
-
-            console.log("Response create order:", response);
-
-            setResponseSalesCreate(response.data.data.sales_id);
-
-            setLoading(false)
         } catch (error: any) {
-            console.error('Error creating order:', error);
             if (error.response) {
                 console.error('Response error:', error.response.data);
             } else if (error.request) {
@@ -195,8 +221,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
             } else {
                 console.error('Setup error:', error.message);
             }
+            setLoading(false)
         }
     };
+
 
 
     return (
@@ -270,7 +298,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 <div className="mt-5 w-[90%]">
                     <div data-aos="fade-up" data-aos-delay="300" className="flex items-center gap-5">
                         <div className="w-[65%]">
-                            <p className="font-semibold">Nama Pemesan (Opsional)</p>
+                            <p className="font-semibold">Nama Pemesan</p>
 
                             <Input
                                 value={selectedCustomer?.customer?.name !== null ? selectedCustomer?.customer?.name : dataCustomer.name}
@@ -376,7 +404,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                                     </div>
                                 </div>
 
-                                <button onClick={() => decreaseHandler(index)} className="text-red-500"><Trash2 /></button>
+                                <button onClick={() => removeHandler(index)} className="text-red-500"><Trash2 /></button>
                             </div>
 
                             <div className="mt-10 flex items-center justify-between gap-5">
@@ -409,7 +437,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     </div>
 
                     <div className="w-full mt-10 flex items-center gap-5 justify-between">
-                        <Button onClick={() => setBasket([])} className="rounded-full w-14 h-14 min-w-14 min-h-14 bg-orange-100 text-orange-400 font-semibold"><Trash2 className="scale-[1.5]" /></Button>
+                        <Button onClick={() => { setBasket([]); setShowService({ show: false, service: null }) }} className="rounded-full w-14 h-14 min-w-14 min-h-14 bg-orange-100 text-orange-400 font-semibold"><Trash2 className="scale-[1.5]" /></Button>
 
                         <Button disabled={loading ? true : false} onClick={() => { openBillHandler('open'); setLoading(true) }} className={`${showService.service === "Pay Now" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
 
@@ -418,8 +446,25 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 </div>
             </div>
 
-            {showOrderProcess && <OrderProcessed setShowOrderProcess={setShowOrderProcess} basket={mergedBasket} type="" sales_id={responseSalesCreate} orderId={orderId} tagih={tagih} setTagih={setTagih} selectedCustomer={selectedCustomer} noMeja={noMeja} />}
-        </div>
+            {showNotification.show && <Notification message={showNotification.message} onClose={() => setShowNotification({ show: false, message: '', type: 'success' })} status={showNotification.type} />}
+            {
+                showOrderProcess && <OrderProcessed
+                    setShowOrderProcess={setShowOrderProcess}
+                    basket={mergedBasket}
+                    type=""
+                    sales_id={responseSalesCreate}
+                    orderId={orderId}
+                    tagih={tagih}
+                    setTagih={setTagih}
+                    selectedCustomer={{
+                        customer: {
+                            name: selectedCustomer?.customer?.name ?? dataCustomer.name,
+                            phone: selectedCustomer?.customer?.phone ?? dataCustomer.phone
+                        }
+                    }}
+                    noMeja={noMeja} />
+            }
+        </div >
     )
 }
 

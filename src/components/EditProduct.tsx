@@ -131,7 +131,7 @@ const EditProduct: React.FC<EditProductProps> = ({
     const [newChoicePrice, setNewChoicePrice] = useState<number | "">("");
     const [showChoice, setShowChoice] = useState(false);
     const [displayChoises, setDisplayChoises] = useState<Choice[]>([]);
-    const [selectedVariants, setSelectedVariants] = useState<string[]>([]);
+    const [selectedVariants, setSelectedVariants] = useState<{ variant_id: string }[]>([]);
     const [section, setSection] = useState({ addProduct: true, detailProduct: false });
     const [showField, setShowField] = useState({ stock: false, variant: false });
     const [showAddVariant, setShowAddVariant] = useState(false);
@@ -145,7 +145,7 @@ const EditProduct: React.FC<EditProductProps> = ({
 
     useEffect(() => {
         if (productToEdit?.product_variant) {
-            const initialVariants = productToEdit.product_variant.map((item) => item.variant.variant_id);
+            const initialVariants = productToEdit.product_variant.map((item) => ({ variant_id: item.variant.variant_id }));
             setSelectedVariants(initialVariants);
         }
 
@@ -334,6 +334,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                 console.log("Varian berhasil ditambahkan:", response.data);
                 setShowPopUpAddVariant(false)
                 setShowNotificationVariant(true);
+                setReset(true)
             } else {
                 console.error("Gagal menambahkan varian:", response.data);
             }
@@ -421,13 +422,15 @@ const EditProduct: React.FC<EditProductProps> = ({
         setDisplayChoises(updatedChoises);
     };
 
-    const handleVariantChange = (variantId: string) => {
+    const handleVariantChange = (variant_id: string) => {
         setSelectedVariants((prevSelected) =>
-            prevSelected.includes(variantId)
-                ? prevSelected.filter((id) => id !== variantId) // Hapus jika sudah dipilih
-                : [...prevSelected, variantId] // Tambah jika belum dipilih
+            prevSelected.some(variant => variant.variant_id === variant_id)
+                ? prevSelected.filter((variant) => variant.variant_id !== variant_id) // Hapus jika sudah dipilih
+                : [...prevSelected, { variant_id }] // Tambah jika belum dipilih
         );
     };
+
+    console.log("selectedVariants", selectedVariants)
 
     const handleStockChange = (e: any) => {
         let value = e.target.value;
@@ -462,6 +465,9 @@ const EditProduct: React.FC<EditProductProps> = ({
             setStock((prev) => ({ ...prev, minimumStock: value }));
         }
     };
+
+    console.log("variants", variants)
+
     return (
         <>
             <div className={`${showNotification ? 'hidden' : 'block'} pt-5 w-full mb-32`}>
@@ -809,18 +815,18 @@ const EditProduct: React.FC<EditProductProps> = ({
                                     </button>
                                 </div>
 
-                                <p className="mt-5 text-gray-500">Atur jumlah stok produk ini.</p>
+                                <p className="mt-5 text-gray-500">Atur variant produk ini.</p>
 
                                 <div className={`${showField.variant ? "flex" : "hidden"} w-full flex-col mt-5 items-center gap-3`}>
                                     {selectedVariants.map((variant) => (
-                                        <p key={variant} className="p-3 border w-full border-orange-500 rounded-lg flex items-center mt-5 gap-3 font-semibold">
-                                            {variants.find((v) => v.variant_id === variant)?.variant_name}
+                                        <p key={variant.variant_id} className="p-3 border w-full border-orange-500 rounded-lg flex items-center mt-5 gap-3 font-semibold">
+                                            {variants.find((v) => v.variant_id === variant.variant_id)?.variant_name}
                                         </p>
                                     ))}
                                 </div>
 
                                 <div className={`${showField.variant ? 'flex' : 'hidden'} flex-col mt-5 items-center gap-3`}>
-                                    <Button onClick={() => setShowAddVariant(true)} className="bg-transparent border border-orange-500 text-black w-full">
+                                    <Button onClick={() => setShowAddVariant(true)} className="bg-orange-500 border border-orange-500 text-white w-full">
                                         <p>Pilih Variant</p>
                                     </Button>
                                 </div>
@@ -848,7 +854,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                                 type="checkbox"
                                                 name="variant"
                                                 value={variant.variant_id}
-                                                checked={selectedVariants.includes(variant.variant_id)}
+                                                checked={selectedVariants.some((selected) => selected.variant_id === variant.variant_id)}
                                                 onChange={() => handleVariantChange(variant.variant_id)}
                                             />
                                             {variant?.variant_name}
@@ -875,7 +881,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                             <p className="text-center">Apakah Anda benar-benar yakin?</p>
                                         </AlertDialogTitle>
                                         <AlertDialogDescription className="text-center">
-                                            Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pembayaran Anda secara permanen.
+                                            Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus produk Anda secara permanen.
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter className="mt-5 flex flex-col gap-3">

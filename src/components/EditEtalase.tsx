@@ -269,7 +269,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
                                             <p className="text-center">Apakah Anda benar-benar yakin?</p>
                                         </AlertDialogTitle>
                                         <AlertDialogDescription className="text-center">
-                                            Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pembayaran Anda secara permanen.
+                                            Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus etalase Anda secara permanen.
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter className="mt-5 flex flex-col gap-3">

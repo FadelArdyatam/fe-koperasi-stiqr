@@ -3,12 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axiosInstance from "@/hooks/axiosInstance";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
-import { ChevronDown, ChevronLeft } from "lucide-react"
+import { ChevronDown, ChevronLeft, History, Tag } from "lucide-react"
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom"
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Notification from "@/components/Notification";
+import RecomendationModalPPOB from "@/components/RecomendationModalPPOB";
+import MarginPPOB from "@/components/MarginPPOB";
+import useMarginPPOB from "@/hooks/useMarginPPOB";
 
 // interface BillData {
 //     product: string;
@@ -103,6 +106,16 @@ const PAM = () => {
         setregion(value)
     };
 
+    const hooksMargin = useMarginPPOB()
+    const [showRecomendation, setShowRecomendation] = useState(false)
+    const [showMargin, setShowMargin] = useState(false)
+    const [margin, setMargin] = useState("0");
+
+    useEffect(() => {
+        if (hooksMargin.margin.pdam !== undefined) {
+            setMargin(String(hooksMargin.margin.pdam));
+        }
+    }, [hooksMargin.margin.pdam]);
     return (
         <>
             <div className='w-full p-10 pb-32 flex items-center justify-center bg-orange-400 bg-opacity-100'>
@@ -114,12 +127,17 @@ const PAM = () => {
             </div>
 
             <div className={`${showBill ? 'hidden' : 'block'}`}>
-                <div className="bg-white w-[90%] -translate-y-[100px] p-10 shadow-lg rounded-md m-auto">
+                <div className="bg-white w-[90%] -translate-y-[100px] p-10 shadow-lg rounded-md m-auto relative">
                     <p data-aos="fade-up" data-aos-delay="100" className="font-semibold m-auto text-xl text-center">Bayar Tagihan Air</p>
-
+                    <div className="absolute top-0 right-0 p-2">
+                        <div onClick={() => setShowMargin(true)} className="flex bg-green-400 flex-row items-center gap-1 text-xs rounded-full px-2 py-1 hover:cursor-pointer hover:bg-green-400 text-white transition ease-in-out duration-300">
+                            <Tag className="w-3 h-3 " />
+                            <p>Atur Biaya Tambahan</p>
+                        </div>
+                    </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <div data-aos="fade-up" data-aos-delay="200" className="mt-10 w-full">
+                            <div data-aos="fade-up" data-aos-delay="200" className="mt-5 w-full">
                                 <p>Wilayah</p>
 
                                 <div className="flex items-center gap-5 border mt-2 text-gray-400 border-black rounded-lg p-2 justify-between">
@@ -143,9 +161,14 @@ const PAM = () => {
                     </DropdownMenu>
 
                     <div data-aos="fade-up" data-aos-delay="300" className="mt-5">
-                        <p>Nomor Pelanggan</p>
+                        <div className="flex flex-row justify-between mb-2 ">
+                            <p>Nomor Pelanggan</p>
+                            <History onClick={() => setShowRecomendation(true)} className="text-orange-400 hover:cursor-pointer" />
+                        </div>
+                        <div className="flex flex-row items-center gap-5">
+                            <Input onChange={(e) => setphoneNumber(e.target.value)} type="number" value={phoneNumber} className="border border-black" />
+                        </div>
 
-                        <Input onChange={(e) => setphoneNumber(e.target.value)} type="number" className="mt-3 border border-black" />
                     </div>
                 </div>
 
@@ -153,8 +176,10 @@ const PAM = () => {
                     Lanjutkan
                 </Button>
             </div>
-
-            {showBill && dataBill && <Bill data={dataBill} marginTop={false} />}
+            {showRecomendation && (
+                <RecomendationModalPPOB category="PDAM" setAccountNumber={setphoneNumber} setShowRecomendation={setShowRecomendation} />
+            )}
+            {showBill && dataBill && <Bill data={dataBill} marginTop={false} marginFee={margin} />}
             {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
             {
                 loading && (
@@ -162,6 +187,9 @@ const PAM = () => {
                         <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
                     </div>
                 )
+            }
+            {
+                showMargin && <MarginPPOB showMargin={showMargin} setShowMargin={setShowMargin} type="PDAM" margin={margin} setMargin={setMargin} />
             }
         </>
     )
