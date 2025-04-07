@@ -281,7 +281,7 @@ const Keamanan = () => {
                 <div className="w-[90%] bg-white p-5 shadow-lg rounded-lg -translate-y-20">
                     <Form {...form2}>
                         <form onSubmit={form2.handleSubmit(onSubmit2)}>
-                            <div className={'flex flex-col items-end w-full space-y-7'}>
+                            <div className={'flex flex-col items-start w-full space-y-7'}>
                                 <FormField
                                     control={form2.control}
                                     name="oldPin"
@@ -349,6 +349,8 @@ const Keamanan = () => {
                                         </FormItem>
                                     )}
                                 />
+
+                                <p className="text-sm text-gray-500 italic">*Pastikan Anda menyimpan PIN dengan aman dan tidak memberikannya kepada pihak mana pun.</p>
 
                             </div>
 

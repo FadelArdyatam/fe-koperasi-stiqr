@@ -1,4 +1,4 @@
-import { ChevronLeft, X, Banknote, Calculator, CircleAlert, CreditCard, FileText, Home, ScanQrCode, UserRound } from "lucide-react";
+import { ChevronLeft, X, Banknote, Calculator, CircleAlert, CreditCard, FileText, Home, ScanQrCode, UserRound, Download, Share } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
 import { useRef, useState, useEffect } from "react";
@@ -441,9 +441,15 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                             </div>
                         </div>
 
-                        <Button onClick={shareContent} className="mt-10 text-orange-400 bg-transparent w-full">
-                            Bagikan
-                        </Button>
+                        <div className="flex items-center gap-5 w-full mt-5 justify-center">
+                            <Button onClick={shareContent} className="text-white bg-transparent rounded-full w-10 h-10 bg-orange-400 border-2 border-orange-400">
+                                <Share />
+                            </Button>
+
+                            <Button className="text-white bg-transparent rounded-full w-10 h-10 bg-orange-400 border-2 border-orange-400">
+                                <Download />
+                            </Button>
+                        </div>
 
                         <Button onClick={() => setShowOtherMethod(true)} className={`${sales_id !== undefined ? 'block w-full' : 'hidden'} mt-5`}>Pilih Metode Pembayaran Lain</Button>
                     </div>
