@@ -219,6 +219,19 @@ const Profile = () => {
                         <ChevronRight />
                     </Link>
 
+                    <div className="w-full h-[2px] my-5 bg-gray-200"></div>
+
+
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/help-center"} className="flex items-center gap-5 justify-between">
+                        <div>
+                            <p>Pusat Bantuan</p>
+
+                            <p className="text-sm text-gray-500">FAQ, kontak dukungan, dan panduan</p>
+                        </div>
+
+                        <ChevronRight />
+                    </Link>
+
                     {/* <div className="w-full h-[2px] my-5 bg-gray-200"></div> */}
 
                     {/* <Link data-aos="fade-up" data-aos-once="true" to={"/profile/printer"} className="flex items-center gap-5 justify-between ">

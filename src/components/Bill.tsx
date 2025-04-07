@@ -218,6 +218,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                     <div className='w-full my-3 h-[2px] bg-gray-200'></div>
                     <div className='flex md:flex-row flex-col md:items-center items-start gap-2 justify-between'>
                         <p className='font-bold text-start'>Metode Pembayaran</p>
+                        <span className='text-gray-400 italic'>*</span>
                         <select
                             className="h-10 border border-gray-300 rounded-md md:w-52 w-full text-center"
                             value={paymentMethod}

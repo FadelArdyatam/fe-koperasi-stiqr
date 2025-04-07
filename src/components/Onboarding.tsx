@@ -7,7 +7,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 
 const slides = [
-    { image: intro1, title: "Bisnis Makin Lancar, Tanpa Biaya Besar", description: "Mulai kelola bisnis Anda tanpa khawatir biaya tambahan. STIQR 100% Gratis!" },
+    { image: intro1, title: "Bisnis Makin Lancar, Tanpa Biaya Besar", description: "Mulailah mengelola bisnis Anda sekarang dengan mudah, tanpa perlu berlangganan!" },
     { image: intro2, title: "Mudah, Cepat, Tanpa Ribet", description: "Kelola bisnismu dengan mudah hanya dengan satu aplikasi." },
     { image: intro3, title: "Saatnya Tumbuh Bersama STIQR!", description: "Bersama kami wujudkan bisnis impian Anda." },
 ];

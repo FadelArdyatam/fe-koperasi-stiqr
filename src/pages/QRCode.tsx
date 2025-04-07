@@ -1,4 +1,4 @@
-import { ChevronLeft, X, Banknote, Calculator, ArrowLeftRight, CircleAlert, CreditCard, FileText, Home, ScanQrCode, UserRound } from "lucide-react";
+import { ChevronLeft, X, Banknote, Calculator, CircleAlert, CreditCard, FileText, Home, ScanQrCode, UserRound } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
 import { useRef, useState, useEffect } from "react";
@@ -591,7 +591,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                             />
                         </label>
 
-                        <label className="flex items-center w-full justify-between">
+                        {/* <label className="flex items-center w-full justify-between">
                             <div className="text-black flex items-center gap-3 font-semibold text-lg">
                                 <Calculator />
 
@@ -621,7 +621,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                                 onChange={() => handleRadioChange("Transfer")}
                                 className="form-radio h-5 w-5 text-orange-400"
                             />
-                        </label>
+                        </label> */}
                     </div>
 
                     <Button

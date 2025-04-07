@@ -30,6 +30,7 @@ import ModalExpired from './components/ModalExpired.tsx'
 import DataCustomer from './pages/Profile/DataCustomer.tsx'
 import Customer from './pages/Customer.tsx'
 import NotFound from './pages/NotFound.tsx'
+import HelpCenter from './pages/Profile/HelpCenter.tsx'
 
 const router = createBrowserRouter([
   {
@@ -107,6 +108,10 @@ const router = createBrowserRouter([
   {
     path: '/profile/history',
     element: <Riwayat />
+  },
+  {
+    path: '/profile/help-center',
+    element: <HelpCenter />
   },
   {
     path: '/profile/employee',

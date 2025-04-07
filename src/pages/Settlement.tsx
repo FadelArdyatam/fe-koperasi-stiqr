@@ -6,6 +6,7 @@ import axiosInstance from "@/hooks/axiosInstance";
 import { formatRupiah } from "@/hooks/convertRupiah";
 import { Input } from "@/components/ui/input";
 // import DatePicker from "react-datepicker";
+import { convertDate, convertTime } from '../hooks/convertDate';
 import "react-datepicker/dist/react-datepicker.css";
 // import notransaction from "../images/no-transaction.png";
 import AOS from "aos";
@@ -39,10 +40,12 @@ interface ISettlement {
     settlement_id: string;
     created_at: Date;
     amount: number;
-    account: {
+    account?: {
         bank_name: string;
         account_number: string;
-    }
+    },
+    type?: string;
+    notes?: string;
 }
 const Settlement = () => {
     useEffect(() => {
@@ -138,10 +141,11 @@ const Settlement = () => {
             if (showPinInput) {
                 setLoading(true);
                 const response = await axiosInstance.post(`/settlement/create`, {
-                    amount: data.amount.toString(),
+                    amount: data.amount,
                     account_id: data.account_id,
                     pin: pin.join(''),
-                    mdr_amount: mdr
+                    mdr_amount: mdr,
+                    type: section
                 });
 
                 if (response.data.success) {
@@ -170,9 +174,8 @@ const Settlement = () => {
         description: z.string().min(2, {
             message: "Tidak Boleh Kosong",
         }),
-        amountCatat: z.number({ message: '' }).min(12000, {
-            message: "Minimal Penarikan Rp 12.000",
-        }),
+        amountCatat: z.number({ message: '' })
+            .min(1, { message: "Minimal Pencatatan Rp 1" })
     });
 
     const formCatat = useForm<FormCatat>({
@@ -184,7 +187,39 @@ const Settlement = () => {
     });
 
     async function onSubmitCatat(data: FormCatat) {
-        console.log("data From Catat: ", data)
+        console.log('data');
+        console.log(data);
+        try {
+            setShowPinInput(true);
+            if (showPinInput) {
+                setLoading(true);
+                const response = await axiosInstance.post(`/settlement/create`, {
+                    amount: data.amountCatat,
+                    pin: pin.join(''),
+                    type: section,
+                    notes: formCatat.getValues('description'),
+                    merchant_id: userData.merchant.id
+                });
+
+                if (response.data.success) {
+                    setErrorNotification(true);
+                    setMessage("Berhasil melakukan pencatatan")
+                    setIsSuccess(true)
+                    setPin([])
+                    setShowPinInput(false)
+                    setLoading(false)
+                }
+            }
+        } catch (error: any) {
+            console.log(error)
+            setErrorNotification(true);
+            setMessage(error.response.data.message);
+            setIsSuccess(false)
+            setShowPinInput(false)
+            setPin([])
+            setLoading(false)
+            console.error(error);
+        }
     }
 
     useEffect(() => {
@@ -235,6 +270,7 @@ const Settlement = () => {
     const [settlements, setSettlements] = useState<ISettlement[]>([])
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [latestTunai, setLatestTunai] = useState(null)
 
     useEffect(() => {
         const fetchSettlement = async () => {
@@ -242,6 +278,7 @@ const Settlement = () => {
                 filter,
                 page: currentPage,
                 limit: 10,
+                type: section == 'Tunai' ? 'Tunai' : 'Non Tunai'
             }
 
             if (filter === "dateRange" && dateRange.startDate) {
@@ -250,12 +287,14 @@ const Settlement = () => {
             }
             const res = await axiosInstance.get(`/settlement/${userData.merchant.id}`, { params })
             setSettlements(res.data.data)
+            setLatestTunai(res.data.latest.created_at)
             setTotalPages(res.data.pagination.totalPages)
         }
 
         fetchSettlement()
-    }, [currentPage, filter, dateRange]);
+    }, [currentPage, filter, dateRange, section]);
 
+    console.log(latestTunai)
     return (
         <div>
             <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
@@ -318,12 +357,12 @@ const Settlement = () => {
 
                 <p className="text-xs text-gray-500 mt-3">*Saldo yang dapat ditarik adalah Saldo Non Tunai</p>
 
-                <div className="w-[90%] md:w-[50%] m-auto items-center justify-center flex mt-10 border-2 border-orange-500 rounded-lg overflow-hidden">
+                <div className="w-[90%] md:w-[50%] m-auto items-center justify-center flex mt-10 border border-orange-500 rounded-lg overflow-hidden">
                     <button onClick={() => setSection("Penarikan")} className={`${section === "Penarikan" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all text-sm w-full text-center p-1 bg-orange-500 font-medium`}>
                         Penarikan Non Tunai
                     </button>
 
-                    <button onClick={() => setSection("Catat")} className={`${section === "Catat" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all text-sm w-full text-center p-1 bg-orange-500 font-medium`}>
+                    <button onClick={() => setSection("Tunai")} className={`${section === "Tunai" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all text-sm w-full text-center p-1 bg-orange-500 font-medium`}>
                         Catat Tunai
                     </button>
                 </div>
@@ -496,7 +535,7 @@ const Settlement = () => {
                             <p>* Pencatatan tunai akan tercatat di Riwayat Tunai dibawah</p>
                         </div>
 
-                        <p className="font-semibold mt-5">Terakhir Pencatatan : 12 Maret 2025 | 12.00</p>
+                        <p className="font-semibold mt-5">Terakhir Pencatatan : {latestTunai ? `${convertDate(latestTunai)} | ${convertTime(latestTunai)}` : '-'}  </p>
 
                         <Form {...formCatat}>
                             <form onSubmit={formCatat.handleSubmit(onSubmitCatat)} className="mt-5">
@@ -535,7 +574,7 @@ const Settlement = () => {
                                                         placeholder="Masukkan Jumlah Saldo"
                                                         onChange={(e) => {
                                                             let value = e.target.value.replace(/\D/g, ""); // Hanya angka
-                                                            value = value.slice(0, 7);
+                                                            if (Number(value) > balance.cash_amount) return
                                                             field.onChange(value ? Number(value) : "");
                                                         }}
                                                     />
@@ -549,6 +588,70 @@ const Settlement = () => {
                                         Catat Tunai
                                     </Button>
                                 </div>
+
+                                {showPinInput && (
+                                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                        <div className="bg-white w-[90%] p-6 rounded-lg">
+                                            <h2 className="text-xl font-semibold text-center mb-4">Masukkan PIN Anda</h2>
+
+                                            {/* PIN Indicator */}
+                                            <div className="flex justify-center mb-6">
+                                                {[...Array(6)].map((_, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className={`w-4 h-4 mx-1 rounded-full ${pin[index] ? 'bg-green-500' : 'bg-gray-300'}`}
+                                                    ></div>
+                                                ))}
+                                            </div>
+
+                                            {/* Number Pad */}
+                                            <div className="grid grid-cols-3 gap-5 mb-5 max-w-[400px] mx-auto">
+                                                {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((number) => (
+                                                    <button
+                                                        key={number}
+                                                        type="button"
+                                                        onClick={() => handleNumberClick(number)}
+                                                        className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
+                                                    >
+                                                        {number}
+                                                    </button>
+                                                ))}
+                                                <div></div>
+                                                <button
+                                                    onClick={() => handleNumberClick("0")}
+                                                    type="button"
+                                                    className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
+                                                >
+                                                    0
+                                                </button>
+                                                <button
+                                                    onClick={handleDelete}
+                                                    type="button"
+                                                    className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold"
+                                                >
+                                                    ⌫
+                                                </button>
+                                            </div>
+
+                                            <div className="flex justify-between">
+                                                <Button
+                                                    onClick={() => setShowPinInput(false)}
+                                                    type="button"
+                                                    className="w-full mr-2 bg-gray-400 text-white"
+                                                >
+                                                    Batal
+                                                </Button>
+                                                <Button
+                                                    type="submit"
+                                                    className="w-full ml-2 bg-green-500 text-white"
+                                                    disabled={pin.length !== 6 || loading}
+                                                >
+                                                    Konfirmasi
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </form>
                         </Form>
                     </div>
@@ -639,7 +742,10 @@ const Settlement = () => {
                                             <div className="flex items-start gap-2">
                                                 <div>
                                                     <div className="flex items-center gap-2">
-                                                        {settlement.account.bank_name} - {settlement.account.account_number}
+                                                        {
+                                                            settlement.type == "Tunai" ? `${settlement.notes}` : `${settlement.account?.bank_name || "Unknown Bank"} - ${settlement.account?.account_number || "Unknown Account"}`
+                                                        }
+
                                                     </div>
                                                     <p className="text-xs text-gray-400">{settlement.settlement_id}</p>
                                                 </div>

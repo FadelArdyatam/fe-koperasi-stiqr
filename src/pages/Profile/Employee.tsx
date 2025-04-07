@@ -9,56 +9,6 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { Button } from "@/components/ui/button";
 
-// const initialEmployees = [
-//     {
-//         id: 1,
-//         name: 'Rani Destrian',
-//         phone_number: '08123456789',
-//         email: 'Rani@gmail.com',
-//         role_name: 'Manager',
-//         password: "rani",
-//         role_description: "Administrator dengan akses penuh"
-
-//     },
-//     {
-//         id: 2,
-//         name: 'John Doe',
-//         phone_number: '08123456789',
-//         email: 'johndoe@gmail.com',
-//         role_name: 'Kasir',
-//         password: "john",
-//         role_description: "Kasir dengan akses terbatas"
-//     }
-// ]
-
-// const accordionDatas = [
-//     {
-//         title: 'Admin',
-//         spoiler: 'Dapat melakukan manajemen katalog, melihat semua laporan transaksi dan mengatur akses pegawai.',
-//         content: [
-//             'Manajemen produk dan etalase',
-//             'Melakukan transaksi di kasir',
-//             'Terima pembayaran dan berbagai metode pembayaran yang tersedia',
-//             'Tolak dan terima pesanan online',
-//             'Melihat semua laporan',
-//             'Manajemen pegawai (kasir)',
-//             'Manajemen toko online',
-//             'Akses fitur Belanja dan mengajukan pembelian produk ke Pemilik',
-//             'Memberi otorisasi untuk melakukan void transaksi'
-//         ]
-//     },
-//     {
-//         title: 'Kasir',
-//         spoiler: 'Dapat melakukan transaksi dan lihat laporan pendapatan.',
-//         content: [
-//             'Melakukan transaksi di kasir',
-//             'Terima pembayaran dan berbagai metode pembayaran yang tersedia',
-//             'Tolak dan terima pesanan online',
-//             'Melihat laporan pendapatan',
-//         ]
-//     },
-// ]
-
 interface Employee {
     employee_id: string;
     role: any;
