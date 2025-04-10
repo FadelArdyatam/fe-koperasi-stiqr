@@ -35,6 +35,16 @@ const BPJS = () => {
     const [error, setError] = useState({ show: false, message: "" });
     const [productCode, setProductCode] = useState("")
 
+    const hooksMargin = useMarginPPOB()
+    const [showRecomendation, setShowRecomendation] = useState(false)
+    const [showMargin, setShowMargin] = useState(false)
+    const [margin, setMargin] = useState("0");
+
+    useEffect(() => {
+        if (hooksMargin.margin.bpjs !== undefined) {
+            setMargin(String(hooksMargin.margin.bpjs)); // Pastikan format string
+        }
+    }, [hooksMargin.margin.bpjs]);
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
     }, [])
@@ -67,7 +77,8 @@ const BPJS = () => {
                 accountNumber: KTP,
                 productCode: productCode,
                 merchant_id: userData.merchant.id,
-                month: range
+                month: range,
+                margin: margin
             });
             if (response.data.success) {
                 const data = {
@@ -94,17 +105,6 @@ const BPJS = () => {
         setProductCode(value);
     };
 
-
-    const hooksMargin = useMarginPPOB()
-    const [showRecomendation, setShowRecomendation] = useState(false)
-    const [showMargin, setShowMargin] = useState(false)
-    const [margin, setMargin] = useState("0");
-
-    useEffect(() => {
-        if (hooksMargin.margin.bpjs !== undefined) {
-            setMargin(String(hooksMargin.margin.bpjs)); // Pastikan format string
-        }
-    }, [hooksMargin.margin.bpjs]);
     return (
         <>
             <div className='w-full p-10 pb-32 flex items-center justify-center bg-orange-400 bg-opacity-100'>

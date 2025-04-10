@@ -42,6 +42,17 @@ const Pulsa = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
 
+    
+    const hooksMargin = useMarginPPOB()
+    const [showRecomendation, setShowRecomendation] = useState(false)
+    const [showMargin, setShowMargin] = useState(false)
+    const [margin, setMargin] = useState("0");
+
+    useEffect(() => {
+        if (hooksMargin.margin.pulsa !== undefined) {
+            setMargin(String(hooksMargin.margin.pulsa)); // Pastikan format string
+        }
+    }, [hooksMargin.margin.pulsa]);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -76,6 +87,7 @@ const Pulsa = () => {
                 productCode: selectedProduct.code,
                 merchant_id: userData.merchant.id,
                 amount: selectedProduct.amount,
+                margin: margin,
             });
 
             if (response.data) {
@@ -123,16 +135,6 @@ const Pulsa = () => {
         fetchProduct()
     }, [category, selectedProvider]);
 
-    const hooksMargin = useMarginPPOB()
-    const [showRecomendation, setShowRecomendation] = useState(false)
-    const [showMargin, setShowMargin] = useState(false)
-    const [margin, setMargin] = useState("0");
-
-    useEffect(() => {
-        if (hooksMargin.margin.pulsa !== undefined) {
-            setMargin(String(hooksMargin.margin.pulsa)); // Pastikan format string
-        }
-    }, [hooksMargin.margin.pulsa]);
     return (
         <div>
             <div className='fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400 bg-opacity-100'>

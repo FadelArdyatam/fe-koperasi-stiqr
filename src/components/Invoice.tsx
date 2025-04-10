@@ -255,10 +255,14 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail, margi
                             </div>
                         )}
 
-                        <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
-                            <p>Biaya Layanan</p>
-                            <p>{formatRupiah(Number(marginFee || marginFeeRiwayat))}</p>
-                        </div>
+                        {
+                            Number(marginFee || marginFeeRiwayat) > 0 && (
+                                <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
+                                    <p>Biaya Layanan</p>
+                                    <p>{formatRupiah(Number(marginFee || marginFeeRiwayat))}</p>
+                                </div>
+                            )
+                        }
 
                         {data && data.category !== "Pulsa" && data.category !== "Paket Data" && (
                             <>
@@ -426,23 +430,29 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail, margi
                                 </div>
                             )}
 
-                            <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
-                                <p>Biaya Layanan</p>
-                                <p>{formatRupiah(Number(marginFee || marginFeeRiwayat))}</p>
-                            </div>
 
-                            {/* {data && data.category !== "Pulsa" && data.category !== "Paket Data" && (
-                                <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
-                                    <p>Total Belanja</p>
-                                    <p>{formatRupiah(amount + Number(marginFee || marginFeeRiwayat))}</p>
-                                </div>
-                            )} */}
+                            {
+                                Number(marginFee || marginFeeRiwayat) > 0 && (
+                                    <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
+                                        <p>Biaya Layanan</p>
+                                        <p>{formatRupiah(Number(marginFee || marginFeeRiwayat))}</p>
+                                    </div>
+                                )
+                            }
 
                             <div className="w-full my-5 h-[2px] bg-gray-200"></div>
 
                             <div className="flex items-center gap-5 justify-between">
                                 <p className="font-bold">Total Bayar</p>
                                 <p className="text-orange-400 font-bold">{formatRupiah(total + Number(marginFee || marginFeeRiwayat))}</p>
+                            </div>
+                            <div className="text-gray-500">
+                                <p className="text-center mt-5">
+                                    Simpanlah struk ini sebagai bukti pembayaran Anda.
+                                </p>
+                                <p className="text-center mt-2">
+                                    Terima Kasih
+                                </p>
                             </div>
                         </div>
                     </div>

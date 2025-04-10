@@ -44,6 +44,16 @@ const Listrik = () => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState({ show: false, message: "" });
 
+    const hooksMargin = useMarginPPOB()
+    const [showRecomendation, setShowRecomendation] = useState(false)
+    const [showMargin, setShowMargin] = useState(false)
+    const [margin, setMargin] = useState("0");
+
+    useEffect(() => {
+        if (hooksMargin.margin.listrik !== undefined) {
+            setMargin(String(hooksMargin.margin.listrik)); // Pastikan format string
+        }
+    }, [hooksMargin.margin.listrik]);
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
     }, []);
@@ -80,6 +90,7 @@ const Listrik = () => {
                 productCode: selectedProduct.code,
                 amount: selectedProduct.amount,
                 merchant_id: userData.merchant.id,
+                margin: margin,
             });
 
             if (response.data.success) {
@@ -116,17 +127,6 @@ const Listrik = () => {
         }
     };
 
-
-    const hooksMargin = useMarginPPOB()
-    const [showRecomendation, setShowRecomendation] = useState(false)
-    const [showMargin, setShowMargin] = useState(false)
-    const [margin, setMargin] = useState("0");
-
-    useEffect(() => {
-        if (hooksMargin.margin.listrik !== undefined) {
-            setMargin(String(hooksMargin.margin.listrik)); // Pastikan format string
-        }
-    }, [hooksMargin.margin.listrik]);
     return (
         <>
             <div className="w-full p-10 pb-32 flex items-center justify-center bg-orange-400 bg-opacity-100">

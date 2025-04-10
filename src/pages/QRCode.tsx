@@ -88,98 +88,6 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
         }
     }, [orderId, navigate, orderIdInstant]);
 
-    // Tambahkan useEffect di bawah definisi fungsi komponen
-    // useEffect(() => {
-
-    //     const fetchQRCode = async () => {
-    //         // if (!datas || !Array.isArray(datas) || datas.length === 0) {
-    //         //     console.warn("Datas is empty or invalid, skipping QR Code generation.");
-    //         //     return;
-    //         // }
-
-    //         if (type !== "kasir") {
-    //             // Jika type bukan "kasir", tidak menjalankan efek ini
-    //             return;
-    //         }
-
-    //         setIsLoading(true); // Aktifkan loading
-
-    //         try {
-    //             const requestBody = {
-    //                 email: "testerfinpay@gmail.com",
-    //                 firstName: "Tester",
-    //                 lastName: "Finpay",
-    //                 mobilePhone: "+62048232329",
-    //                 amount: calculateTotalAmount(),
-    //                 description: "Tester",
-    //                 successUrl: "http://success",
-    //                 type: "qris",
-    //                 orderId: orderId,
-    //                 item:prepareItems(),
-    //             };
-
-    //             console.log("Request Body: ", requestBody);
-
-    //             const response = await axiosInstance.post(`${import.meta.env.VITE_API_URL}/finpay/initiate`, requestBody);
-
-    //             console.log('initiate : ')
-    //             console.log(response);
-    //             if (response.data) {
-    //                 setShowQRCode(true);
-    //                 setDataForPaymentMethod(requestBody)
-    //                 setStringQR(response.data.response.stringQr);
-
-    //         console.log('initiate : ')
-    //         console.log(response);
-    //         if (response.data) {
-    //             setShowQRCode(true);
-    //             setDataForPaymentMethod(requestBody)
-    //             setStringQR(response.data.response.stringQr);
-
-    //             // Countdown timer
-    //             const timer = setInterval(() => {
-    //                 setTimeLeft((prevTime) => {
-    //                     if (prevTime <= 1) {
-    //                         clearInterval(timer);
-    //                         navigate("/dashboard"); // Direct ke /dashboard setelah waktu habis
-    //                         return 0;
-    //                     }
-    //                     return prevTime - 1;
-    //                 });
-    //             }, 1000);
-
-    //             // Cleanup interval saat komponen di-unmount
-    //             return () => clearInterval(timer);
-    //         } else {
-    //             alert("Gagal membuat link pembayaran. Mohon coba lagi.");
-    //         }
-    //     } catch (error) {
-    //         console.log(error)
-    //         console.error("Gagal membuat link pembayaran:", error);
-    //         alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
-    //     } finally {
-    //         setIsLoading(false); // Nonaktifkan loading
-    //     }
-    // };
-    //             } else {
-    //                 alert("Gagal membuat link pembayaran. Mohon coba lagi.");
-    //             }
-    //         } catch (error) {
-    //             console.log(error)
-    //             console.error("Gagal membuat link pembayaran:", error);
-    //             alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
-    //         } finally {
-    //             setIsLoading(false); // Nonaktifkan loading
-    //         }
-    //     };
-
-    //     fetchQRCode();
-    // }, [orderId]);
-
-    console.log("dataForPaymentMethod", dataForPaymentMethod);
-
-    console.log("OrderId", orderId)
-
     const shareContent = async () => {
         try {
             if (navigator.share) {
@@ -239,15 +147,15 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
                 return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
             };
-            const generateOrderId = generateRandomString(15)
+            const generateOrderId = `S${generateRandomString(15)}`;
             try {
                 const requestBody = {
-                    email: "testerfinpay@gmail.com",
-                    firstName: "Tester",
-                    lastName: "Finpay",
-                    mobilePhone: "+62048232329",
+                    email: userData.email,
+                    firstName: userData.merchant.name,
+                    lastName: userData.username,
+                    mobilePhone: userData.phone_number.replace(/^08/, '+628'),
                     amount: amount,
-                    description: "Tester",
+                    description: "Pembayaran",
                     successUrl: "http://success",
                     type: "qris",
                     orderId: generateOrderId

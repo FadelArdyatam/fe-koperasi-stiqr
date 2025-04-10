@@ -256,10 +256,11 @@ const Dashboard = () => {
 
                         {/* Notif Badge */}
                         {unreadCount > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                                {unreadCount}
+                            <span className={`absolute -top-2 -right-2 bg-red-600 text-white ${unreadCount > 99 ? 'text-[8px]' : 'text-[10px]'} font-bold w-5 h-5 flex items-center justify-center rounded-full`}>
+                                {unreadCount > 99 ? '99+' : unreadCount}
                             </span>
                         )}
+
                     </Link>
                 </div>
 

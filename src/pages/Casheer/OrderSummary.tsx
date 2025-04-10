@@ -72,11 +72,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         fetchData();
     }, []);
 
-    console.log("Merged Basket", basket)
-
-    console.log("Total Quantity: ", mergedBasket.reduce((acc, curr) => acc + curr.quantity, 0))
-    console.log("Total Price: ", mergedBasket.reduce((acc, curr) => acc + curr.price * curr.quantity, 0))
-
     useEffect(() => {
         const mergedBasket = basket.reduce((acc, curr) => {
             const existingProduct = acc.find((item: { product: any }) => item.product === curr.product);
@@ -178,7 +173,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
             };
 
-            const generateOrderId = generateRandomString(15);
+            const generateOrderId = `S${generateRandomString(15)}`;
 
             setOrderId(generateOrderId)
             console.log(selectedCustomer)

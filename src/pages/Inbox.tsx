@@ -5,6 +5,9 @@ import {
     UserRound,
     FileText,
     ChevronLeft,
+    ChevronsLeft,
+    ChevronRight,
+    ChevronsRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -12,6 +15,7 @@ import axiosInstance from "@/hooks/axiosInstance";
 import imgNotification from "@/images/notification(404).png";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { Button } from "@/components/ui/button";
 
 interface INotification {
     id: number;
@@ -23,26 +27,28 @@ interface INotification {
 }
 const Inbox = () => {
     const [notifications, setNotifications] = useState<INotification[]>([]);
-
-    console.log("Notifications", notifications)
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
-
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
     useEffect(() => {
         const fetchNotification = async () => {
             try {
-                const response = await axiosInstance.get(`/notifications/${userData.merchant.id}`);
-                setNotifications(response.data);
+                const response = await axiosInstance.get(`/notifications/${userData.merchant.id}`,{params : {
+                    page: currentPage,
+                    limit: 10,
+                }});
+                setNotifications(response.data.data);
+                setTotalPages(response.data.pagination.totalPages)
             } catch (error) {
                 console.log(error)
             }
         };
         fetchNotification();
-    }, []);
+    }, [currentPage]);
 
     const readNotification = async (id: number) => {
         try {
@@ -56,6 +62,7 @@ const Inbox = () => {
             console.error("Error marking notification as read:", error);
         }
     };
+
     return (
         <div>
             <div className="p-5 w-full bg-orange-400">
@@ -159,6 +166,31 @@ const Inbox = () => {
                         <div className="w-full h-[2px] bg-gray-300"></div>
                     </div>
                 ))}
+
+                {
+                    notifications.length > 0 && (
+                        <div className="flex flex-col items-center">
+                            <div className="flex items-center mt-12 justify-center gap-5 mb-3 ">
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                                    <ChevronsLeft />
+                                </Button>
+
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
+                                    <ChevronLeft />
+                                </Button>
+
+
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
+                                    <ChevronRight />
+                                </Button>
+
+                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+                                    <ChevronsRight />
+                                </Button>
+                            </div>
+                            <span className="text-center">Halaman {currentPage} dari {totalPages}</span>
+                        </div>
+                    )}
 
             </div>
         </div>

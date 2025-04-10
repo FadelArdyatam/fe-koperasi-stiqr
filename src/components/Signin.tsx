@@ -7,6 +7,8 @@ import Notification from "./Notification";
 import { Eye, EyeOff } from "lucide-react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import wa from '@/images/wa.png'
+
 
 const Signin = () => {
 	const [email, setEmail] = useState("");
@@ -55,9 +57,13 @@ const Signin = () => {
 			setLoading(false);
 		}
 	};
-
+	const handleRedirect = () => {
+		const text = "Halo, saya mengalami kendala saat menggunakan layanan STIQR. Mohon bantuannya untuk menyelesaikan masalah ini. Terima kasih.";
+		const url = `https://wa.me/6282118383415?text=${text}`
+		window.open(url, "_blank"); // Buka di tab baru
+	}
 	return (
-		<div className="p-10 flex flex-col items-center justify-center w-full min-h-screen">
+		<div className="p-10 flex flex-col items-center justify-center w-full min-h-screen relative">
 			<img src={logo} data-aos="zoom-in" className="md:w-64 w-full" alt="Logo" />
 
 			<form
@@ -119,6 +125,10 @@ const Signin = () => {
 					akun
 				</Link>
 			</p>
+
+			<Button onClick={handleRedirect} className=" bottom-0 right-0 m-3 px-3 py-6 rounded-full bg-green-500 fixed">
+				<img src={wa} className="w-8 h-8" />
+			</Button>
 		</div>
 	);
 };

@@ -38,6 +38,16 @@ const PAM = () => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState({ show: false, message: "" });
 
+    const hooksMargin = useMarginPPOB()
+    const [showRecomendation, setShowRecomendation] = useState(false)
+    const [showMargin, setShowMargin] = useState(false)
+    const [margin, setMargin] = useState("0");
+
+    useEffect(() => {
+        if (hooksMargin.margin.pdam !== undefined) {
+            setMargin(String(hooksMargin.margin.pdam));
+        }
+    }, [hooksMargin.margin.pdam]);
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
     }, []);
@@ -84,6 +94,7 @@ const PAM = () => {
                 productCode: selectedProduct.code,
                 merchant_id: userData.merchant.id,
                 amount: selectedProduct.amount,
+                margin: margin
             });
 
             const data = {
@@ -106,16 +117,6 @@ const PAM = () => {
         setregion(value)
     };
 
-    const hooksMargin = useMarginPPOB()
-    const [showRecomendation, setShowRecomendation] = useState(false)
-    const [showMargin, setShowMargin] = useState(false)
-    const [margin, setMargin] = useState("0");
-
-    useEffect(() => {
-        if (hooksMargin.margin.pdam !== undefined) {
-            setMargin(String(hooksMargin.margin.pdam));
-        }
-    }, [hooksMargin.margin.pdam]);
     return (
         <>
             <div className='w-full p-10 pb-32 flex items-center justify-center bg-orange-400 bg-opacity-100'>

@@ -5,24 +5,10 @@ import axiosInstance from '@/hooks/axiosInstance';
 import Notification from './Notification';
 import { formatRupiah } from '@/hooks/convertRupiah';
 import InprogressPPOB from './InprogressPPOB';
-// import { convertDate, convertTime } from '../hooks/convertDate';
+import QRCodePage from '@/pages/QRCode';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-// interface BillProps {
-//     data: {
-//         inquiryId: number;
-//         productCode: string;
-//         phoneNumber: string;
-//         product: string;
-//         amount: number;
-//         totalAdmin: number;
-//         processingFee: number;
-//         date: string;
-//         time: string;
-//         category: string;
-
-//     };
-//     marginTop?: boolean;
-// }
 
 interface BillProps {
     data: any;
@@ -30,9 +16,9 @@ interface BillProps {
     marginFee?: any
 }
 
-// const Bill: React.FC<BillProps> = ({ data, marginTop }) => {
 const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
-    console.log(data)
+    const userItem = sessionStorage.getItem("user");
+    const userData = userItem ? JSON.parse(userItem) : null;
     const [showPinInput, setShowPinInput] = useState(false);
     const [pin, setPin] = useState<string[]>([]);
     const [error, setError] = useState<string>("");
@@ -42,9 +28,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
 
     const [refNumber, setRefnumber] = useState<string>("")
     const [total, setTotal] = useState(0);
-    // const [amount, setAmount] = useState(0);
     useEffect(() => {
-        // setAmount(data.amount - data.processingFee - data.totalAdmin)
         setTotal(data.amount)
     }, []);
 
@@ -58,14 +42,81 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
         setPin(pin.slice(0, -1));
     };
 
-    const [paymentMethod, setPaymentMethod] = useState("qris");
+    const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+    const [showQRCode, setShowQRCode] = useState(false);
+    const [stringQR, setStringQR] = useState<string | null>(null);
+    const [timeLeft, setTimeLeft] = useState(300);
+    const navigate = useNavigate();
+    const [orderId, setOrderId] = useState<string | null>(null)
+    const validatePinBalance = async (merchant_id: string, pin: number | string, amount: number) => {
+        try {
+            const response = await axiosInstance.post('/ayoconnect/check-pin', {
+                merchant_id,
+                pin,
+                amount,
+            });
+            return response.data; // optional return
+        } catch (error: any) {
+            // Melempar error agar bisa ditangani di tempat lain (misalnya di handlePaymentQris)
+            throw error;
+        }
+    };
+    const handlePaymentQris = async (orderIdQris: string) => {
+        setLoading(true);
+        setError("");
+
+        try {
+            const amountToPay = total + Number(marginFee);
+
+            // Validasi PIN dan saldo
+            await validatePinBalance(userData.merchant.id, pin.join(''), amountToPay);
+
+            // Jika berhasil, lanjut ke payment
+            const requestBody = {
+                email: userData.email,
+                firstName: userData.merchant.name,
+                lastName: userData.username,
+                mobilePhone: userData.phone_number.replace(/^08/, '+628'),
+                amount: amountToPay,
+                description: "Pembayaran Pesanan",
+                successUrl: "http://success",
+                type: "qris",
+                orderId: orderIdQris,
+            };
+
+            const response = await axiosInstance.post(`/finpay/initiate`, requestBody);
+
+            if (response.data?.response?.stringQr) {
+                setStringQR(response.data.response.stringQr);
+                setShowQRCode(true);
+
+                const timer = setInterval(() => {
+                    setTimeLeft(prevTime => {
+                        if (prevTime <= 1) {
+                            clearInterval(timer);
+                            navigate("/dashboard");
+                            return 0;
+                        }
+                        return prevTime - 1;
+                    });
+                }, 1000);
+
+                return () => clearInterval(timer);
+            }
+        } catch (error: any) {
+            if (axios.isAxiosError(error)) {
+                const message = error.response?.data?.message;
+                setError(message || "Gagal Melakukan Pembayaran");
+            } else {
+                setError("Terjadi kesalahan yang tidak diketahui");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     const handleSubmitPin = async () => {
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
-
-        console.log("data from bill: ", data)
-
         try {
             setLoading(true);
             setShowPinInput(false)
@@ -85,15 +136,24 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                 payload.month = data.month; // Menambahkan properti ke payload yang sudah ada
             }
 
-            const response = await axiosInstance.post("/ayoconnect/payment", payload);
-
-            if (response.data.success) {
-                setLoading(false);
-                setShowInproggresStep(true)
-                setRefnumber(response.data.data.refNumber)
-            } else {
-                setShowInproggresStep(false)
-                setError(response.data.message || "Pembayaran gagal, silahkan coba lagi nanti.");
+            if (paymentMethod == 'qris') {
+                const generateRandomString = (length = 10) => {
+                    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                    return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
+                };
+                const generateOrderId = `P${generateRandomString(10)}_${data.inquiryId}`;
+                setOrderId(generateOrderId)
+                handlePaymentQris(generateOrderId)
+            } else if (paymentMethod == 'tunai') {
+                const response = await axiosInstance.post("/ayoconnect/payment", payload);
+                if (response.data.success) {
+                    setLoading(false);
+                    setShowInproggresStep(true)
+                    setRefnumber(response.data.data.refNumber)
+                } else {
+                    setShowInproggresStep(false)
+                    setError(response.data.message || "Pembayaran gagal, silahkan coba lagi nanti.");
+                }
             }
         } catch (error: any) {
             setError(error.response?.data?.message || "Terjadi kesalahan saat proses pembayaran.");
@@ -103,10 +163,9 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
         setShowPinInput(false);
         setPin([]);
     };
-
     return (
         <>
-            <div className={`${marginTop ? 'mt-[130px]' : 'mt-[-90px] bg-white'} ${showInproggresStep ? 'hidden' : 'block'} w-[90%] m-auto shadow-lg p-10 rounded-lg`}>
+            <div className={`${marginTop ? 'mt-[130px]' : 'mt-[-90px] bg-white'} ${(showInproggresStep || showQRCode) ? 'hidden' : 'block'} w-[90%] m-auto shadow-lg p-10 rounded-lg`}>
                 <div className='w-16 h-16 flex items-center justify-center border-2 border-black bg-orange-400 rounded-full m-auto'>
                     <Info className='scale-[2] text-white' />
                 </div>
@@ -218,14 +277,14 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                     <div className='w-full my-3 h-[2px] bg-gray-200'></div>
                     <div className='flex md:flex-row flex-col md:items-center items-start gap-2 justify-between'>
                         <p className='font-bold text-start'>Metode Pembayaran</p>
-                        <span className='text-gray-400 italic'>*</span>
                         <select
-                            className="h-10 border border-gray-300 rounded-md md:w-52 w-full text-center"
-                            value={paymentMethod}
+                            className="h-10 border border-gray-300 rounded-md md:w-52 w-full text-center text-sm"
+                            value={paymentMethod || ""}
                             onChange={(e) => setPaymentMethod(e.target.value)}
                         >
-                            <option value="qris">QRCode (Non Tunai)</option>
+                            <option selected hidden>Pilih Metode Pembayaran</option>
                             <option value="tunai">Tunai</option>
+                            <option value="qris">QRIS</option>
                         </select>
                     </div>
 
@@ -233,8 +292,12 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
             </div>
 
             <Button onClick={() => {
-                setShowPinInput(true)
-            }} className={`${showInproggresStep ? 'hidden' : 'block'} uppercase translate-y-10 text-center w-[90%] m-auto bg-green-500 mb-32 text-white`}>
+                if (!paymentMethod) {
+                    setError("Pilih Metode Pembayaran");
+                } else {
+                    setShowPinInput(true);
+                }
+            }} className={`${(showInproggresStep || showQRCode) ? 'hidden' : 'block'} uppercase translate-y-10 text-center w-[90%] m-auto bg-green-500 mb-32 text-white`}>
                 Bayar
             </Button >
 
@@ -308,7 +371,21 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                 }} message={error} status="error" />
             }
 
-            {showInproggresStep && <InprogressPPOB data={data} refNumber={refNumber} marginTop={marginTop} marginFee={Number(marginFee)} />}
+            {
+                paymentMethod == 'qris' && showQRCode && (
+                    <QRCodePage
+                        type="kasir"
+                        orderId={orderId}
+                        stringQR={stringQR}
+                        showQRCode={showQRCode}
+                        timeLeftOpenBill={timeLeft}
+                        setShowQRCode={setShowQRCode}
+                        dataAmount={(total + Number(marginFee))}
+                    />
+                )
+            }
+
+            {showInproggresStep && paymentMethod == 'tunai' && <InprogressPPOB data={data} refNumber={refNumber} marginTop={marginTop} marginFee={Number(marginFee)} />}
 
             {/* Loading */}
             {

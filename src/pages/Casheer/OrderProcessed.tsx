@@ -92,14 +92,16 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
     }, []);
 
     const handleTagih = async () => {
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
         try {
             const requestBody = {
-                email: "testerfinpay@gmail.com",
-                firstName: "Tester",
-                lastName: "Finpay",
-                mobilePhone: "+62048232329",
+                email: userData.email,
+                firstName: userData.merchant.name,
+                lastName: userData.username,
+                mobilePhone: userData.phone_number.replace(/^08/, '+628'),
                 amount: calculateTotalAmount(),
-                description: "Tester",
+                description: "Pembayaran Pesanan",
                 successUrl: "http://success",
                 type: "qris",
                 orderId: orderId,
