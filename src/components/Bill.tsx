@@ -288,12 +288,14 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                             <option value="qris">QRIS</option>
                         </select>
                     </div>
-
-                    <div className='flex flex-row gap-1 items-center'>
-                        <input type="checkbox" onChange={() => setIsPersonal(!isPersonal)} className="mr-1" id="personal" />
-                        <label htmlFor="personal" className="text-sm text-gray-500">Transaksi ini untuk keperluan Pribadi </label>
-                    </div>
-
+                    {
+                        paymentMethod == 'tunai' && (
+                            <div className='flex flex-row gap-1 items-center'>
+                                <input type="checkbox" onChange={() => setIsPersonal(!isPersonal)} className="mr-1" id="personal" />
+                                <label htmlFor="personal" className="text-sm text-gray-500">Transaksi ini untuk keperluan Pribadi </label>
+                            </div>
+                        )
+                    }
                 </div>
             </div>
 
