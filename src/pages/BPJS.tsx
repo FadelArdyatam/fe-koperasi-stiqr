@@ -71,6 +71,11 @@ const BPJS = () => {
     const sendBill = async () => {
         setLoading(true)
         try {
+            if (!productCode) {
+                setLoading(false)
+                return setError({ show: true, message: "Silakan pilih produk yang akan dibeli." });
+            }
+
             const userItem = sessionStorage.getItem("user");
             const userData = userItem ? JSON.parse(userItem) : null;
             const response = await axiosInstance.post("/ayoconnect/inquiry", {
@@ -204,6 +209,7 @@ const BPJS = () => {
             </div>
 
             {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
+
             {
                 loading && (
                     <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
@@ -211,12 +217,15 @@ const BPJS = () => {
                     </div>
                 )
             }
+
             {showRecomendation && (
                 <RecomendationModalPPOB category="BPJS" setAccountNumber={setKTP} setShowRecomendation={setShowRecomendation} />
             )}
+
             {
                 showMargin && <MarginPPOB showMargin={showMargin} setShowMargin={setShowMargin} type="BPJS" margin={margin} setMargin={setMargin} />
             }
+
             {showBill && dataBill && <Bill data={dataBill} marginTop={false} marginFee={margin} />}
         </>
     )

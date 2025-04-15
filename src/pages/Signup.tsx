@@ -278,7 +278,7 @@ const Signup = () => {
                 localStorage.setItem("registerID", "12345")
                 setShowNotification(false)
                 localStorage.removeItem("token");
-                const formattedPhone = payload.phoneNumber.replace(/^0/, ''); 
+                const formattedPhone = payload.phoneNumber.replace(/^0/, '');
                 setPhone(formattedPhone);
                 localStorage.setItem('phone', formattedPhone);
             } else {

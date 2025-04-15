@@ -23,9 +23,9 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
     const [pin, setPin] = useState<string[]>([]);
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState(false);
-
+    const [isPersonal, setIsPersonal] = useState(false)
     const [showInproggresStep, setShowInproggresStep] = useState(false)
-
+    console.log(isPersonal);
     const [refNumber, setRefnumber] = useState<string>("")
     const [total, setTotal] = useState(0);
     useEffect(() => {
@@ -129,7 +129,8 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                 merchant_id: userData.merchant.id,
                 pin: pin.join(''),
                 margin: marginFee,
-                metode: paymentMethod
+                metode: paymentMethod,
+                is_personal: isPersonal,
             }
 
             if (data.category === "BPJS") {
@@ -141,7 +142,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
                     return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
                 };
-                const generateOrderId = `P${generateRandomString(10)}_${data.inquiryId}`;
+                const generateOrderId = `P${generateRandomString(8)}_${data.inquiryId}`;
                 setOrderId(generateOrderId)
                 handlePaymentQris(generateOrderId)
             } else if (paymentMethod == 'tunai') {
@@ -280,12 +281,17 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                         <select
                             className="h-10 border border-gray-300 rounded-md md:w-52 w-full text-center text-sm"
                             value={paymentMethod || ""}
-                            onChange={(e) => setPaymentMethod(e.target.value)}
+                            onChange={(e) => { setPaymentMethod(e.target.value); if (e.target.value == 'qris') setIsPersonal(false) }}
                         >
                             <option selected hidden>Pilih Metode Pembayaran</option>
                             <option value="tunai">Tunai</option>
                             <option value="qris">QRIS</option>
                         </select>
+                    </div>
+
+                    <div className='flex flex-row gap-1 items-center'>
+                        <input type="checkbox" onChange={() => setIsPersonal(!isPersonal)} className="mr-1" id="personal" />
+                        <label htmlFor="personal" className="text-sm text-gray-500">Transaksi ini untuk keperluan Pribadi </label>
                     </div>
 
                 </div>

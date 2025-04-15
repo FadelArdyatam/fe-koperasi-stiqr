@@ -48,6 +48,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
     const [dataCustomer, setDataCustomer] = useState({ name: "", phone: "", email: "", other_number: "" });
     const [loading, setLoading] = useState(false);
 
+    const [emailError, setEmailError] = useState("");
+    const [phoneNumberError, setPhoneNumberError] = useState("");
+
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
@@ -89,7 +92,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         setMergedBasket(mergedBasket);
     }, [basket]);
 
-
     const increaseHandler = (index: number) => {
         const updatedBasket = [...basket];
         const productToUpdate = mergedBasket[index];
@@ -128,15 +130,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
     const removeHandler = (index: number) => {
         setBasket((prevBasket) => {
             const updatedBasket = prevBasket.filter((_, i) => i !== index);
-    
+
             if (updatedBasket.length === 0) {
                 setShowService({ show: false, service: null });
             }
-    
+
             return updatedBasket;
         });
     };
-
 
     const [orderId, setOrderId] = useState<string | null>(null)
     const [tagih, setTagih] = useState<boolean>(false)
@@ -219,8 +220,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
             setLoading(false)
         }
     };
-
-
 
     return (
         <div ref={references}>
@@ -331,8 +330,15 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                         <Input
                             value={selectedCustomer?.customer?.phone ? selectedCustomer?.customer?.phone : dataCustomer.phone}
                             onChange={(e) => {
-                                // maksimal 15 karakter 
+                                if (e.target.value.length < 10) {
+                                    setPhoneNumberError("Nomor HP minimal 10 karakter");
+                                } else {
+                                    setPhoneNumberError("");
+                                }
+
+                                // maksimal 15 karakter dan minimal 10 karakter
                                 if (e.target.value.length > 15) return;
+
                                 setDataCustomer({ name: dataCustomer.name, phone: e.target.value, email: dataCustomer.email, other_number: dataCustomer.other_number });
                                 setSelectedCustomer({ ...selectedCustomer, customer: { ...selectedCustomer?.customer, phone: null } });
                             }}
@@ -342,6 +348,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                             pattern="[0-9]*"
                             className="w-full bg-white p-3 rounded-lg mt-2"
                         />
+                        {phoneNumberError && <p className="text-red-500 text-sm mt-1">{phoneNumberError}</p>}
                     </div>
 
                     <div data-aos="fade-up" data-aos-delay="500" className="mt-5">
@@ -350,12 +357,23 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                         <Input
                             value={selectedCustomer?.customer?.email ? selectedCustomer?.customer?.email : dataCustomer.email}
                             onChange={(e) => {
-                                setDataCustomer({ name: dataCustomer.name, phone: dataCustomer.phone, email: e.target.value, other_number: dataCustomer.other_number });
+                                const email = e.target.value;
+                                setDataCustomer({ name: dataCustomer.name, phone: dataCustomer.phone, email, other_number: dataCustomer.other_number });
                                 setSelectedCustomer({ ...selectedCustomer, customer: { ...selectedCustomer?.customer, email: null } });
+
+                                // Validate email format
+                                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                if (!emailRegex.test(email)) {
+                                    setEmailError("Invalid email format");
+                                } else {
+                                    setEmailError("");
+                                }
                             }}
                             placeholder="Email"
                             type="email"
                             className="w-full bg-white p-3 rounded-lg mt-2" />
+
+                        {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
                     </div>
 
                     <div data-aos="fade-up" data-aos-delay="600" className="mt-5">
@@ -434,12 +452,12 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     <div className="w-full mt-10 flex items-center gap-5 justify-between">
                         <Button onClick={() => { setBasket([]); setShowService({ show: false, service: null }) }} className="rounded-full w-14 h-14 min-w-14 min-h-14 bg-orange-100 text-orange-400 font-semibold"><Trash2 className="scale-[1.5]" /></Button>
 
-                        <Button disabled={loading ? true : false} onClick={() => { openBillHandler('open'); setLoading(true) }} className={`${showService.service === "Pay Now" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
+                        <Button disabled={loading || emailError !== '' || phoneNumberError !== '' ? true : false} onClick={() => { openBillHandler('open'); setLoading(true) }} className={`${showService.service === "Pay Now" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
 
-                        <Button disabled={loading ? true : false} onClick={() => { openBillHandler('tagih'); setLoading(true) }} className="bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold">Tagih</Button>
+                        <Button disabled={loading || emailError !== '' || phoneNumberError !== '' ? true : false} onClick={() => { openBillHandler('tagih'); setLoading(true) }} className="bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold">Tagih</Button>
                     </div>
                 </div>
-            </div>
+            </div >
 
             {showNotification.show && <Notification message={showNotification.message} onClose={() => setShowNotification({ show: false, message: '', type: 'success' })} status={showNotification.type} />}
             {

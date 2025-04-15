@@ -101,12 +101,13 @@ const PinInput = ({ email }: { email: string }) => {
 
     return (
         <div className="w-full h-screen flex flex-col items-center p-5 justify-center bg-orange-400">
-            <h1 className="text-white text-xl font-semibold mb-2">
-                {step === 1 ? "Masukkan 6 Digit PIN" : "Konfirmasi PIN Anda"}
+            <h1 className="text-white text-xl font-semibold mb-2 mt-5">
+                {step === 1 ? "Buat 6 Digit PIN" : "Konfirmasi PIN Anda"}
             </h1>
+
             <p className="text-white text-center mb-6 text-sm">
                 {step === 1
-                    ? "Siapkan 6 digit PIN Anda sekarang. Anda harus memasukkan pin ini untuk melanjutkan transaksi online di masa mendatang."
+                    ? "Pastikan Anda menyimpan PIN dengan aman dan tidak memberikannya kepada pihak mana pun."
                     : "Masukkan kembali PIN untuk konfirmasi."}
             </p>
 

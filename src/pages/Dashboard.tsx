@@ -428,8 +428,14 @@ const Dashboard = () => {
                                                 <img src={history?.channel ? `${import.meta.env.VITE_ISSUER_BANK_URL}/${history.channel}.png` : noIssuerImg} className="rounded-full w-10 h-10" alt="IMAGE" />
                                                 <div className="flex flex-col items-start">
                                                     <div className="flex md:flex-row flex-col md:gap-2 items-start">
-                                                        <p className="uppercase text-sm">{history.sales_id == null ? "QRCode" : "Penjualan"} | {history.payment_method}</p>
-                                                        <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} w-fit px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                        <p className="uppercase text-sm">
+                                                            {history.sales_id == null
+                                                                ? history.qr_transaction?.orderId?.startsWith("P")
+                                                                    ? "PPOB"
+                                                                    : "QRCode"
+                                                                : "Penjualan"}{" "}
+                                                            | {history.payment_method}
+                                                        </p>                                                        <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} w-fit px-2 rounded-md text-white text-xs py-[0.5]"`}>
                                                             <p>{history.transaction_status}</p>
                                                         </div>
                                                     </div>
