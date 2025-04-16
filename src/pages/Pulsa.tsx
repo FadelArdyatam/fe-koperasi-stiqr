@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronLeft, ChevronUp, History, Tag } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronUp, History, Info, Tag } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import Bill from "@/components/Bill"
@@ -42,7 +42,7 @@ const Pulsa = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
 
-    
+
     const hooksMargin = useMarginPPOB()
     const [showRecomendation, setShowRecomendation] = useState(false)
     const [showMargin, setShowMargin] = useState(false)
@@ -155,17 +155,30 @@ const Pulsa = () => {
                     })}</p>
                 </div>
 
-                <div className="flex justify-end mt-5 mr-12 ">
+                <div className="flex justify-between items-center m-auto gap-3 mt-5 w-[90%]">
+                    {/* Kiri: Disclaimer */}
+                    <div
+                        data-aos="fade-up"
+                        data-aos-delay="100"
+                        className="flex items-center justify-between gap-3 p-2 pr-4 bg-blue-50 border border-blue-200 rounded-lg shadow-sm"
+                    >
+                        <div className="flex items-center gap-3">
+                            <Info className="w-4 h-4 text-blue-500" />
+                            <p className="text-xs text-gray-800">
+                                Reseller: <span className="font-medium">Wajib Atur Biaya Tambahan</span> untuk keuntungan Anda.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Kanan: Tombol Atur */}
                     <div
                         onClick={() => setShowMargin(true)}
-                        className="flex bg-green-400 flex-row items-center gap-1 text-xs rounded-full px-2 py-1 hover:cursor-pointer hover:bg-green-500 text-white transition ease-in-out duration-300 w-fit"
+                        className="flex items-center gap-2 bg-green-500 text-white text-xs px-4 py-2 rounded-full shadow-md hover:bg-green-600 transition duration-300 cursor-pointer whitespace-nowrap"
                     >
-                        <Tag className="w-3 h-3" />
-                        <p>Atur Biaya Tambahan</p>
+                        <Tag className="w-5 h-5" />
+                        <span className="font-medium">Atur Biaya Tambahan</span>
                     </div>
                 </div>
-
-
                 <div data-aos="fade-up" data-aos-delay="400" className="mt-5 w-[90%] m-auto flex flex-row items-center justify-center gap-5 relative">
                     <Button onClick={() => setCategoryHandler("pulsa")} className={`${category == 'pulsa' ? 'hover:bg-orange-400 bg-orange-400 text-white' : 'hover:bg-orange-400 hover:text-white transition ease-in-out 300 bg-[#F4F4F4] text-black'} w-full`}>
                         Pulsa

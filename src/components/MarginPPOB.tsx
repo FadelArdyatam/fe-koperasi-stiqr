@@ -50,16 +50,18 @@ const MarginPPOB: React.FC<MarginProps> = ({ type, showMargin, setShowMargin, ma
                         <div className="flex flex-col gap-3 mt-5">
                             <Input
                                 onChange={(e) => {
-                                    let value = e.target.value.replace(/\D/g, ""); // Hanya angka
+                                    let value = e.target.value.replace(/\D/g, "");
 
-                                    if (value.startsWith("0")) {
-                                        value = value.substring(1); // Hapus angka 0 di awal
+                                    // Default ke "0" kalau kosong
+                                    if (!value) value = "0";
+
+                                    // Hapus nol di depan, kecuali kalau memang hanya "0"
+                                    if (value.length > 1 && value.startsWith("0")) {
+                                        value = value.replace(/^0+/, "") || "0";
                                     }
 
-                                    // Batasi maksimal 2000
-                                    if (Number(value) > 2000) {
-                                        value = "2000";
-                                    }
+                                    // Batas maksimum 2000
+                                    if (Number(value) > 2000) value = "2000";
 
                                     setMargin(value);
                                 }}

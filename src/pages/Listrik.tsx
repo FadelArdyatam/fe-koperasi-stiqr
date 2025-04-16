@@ -6,7 +6,7 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ChevronDown, ChevronLeft, History, Tag } from "lucide-react";
+import { ChevronDown, ChevronLeft, History, Info, Tag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -144,10 +144,24 @@ const Listrik = () => {
                     <p data-aos="fade-up" data-aos-delay="100" className="font-semibold m-auto text-xl text-center">
                         Beli Token Atau Bayar Listrik
                     </p>
-                    <div className="absolute top-0 right-0 p-2">
-                        <div onClick={() => setShowMargin(true)} className="flex bg-green-400 flex-row items-center gap-1 text-xs rounded-full px-2 py-1 hover:cursor-pointer hover:bg-green-400 text-white transition ease-in-out duration-300">
-                            <Tag className="w-3 h-3 " />
-                            <p>Atur Biaya Tambahan</p>
+                    <div className="relative mt-5 mx-auto">
+                        {/* Disclaimer kiri dengan icon dan warna disesuaikan */}
+                        <div className="flex items-center gap-3 bg-blue-50 px-4 py-3 rounded-md shadow-sm border border-blue-200 w-fit">
+                            <Info className="w-5 h-5 text-blue-500" />
+                            <p className="text-sm text-gray-800 whitespace-nowrap">
+                                Reseller: <span className="font-medium">Wajib Atur Biaya Tambahan</span> untuk keuntungan Anda.
+                            </p>
+                        </div>
+
+                        {/* Tombol pojok kanan atas */}
+                        <div className="absolute top-0 right-0 p-2">
+                            <div
+                                onClick={() => setShowMargin(true)}
+                                className="flex items-center gap-2 bg-green-500 text-white text-xs px-4 py-2 rounded-full shadow-md hover:bg-green-600 transition duration-300 cursor-pointer whitespace-nowrap"
+                            >
+                                <Tag className="w-4 h-4" />
+                                <span className="font-medium">Atur Biaya Tambahan</span>
+                            </div>
                         </div>
                     </div>
 

@@ -23,9 +23,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
     const [pin, setPin] = useState<string[]>([]);
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState(false);
-    const [isPersonal, setIsPersonal] = useState(false)
     const [showInproggresStep, setShowInproggresStep] = useState(false)
-    console.log(isPersonal);
     const [refNumber, setRefnumber] = useState<string>("")
     const [total, setTotal] = useState(0);
     useEffect(() => {
@@ -42,7 +40,16 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
         setPin(pin.slice(0, -1));
     };
 
+    useEffect(() => {
+        console.log(marginFee)
+        if (marginFee == 0) {
+            setPaymentMethod('pribadi');
+        } else {
+            setPaymentMethod(null);
+        }
+    }, [marginFee]);
     const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+    console.log(paymentMethod)
     const [showQRCode, setShowQRCode] = useState(false);
     const [stringQR, setStringQR] = useState<string | null>(null);
     const [timeLeft, setTimeLeft] = useState(300);
@@ -130,7 +137,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                 pin: pin.join(''),
                 margin: marginFee,
                 metode: paymentMethod,
-                is_personal: isPersonal,
+                is_personal: marginFee > 0 ? true : false,
             }
 
             if (data.category === "BPJS") {
@@ -145,7 +152,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                 const generateOrderId = `P${generateRandomString(8)}_${data.inquiryId}`;
                 setOrderId(generateOrderId)
                 handlePaymentQris(generateOrderId)
-            } else if (paymentMethod == 'tunai') {
+            } else {
                 const response = await axiosInstance.post("/ayoconnect/payment", payload);
                 if (response.data.success) {
                     setLoading(false);
@@ -275,25 +282,23 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                         <p className='text-orange-400 font-bold'>{formatRupiah(total + Number(marginFee))}</p>
                     </div>
 
-                    <div className='w-full my-3 h-[2px] bg-gray-200'></div>
-                    <div className='flex md:flex-row flex-col md:items-center items-start gap-2 justify-between'>
-                        <p className='font-bold text-start'>Metode Pembayaran</p>
-                        <select
-                            className="h-10 border border-gray-300 rounded-md md:w-52 w-full text-center text-sm"
-                            value={paymentMethod || ""}
-                            onChange={(e) => { setPaymentMethod(e.target.value); if (e.target.value == 'qris') setIsPersonal(false) }}
-                        >
-                            <option selected hidden>Pilih Metode Pembayaran</option>
-                            <option value="tunai">Tunai</option>
-                            <option value="qris">QRIS</option>
-                        </select>
-                    </div>
                     {
-                        paymentMethod == 'tunai' && (
-                            <div className='flex flex-row gap-1 items-center'>
-                                <input type="checkbox" onChange={() => setIsPersonal(!isPersonal)} className="mr-1" id="personal" />
-                                <label htmlFor="personal" className="text-sm text-gray-500">Transaksi ini untuk keperluan Pribadi </label>
-                            </div>
+                        marginFee > 0 && (
+                            <>
+                                <div className='w-full my-3 h-[2px] bg-gray-200'></div>
+                                <div className='flex md:flex-row flex-col md:items-center items-start gap-2 justify-between'>
+                                    <p className='font-bold text-start'>Metode Pembayaran</p>
+                                    <select
+                                        className="h-10 border border-gray-300 rounded-md md:w-52 w-full text-center text-sm"
+                                        value={paymentMethod || ""}
+                                        onChange={(e) => setPaymentMethod(e.target.value)}
+                                    >
+                                        <option selected hidden>Pilih Metode Pembayaran</option>
+                                        <option value="tunai">Tunai</option>
+                                        <option value="qris">QRIS</option>
+                                    </select>
+                                </div>
+                            </>
                         )
                     }
                 </div>
@@ -393,7 +398,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                 )
             }
 
-            {showInproggresStep && paymentMethod == 'tunai' && <InprogressPPOB data={data} refNumber={refNumber} marginTop={marginTop} marginFee={Number(marginFee)} />}
+            {showInproggresStep && paymentMethod != 'qris' && <InprogressPPOB data={data} refNumber={refNumber} marginTop={marginTop} marginFee={Number(marginFee)} />}
 
             {/* Loading */}
             {
