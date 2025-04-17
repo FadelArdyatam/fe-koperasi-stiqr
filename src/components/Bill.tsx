@@ -137,7 +137,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                 pin: pin.join(''),
                 margin: marginFee,
                 metode: paymentMethod,
-                is_personal: Number(marginFee) > 0,
+                is_personal: Number(marginFee) == 0,
             }
 
             if (data.category === "BPJS") {
