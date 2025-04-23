@@ -37,10 +37,12 @@ const Inbox = () => {
     useEffect(() => {
         const fetchNotification = async () => {
             try {
-                const response = await axiosInstance.get(`/notifications/${userData.merchant.id}`,{params : {
-                    page: currentPage,
-                    limit: 10,
-                }});
+                const response = await axiosInstance.get(`/notifications/${userData.merchant.id}`, {
+                    params: {
+                        page: currentPage,
+                        limit: 10,
+                    }
+                });
                 setNotifications(response.data.data);
                 setTotalPages(response.data.pagination.totalPages)
             } catch (error) {
@@ -62,6 +64,10 @@ const Inbox = () => {
             console.error("Error marking notification as read:", error);
         }
     };
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [currentPage]);
 
     return (
         <div>

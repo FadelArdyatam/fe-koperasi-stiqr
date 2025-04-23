@@ -79,6 +79,10 @@ const Listrik = () => {
     }, [type])
 
     const sendBill = async () => {
+        if (!selectedProduct) {
+            setError({ show: true, message: "Silakan pilih produk terlebih dahulu." });
+            return;
+        }
         setLoading(true)
         try {
 

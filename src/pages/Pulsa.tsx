@@ -76,6 +76,10 @@ const Pulsa = () => {
     }, [])
 
     const sendBill = async () => {
+        if (!selectedProduct) {
+            setError({ show: true, message: "Silakan pilih produk terlebih dahulu." });
+            return;
+        }
         try {
             const userItem = sessionStorage.getItem("user");
             const userData = userItem ? JSON.parse(userItem) : null;
@@ -134,6 +138,7 @@ const Pulsa = () => {
 
         fetchProduct()
     }, [category, selectedProvider]);
+
 
     return (
         <div>

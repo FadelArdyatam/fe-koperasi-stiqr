@@ -69,12 +69,17 @@ const BPJS = () => {
     }, [])
     console.log(products)
     const sendBill = async () => {
+        if (!productCode) {
+            setLoading(false)
+            return setError({ show: true, message: "Silakan pilih produk yang akan dibeli." });
+        }
+
+        if(!KTP) {
+            setLoading(false)
+            return setError({ show: true, message: "Silakan masukkan nomor BPJS." });   
+        }
         setLoading(true)
         try {
-            if (!productCode) {
-                setLoading(false)
-                return setError({ show: true, message: "Silakan pilih produk yang akan dibeli." });
-            }
 
             const userItem = sessionStorage.getItem("user");
             const userData = userItem ? JSON.parse(userItem) : null;

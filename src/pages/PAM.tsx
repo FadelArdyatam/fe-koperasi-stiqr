@@ -82,6 +82,10 @@ const PAM = () => {
     }, [])
 
     const sendBill = async () => {
+        if (!selectedProduct) {
+            setError({ show: true, message: "Silakan pilih produk terlebih dahulu." });
+            return;
+        }
         setLoading(true)
         try {
             console.log('Selected Product:', selectedProduct)
