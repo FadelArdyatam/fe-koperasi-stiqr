@@ -98,7 +98,9 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
         choises: z.array(
             z.object({
                 name: z.string().nonempty("Nama pilihan wajib diisi"),
-                price: z.number().positive("Harga harus positif"),
+                price: z.number().refine((val) => val >= 0, {
+                    message: "Harga tidak boleh negatif",
+                }),
                 show: z.boolean(),  // Tambahkan atribut show
             })
         ),
@@ -120,6 +122,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
         },
     });
 
+    console.log(displayChoises)
     const onSubmit = async (data: z.infer<typeof FormSchema>) => {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
@@ -132,6 +135,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
             multiple_value: displayChoises, // Semua pilihan nama
             merchant_id: userData?.merchant?.id, // ID merchant
         };
+
 
         try {
             const response = await axiosInstance.post(
@@ -153,8 +157,9 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
     };
 
     const addNewChoice = () => {
-        if (newChoiceName && newChoicePrice) {
-            if (newChoicePrice < 0) {
+        if (newChoiceName) {
+            if (Number(newChoicePrice) < 0) {
+                console.log('error disini kah?')
                 setShowError(true);
                 return;
             }
@@ -256,7 +261,6 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
 
                                     <div>
                                         <p>Nama Pilihan</p>
-
                                         <Input
                                             className="mt-3"
                                             placeholder="Nama Pilihan"
@@ -267,29 +271,25 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
 
                                     <div className="mt-5">
                                         <p>Harga</p>
-
                                         <Input
                                             className="mt-3"
-                                            inputMode="numeric"  // Menampilkan keyboard angka di mobile
-                                            pattern="[0-9]*"     // Mencegah karakter non-angka
+                                            inputMode="numeric"
                                             type="text"
                                             placeholder="Harga"
-                                            value={formatRupiah(newChoicePrice.toString())}
+                                            value={formatRupiah(newChoicePrice.toString() ?? 0)}
                                             onChange={(e) => {
-                                                const rawValue = e.target.value.replace(/[^0-9]/g, ""); // Hanya ambil angka
-                                                setNewChoicePrice(rawValue ? Number(rawValue) : ""); // Simpan angka saja tanpa format
+                                                const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                                                setNewChoicePrice(rawValue ? Number(rawValue) : 0);
                                             }}
                                         />
-
                                         {showError && <p className="text-red-500 text-sm">Harga harus positif</p>}
                                     </div>
 
                                     <div className="mt-5">
                                         <p>Tampilkan</p>
-
                                         <div
                                             onClick={() => setShowChoice(!showChoice)}
-                                            className={`w-14 h-8 mt-3 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${showChoice ? "bg-orange-400" : "bg-gray-300"
+                                            className={`w-14 h-8 mt-3 flex items-center rounded-full p-1 cursor-pointer ${showChoice ? "bg-orange-400" : "bg-gray-300"
                                                 }`}
                                         >
                                             <div
@@ -300,13 +300,9 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
                                     </div>
 
                                     <div className="flex items-center gap-5 mt-5">
-                                        <Button
-                                            onClick={addNewChoice}
-                                            className="bg-green-500 w-full"
-                                        >
+                                        <Button onClick={addNewChoice} className="bg-green-500 w-full">
                                             Simpan
                                         </Button>
-
                                         <Button
                                             type="button"
                                             onClick={() => setShowChoisesInput(false)}
@@ -319,91 +315,94 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
                             </div>
                         )}
 
+
                         {/* Notification */}
                         {showError && <Notification message="Harga harus positif" onClose={() => setShowError(false)} status={"error"} />}
 
                         {/* Popup untuk Edit Harga dan Nama */}
-                        {showEditChoisesInput.status && (
-                            <div className="fixed bg-black bg-opacity-50 inset-0 z-20 h-screen -translate-y-8">
-                                <div data-aos="fade-up" className="bg-white p-4 rounded-t-lg mt-10 translate-y-10 absolute bottom-0 w-full">
-                                    <p className="text-center mb-10 text-lg font-semibold">Ubah Pilihan</p>
+                        {
+                            showEditChoisesInput.status && (
+                                <div className="fixed bg-black bg-opacity-50 inset-0 z-20 h-screen -translate-y-8">
+                                    <div data-aos="fade-up" className="bg-white p-4 rounded-t-lg mt-10 translate-y-10 absolute bottom-0 w-full">
+                                        <p className="text-center mb-10 text-lg font-semibold">Ubah Pilihan</p>
 
-                                    <div>
-                                        <p>Nama Pilihan</p>
+                                        <div>
+                                            <p>Nama Pilihan</p>
 
-                                        <Input
-                                            className="mt-3"
-                                            placeholder="Nama Pilihan"
-                                            value={displayChoises[showEditChoisesInput.index].name}
-                                            onChange={(e) => {
-                                                const updatedChoises = displayChoises.map((choise, index) =>
-                                                    index === showEditChoisesInput.index ? { ...choise, name: e.target.value } : choise
-                                                );
+                                            <Input
+                                                className="mt-3"
+                                                placeholder="Nama Pilihan"
+                                                value={displayChoises[showEditChoisesInput.index].name}
+                                                onChange={(e) => {
+                                                    const updatedChoises = displayChoises.map((choise, index) =>
+                                                        index === showEditChoisesInput.index ? { ...choise, name: e.target.value } : choise
+                                                    );
 
-                                                form.setValue("choises", updatedChoises);
-                                                setDisplayChoises(updatedChoises);
-                                            }}
-                                        />
-                                    </div>
+                                                    form.setValue("choises", updatedChoises);
+                                                    setDisplayChoises(updatedChoises);
+                                                }}
+                                            />
+                                        </div>
 
-                                    <div className="mt-5">
-                                        <p>Harga</p>
+                                        <div className="mt-5">
+                                            <p>Harga</p>
 
-                                        <Input
-                                            className="mt-3"
-                                            type="number"
-                                            placeholder="Harga"
-                                            value={displayChoises[showEditChoisesInput.index].price}
-                                            onChange={(e) => {
-                                                const updatedChoises = displayChoises.map((choise, index) =>
-                                                    index === showEditChoisesInput.index ? { ...choise, price: Number(e.target.value) } : choise
-                                                );
+                                            <Input
+                                                className="mt-3"
+                                                type="number"
+                                                placeholder="Harga"
+                                                value={displayChoises[showEditChoisesInput.index].price}
+                                                onChange={(e) => {
+                                                    const updatedChoises = displayChoises.map((choise, index) =>
+                                                        index === showEditChoisesInput.index ? { ...choise, price: Number(e.target.value) } : choise
+                                                    );
 
-                                                form.setValue("choises", updatedChoises);
-                                                setDisplayChoises(updatedChoises);
-                                            }}
-                                        />
-                                    </div>
+                                                    form.setValue("choises", updatedChoises);
+                                                    setDisplayChoises(updatedChoises);
+                                                }}
+                                            />
+                                        </div>
 
-                                    <div className="mt-5">
-                                        <p>Tampilkan</p>
+                                        <div className="mt-5">
+                                            <p>Tampilkan</p>
 
-                                        <div
-                                            onClick={() => {
-                                                const updatedChoises = displayChoises.map((choise, index) =>
-                                                    index === showEditChoisesInput.index ? { ...choise, show: !choise.show } : choise
-                                                );
+                                            <div
+                                                onClick={() => {
+                                                    const updatedChoises = displayChoises.map((choise, index) =>
+                                                        index === showEditChoisesInput.index ? { ...choise, show: !choise.show } : choise
+                                                    );
 
-                                                form.setValue("choises", updatedChoises);
-                                                setDisplayChoises(updatedChoises);
-                                            }}
-                                            className={`w-14 h-8 mt-3 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${displayChoises[showEditChoisesInput.index].show ? "bg-orange-400" : "bg-gray-300"
-                                                }`}
-                                        >
-                                            <div className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${displayChoises[showEditChoisesInput.index].show ? "translate-x-6" : "translate-x-0"
-                                                }`}></div>
+                                                    form.setValue("choises", updatedChoises);
+                                                    setDisplayChoises(updatedChoises);
+                                                }}
+                                                className={`w-14 h-8 mt-3 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${displayChoises[showEditChoisesInput.index].show ? "bg-orange-400" : "bg-gray-300"
+                                                    }`}
+                                            >
+                                                <div className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${displayChoises[showEditChoisesInput.index].show ? "translate-x-6" : "translate-x-0"
+                                                    }`}></div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-5 mt-5">
+                                            <Button
+                                                onClick={() => setShowEditChoisesInput({ status: false, index: -1 })}
+                                                className="bg-green-500 w-full"
+                                            >
+                                                Simpan
+                                            </Button>
+
+                                            <Button
+                                                type="button"
+                                                onClick={() => setShowEditChoisesInput({ status: false, index: -1 })}
+                                                className="bg-gray-300 w-full"
+                                            >
+                                                Tutup
+                                            </Button>
                                         </div>
                                     </div>
-
-                                    <div className="flex items-center gap-5 mt-5">
-                                        <Button
-                                            onClick={() => setShowEditChoisesInput({ status: false, index: -1 })}
-                                            className="bg-green-500 w-full"
-                                        >
-                                            Simpan
-                                        </Button>
-
-                                        <Button
-                                            type="button"
-                                            onClick={() => setShowEditChoisesInput({ status: false, index: -1 })}
-                                            className="bg-gray-300 w-full"
-                                        >
-                                            Tutup
-                                        </Button>
-                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )
+                        }
 
                         {/* Must Be Selected */}
                         <FormField
@@ -527,22 +526,24 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
                         <Button data-aos="fade-up" data-aos-delay="600" type="submit" className="w-full bg-green-500 text-white">
                             Simpan Varian
                         </Button>
-                    </form>
-                </Form>
+                    </form >
+                </Form >
             </div >
 
             {/* Notification */}
-            {showNotification && (
-                <div className="p-10">
-                    <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
+            {
+                showNotification && (
+                    <div className="p-10">
+                        <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
 
-                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Berhasil menambahkan varian</p>
+                        <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Berhasil menambahkan varian</p>
 
-                    <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setAddVariant(false)} className="w-full bg-green-500 text-white mt-10">
-                        Done
-                    </Button>
-                </div>
-            )}
+                        <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setAddVariant(false)} className="w-full bg-green-500 text-white mt-10">
+                            Done
+                        </Button>
+                    </div>
+                )
+            }
         </>
     );
 };

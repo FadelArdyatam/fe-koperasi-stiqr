@@ -2,7 +2,7 @@ import Bill from "@/components/Bill"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
-import { ChevronLeft, ChevronDown, History, Tag } from "lucide-react"
+import { ChevronLeft, ChevronDown, History, Tag, Info } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Label } from "@/components/ui/label";
@@ -35,6 +35,16 @@ const BPJS = () => {
     const [error, setError] = useState({ show: false, message: "" });
     const [productCode, setProductCode] = useState("")
 
+    const hooksMargin = useMarginPPOB()
+    const [showRecomendation, setShowRecomendation] = useState(false)
+    const [showMargin, setShowMargin] = useState(false)
+    const [margin, setMargin] = useState("0");
+
+    useEffect(() => {
+        if (hooksMargin.margin.bpjs !== undefined) {
+            setMargin(String(hooksMargin.margin.bpjs)); // Pastikan format string
+        }
+    }, [hooksMargin.margin.bpjs]);
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
     }, [])
@@ -59,15 +69,26 @@ const BPJS = () => {
     }, [])
     console.log(products)
     const sendBill = async () => {
+        if (!productCode) {
+            setLoading(false)
+            return setError({ show: true, message: "Silakan pilih produk yang akan dibeli." });
+        }
+
+        if(!KTP) {
+            setLoading(false)
+            return setError({ show: true, message: "Silakan masukkan nomor BPJS." });   
+        }
         setLoading(true)
         try {
+
             const userItem = sessionStorage.getItem("user");
             const userData = userItem ? JSON.parse(userItem) : null;
             const response = await axiosInstance.post("/ayoconnect/inquiry", {
                 accountNumber: KTP,
                 productCode: productCode,
                 merchant_id: userData.merchant.id,
-                month: range
+                month: range,
+                margin: margin
             });
             if (response.data.success) {
                 const data = {
@@ -94,17 +115,6 @@ const BPJS = () => {
         setProductCode(value);
     };
 
-
-    const hooksMargin = useMarginPPOB()
-    const [showRecomendation, setShowRecomendation] = useState(false)
-    const [showMargin, setShowMargin] = useState(false)
-    const [margin, setMargin] = useState("0");
-
-    useEffect(() => {
-        if (hooksMargin.margin.bpjs !== undefined) {
-            setMargin(String(hooksMargin.margin.bpjs)); // Pastikan format string
-        }
-    }, [hooksMargin.margin.bpjs]);
     return (
         <>
             <div className='w-full p-10 pb-32 flex items-center justify-center bg-orange-400 bg-opacity-100'>
@@ -118,10 +128,24 @@ const BPJS = () => {
             <div className={`${showBill ? 'hidden' : 'block'}`}>
                 <div className="bg-white w-[90%] -translate-y-[100px] p-10 shadow-lg rounded-md m-auto relative">
                     <p data-aos="fade-up" data-aos-delay="100" className="font-semibold m-auto text-xl text-center">Bayar BPJS</p>
-                    <div className="absolute top-0 right-0 p-2">
-                        <div onClick={() => setShowMargin(true)} className="flex bg-green-400 flex-row items-center gap-1 text-xs rounded-full px-2 py-1 hover:cursor-pointer hover:bg-green-400 text-white transition ease-in-out duration-300">
-                            <Tag className="w-3 h-3 " />
-                            <p>Atur Biaya Tambahan</p>
+                    <div className="relative mt-5 mx-auto">
+                        {/* Disclaimer kiri dengan icon dan warna disesuaikan */}
+                        <div className="flex items-center gap-3 bg-blue-50 px-4 py-3 rounded-md shadow-sm border border-blue-200 w-fit">
+                            <Info className="w-5 h-5 text-blue-500" />
+                            <p className="text-sm text-gray-800 whitespace-nowrap">
+                                Reseller: <span className="font-medium">Wajib Atur Biaya Tambahan</span> untuk keuntungan Anda.
+                            </p>
+                        </div>
+
+                        {/* Tombol pojok kanan atas */}
+                        <div className="absolute top-0 right-0 p-2">
+                            <div
+                                onClick={() => setShowMargin(true)}
+                                className="flex items-center gap-2 bg-green-500 text-white text-xs px-4 py-2 rounded-full shadow-md hover:bg-green-600 transition duration-300 cursor-pointer whitespace-nowrap"
+                            >
+                                <Tag className="w-4 h-4" />
+                                <span className="font-medium">Atur Biaya Tambahan</span>
+                            </div>
                         </div>
                     </div>
                     {/* <RadioGroup
@@ -204,6 +228,7 @@ const BPJS = () => {
             </div>
 
             {error.show && <Notification message={error.message} onClose={() => setError({ show: false, message: "" })} status={"error"} />}
+
             {
                 loading && (
                     <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
@@ -211,12 +236,15 @@ const BPJS = () => {
                     </div>
                 )
             }
+
             {showRecomendation && (
                 <RecomendationModalPPOB category="BPJS" setAccountNumber={setKTP} setShowRecomendation={setShowRecomendation} />
             )}
+
             {
                 showMargin && <MarginPPOB showMargin={showMargin} setShowMargin={setShowMargin} type="BPJS" margin={margin} setMargin={setMargin} />
             }
+
             {showBill && dataBill && <Bill data={dataBill} marginTop={false} marginFee={margin} />}
         </>
     )

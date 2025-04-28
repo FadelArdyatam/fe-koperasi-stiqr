@@ -1,4 +1,4 @@
-import { ChevronLeft, X, Banknote, Calculator, CircleAlert, CreditCard, FileText, Home, ScanQrCode, UserRound } from "lucide-react";
+import { ChevronLeft, X, Banknote, Calculator, CircleAlert, CreditCard, FileText, Home, ScanQrCode, UserRound, Share } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
 import { useRef, useState, useEffect } from "react";
@@ -52,6 +52,8 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
     const [timeLeft, setTimeLeft] = useState(300); // 5 menit dalam detik
     const navigate = useNavigate();
 
+    const [showNotification, setShowNotification] = useState(false);
+
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
     const [orderIdInstant, setOrderIdInstant] = useState<string | null>(null)
@@ -88,136 +90,75 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
         }
     }, [orderId, navigate, orderIdInstant]);
 
-    // Tambahkan useEffect di bawah definisi fungsi komponen
-    // useEffect(() => {
-
-    //     const fetchQRCode = async () => {
-    //         // if (!datas || !Array.isArray(datas) || datas.length === 0) {
-    //         //     console.warn("Datas is empty or invalid, skipping QR Code generation.");
-    //         //     return;
-    //         // }
-
-    //         if (type !== "kasir") {
-    //             // Jika type bukan "kasir", tidak menjalankan efek ini
-    //             return;
-    //         }
-
-    //         setIsLoading(true); // Aktifkan loading
-
-    //         try {
-    //             const requestBody = {
-    //                 email: "testerfinpay@gmail.com",
-    //                 firstName: "Tester",
-    //                 lastName: "Finpay",
-    //                 mobilePhone: "+62048232329",
-    //                 amount: calculateTotalAmount(),
-    //                 description: "Tester",
-    //                 successUrl: "http://success",
-    //                 type: "qris",
-    //                 orderId: orderId,
-    //                 item:prepareItems(),
-    //             };
-
-    //             console.log("Request Body: ", requestBody);
-
-    //             const response = await axiosInstance.post(`${import.meta.env.VITE_API_URL}/finpay/initiate`, requestBody);
-
-    //             console.log('initiate : ')
-    //             console.log(response);
-    //             if (response.data) {
-    //                 setShowQRCode(true);
-    //                 setDataForPaymentMethod(requestBody)
-    //                 setStringQR(response.data.response.stringQr);
-
-    //         console.log('initiate : ')
-    //         console.log(response);
-    //         if (response.data) {
-    //             setShowQRCode(true);
-    //             setDataForPaymentMethod(requestBody)
-    //             setStringQR(response.data.response.stringQr);
-
-    //             // Countdown timer
-    //             const timer = setInterval(() => {
-    //                 setTimeLeft((prevTime) => {
-    //                     if (prevTime <= 1) {
-    //                         clearInterval(timer);
-    //                         navigate("/dashboard"); // Direct ke /dashboard setelah waktu habis
-    //                         return 0;
-    //                     }
-    //                     return prevTime - 1;
-    //                 });
-    //             }, 1000);
-
-    //             // Cleanup interval saat komponen di-unmount
-    //             return () => clearInterval(timer);
-    //         } else {
-    //             alert("Gagal membuat link pembayaran. Mohon coba lagi.");
-    //         }
-    //     } catch (error) {
-    //         console.log(error)
-    //         console.error("Gagal membuat link pembayaran:", error);
-    //         alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
-    //     } finally {
-    //         setIsLoading(false); // Nonaktifkan loading
-    //     }
-    // };
-    //             } else {
-    //                 alert("Gagal membuat link pembayaran. Mohon coba lagi.");
-    //             }
-    //         } catch (error) {
-    //             console.log(error)
-    //             console.error("Gagal membuat link pembayaran:", error);
-    //             alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
-    //         } finally {
-    //             setIsLoading(false); // Nonaktifkan loading
-    //         }
-    //     };
-
-    //     fetchQRCode();
-    // }, [orderId]);
-
-    console.log("dataForPaymentMethod", dataForPaymentMethod);
-
-    console.log("OrderId", orderId)
-
     const shareContent = async () => {
         try {
-            if (navigator.share) {
-                if (contentRef.current) {
-                    // Tunggu gambar selesai dimuat
-                    const images = (contentRef.current as HTMLElement).querySelectorAll("img");
-                    const promises = Array.from(images).map(img => new Promise<void>(resolve => {
-                        if (img.complete) resolve();
-                        img.onload = () => resolve();
-                        img.onerror = () => resolve();
-                    }));
-                    await Promise.all(promises);
+            if (contentRef.current) {
+                // Tunggu semua gambar dalam elemen dimuat sebelum menangkap screenshot
+                const images = contentRef.current.querySelectorAll("img");
+                const promises = Array.from(images).map(img => new Promise<void>(resolve => {
+                    if (img.complete) resolve();
+                    img.onload = () => resolve();
+                    img.onerror = () => resolve();
+                }));
+                await Promise.all(promises);
 
-                    // Tangkap elemen dengan ukuran yang sesuai
-                    const canvas = await html2canvas(contentRef.current, {
-                        useCORS: true,
-                        scale: 5, // Tingkatkan resolusi
-                        width: contentRef.current.offsetWidth,
-                        height: contentRef.current.offsetHeight,
-                    });
+                // Tangkap elemen ke dalam canvas
+                const canvas = await html2canvas(contentRef.current, {
+                    useCORS: true,
+                    scale: 2,
+                    width: contentRef.current.offsetWidth,
+                    height: contentRef.current.offsetHeight,
+                });
 
-                    const dataURL = canvas.toDataURL("image/png");
-                    const response = await fetch(dataURL);
-                    const blob = await response.blob();
-                    const file = new File([blob], "CodePayment.png", { type: "image/png" });
-
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            title: "QR Code Kedai Kopi",
-                            text: "Pindai QR ini untuk melakukan pembayaran.",
-                            files: [file],
-                        });
-                    } else {
-                        alert("Perangkat ini tidak mendukung berbagi file.");
+                // Konversi canvas ke Blob
+                canvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        alert("Gagal membuat gambar.");
+                        return;
                     }
-                }
-            } else {
-                alert("Fitur bagikan tidak didukung di perangkat ini.");
+
+                    const file = new File([blob], "CodePayment.png", { type: "image/png" });
+                    const textMessage = "📌 Pindai QR ini untuk melakukan pembayaran di Kedai Kopi.";
+
+                    try {
+                        // 🔹 1. SALIN TEKS & GAMBAR KE CLIPBOARD
+                        if (navigator.clipboard && window.ClipboardItem) {
+                            const textBlob = new Blob([textMessage], { type: "text/plain" });
+                            const clipboardItems = [
+                                new ClipboardItem({
+                                    "image/png": blob,
+                                    "text/plain": textBlob,
+                                })
+                            ];
+                            await navigator.clipboard.write(clipboardItems);
+                            setShowNotification(true);
+                        } else {
+                            throw new Error("Clipboard API tidak mendukung gambar.");
+                        }
+
+                        // 🔹 2. TAMPILKAN MENU SHARE KE WHATSAPP, TELEPON, DLL.
+                        if (navigator.share && navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                title: "QR Code Kedai Kopi",
+                                text: textMessage,
+                                files: [file], // Gambar yang akan dibagikan
+                            });
+                        } else {
+                            alert("❌ Perangkat ini tidak mendukung fitur berbagi file.");
+                        }
+                    } catch (error) {
+                        console.warn("❌ Gagal membagikan:", error);
+
+                        // Fallback: Unduh gambar jika clipboard tidak mendukung
+                        const link = document.createElement("a");
+                        link.href = URL.createObjectURL(blob);
+                        link.download = "CodePayment.png";
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        setError({ show: true, message: "Gagal membagikan. Gambar berhasil diunduh." });
+                    }
+                }, "image/png");
             }
         } catch (error) {
             console.error("Gagal membagikan:", error);
@@ -239,15 +180,15 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
                 return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
             };
-            const generateOrderId = generateRandomString(15)
+            const generateOrderId = `S${generateRandomString(15)}`;
             try {
                 const requestBody = {
-                    email: "testerfinpay@gmail.com",
-                    firstName: "Tester",
-                    lastName: "Finpay",
-                    mobilePhone: "+62048232329",
+                    email: userData.email,
+                    firstName: userData.merchant.name,
+                    lastName: userData.username,
+                    mobilePhone: userData.phone_number.replace(/^08/, '+628'),
                     amount: amount,
-                    description: "Tester",
+                    description: "Pembayaran",
                     successUrl: "http://success",
                     type: "qris",
                     orderId: generateOrderId
@@ -408,9 +349,15 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                             </div>
                         </div>
 
-                        <Button onClick={shareContent} className="mt-10 text-orange-400 bg-transparent w-full">
-                            Bagikan
-                        </Button>
+                        <div className="flex items-center gap-5 w-full mt-5 justify-center">
+                            <Button onClick={shareContent} className="text-white bg-transparent rounded-full w-10 h-10 bg-orange-400 border-2 border-orange-400">
+                                <Share />
+                            </Button>
+{/* 
+                            <Button className="text-white bg-transparent rounded-full w-10 h-10 bg-orange-400 border-2 border-orange-400">
+                                <Download />
+                            </Button> */}
+                        </div>
 
                         <Button onClick={() => setShowOtherMethod(true)} className={`${sales_id !== undefined ? 'block w-full' : 'hidden'} mt-5`}>Pilih Metode Pembayaran Lain</Button>
                     </div>
@@ -602,6 +549,9 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </Button>
                 </div>
             </div>
+
+            {/* Notification */}
+            {showNotification && <Notification message={"Gambar dan teks berhasil disalin ke clipboard!"} onClose={() => setShowNotification(false)} status={"success"} />}
 
             {showPaymentMehodComponent && <PaymentMethod dataPayment={dataForPaymentMethod} setShowPaymentMethodComponent={setShowPaymentMethodComponent} selectedMethod={selectedMethod} orderId={orderId} />}
         </>
