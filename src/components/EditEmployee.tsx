@@ -313,7 +313,7 @@ const EditEmployee: React.FC<EditEmployeeProps> = ({ setOpen, editIndex, setIsSu
                     </Button>
 
                     <Button data-aos="fade-up" data-aos-delay={600} onClick={deleteEmployeeHandler} type="button" className="w-full bg-red-500 text-white">
-                        Delete
+                        Hapus
                     </Button>
                 </form>
             </Form>

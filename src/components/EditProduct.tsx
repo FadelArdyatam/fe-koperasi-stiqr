@@ -868,7 +868,7 @@ const EditProduct: React.FC<EditProductProps> = ({
 
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button data-aos="fade-up" data-aos-delay="400" className={`${showAddVariant ? 'hidden' : 'block'} w-full !mt-5 m-auto bg-red-400`}>Delete</Button>
+                                <Button data-aos="fade-up" data-aos-delay="400" className={`${showAddVariant ? 'hidden' : 'block'} w-full !mt-5 m-auto bg-red-400`}>Hapus</Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent
                                 className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm"
@@ -907,7 +907,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                 <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-start overflow-y-auto py-10 justify-center">
                     <div data-aos="fade-up" className="bg-white p-5 rounded-lg w-[90%]">
                         <div className="flex items-center justify-between">
-                            <p className="font-semibold text-xl">Add Variant</p>
+                            <p className="font-semibold text-xl">Tambah Varian</p>
                             <button onClick={() => setShowPopUpAddVariant(false)}>
                                 <ChevronLeft />
                             </button>
