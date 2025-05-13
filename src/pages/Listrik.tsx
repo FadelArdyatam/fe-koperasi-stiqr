@@ -122,10 +122,15 @@ const Listrik = () => {
 
     const handleRadioChange = (value: string) => {
         setType(value);
+        console.log(value);
+        if (!products) {
+            console.log(type)
+            console.log('MASOK');
+            setError({ show: true, message: "Terjadi Kesalahan, tunggu beberapa saat lagi" });
+            return;
+        }
         AOS.refresh();
         if (value === "Tagihan Listrik") {
-            console.log('tagihan listrik')
-            console.log(products)
             setNominal("");
             setSelecteProduct(products[0])
         }
@@ -252,7 +257,7 @@ const Listrik = () => {
 
                 <Button
                     onClick={sendBill}
-                    className={`${type.length === 0 || noMeter.length === 0 || (type === "Token Listrik" && nominal.length === 0) ? "hidden" : "block"} w-[90%] m-auto bg-green-400 text-white py-3 rounded-md hover:bg-green-500 mb-10`}
+                    className={`${type.length === 0 || noMeter.length === 0 || (type === "Token Listrik" && nominal.length === 0) ? "hidden" : "block"} w-[90%] m-auto bg-green-400 text-white py-3 rounded-md hover:bg-green-500 mb-10 -mt-16`}
                 >
                     Lanjutkan
                 </Button>

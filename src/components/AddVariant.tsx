@@ -134,6 +134,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
             is_multiple: data.methods === "more",
             multiple_value: displayChoises, // Semua pilihan nama
             merchant_id: userData?.merchant?.id, // ID merchant
+            is_required: data.mustBeSelected
         };
 
 

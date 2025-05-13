@@ -107,7 +107,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                 form.reset({
                     name: response.data.variant_name,
                     choises: displayChoises,
-                    mustBeSelected: response.data.mustBeSelected || false,
+                    mustBeSelected: response.data.is_required || false,
                     methods: response.data.is_multiple || false ? "more" : "single",
                 });
             } catch (err: any) {
@@ -152,7 +152,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
             const payload = {
                 variant_name: data.name,
                 detail_variants: data.choises,
-                mustBeSelected: data.mustBeSelected,
+                is_required: data.mustBeSelected,
                 is_multiple: data.methods === "single" ? false : true,
             };
 

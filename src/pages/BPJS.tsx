@@ -222,7 +222,7 @@ const BPJS = () => {
                 </div>
 
                 {/* <Button onClick={sendBill} className={`${KTP.length === 0 || type.length === 0 || range.length === 0 ? 'hidden' : 'block'} uppercase mt-5 text-center w-[90%] m-auto mb-10 bg-green-500 text-white`}> */}
-                <Button onClick={sendBill} className={`block uppercase mt-5 text-center w-[90%] m-auto mb-10 bg-green-500 text-white`}>
+                <Button onClick={sendBill} className={`block uppercase mt-5 text-center w-[90%] m-auto mb-10 bg-green-500 text-white  -mt-16`}>
                     Lanjutkan
                 </Button>
             </div>
