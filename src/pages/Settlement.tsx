@@ -428,7 +428,7 @@ const Settlement = () => {
                                                         field.onChange(value ? Number(value) : "");
                                                         const margin = Number(value) * 0.007;
                                                         setMarginMdr(Math.ceil(margin));
-                                                        setMdr(Math.ceil(Number(value) - margin));
+                                                        setMdr(Math.ceil(Number(value) - margin - 3000));
                                                     }}
                                                 />
                                             </FormControl>
@@ -444,10 +444,10 @@ const Settlement = () => {
                                 <div className="flex justify-between items-center">
                                     <div>
                                         <p>Biaya Admin </p>
-                                        <p className="text-xs text-gray-500 italic ">*sementara ditanggung oleh tim STIQR</p>
+                                        {/* <p className="text-xs text-gray-500 italic ">*sementara ditanggung oleh tim STIQR</p> */}
                                     </div>
                                     <p className="font-bold">
-                                        <span className="line-through font-semibold decoration-red-500">{formatRupiah(1000)}</span> {formatRupiah(0)}
+                                        {formatRupiah(3000)}
                                     </p>
 
                                 </div>
