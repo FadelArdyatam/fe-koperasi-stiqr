@@ -20,9 +20,10 @@ const MarginPPOB: React.FC<MarginProps> = ({ type, showMargin, setShowMargin, ma
     const merchant_id = userData?.merchant?.id;
 
     const [showNotification, setShowNotification] = useState<{ show: boolean; message: string; type: "success" | "error" }>({ show: false, message: "", type: "success" })
-
+    const [loading, setLoading] = useState(false);
     const handleSubmit = async () => {
         if (!type) return;
+        setLoading(true);
         const newType = type.toLowerCase()
         const payload = {
             merchant_id,
@@ -34,6 +35,8 @@ const MarginPPOB: React.FC<MarginProps> = ({ type, showMargin, setShowMargin, ma
             setShowNotification({ show: true, message: `Berhasil mengubah margin ${type}`, type: "success" })
         } catch (error) {
             setShowNotification({ show: true, message: `Gagal mengubah margin ${type}`, type: "error" })
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -73,8 +76,8 @@ const MarginPPOB: React.FC<MarginProps> = ({ type, showMargin, setShowMargin, ma
                                 <p className="text-gray-400 italic text-xs">*Biaya Tambahan akan tertulis menjadi Biaya Layanan di detail tagihan</p>
                                 <p className="text-gray-400 italic text-xs">*Maksimal Rp2.000</p>
                             </div>
-                            <Button className="bg-green-400 flex items-center gap-2" onClick={handleSubmit}>
-                                <Save /> Terapkan
+                            <Button disabled={loading} className="bg-green-400 flex items-center gap-2" onClick={handleSubmit}>
+                                <Save /> {loading ? 'Tunggu..' : 'Terapkan'}
                             </Button>
                         </div>
                     </div>

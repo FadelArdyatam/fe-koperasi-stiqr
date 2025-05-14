@@ -160,28 +160,25 @@ const Pulsa = () => {
                     })}</p>
                 </div>
 
-                <div className="flex justify-between items-center m-auto gap-3 mt-5 w-[90%]">
-                    {/* Kiri: Disclaimer */}
-                    <div
-                        data-aos="fade-up"
-                        data-aos-delay="100"
-                        className="flex items-center justify-between gap-3 p-2 pr-4 bg-blue-50 border border-blue-200 rounded-lg shadow-sm"
-                    >
-                        <div className="flex items-center gap-3">
-                            <Info className="w-4 h-4 text-blue-500" />
-                            <p className="text-xs text-gray-800">
-                                Reseller: <span className="font-medium">Wajib Atur Biaya Tambahan</span> untuk keuntungan Anda.
-                            </p>
-                        </div>
+                {/* Kiri: Disclaimer */}
+                <div className="flex md:flex-row flex-col mt-5 mx-auto justify-between  w-[90%]">
+                    {/* Disclaimer kiri dengan icon dan warna disesuaikan */}
+                    <div className="flex items-center gap-3 bg-blue-50 px-4 py-3 rounded-md shadow-sm border border-blue-200">
+                        <Info className="w-5 h-5 text-blue-500" />
+                        <p className="text-sm text-gray-800 ">
+                            Reseller: <span className="font-medium">Wajib Atur Biaya Tambahan</span> untuk keuntungan Anda.
+                        </p>
                     </div>
 
-                    {/* Kanan: Tombol Atur */}
-                    <div
-                        onClick={() => setShowMargin(true)}
-                        className="flex items-center gap-2 bg-green-500 text-white text-xs px-4 py-2 rounded-full shadow-md hover:bg-green-600 transition duration-300 cursor-pointer whitespace-nowrap"
-                    >
-                        <Tag className="w-5 h-5" />
-                        <span className="font-medium">Atur Biaya Tambahan</span>
+                    {/* Tombol pojok kanan atas */}
+                    <div className="flex p-2">
+                        <div
+                            onClick={() => setShowMargin(true)}
+                            className="flex md:w-auto w-full justify-center items-center gap-2 bg-green-500 text-white text-xs px-4 py-2 rounded-full shadow-md hover:bg-green-600 transition duration-300 cursor-pointer whitespace-nowrap"
+                        >
+                            <Tag className="w-4 h-4" />
+                            <span className="font-medium">Atur Biaya Tambahan</span>
+                        </div>
                     </div>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="400" className="mt-5 w-[90%] m-auto flex flex-row items-center justify-center gap-5 relative">

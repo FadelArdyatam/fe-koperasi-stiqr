@@ -307,7 +307,7 @@ const DataPembayaran = () => {
             <div className={`${showContent.show ? 'flex' : 'hidden'} items-center justify-between gap-5 w-full`}>
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
-                        <Button data-aos="fade-up" data-aos-delay="400" className="w-[90%] -translate-y-10 m-auto bg-red-400">Delete</Button>
+                        <Button data-aos="fade-up" data-aos-delay="400" className="w-[90%] -translate-y-10 m-auto bg-red-400">Hapus</Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent
                         className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm"

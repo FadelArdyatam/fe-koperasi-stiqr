@@ -1,4 +1,4 @@
-import { ChevronLeft, X, Banknote, Calculator, CircleAlert, CreditCard, FileText, Home, ScanQrCode, UserRound, Share } from "lucide-react";
+import { ChevronLeft, X, Banknote, Calculator, CircleAlert, CreditCard, FileText, Home, ScanQrCode, UserRound, Share, Info } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
 import { useRef, useState, useEffect } from "react";
@@ -353,7 +353,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                             <Button onClick={shareContent} className="text-white bg-transparent rounded-full w-10 h-10 bg-orange-400 border-2 border-orange-400">
                                 <Share />
                             </Button>
-{/* 
+                            {/* 
                             <Button className="text-white bg-transparent rounded-full w-10 h-10 bg-orange-400 border-2 border-orange-400">
                                 <Download />
                             </Button> */}
@@ -420,6 +420,15 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                 </div>
 
                 <div data-aos="fade-up" data-aos-delay="100" className="mt-28 w-[90%] shadow-lg m-auto p-5 rounded-lg bg-white">
+                    <div className="flex md:flex-row flex-col items-center gap-3 bg-blue-50 px-2 py-3 rounded-md shadow-sm border border-blue-200 mb-3">
+                        <div className="flex gap-2">
+                            <Info className="md:w-4 md:h-4 w-5 h-5 text-blue-500" />
+                            <p className="text-sm md:hidden block text-blue-500 font-semibold">Info</p>
+                        </div>
+                        <p className="text-xs text-gray-800">
+                            Saat ini nama tujuan rekening dari Qr Code masih dengan atas nama <span className="font-bold"> PT. Digital Nusantara Sinergi</span>. Pengguna dapat melakukan pengajuan pergantian NAMA dengan menghubungi <Link to={'/profile/help-center'} className="underline font-bold"> Customer Service</Link>
+                        </p>
+                    </div>
                     <p className="text-gray-700 font-medium">Keterangan</p>
 
                     <div className="relative mt-3">

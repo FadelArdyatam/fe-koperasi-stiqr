@@ -255,7 +255,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <Button data-aos="fade-up" data-aos-delay="400" className={`w-full !mt-5 m-auto bg-red-400`}>
-                                    Hapus Etalase
+                                    Hapus
                                 </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent

@@ -452,7 +452,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                     <div className="w-full mt-10 flex items-center gap-5 justify-between">
                         <Button onClick={() => { setBasket([]); setShowService({ show: false, service: null }) }} className="rounded-full w-14 h-14 min-w-14 min-h-14 bg-orange-100 text-orange-400 font-semibold"><Trash2 className="scale-[1.5]" /></Button>
 
-                        <Button disabled={loading || emailError !== '' || phoneNumberError !== '' ? true : false} onClick={() => { openBillHandler('open'); setLoading(true) }} className={`${showService.service === "Pay Now" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button>
+                        {/* <Button disabled={loading || emailError !== '' || phoneNumberError !== '' ? true : false} onClick={() => { openBillHandler('open'); setLoading(true) }} className={`${showService.service === "Pay Now" ? 'hidden' : 'flex'} bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Open Bill</Button> */}
 
                         <Button disabled={loading || emailError !== '' || phoneNumberError !== '' ? true : false} onClick={() => { openBillHandler('tagih'); setLoading(true) }} className="bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold">Tagih</Button>
                     </div>

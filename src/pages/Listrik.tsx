@@ -122,10 +122,15 @@ const Listrik = () => {
 
     const handleRadioChange = (value: string) => {
         setType(value);
+        console.log(value);
+        if (!products) {
+            console.log(type)
+            console.log('MASOK');
+            setError({ show: true, message: "Terjadi Kesalahan, tunggu beberapa saat lagi" });
+            return;
+        }
         AOS.refresh();
         if (value === "Tagihan Listrik") {
-            console.log('tagihan listrik')
-            console.log(products)
             setNominal("");
             setSelecteProduct(products[0])
         }
@@ -148,20 +153,20 @@ const Listrik = () => {
                     <p data-aos="fade-up" data-aos-delay="100" className="font-semibold m-auto text-xl text-center">
                         Beli Token Atau Bayar Listrik
                     </p>
-                    <div className="relative mt-5 mx-auto">
+                    <div className="flex md:flex-row flex-col mt-5 mx-auto justify-between">
                         {/* Disclaimer kiri dengan icon dan warna disesuaikan */}
-                        <div className="flex items-center gap-3 bg-blue-50 px-4 py-3 rounded-md shadow-sm border border-blue-200 w-fit">
+                        <div className="flex items-center gap-3 bg-blue-50 px-4 py-3 rounded-md shadow-sm border border-blue-200">
                             <Info className="w-5 h-5 text-blue-500" />
-                            <p className="text-sm text-gray-800 whitespace-nowrap">
+                            <p className="text-sm text-gray-800 ">
                                 Reseller: <span className="font-medium">Wajib Atur Biaya Tambahan</span> untuk keuntungan Anda.
                             </p>
                         </div>
 
                         {/* Tombol pojok kanan atas */}
-                        <div className="absolute top-0 right-0 p-2">
+                        <div className="flex p-2">
                             <div
                                 onClick={() => setShowMargin(true)}
-                                className="flex items-center gap-2 bg-green-500 text-white text-xs px-4 py-2 rounded-full shadow-md hover:bg-green-600 transition duration-300 cursor-pointer whitespace-nowrap"
+                                className="flex md:w-auto w-full justify-center items-center gap-2 bg-green-500 text-white text-xs px-4 py-2 rounded-full shadow-md hover:bg-green-600 transition duration-300 cursor-pointer whitespace-nowrap"
                             >
                                 <Tag className="w-4 h-4" />
                                 <span className="font-medium">Atur Biaya Tambahan</span>
@@ -252,7 +257,7 @@ const Listrik = () => {
 
                 <Button
                     onClick={sendBill}
-                    className={`${type.length === 0 || noMeter.length === 0 || (type === "Token Listrik" && nominal.length === 0) ? "hidden" : "block"} w-[90%] m-auto bg-green-400 text-white py-3 rounded-md hover:bg-green-500 mb-10`}
+                    className={`${type.length === 0 || noMeter.length === 0 || (type === "Token Listrik" && nominal.length === 0) ? "hidden" : "block"} w-[90%] m-auto bg-green-400 text-white py-3 rounded-md hover:bg-green-500 mb-10 -mt-16`}
                 >
                     Lanjutkan
                 </Button>
