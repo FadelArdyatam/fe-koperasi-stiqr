@@ -73,7 +73,8 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
 
             const socket = getSocket();
             const handlePaymentSuccess = (data: { orderId: string; status: string; amount?: number }) => {
-                if ((orderId === data.orderId || orderIdInstant === data.orderId) && data.status === 'PAID') {
+                if ((orderId === data.orderId || orderIdInstant === data.orderId) && (data.status === 'PAID' || data.status === "SUCCESS")) {
+                    console.log("Payment success:", data);
                     navigate('/payment-success', {
                         state: {
                             orderId: data.orderId ?? "dummy-order-id",
@@ -201,14 +202,51 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     merchant_id: userData.merchant.id,
                 }
 
-                const initiateHooks = await axiosInstance.post("/finpay/initiate", requestBody);
+
+                // const initiateHooks = await axiosInstance.post("/finpay/initiate", requestBody);
+                // const paymentQRHooks = await axiosInstance.post('/sales/payment-qr', paymentQR)
+
+                // console.log(initiateHooks)
+                // console.log(paymentQRHooks)
+
+                // if (initiateHooks.data) {
+                //     setStringQRInstant(initiateHooks.data.response.stringQr);
+                //     setDataForPaymentMethod(requestBody);
+                //     setShowQRInstant(true);
+                //     setOrderIdInstant(generateOrderId)
+
+                //     const timer = setInterval(() => {
+                //         setTimeLeft((prevTime) => {
+                //             if (prevTime <= 1) {
+                //                 clearInterval(timer);
+                //                 navigate("/dashboard");
+                //                 return 0;
+                //             }
+                //             return prevTime - 1;
+                //         });
+                //     }, 1000);
+
+                //     return () => clearInterval(timer);
+                // } else {
+                //     alert("Gagal membuat link pembayaran. Mohon coba lagi.");
+                // }
+
+                const nobuRequest = {
+                    "partnerReferenceNo": generateOrderId,
+                    "amount": {
+                        "value": `${amount}.00`,
+                        "currency": "IDR"
+                    },
+                }
+
+                const initiateHooks = await axiosInstance.post("/nobu/generate-qris/v1.2/qr/qr-mpm-generate/", nobuRequest);
                 const paymentQRHooks = await axiosInstance.post('/sales/payment-qr', paymentQR)
 
                 console.log(initiateHooks)
                 console.log(paymentQRHooks)
 
                 if (initiateHooks.data) {
-                    setStringQRInstant(initiateHooks.data.response.stringQr);
+                    setStringQRInstant(initiateHooks.data.qrContent);
                     setDataForPaymentMethod(requestBody);
                     setShowQRInstant(true);
                     setOrderIdInstant(generateOrderId)

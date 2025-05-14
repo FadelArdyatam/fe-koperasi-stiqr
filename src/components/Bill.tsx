@@ -79,22 +79,31 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
             await validatePinBalance(userData.merchant.id, pin.join(''), amountToPay);
 
             // Jika berhasil, lanjut ke payment
-            const requestBody = {
-                email: userData.email,
-                firstName: userData.merchant.name,
-                lastName: userData.username,
-                mobilePhone: userData.phone_number.replace(/^08/, '+628'),
-                amount: amountToPay,
-                description: "Pembayaran Pesanan",
-                successUrl: "http://success",
-                type: "qris",
-                orderId: orderIdQris,
-            };
+            // const requestBody = {
+            //     email: userData.email,
+            //     firstName: userData.merchant.name,
+            //     lastName: userData.username,
+            //     mobilePhone: userData.phone_number.replace(/^08/, '+628'),
+            //     amount: amountToPay,
+            //     description: "Pembayaran Pesanan",
+            //     successUrl: "http://success",
+            //     type: "qris",
+            //     orderId: orderIdQris,
+            // };
 
-            const response = await axiosInstance.post(`/finpay/initiate`, requestBody);
+            // const response = await axiosInstance.post(`/finpay/initiate`, requestBody);
+            const nobuRequest = {
+                "partnerReferenceNo": orderIdQris,
+                "amount": {
+                    "value": `${amountToPay}.00`,
+                    "currency": "IDR"
+                },
+            }
 
-            if (response.data?.response?.stringQr) {
-                setStringQR(response.data.response.stringQr);
+            const initiateHooks = await axiosInstance.post("/nobu/generate-qris/v1.2/qr/qr-mpm-generate/", nobuRequest);
+
+            if (initiateHooks.data) {
+                setStringQR(initiateHooks.data.qrContent);
                 setShowQRCode(true);
 
                 const timer = setInterval(() => {
@@ -111,6 +120,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                 return () => clearInterval(timer);
             }
         } catch (error: any) {
+            console.log(error)
             if (axios.isAxiosError(error)) {
                 const message = error.response?.data?.message;
                 setError(message || "Gagal Melakukan Pembayaran");
