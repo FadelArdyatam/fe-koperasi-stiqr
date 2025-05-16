@@ -427,8 +427,13 @@ const Settlement = () => {
                                                         }
                                                         field.onChange(value ? Number(value) : "");
                                                         const margin = Number(value) * 0.007;
-                                                        setMarginMdr(Math.ceil(margin));
-                                                        setMdr(Math.ceil(Number(value) - margin - 3000));
+                                                        if (Number(value) >= 12000) {
+                                                            setMarginMdr(Math.ceil(margin));
+                                                            setMdr(Math.ceil(Number(value) - margin - 3000));
+                                                        } else if (Number(value) < 12000) {
+                                                            setMarginMdr(0);
+                                                            setMdr(0);
+                                                        }
                                                     }}
                                                 />
                                             </FormControl>
@@ -436,6 +441,8 @@ const Settlement = () => {
                                         </FormItem>
                                     )}
                                 />
+                                <p className="text-xs text-gray-500 italic -mt-1">*Minimal penarikan Rp 12.000</p>
+
 
                                 <div className="flex justify-between">
                                     <p>MDR <i> (0,7%)</i> </p>
@@ -460,7 +467,7 @@ const Settlement = () => {
                                 </div>
                             </div>
 
-                            <Button type="submit" className="mt-5 w-full text-base bg-orange-500">
+                            <Button disabled={`${form.getValues("amount") < 12000 ? 'disabled' : ''}`} type="submit" className={`mt-5 w-full text-base bg-orange-500 `}>
                                 Tarik Saldo
                             </Button>
 
