@@ -2,7 +2,7 @@ import DetailProduct from "@/pages/Casheer/DetailProduct"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import axiosInstance from "@/hooks/axiosInstance"
-import { ArrowLeft, Search, SlidersHorizontal, ShoppingBasket, X } from "lucide-react"
+import { ArrowLeft, Search, SlidersHorizontal, ShoppingBasket, X, Wrench } from "lucide-react"
 import { useEffect, useState, useCallback, useRef } from "react"
 import { Link } from "react-router-dom"
 import takeAway from "../../images/take-away.png"
@@ -666,29 +666,41 @@ const Casheer = () => {
                     </Button>
                 )}
 
-                {showService.show && (
-                    <div className="fixed w-full h-full bg-black bg-opacity-50 top-0 left-0 z-20 flex items-end justify-center">
-                        <div ref={serviceRef} data-aos="fade-up" className="w-full bg-white rounded-t-xl p-5">
-                            <p className="font-semibold text-2xl">Pilih Layanan</p>
+            {showService.show && (
+                <div className="fixed w-full h-full bg-black bg-opacity-50 top-0 left-0 z-20 flex items-end justify-center">
+                    <div ref={serviceRef} data-aos="fade-up" className="w-full bg-white rounded-t-xl p-5">
+                        <p className="font-semibold text-2xl">Pilih Layanan</p>
 
-                            <div className="mt-5 flex gap-5">
-                                <Button onClick={() => setShowService({ show: true, service: "Pay Later" })} className="w-full h-40 bg-orange-100 rounded-xl text-orange-500 p-5 flex flex-col
-                                ">
+                        <div className="mt-5 flex gap-5">
+                            {/* Bayar Nanti - Disabled */}
+                            <div className="relative w-full h-40">
+                                <Button
+                                    className="w-full h-full bg-orange-100 rounded-xl text-orange-500 p-5 flex flex-col items-center justify-center blur-[2px] cursor-not-allowed"
+                                    disabled
+                                >
                                     <img className="w-16 h-16 block" src={dineIn} alt="" />
-
                                     <p className="text-lg mt-3 text-wrap">Bayar Nanti</p>
                                 </Button>
-
-                                <Button onClick={() => setShowService({ show: true, service: "Pay Now" })} className="w-full h-40 bg-orange-100 rounded-xl text-orange-500 p-5 flex flex-col
-                                ">
-                                    <img className="w-16 h-16 block" src={takeAway} alt="" />
-
-                                    <p className="text-lg mt-3">Bayar Sekarang</p>
-                                </Button>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <p className="bg-orange-500 flex gap-2 p-2 font-semibold text-center shadow-md text-white bg-opacity-90 px-3 py-1 rounded">
+                                        <Wrench />   Fitur ini akan segera hadir
+                                    </p>
+                                </div>
                             </div>
+
+                            {/* Bayar Sekarang - Active */}
+                            <Button
+                                onClick={() => setShowService({ show: true, service: "Pay Now" })}
+                                className="w-full h-40 bg-orange-100 rounded-xl text-orange-500 p-5 flex flex-col items-center justify-center"
+                            >
+                                <img className="w-16 h-16 block" src={takeAway} alt="" />
+                                <p className="text-lg mt-3">Bayar Sekarang</p>
+                            </Button>
                         </div>
                     </div>
-                )}
+                </div>
+            )}
+
             </div>
 
             {showDetailProduct && <DetailProduct product={selectedProduct} setShowDetailProduct={setShowDetailProduct} basket={basket} setBasket={setBasket} showService={showService} />}
