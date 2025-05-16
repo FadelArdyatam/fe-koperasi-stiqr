@@ -467,7 +467,7 @@ const Settlement = () => {
                                 </div>
                             </div>
 
-                            <Button disabled={`${form.getValues("amount") < 12000 ? 'disabled' : ''}`} type="submit" className={`mt-5 w-full text-base bg-orange-500 `}>
+                            <Button disabled={form.getValues("amount") < 12000} type="submit" className={`mt-5 w-full text-base bg-orange-500 `}>
                                 Tarik Saldo
                             </Button>
 
