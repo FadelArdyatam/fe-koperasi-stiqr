@@ -49,6 +49,7 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
             const response = await axiosInstance.post("/sales/other-payment", {
                 sales_id: dataPayment.sales_id,
                 paymentType: selectedMethod,
+                pay_amount: paymentAmount,
             });
 
             console.log("Response other payment:", response);

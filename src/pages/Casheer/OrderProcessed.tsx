@@ -61,113 +61,115 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
         return "0";
     };
 
-    // const prepareItems = () => {
-    //     if (Array.isArray((basket as { sales_details?: SalesDetail[] }).sales_details)) {
-    //         const salesDetails = (basket as { sales_details: SalesDetail[] }).sales_details;
-    //         return salesDetails.map(data => ({
-    //             name: data.product.product_name,
-    //             quantity: data.quantity.toString(),
-    //             unitPrice: data.product.product_price.toString(),
-    //         }));
-    //     }
+    const prepareItems = () => {
+        if (Array.isArray((basket as { sales_details?: SalesDetail[] }).sales_details)) {
+            const salesDetails = (basket as { sales_details: SalesDetail[] }).sales_details;
+            return salesDetails.map(data => ({
+                name: data.product.product_name,
+                quantity: data.quantity.toString(),
+                unitPrice: data.product.product_price.toString(),
+            }));
+        }
 
-    //     if (Array.isArray(basket)) {
-    //         return (basket as ProductItem[]).map(data => ({
-    //             name: data.product,
-    //             quantity: data.quantity.toString(),
-    //             unitPrice: data.price.toString(),
-    //         }));
-    //     }
+        if (Array.isArray(basket)) {
+            return (basket as ProductItem[]).map(data => ({
+                name: data.product,
+                quantity: data.quantity.toString(),
+                unitPrice: data.price.toString(),
+            }));
+        }
 
-    //     return [];
-    // };
+        return [];
+    };
 
     const [timeLeft, setTimeLeft] = useState(300)
 
     useEffect(() => {
-        if (!tagih) {
-            return
+        if (tagih) {
+            handleTagih()
         }
-        handleTagih()
-    }, []);
+    }, [tagih]);
+
 
     const handleTagih = async () => {
-        // const userItem = sessionStorage.getItem("user");
-        // const userData = userItem ? JSON.parse(userItem) : null;
-        try {
-            // const requestBody = {
-            //     email: userData.email,
-            //     firstName: userData.merchant.name,
-            //     lastName: userData.username,
-            //     mobilePhone: userData.phone_number.replace(/^08/, '+628'),
-            //     amount: calculateTotalAmount(),
-            //     description: "Pembayaran Pesanan",
-            //     successUrl: "http://success",
-            //     type: "qris",
-            //     orderId: orderId,
-            //     item: prepareItems(),
-            // };
+        const userItem = sessionStorage.getItem("user");
+        const userData = userItem ? JSON.parse(userItem) : null;
 
-            // const response = await axiosInstance.post(`/finpay/initiate`, requestBody);
+        const orderAmount = calculateTotalAmount();
+
+        // Helper function untuk jalankan timer
+        const startTimer = () => {
+            const timer = setInterval(() => {
+                setTimeLeft((prevTime) => {
+                    if (prevTime <= 1) {
+                        clearInterval(timer);
+                        navigate("/dashboard");
+                        return 0;
+                    }
+                    return prevTime - 1;
+                });
+            }, 1000);
+            return () => clearInterval(timer);
+        };
+
+        try {
+            // --- NOBU PAYMENT ---
             const nobuRequest = {
-                "partnerReferenceNo": orderId,
-                "amount": {
-                    "value": `${calculateTotalAmount()}.00`,
-                    "currency": "IDR"
+                partnerReferenceNo: orderId,
+                amount: {
+                    // value: `${orderAmount}.00`,
+                    value: `${orderAmount}`,
+                    currency: "IDR"
                 },
-            }
+            };
 
             const initiateHooks = await axiosInstance.post("/nobu/generate-qris/v1.2/qr/qr-mpm-generate/", nobuRequest);
-            if (initiateHooks.data) {
+
+            if (initiateHooks.data && initiateHooks.data.qrContent) {
                 setStringQR(initiateHooks.data.qrContent);
-                setShowQRCode(true)
-                if (setTagih) {
-                    setTagih(false);
-                }
-                const timer = setInterval(() => {
-                    setTimeLeft((prevTime) => {
-                        if (prevTime <= 1) {
-                            clearInterval(timer);
-                            navigate("/dashboard");
-                            return 0;
-                        }
-                        return prevTime - 1;
-                    });
-                }, 1000);
-
-                return () => clearInterval(timer);
-            } else {
-                alert("Gagal membuat link pembayaran. Mohon coba lagi.");
+                setShowQRCode(true);
+                if (setTagih) setTagih(false);
+                return startTimer();
             }
-            // if (response.data) {
-            //     setStringQR(response.data.response.stringQr);
-            //     setShowQRCode(true)
-            //     if (setTagih) {
-            //         setTagih(false);
-            //     }
-            //     const timer = setInterval(() => {
-            //         setTimeLeft((prevTime) => {
-            //             if (prevTime <= 1) {
-            //                 clearInterval(timer);
-            //                 navigate("/dashboard");
-            //                 return 0;
-            //             }
-            //             return prevTime - 1;
-            //         });
-            //     }, 1000);
 
-            //     return () => clearInterval(timer);
-            // } else {
-            //     alert("Gagal membuat link pembayaran. Mohon coba lagi.");
-            // }
+            throw new Error("NOBU gagal tanpa response valid");
         } catch (error) {
-            console.log(error)
-            console.log("Gagal membuat link pembayaran:", error);
-            alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
+            console.error("NOBU error, mencoba Finpay:", error);
+
+            try {
+                // --- FINPAY PAYMENT ---
+                const requestBody = {
+                    email: userData?.email,
+                    firstName: userData?.merchant?.name,
+                    lastName: userData?.username,
+                    mobilePhone: userData?.phone_number?.replace(/^08/, '+628'),
+                    amount: orderAmount,
+                    description: "Pembayaran Pesanan",
+                    successUrl: "http://success",
+                    type: "qris",
+                    orderId: orderId,
+                    item: prepareItems(),
+                };
+
+                const response = await axiosInstance.post(`/finpay/initiate`, requestBody);
+
+                if (response.data && response.data.response?.stringQr) {
+                    setStringQR(response.data.response.stringQr);
+                    setShowQRCode(true);
+                    if (setTagih) setTagih(false);
+                    return startTimer();
+                }
+
+                throw new Error("Finpay gagal tanpa response valid");
+            } catch (finpayError) {
+                console.error("Finpay juga gagal:", finpayError);
+                alert("Gagal membuat link pembayaran dari NOBU maupun Finpay. Mohon coba lagi nanti.");
+            }
         } finally {
-            // setIsLoading(false); // Nonaktifkan loading
+            // setIsLoading(false); // Uncomment jika kamu pakai loading state
         }
-    }
+    };
+
 
     const handleCancelPayment = async () => {
         try {
@@ -184,8 +186,6 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
             console.log(error)
         }
     };
-
-    console.log("Basket from OrderProcessed:", basket);
 
     return (
         <>

@@ -55,8 +55,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         AOS.init({ duration: 500, once: true });
     }, []);
 
-    console.log("Show Service: ", showService);
-
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
 
@@ -167,7 +165,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 detail_variants: item.detail_variants
             }));
 
-            console.log("Modify Basket: ", modifyBasket);
 
             const generateRandomString = (length = 10) => {
                 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -177,7 +174,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
             const generateOrderId = `S${generateRandomString(15)}`;
 
             setOrderId(generateOrderId)
-            console.log(selectedCustomer)
 
             const requestBody = {
                 customer: {

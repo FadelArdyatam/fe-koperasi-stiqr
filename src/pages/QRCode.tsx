@@ -174,7 +174,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
             setError({ show: true, message: "Silakan masukkan jumlah pembayaran terlebih dahulu!" });
             return;
         }
-
+    
         if (type === '') {
             setIsLoading(true);
             const generateRandomString = (length = 10) => {
@@ -182,75 +182,45 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                 return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
             };
             const generateOrderId = `S${generateRandomString(15)}`;
+    
+            const requestBody = {
+                email: userData.email,
+                firstName: userData.merchant.name,
+                lastName: userData.username,
+                mobilePhone: userData.phone_number.replace(/^08/, '+628'),
+                amount: amount,
+                description: "Pembayaran",
+                successUrl: "http://success",
+                type: "qris",
+                orderId: generateOrderId
+            };
+    
+            const paymentQR = {
+                orderId: generateOrderId,
+                amount: amount,
+                keterangan: keterangan,
+                merchant_id: userData.merchant.id,
+            };
+    
             try {
-                const requestBody = {
-                    email: userData.email,
-                    firstName: userData.merchant.name,
-                    lastName: userData.username,
-                    mobilePhone: userData.phone_number.replace(/^08/, '+628'),
-                    amount: amount,
-                    description: "Pembayaran",
-                    successUrl: "http://success",
-                    type: "qris",
-                    orderId: generateOrderId
-                };
-
-                const paymentQR = {
-                    orderId: generateOrderId,
-                    amount: amount,
-                    keterangan: keterangan,
-                    merchant_id: userData.merchant.id,
-                }
-
-
-                // const initiateHooks = await axiosInstance.post("/finpay/initiate", requestBody);
-                // const paymentQRHooks = await axiosInstance.post('/sales/payment-qr', paymentQR)
-
-                // console.log(initiateHooks)
-                // console.log(paymentQRHooks)
-
-                // if (initiateHooks.data) {
-                //     setStringQRInstant(initiateHooks.data.response.stringQr);
-                //     setDataForPaymentMethod(requestBody);
-                //     setShowQRInstant(true);
-                //     setOrderIdInstant(generateOrderId)
-
-                //     const timer = setInterval(() => {
-                //         setTimeLeft((prevTime) => {
-                //             if (prevTime <= 1) {
-                //                 clearInterval(timer);
-                //                 navigate("/dashboard");
-                //                 return 0;
-                //             }
-                //             return prevTime - 1;
-                //         });
-                //     }, 1000);
-
-                //     return () => clearInterval(timer);
-                // } else {
-                //     alert("Gagal membuat link pembayaran. Mohon coba lagi.");
-                // }
-
+                // --- NOBU PAYMENT ---
                 const nobuRequest = {
-                    "partnerReferenceNo": generateOrderId,
-                    "amount": {
-                        "value": `${amount}.00`,
-                        "currency": "IDR"
+                    partnerReferenceNo: generateOrderId,
+                    amount: {
+                        value: `${amount}.00`,
+                        currency: "IDR"
                     },
-                }
-
+                };
+    
                 const initiateHooks = await axiosInstance.post("/nobu/generate-qris/v1.2/qr/qr-mpm-generate/", nobuRequest);
-                const paymentQRHooks = await axiosInstance.post('/sales/payment-qr', paymentQR)
-
-                console.log(initiateHooks)
-                console.log(paymentQRHooks)
-
-                if (initiateHooks.data) {
+                await axiosInstance.post('/sales/payment-qr', paymentQR);
+    
+                if (initiateHooks.data && initiateHooks.data.qrContent) {
                     setStringQRInstant(initiateHooks.data.qrContent);
                     setDataForPaymentMethod(requestBody);
                     setShowQRInstant(true);
-                    setOrderIdInstant(generateOrderId)
-
+                    setOrderIdInstant(generateOrderId);
+    
                     const timer = setInterval(() => {
                         setTimeLeft((prevTime) => {
                             if (prevTime <= 1) {
@@ -261,20 +231,50 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                             return prevTime - 1;
                         });
                     }, 1000);
-
+    
                     return () => clearInterval(timer);
-                } else {
-                    alert("Gagal membuat link pembayaran. Mohon coba lagi.");
                 }
+    
+                throw new Error("NOBU gagal tanpa response valid");
+    
             } catch (error) {
-                console.log(error)
-                console.log("Gagal membuat link pembayaran:", error);
-                alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
+                console.log("NOBU gagal, mencoba Finpay:", error);
+    
+                try {
+                    const initiateHooks = await axiosInstance.post("/finpay/initiate", requestBody);
+                    await axiosInstance.post('/sales/payment-qr', paymentQR);
+    
+                    if (initiateHooks.data && initiateHooks.data.response?.stringQr) {
+                        setStringQRInstant(initiateHooks.data.response.stringQr);
+                        setDataForPaymentMethod(requestBody);
+                        setShowQRInstant(true);
+                        setOrderIdInstant(generateOrderId);
+    
+                        const timer = setInterval(() => {
+                            setTimeLeft((prevTime) => {
+                                if (prevTime <= 1) {
+                                    clearInterval(timer);
+                                    navigate("/dashboard");
+                                    return 0;
+                                }
+                                return prevTime - 1;
+                            });
+                        }, 1000);
+    
+                        return () => clearInterval(timer);
+                    } else {
+                        alert("Gagal membuat link pembayaran. Mohon coba lagi.");
+                    }
+                } catch (finpayError) {
+                    console.error("Finpay juga gagal:", finpayError);
+                    alert("Gagal membuat link pembayaran dari NOBU maupun Finpay. Mohon coba lagi nanti.");
+                }
             } finally {
                 setIsLoading(false);
             }
         }
     };
+    
 
     const formatTime = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
