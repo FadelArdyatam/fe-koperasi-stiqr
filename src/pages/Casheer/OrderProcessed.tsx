@@ -117,8 +117,8 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
             const nobuRequest = {
                 partnerReferenceNo: orderId,
                 amount: {
-                    // value: `${orderAmount}.00`,
-                    value: `${orderAmount}`,
+                    value: `${orderAmount}.00`,
+                    // value: `${orderAmount}`,
                     currency: "IDR"
                 },
             };

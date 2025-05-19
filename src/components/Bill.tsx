@@ -81,7 +81,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
             const nobuRequest = {
                 partnerReferenceNo: orderIdQris,
                 amount: {
-                    value: `${amountToPay}`,
+                    value: `${amountToPay}.00`,
                     currency: "IDR"
                 },
             };
@@ -118,7 +118,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                     email: userData.email,
                     firstName: userData.merchant.name,
                     lastName: userData.username,
-                    mobilePhone: userData.phone_number.replace(/^08/, '+628') + "==",
+                    mobilePhone: userData.phone_number.replace(/^08/, '+628'),
                     amount: total + Number(marginFee),
                     description: "Pembayaran Pesanan",
                     successUrl: "http://success",
