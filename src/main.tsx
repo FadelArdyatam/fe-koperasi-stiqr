@@ -31,6 +31,8 @@ import DataCustomer from './pages/Profile/DataCustomer.tsx'
 import Customer from './pages/Customer.tsx'
 import NotFound from './pages/NotFound.tsx'
 import HelpCenter from './pages/Profile/HelpCenter.tsx'
+import EReceipt from './pages/Casheer/EReceipt.tsx'
+import EReceiptCustomer from './pages/Casheer/EReceiptCustomer.tsx'
 
 const router = createBrowserRouter([
   {
@@ -144,6 +146,14 @@ const router = createBrowserRouter([
   {
     path: '*',
     element: <NotFound />
+  },
+  {
+    path: '/order',
+    element: <EReceipt />
+  },
+  {
+    path: '/orderCustomer',
+    element: <EReceiptCustomer />
   }
 ], {
   future: {
