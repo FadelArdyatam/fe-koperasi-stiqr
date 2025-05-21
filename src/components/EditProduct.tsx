@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
-import { ChevronLeft, CircleAlert, CircleCheck } from "lucide-react";
+import { ChevronLeft, CircleAlert, CircleCheck, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import axiosInstance from "@/hooks/axiosInstance";
@@ -909,7 +909,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                         <div className="flex items-center justify-between">
                             <p className="font-semibold text-xl">Tambah Varian</p>
                             <button onClick={() => setShowPopUpAddVariant(false)}>
-                                <ChevronLeft />
+                                <X />
                             </button>
                         </div>
 
@@ -1219,7 +1219,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                     )}
                                 />
 
-                                <Button data-aos="fade-up" data-aos-delay="600" type="submit" className="w-full bg-green-500 text-white">
+                                <Button type="submit" className="w-full bg-green-500 text-white">
                                     Simpan Varian
                                 </Button>
                             </form>

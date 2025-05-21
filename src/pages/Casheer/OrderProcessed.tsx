@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { formatRupiah } from "@/hooks/convertRupiah";
 import { ArrowLeft, CircleAlert, Computer } from "lucide-react"
-import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, useState, useEffect } from "react";
+import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, useState, useEffect, useCallback, useRef } from "react";
 import QRCodePage from "../QRCode";
 import axiosInstance from "@/hooks/axiosInstance";
 import { useNavigate } from "react-router-dom";
@@ -84,20 +84,17 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
 
     const [timeLeft, setTimeLeft] = useState(300)
 
-    useEffect(() => {
-        if (tagih) {
-            handleTagih()
-        }
-    }, [tagih]);
+    const calledRef = useRef(false); // 👈 Flag untuk hindari pemanggilan ganda
 
+    const handleTagih = useCallback(async () => {
+        if (calledRef.current) return; // ⛔ Skip kalau sudah pernah jalan
+        calledRef.current = true; // ✅ Set agar tidak jalan lagi
 
-    const handleTagih = async () => {
         const userItem = sessionStorage.getItem("user");
         const userData = userItem ? JSON.parse(userItem) : null;
 
         const orderAmount = calculateTotalAmount();
 
-        // Helper function untuk jalankan timer
         const startTimer = () => {
             const timer = setInterval(() => {
                 setTimeLeft((prevTime) => {
@@ -118,14 +115,16 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                 partnerReferenceNo: orderId,
                 amount: {
                     value: `${orderAmount}.00`,
-                    // value: `${orderAmount}`,
-                    currency: "IDR"
+                    currency: "IDR",
                 },
             };
 
-            const initiateHooks = await axiosInstance.post("/nobu/generate-qris/v1.2/qr/qr-mpm-generate/", nobuRequest);
+            const initiateHooks = await axiosInstance.post(
+                "/nobu/generate-qris/v1.2/qr/qr-mpm-generate/",
+                nobuRequest
+            );
 
-            if (initiateHooks.data && initiateHooks.data.qrContent) {
+            if (initiateHooks.data?.qrContent) {
                 setStringQR(initiateHooks.data.qrContent);
                 setShowQRCode(true);
                 if (setTagih) setTagih(false);
@@ -137,12 +136,11 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
             console.error("NOBU error, mencoba Finpay:", error);
 
             try {
-                // --- FINPAY PAYMENT ---
                 const requestBody = {
                     email: userData?.email,
                     firstName: userData?.merchant?.name,
                     lastName: userData?.username,
-                    mobilePhone: userData?.phone_number?.replace(/^08/, '+628'),
+                    mobilePhone: userData?.phone_number?.replace(/^08/, "+628"),
                     amount: orderAmount,
                     description: "Pembayaran Pesanan",
                     successUrl: "http://success",
@@ -153,7 +151,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
 
                 const response = await axiosInstance.post(`/finpay/initiate`, requestBody);
 
-                if (response.data && response.data.response?.stringQr) {
+                if (response.data?.response?.stringQr) {
                     setStringQR(response.data.response.stringQr);
                     setShowQRCode(true);
                     if (setTagih) setTagih(false);
@@ -163,13 +161,26 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                 throw new Error("Finpay gagal tanpa response valid");
             } catch (finpayError) {
                 console.error("Finpay juga gagal:", finpayError);
-                alert("Gagal membuat link pembayaran dari NOBU maupun Finpay. Mohon coba lagi nanti.");
+                alert("Gagal Melakukan Pembayaran. Silakan coba lagi nanti.");
+                navigate('/booking'); // Kembali ke halaman sebelumnya
             }
-        } finally {
-            // setIsLoading(false); // Uncomment jika kamu pakai loading state
         }
-    };
+    }, [
+        orderId,
+        calculateTotalAmount,
+        prepareItems,
+        navigate,
+        setShowQRCode,
+        setStringQR,
+        setTagih,
+        setTimeLeft,
+    ]);
 
+    useEffect(() => {
+        if (tagih) {
+            handleTagih();
+        }
+    }, [tagih, handleTagih]);
 
     const handleCancelPayment = async () => {
         try {
@@ -244,7 +255,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                         <div className="w-full mt-5 flex items-center gap-5 justify-between">
                             <p className="font-semibold text-gray-500">Layanan</p>
 
-                            <p className="font-semibold">{basket?.order_type === 'dinein' ? 'Makan di Tempat' : 'Bawa Pulang'}</p>
+                            <p className="font-semibold">{basket?.order_type === 'dinein' ? 'Bayar Nanti' : 'Bayar Sekarang'}</p>
                         </div>
                         <div className="w-full mt-5 flex  gap-5 flex-col">
                             <p className="font-bold">Informasi Pelanggan</p>

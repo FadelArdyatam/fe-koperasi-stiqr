@@ -174,7 +174,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
             setError({ show: true, message: "Silakan masukkan jumlah pembayaran terlebih dahulu!" });
             return;
         }
-    
+
         if (type === '') {
             setIsLoading(true);
             const generateRandomString = (length = 10) => {
@@ -182,7 +182,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                 return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
             };
             const generateOrderId = `S${generateRandomString(15)}`;
-    
+
             const requestBody = {
                 email: userData.email,
                 firstName: userData.merchant.name,
@@ -194,14 +194,14 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                 type: "qris",
                 orderId: generateOrderId
             };
-    
+
             const paymentQR = {
                 orderId: generateOrderId,
                 amount: amount,
                 keterangan: keterangan,
                 merchant_id: userData.merchant.id,
             };
-    
+
             try {
                 // --- NOBU PAYMENT ---
                 const nobuRequest = {
@@ -211,16 +211,16 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                         currency: "IDR"
                     },
                 };
-    
+
                 const initiateHooks = await axiosInstance.post("/nobu/generate-qris/v1.2/qr/qr-mpm-generate/", nobuRequest);
                 await axiosInstance.post('/sales/payment-qr', paymentQR);
-    
+
                 if (initiateHooks.data && initiateHooks.data.qrContent) {
                     setStringQRInstant(initiateHooks.data.qrContent);
                     setDataForPaymentMethod(requestBody);
                     setShowQRInstant(true);
                     setOrderIdInstant(generateOrderId);
-    
+
                     const timer = setInterval(() => {
                         setTimeLeft((prevTime) => {
                             if (prevTime <= 1) {
@@ -231,25 +231,25 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                             return prevTime - 1;
                         });
                     }, 1000);
-    
+
                     return () => clearInterval(timer);
                 }
-    
+
                 throw new Error("NOBU gagal tanpa response valid");
-    
+
             } catch (error) {
                 console.log("NOBU gagal, mencoba Finpay:", error);
-    
+
                 try {
                     const initiateHooks = await axiosInstance.post("/finpay/initiate", requestBody);
                     await axiosInstance.post('/sales/payment-qr', paymentQR);
-    
+
                     if (initiateHooks.data && initiateHooks.data.response?.stringQr) {
                         setStringQRInstant(initiateHooks.data.response.stringQr);
                         setDataForPaymentMethod(requestBody);
                         setShowQRInstant(true);
                         setOrderIdInstant(generateOrderId);
-    
+
                         const timer = setInterval(() => {
                             setTimeLeft((prevTime) => {
                                 if (prevTime <= 1) {
@@ -260,21 +260,22 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                                 return prevTime - 1;
                             });
                         }, 1000);
-    
+
                         return () => clearInterval(timer);
                     } else {
                         alert("Gagal membuat link pembayaran. Mohon coba lagi.");
                     }
                 } catch (finpayError) {
                     console.error("Finpay juga gagal:", finpayError);
-                    alert("Gagal membuat link pembayaran dari NOBU maupun Finpay. Mohon coba lagi nanti.");
+                    alert("Gagal Melakukan Pembayaran. Silakan coba lagi nanti.");
+                    navigate('/booking');
                 }
             } finally {
                 setIsLoading(false);
             }
         }
     };
-    
+
 
     const formatTime = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
@@ -536,53 +537,18 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </div>
 
                     <div className="mt-5 space-y-4">
-                        <label className="flex items-center w-full justify-between">
+                        <div
+                            onClick={() => handleRadioChange("Tunai")}
+                            className={`flex items-center justify-between cursor-pointer border p-4 rounded-lg transition ${selectedMethod === "Tunai" ? "bg-orange-100 border-orange-400" : "bg-white border-gray-300"} hover:bg-orange-50`}>
                             <div className="text-black flex items-center gap-3 font-semibold text-lg">
                                 <Banknote />
-
                                 <p>Tunai</p>
                             </div>
 
-                            <input
-                                type="radio"
-                                name="paymentMethod"
-                                checked={selectedMethod === "Tunai"}
-                                onChange={() => handleRadioChange("Tunai")}
-                                className="form-radio h-5 w-5 text-orange-400"
+                            <div
+                                className={`w-4 h-4 rounded-full border-2 ${selectedMethod === "Tunai" ? "border-orange-400 bg-orange-400" : "border-gray-400"}`}
                             />
-                        </label>
-
-                        {/* <label className="flex items-center w-full justify-between">
-                            <div className="text-black flex items-center gap-3 font-semibold text-lg">
-                                <Calculator />
-
-                                <p>EDC</p>
-                            </div>
-
-                            <input
-                                type="radio"
-                                name="paymentMethod"
-                                checked={selectedMethod === "EDC"}
-                                onChange={() => handleRadioChange("EDC")}
-                                className="form-radio h-5 w-5 text-orange-400"
-                            />
-                        </label>
-
-                        <label className="flex items-center w-full justify-between">
-                            <div className="text-black flex items-center gap-3 font-semibold text-lg">
-                                <ArrowLeftRight />
-
-                                <p>Transfer</p>
-                            </div>
-
-                            <input
-                                type="radio"
-                                name="paymentMethod"
-                                checked={selectedMethod === "Transfer"}
-                                onChange={() => handleRadioChange("Transfer")}
-                                className="form-radio h-5 w-5 text-orange-400"
-                            />
-                        </label> */}
+                        </div>
                     </div>
 
                     <Button

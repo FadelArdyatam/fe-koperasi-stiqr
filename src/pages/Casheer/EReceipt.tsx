@@ -21,7 +21,7 @@ interface IOrder {
         qty: number;
         price: number;
         subtotal: number;
-        variants?: { name: string }[];
+        variants?: { name: string, price: number }[];
         total?: number;
     }[],
     payment: {
@@ -204,14 +204,15 @@ const EReceipt = () => {
                             <div className="relative z-10">
                                 <img className="w-[40%] mx-auto" src={logo} alt="" />
 
-                                <div className='mt-5 text-center'>
+                                <div className='mt-5 text-center text-sm'>
                                     {orders?.merchant.address}
                                 </div>
 
-                                <div className='w-full h-[2px] bg-gray-400 my-5'></div>
+                                <div className='w-full h-[2px] bg-gray-400 bounded-lg my-5'></div>
 
-                                <div className="flex justify-between items-start text-sm flex-wrap gap-5">
-                                    <div className="grid grid-cols-2 gap-y-1">
+                                <div className="flex justify-between items-start">
+                                    {/* Kiri: Informasi Transaksi */}
+                                    <div className="grid grid-cols-2 gap-y-1 text-sm">
                                         <span>No Transaksi</span>
                                         <span>: {orders?.no_transaksi}</span>
 
@@ -222,80 +223,96 @@ const EReceipt = () => {
                                         <span>: {getTimeOnly(orders?.date ?? "")}</span>
 
                                         <span>Jenis Layanan</span>
-                                        <span>: {orders?.type}</span>
+                                        <span>: {orders?.type == 'takeaway' ? 'Bayar Sekarang' : 'Bayar Nanti'}</span>
 
-                                        <span>Kasir</span>
-                                        <span>: -</span>
                                     </div>
 
-                                    <div className="text-center ml-auto">
+                                    {/* Kanan: No Antrian */}
+                                    <div className="text-center">
                                         <p className="text-sm">No Antrian:</p>
                                         <p className="text-4xl font-bold">{orders?.queue}</p>
                                     </div>
                                 </div>
 
-                                <div className='w-full h-[2px] bg-gray-400 my-5'></div>
+                                <div className='w-full h-[2px] bg-gray-400 bounded-lg my-5'></div>
 
-                                <table className="w-full text-sm">
+                                <table className="w-full mt-5 md:text-sm text-xs">
                                     <thead>
                                         <tr>
-                                            <th className="text-left w-1/6">Qty</th>
-                                            <th className="text-left">Nama Produk</th>
-                                            <th className="text-right w-1/4">Harga</th>
+                                            <th className="text-left w-1/6 font-medium">No</th>
+                                            <th className="text-left font-medium">Nama Produk</th>
+                                            <th className="text-right w-1/3 font-medium">Total Harga</th>
                                         </tr>
                                     </thead>
 
                                     <tbody>
                                         {orders?.products.map((item, index) => (
                                             <tr key={index} className="align-top">
-                                                <td className="py-2">{item.qty}</td>
+                                                <td className="py-2">{index + 1}</td>
+
                                                 <td className="py-2">
                                                     <div className="font-medium">{item.name}</div>
+                                                    <div className="font-medium">{item.qty} x {formatRupiah(item.price)}</div>
                                                     {item.variants && (
                                                         <div className="text-gray-500 text-sm">
-                                                            Varian: {item.variants.map((v, i) => <span key={i}>{v.name} </span>)}
+                                                            {item.variants.map((variant, index) => (
+                                                                <p key={index}>
+                                                                    + {variant.name} {`(${item.qty + ` x ` + formatRupiah(variant.price)})`}
+                                                                </p>
+                                                            ))}
                                                         </div>
                                                     )}
+
                                                     <div className="text-gray-500 text-sm">Note: -</div>
-                                                    <div className="text-gray-500 text-sm">
-                                                        ({item.price.toLocaleString('id-ID', {
-                                                            style: 'currency',
-                                                            currency: 'IDR',
-                                                        })} x {item.qty})
-                                                    </div>
                                                 </td>
-                                                <td className="py-2 text-right">
-                                                    {(item.total ?? item.price * item.qty).toLocaleString('id-ID', {
-                                                        style: 'currency',
-                                                        currency: 'IDR',
-                                                    })}
+
+
+                                                <td className="py-2 text-right font-medium">
+                                                    {formatRupiah(item.subtotal)}
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
 
-                                <div className='w-full h-[2px] bg-gray-400 my-5'></div>
 
-                                <div className='flex flex-col gap-3 mt-5 font-semibold'>
-                                    <div className='flex justify-between'>
-                                        <p>Sub Total</p>
-                                        <p>{formatRupiah(orders?.payment.pay ?? 0)}</p>
-                                    </div>
-                                    <div className='flex justify-between'>
-                                        <p>Grand Total</p>
+                                <div className='border-t border-gray-400 w-full flex flex-col mt-2 gap-2 md:text-base text-xs'>
+                                    <div className='flex justify-between items-center w-full mt-2'>
+                                        <p>Subtotal</p>
+
+                                        {/* nanti jika sudah ada diskon atau pajak buat key baru untuk subtotal ya, karena pajak dan diskon belum ada jadi sementara valuenya disamakan dengan total */}
                                         <p>{formatRupiah(orders?.payment.total ?? 0)}</p>
                                     </div>
-                                    <div className='flex justify-between'>
-                                        <p>Metode Pembayaran</p>
-                                        <p>{orders?.payment.method}</p>
+                                    {/* kalo misal ada diskon atau pajak tambahin disini */}
+
+                                    <div className='flex justify-between items-center w-full font-semibold'>
+                                        <p>Total</p>
+
+                                        <p>{formatRupiah(orders?.payment.total ?? 0)}</p>
                                     </div>
+
+                                    {orders?.payment.method == 'Tunai' && (
+                                        <div className="border-t border-gray-400 mt-2 w-full flex flex-col gap-2 ">
+                                            <div className='flex justify-between items-center w-full '>
+                                                <p>Tunai Diterima</p>
+                                                <p>{formatRupiah(orders?.payment.pay ?? 0)}</p>
+                                            </div>
+                                            <div className='flex justify-between items-center w-full '>
+                                                <p>Kembalian</p>
+                                                <p>{formatRupiah(orders?.payment.change ?? 0)}</p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
-                                <div className='text-center font-semibold text-xl mt-10 space-y-3'>
+                                <div className='w-full text-center md:text-base text-xs flex flex-col gap-2 mt-10'>
                                     <p>Belanja Menjadi Lebih Mudah Melalui Kami!</p>
+
                                     <p>Terima kasih telah berkunjung!</p>
-                                    <p className='mt-10'>Powered by STIQR</p>
+                                    <div>
+                                        <span className='italic'>Powered by </span>
+                                        <span><strong>STIQR</strong></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -331,113 +348,124 @@ const EReceipt = () => {
                                 </button>
                             </div>
 
-                            <div className='flex justify-between border-b border-gray-400 pb-2 items-center w-full mt-10 text-xl font-semibold'>
+                            <div className='flex justify-between border-b border-gray-400 pb-2 items-center w-full mt-10 md:text-xl text-xs font-semibold'>
                                 <p>No Transaksi</p>
 
-                                <p>{orders.no_transaksi}</p>
+                                <p>{orders?.no_transaksi}</p>
                             </div>
 
-                            <div className='w-full flex flex-col gap-5 mt-5'>
-                                <div className='flex justify-between items-center w-full font-semibold'>
+                            <div className='w-full flex flex-col gap-5 mt-5 md:text-base text-xs'>
+                                <div className='flex justify-between items-center w-full '>
                                     <p>Jenis Layanan</p>
 
-                                    <p>{orders.type}</p>
+                                    <p>{orders?.type == 'takeaway' ? 'Bayar Sekarang' : 'Bayar Nanti'}</p>
                                 </div>
 
-                                <div className='flex justify-between items-center w-full font-semibold'>
-                                    <p>Tanggal dan Waktu Pembayaran</p>
+                                <div className='flex justify-between items-center w-full '>
+                                    <p>Tanggal Pembayaran</p>
 
-                                    <p>{formatDate(orders.date)}</p>
+                                    <p>
+                                        {orders?.date && !isNaN(new Date(orders.date).getTime())
+                                            ? formatDate(orders.date)
+                                            : '-'}
+                                    </p>
                                 </div>
 
-                                <div className='flex justify-between items-center w-full font-semibold'>
-                                    <p>Kasir</p>
+                                <div className='flex justify-between items-center w-full '>
+                                    <p>Antrian</p>
+                                    <p>{orders?.queue}</p>
+                                </div>
 
-                                    <p>-</p>
+                                <div className='flex justify-between items-center w-full '>
+                                    <p>Metode Pembayaran</p>
+                                    <p>{orders?.payment.method}</p>
                                 </div>
                             </div>
 
-                            <div className='border-b border-gray-400 pb-2 w-full mt-10 text-xl font-semibold'>
+                            <div className='border-b border-gray-400 pb-2 w-full mt-10 md:text-xl text-sm font-semibold'>
                                 <p>Detail Pesanan</p>
                             </div>
 
-                            <table className="w-full mt-5 text-sm">
+                            <table className="w-full mt-5 md:text-sm text-xs">
                                 <thead>
                                     <tr>
-                                        <th className="text-left w-1/6">Qty</th>
-                                        <th className="text-left">Nama Produk</th>
-                                        <th className="text-right w-1/4">Harga</th>
+                                        <th className="text-left w-1/6 font-medium">No</th>
+                                        <th className="text-left font-medium">Nama Produk</th>
+                                        <th className="text-right w-1/3 font-medium">Total Harga</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
                                     {orders?.products.map((item, index) => (
                                         <tr key={index} className="align-top">
-                                            <td className="py-2">{item.qty}</td>
+                                            <td className="py-2">{index + 1}</td>
 
                                             <td className="py-2">
                                                 <div className="font-medium">{item.name}</div>
-
+                                                <div className="font-medium">{item.qty} x {formatRupiah(item.price)}</div>
                                                 {item.variants && (
-                                                    <div className="text-gray-500 text-sm">Varian: {item.variants.map((variant) => (<span>{variant.name} </span>))}</div>
+                                                    <div className="text-gray-500 text-sm">
+                                                        {item.variants.map((variant, index) => (
+                                                            <p key={index}>
+                                                                + {variant.name} {`(${item.qty + ` x ` + formatRupiah(variant.price)})`}
+                                                            </p>
+                                                        ))}
+                                                    </div>
                                                 )}
 
                                                 <div className="text-gray-500 text-sm">Note: -</div>
-
-                                                <div className="text-gray-500 text-sm">
-                                                    ({item.price.toLocaleString('id-ID', {
-                                                        style: 'currency',
-                                                        currency: 'IDR',
-                                                    })} x {item.qty})
-                                                </div>
                                             </td>
 
-                                            <td className="py-2 text-right">
-                                                {item.total
-                                                    ? item.total.toLocaleString('id-ID', {
-                                                        style: 'currency',
-                                                        currency: 'IDR',
-                                                    })
-                                                    : (item.price * item.qty).toLocaleString('id-ID', {
-                                                        style: 'currency',
-                                                        currency: 'IDR',
-                                                    })}
+
+                                            <td className="py-2 text-right font-medium">
+                                                {formatRupiah(item.subtotal)}
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
 
-                            <div className='border-b border-gray-400 pb-2 w-full mt-10 text-xl font-semibold'>
+                            <div className='border-b border-gray-400 pb-2 w-full mt-5 md:text-xl text-sm font-semibold'>
                                 <p>Rincian Transaksi</p>
                             </div>
 
-                            <div className='w-full flex flex-col gap-5 mt-5'>
-                                <div className='flex justify-between items-center w-full font-semibold'>
-                                    <p>Sub Total</p>
+                            <div className='w-full flex flex-col gap-5 mt-5 md:text-base text-xs'>
+                                <div className='flex justify-between items-center w-full'>
+                                    <p>Subtotal</p>
 
-                                    <p>{formatRupiah(orders.payment.pay)}</p>
+                                    {/* nanti jika sudah ada diskon atau pajak buat key baru untuk subtotal ya, karena pajak dan diskon belum ada jadi sementara valuenya disamakan dengan total */}
+                                    <p>{formatRupiah(orders?.payment.total ?? 0)}</p>
                                 </div>
-
-                                <div className='flex justify-between items-center w-full font-semibold'>
-                                    <p>Grand Total</p>
-
-                                    <p>{formatRupiah(orders.payment.total)}</p>
-                                </div>
+                                {/* kalo misal ada diskon atau pajak tambahin disini */}
 
                                 <div className='flex justify-between items-center w-full font-semibold'>
-                                    <p>Metode Pembayaran</p>
+                                    <p>Total</p>
 
-                                    <p>{orders.payment.method}</p>
+                                    <p>{formatRupiah(orders?.payment.total ?? 0)}</p>
                                 </div>
+
+                                {orders?.payment.method == 'Tunai' && (
+                                    <div className="border-t border-gray-400 pt-2 w-full flex flex-col gap-2 ">
+                                        <div className='flex justify-between items-center w-full '>
+                                            <p>Tunai Diterima</p>
+                                            <p>{formatRupiah(orders?.payment.pay ?? 0)}</p>
+                                        </div>
+                                        <div className='flex justify-between items-center w-full '>
+                                            <p>Kembalian</p>
+                                            <p>{formatRupiah(orders?.payment.change ?? 0)}</p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
-                            <div className='w-full text-center font-semibold text-xl flex flex-col gap-5 mt-10'>
+                            <div className='w-full text-center md:text-base text-xs flex flex-col gap-2 mt-10'>
                                 <p>Belanja Menjadi Lebih Mudah Melalui Kami!</p>
 
                                 <p>Terima kasih telah berkunjung!</p>
-
-                                <p>No Antrian {orders.queue}</p>
+                                <div>
+                                    <span className='italic'>Powered by </span>
+                                    <span><strong>STIQR</strong></span>
+                                </div>
                             </div>
                         </div>
 
@@ -484,7 +512,7 @@ const EReceipt = () => {
                     <div className="relative z-10">
                         <img className="w-[40%] m-auto" src={logo} alt="" />
 
-                        <div className='mt-5 text-center'>
+                        <div className='mt-5 text-center text-sm'>
                             {orders?.merchant.address}
                         </div>
 
@@ -503,10 +531,8 @@ const EReceipt = () => {
                                 <span>: {getTimeOnly(orders?.date ?? "")}</span>
 
                                 <span>Jenis Layanan</span>
-                                <span>: {orders?.type}</span>
+                                <span>: {orders?.type == 'takeaway' ? 'Bayar Sekarang' : 'Bayar Nanti'}</span>
 
-                                <span>Kasir</span>
-                                <span>: -</span>
                             </div>
 
                             {/* Kanan: No Antrian */}
@@ -518,81 +544,83 @@ const EReceipt = () => {
 
                         <div className='w-full h-[2px] bg-gray-400 bounded-lg my-5'></div>
 
-                        <table className="w-full mt-5 text-sm">
+                        <table className="w-full mt-5 md:text-sm text-xs">
                             <thead>
                                 <tr>
-                                    <th className="text-left w-1/6">Qty</th>
-                                    <th className="text-left">Nama Produk</th>
-                                    <th className="text-right w-1/4">Harga</th>
+                                    <th className="text-left w-1/6 font-medium">No</th>
+                                    <th className="text-left font-medium">Nama Produk</th>
+                                    <th className="text-right w-1/3 font-medium">Total Harga</th>
                                 </tr>
                             </thead>
 
                             <tbody>
                                 {orders?.products.map((item, index) => (
                                     <tr key={index} className="align-top">
-                                        <td className="py-2">{item.qty}</td>
+                                        <td className="py-2">{index + 1}</td>
 
                                         <td className="py-2">
                                             <div className="font-medium">{item.name}</div>
-
+                                            <div className="font-medium">{item.qty} x {formatRupiah(item.price)}</div>
                                             {item.variants && (
-                                                <div className="text-gray-500 text-sm">Varian: {item.variants.map((variant) => (<span>{variant.name} </span>))}</div>
+                                                <div className="text-gray-500 text-sm">
+                                                    {item.variants.map((variant, index) => (
+                                                        <p key={index}>
+                                                            + {variant.name} {`(${item.qty + ` x ` + formatRupiah(variant.price)})`}
+                                                        </p>
+                                                    ))}
+                                                </div>
                                             )}
 
                                             <div className="text-gray-500 text-sm">Note: -</div>
-
-                                            <div className="text-gray-500 text-sm">
-                                                ({item.price.toLocaleString('id-ID', {
-                                                    style: 'currency',
-                                                    currency: 'IDR',
-                                                })} x {item.qty})
-                                            </div>
                                         </td>
 
-                                        <td className="py-2 text-right">
-                                            {item.total
-                                                ? item.total.toLocaleString('id-ID', {
-                                                    style: 'currency',
-                                                    currency: 'IDR',
-                                                })
-                                                : (item.price * item.qty).toLocaleString('id-ID', {
-                                                    style: 'currency',
-                                                    currency: 'IDR',
-                                                })}
+
+                                        <td className="py-2 text-right font-medium">
+                                            {formatRupiah(item.subtotal)}
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
 
-                        <div className='w-full h-[2px] bg-gray-400 bounded-lg my-5'></div>
 
-                        <div className='w-full flex flex-col gap-5 mt-5'>
-                            <div className='flex justify-between items-center w-full font-semibold'>
-                                <p>Sub Total</p>
+                        <div className='border-t border-gray-400 w-full flex flex-col mt-2 gap-2 md:text-base text-xs'>
+                            <div className='flex justify-between items-center w-full'>
+                                <p>Subtotal</p>
 
-                                <p>{formatRupiah(orders?.payment.pay ?? 0)}</p>
+                                {/* nanti jika sudah ada diskon atau pajak buat key baru untuk subtotal ya, karena pajak dan diskon belum ada jadi sementara valuenya disamakan dengan total */}
+                                <p>{formatRupiah(orders?.payment.total ?? 0)}</p>
                             </div>
+                            {/* kalo misal ada diskon atau pajak tambahin disini */}
 
                             <div className='flex justify-between items-center w-full font-semibold'>
-                                <p>Grand Total</p>
+                                <p>Total</p>
 
                                 <p>{formatRupiah(orders?.payment.total ?? 0)}</p>
                             </div>
 
-                            <div className='flex justify-between items-center w-full font-semibold'>
-                                <p>Metode Pembayaran</p>
-
-                                <p>{orders?.payment.method}</p>
-                            </div>
+                            {orders?.payment.method == 'Tunai' && (
+                                <div className="border-t border-gray-400 mt-2 w-full flex flex-col gap-2 ">
+                                    <div className='flex justify-between items-center w-full '>
+                                        <p>Tunai Diterima</p>
+                                        <p>{formatRupiah(orders?.payment.pay ?? 0)}</p>
+                                    </div>
+                                    <div className='flex justify-between items-center w-full '>
+                                        <p>Kembalian</p>
+                                        <p>{formatRupiah(orders?.payment.change ?? 0)}</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
-                        <div className='w-full text-center font-semibold text-xl flex flex-col gap-5 mt-10'>
+                        <div className='w-full text-center md:text-base text-xs flex flex-col gap-2 mt-10'>
                             <p>Belanja Menjadi Lebih Mudah Melalui Kami!</p>
 
                             <p>Terima kasih telah berkunjung!</p>
-
-                            <p className='mt-10'>Powered by STIQR</p>
+                            <div>
+                                <span className='italic'>Powered by </span>
+                                <span><strong>STIQR</strong></span>
+                            </div>
                         </div>
                     </div>
                 </div>

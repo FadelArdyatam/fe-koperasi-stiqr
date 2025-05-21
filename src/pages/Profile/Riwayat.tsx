@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, Filter, FileText, ChevronsLeft, ChevronsRight, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 // import html2canvas from "html2canvas";
 import axiosInstance from "@/hooks/axiosInstance";
 import noTransactionImage from "../../images/no-transaction.png"
@@ -128,42 +128,34 @@ const Riwayat = () => {
     }, [currentPage, filterStatus]);
 
     useEffect(() => {
+        // Jika filter dateRange, pastikan startDate sudah ada dulu
+        if (filter === "dateRange" && !dateRange.startDate) {
+            return; // skip fetch jika belum ada tanggal startDate
+        }
+
         const params: any = {
             filter,
             page: currentPageSales,
             limit: limit
         };
 
-        console.log(dateRange.startDate);
-
-        if (filter === "dateRange" && dateRange.startDate) {
+        if (filter === "dateRange") {
             params.startDate = dateRange.startDate;
             params.endDate = dateRange.endDate ?? dateRange.startDate;
         }
+
         const fetchPurchase = async () => {
-            const response = await axiosInstance.get(`/history/sales/${userData.merchant.id}`, { params });
-            setSales(response.data.data);
-            setTotalPagesSales(response.data.pagination.totalPages);
-        }
+            try {
+                const response = await axiosInstance.get(`/history/sales/${userData.merchant.id}`, { params });
+                setSales(response.data.data);
+                setTotalPagesSales(response.data.pagination.totalPages);
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        };
 
         fetchPurchase();
     }, [currentPageSales, filter, dateRange, limit]);
-
-    // const downloadImage = async () => {
-    //     if (contentRef.current) {
-    //         try {
-    //             const canvas = await html2canvas(contentRef.current, { useCORS: true });
-    //             const dataURL = canvas.toDataURL("image/png");
-
-    //             const link = document.createElement("a");
-    //             link.href = dataURL;
-    //             link.download = "CodePayment.png";
-    //             link.click();
-    //         } catch (error) {
-    //             console.error("Error generating image:", error);
-    //         }
-    //     }
-    // };
 
 
     useEffect(() => {
@@ -173,6 +165,11 @@ const Riwayat = () => {
         // setDataUser(userData);
 
     }, [location.state]);
+
+    const navigate = useNavigate();
+    const handleDetailSales = (orderId: string) => {
+        navigate(`/order?orderId=${orderId}`);
+    }
 
     return (
         <div className={`relative h-screen ${!showDescription.status ? 'overflow-y-hidden' : ''} `}>
@@ -326,7 +323,14 @@ const Riwayat = () => {
                             sales.length > 0 ? (
                                 <div>
                                     {sales.map((history, index) => (
-                                        <div key={index}>
+                                        <div key={index}
+                                            className="cursor-pointer"
+                                            onClick={() => {
+                                                const orderId = history.sales?.orderId;
+                                                if (orderId) {
+                                                    handleDetailSales(orderId);
+                                                }
+                                            }} >
                                             <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
                                             <div className="flex md:flex-row flex-col md:items-center justify-between">
                                                 <div className="flex items-start gap-2">
