@@ -152,7 +152,7 @@ const EReceiptCustomer = () => {
                         </div>
 
                         <div className='w-max flex items-center gap-5 absolute top-5 right-5'>
-                            <button className='p-3 rounded-full border text-orange-400 border-orange-400' onClick={() => handleShare()}>
+                            <button className='p-3  text-orange-400 ' onClick={() => handleShare()}>
                                 <Share2 />
                             </button>
 
@@ -324,7 +324,7 @@ const EReceiptCustomer = () => {
                             {orders?.merchant.address}
                         </div>
 
-                        <div className='w-full h-[2px] bg-gray-400 bounded-lg my-5'></div>
+                        <div className='w-full h-[2px] bg-gray-400 bounded-lg my-4'></div>
 
                         <div className="flex justify-between items-start">
                             {/* Kiri: Informasi Transaksi */}
@@ -350,9 +350,9 @@ const EReceiptCustomer = () => {
                             </div>
                         </div>
 
-                        <div className='w-full h-[2px] bg-gray-400 bounded-lg my-5'></div>
+                        <div className='w-full h-[2px] bg-gray-400 bounded-lg my-4'></div>
 
-                        <table className="w-full mt-5 md:text-sm text-xs">
+                        <table className="w-full mb-8 md:text-sm text-xs">
                             <thead>
                                 <tr>
                                     <th className="text-left w-1/6 font-medium">No</th>

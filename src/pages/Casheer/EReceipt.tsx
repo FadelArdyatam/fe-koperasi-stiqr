@@ -146,10 +146,10 @@ const EReceipt = () => {
 
     return (
         <>
-            <div className="p-10 flex flex-col bg-orange-400 min-h-screen items-center justify-center gap-6">
+            <div className="p-10 flex flex-col md:bg-orange-400 min-h-screen items-center justify-center gap-6">
                 {orderId && !showReceipt ? (
                     <div className='fixed flex items-center justify-center top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10'>
-                        <div className="bg-white w-[50%] p-10 flex flex-col items-center justify-center rounded-md shadow-md">
+                        <div className="bg-white md:w-[50%] p-10 flex flex-col items-center justify-center rounded-md shadow-md">
                             <QRCode value={currentUrl} />
                             <p className="text-black font-semibold text-lg text-center mt-10">*Scan QR Code Berikut untuk mendapatkan Struk Digital Anda!</p>
 
@@ -176,10 +176,10 @@ const EReceipt = () => {
 
                 {showInvoice && (
                     <div className='fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-50'>
-                        <div className="relative max-w-4xl w-[90%] max-h-[90vh] overflow-y-auto bg-gray-50 shadow-lg p-10 rounded-lg">
+                        <div className="relative max-w-4xl w-[90%] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-gray-50 shadow-lg p-10 rounded-lg">
 
                             {/* Background Logo */}
-                            <div className="absolute inset-0 opacity-90 overflow-hidden pointer-events-none z-0">
+                            <div className="absolute inset-0 opacity-90  pointer-events-none z-0">
                                 <div
                                     className="grid -rotate-[15deg] justify-center items-center scale-[1.5]"
                                     style={{
@@ -189,7 +189,7 @@ const EReceipt = () => {
                                         height: "100%",
                                     }}
                                 >
-                                    {Array.from({ length: 100 }).map((_, index) => (
+                                    {Array.from({ length: 70 }).map((_, index) => (
                                         <img
                                             key={index}
                                             src={logo}
@@ -322,157 +322,162 @@ const EReceipt = () => {
                 )}
 
                 {orders && (
-                    <div className='relative flex flex-col items-end gap-5 w-[80%]'>
-                        <div className='absolute top-0 -left-20'>
-                            <button onClick={() => navigate(-1)}>
-                                <ChevronLeft className='text-black scale-[2]' />
-                            </button>
-                        </div>
-
-                        <div className='bg-white relative flex flex-col items-center rounded-lg p-10 w-full shadow-md'>
-                            <div className='flex flex-col items-center gap-5'>
-                                <div className='bg-orange-400 rounded-full border border-black w-20 h-20 flex items-center justify-center'>
-                                    <Check className='scale-[2] text-white' />
-                                </div>
-
-                                <p className='font-semibold text-orange-400 text-xl'>Pembayaran Berhasil</p>
-                            </div>
-
-                            <div className='w-max flex items-center gap-5 absolute top-5 right-5'>
-                                <button className='p-3 rounded-full border text-orange-400 border-orange-400' onClick={() => handleShare()}>
-                                    <Share2 />
-                                </button>
-
-                                <button className='text-orange-400' onClick={() => handleDownloadJPEG()}>
-                                    <Download />
+                    <>
+                        <div className='relative flex flex-col items-end gap-5 md:w-[80%] w-full'>
+                            <div className='md:absolute md:block hidden top-0 -left-20'>
+                                <button onClick={() => navigate(-1)}>
+                                    <ChevronLeft className='text-black scale-[2]' />
                                 </button>
                             </div>
-
-                            <div className='flex justify-between border-b border-gray-400 pb-2 items-center w-full mt-10 md:text-xl text-xs font-semibold'>
-                                <p>No Transaksi</p>
-
-                                <p>{orders?.no_transaksi}</p>
-                            </div>
-
-                            <div className='w-full flex flex-col gap-5 mt-5 md:text-base text-xs'>
-                                <div className='flex justify-between items-center w-full '>
-                                    <p>Jenis Layanan</p>
-
-                                    <p>{orders?.type == 'takeaway' ? 'Bayar Sekarang' : 'Bayar Nanti'}</p>
-                                </div>
-
-                                <div className='flex justify-between items-center w-full '>
-                                    <p>Tanggal Pembayaran</p>
-
-                                    <p>
-                                        {orders?.date && !isNaN(new Date(orders.date).getTime())
-                                            ? formatDate(orders.date)
-                                            : '-'}
-                                    </p>
-                                </div>
-
-                                <div className='flex justify-between items-center w-full '>
-                                    <p>Antrian</p>
-                                    <p>{orders?.queue}</p>
-                                </div>
-
-                                <div className='flex justify-between items-center w-full '>
-                                    <p>Metode Pembayaran</p>
-                                    <p>{orders?.payment.method}</p>
-                                </div>
-                            </div>
-
-                            <div className='border-b border-gray-400 pb-2 w-full mt-10 md:text-xl text-sm font-semibold'>
-                                <p>Detail Pesanan</p>
-                            </div>
-
-                            <table className="w-full mt-5 md:text-sm text-xs">
-                                <thead>
-                                    <tr>
-                                        <th className="text-left w-1/6 font-medium">No</th>
-                                        <th className="text-left font-medium">Nama Produk</th>
-                                        <th className="text-right w-1/3 font-medium">Total Harga</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    {orders?.products.map((item, index) => (
-                                        <tr key={index} className="align-top">
-                                            <td className="py-2">{index + 1}</td>
-
-                                            <td className="py-2">
-                                                <div className="font-medium">{item.name}</div>
-                                                <div className="font-medium">{item.qty} x {formatRupiah(item.price)}</div>
-                                                {item.variants && (
-                                                    <div className="text-gray-500 text-sm">
-                                                        {item.variants.map((variant, index) => (
-                                                            <p key={index}>
-                                                                + {variant.name} {`(${item.qty + ` x ` + formatRupiah(variant.price)})`}
-                                                            </p>
-                                                        ))}
-                                                    </div>
-                                                )}
-
-                                                <div className="text-gray-500 text-sm">Note: -</div>
-                                            </td>
-
-
-                                            <td className="py-2 text-right font-medium">
-                                                {formatRupiah(item.subtotal)}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-
-                            <div className='border-b border-gray-400 pb-2 w-full mt-5 md:text-xl text-sm font-semibold'>
-                                <p>Rincian Transaksi</p>
-                            </div>
-
-                            <div className='w-full flex flex-col gap-5 mt-5 md:text-base text-xs'>
-                                <div className='flex justify-between items-center w-full'>
-                                    <p>Subtotal</p>
-
-                                    {/* nanti jika sudah ada diskon atau pajak buat key baru untuk subtotal ya, karena pajak dan diskon belum ada jadi sementara valuenya disamakan dengan total */}
-                                    <p>{formatRupiah(orders?.payment.total ?? 0)}</p>
-                                </div>
-                                {/* kalo misal ada diskon atau pajak tambahin disini */}
-
-                                <div className='flex justify-between items-center w-full font-semibold'>
-                                    <p>Total</p>
-
-                                    <p>{formatRupiah(orders?.payment.total ?? 0)}</p>
-                                </div>
-
-                                {orders?.payment.method == 'Tunai' && (
-                                    <div className="border-t border-gray-400 pt-2 w-full flex flex-col gap-2 ">
-                                        <div className='flex justify-between items-center w-full '>
-                                            <p>Tunai Diterima</p>
-                                            <p>{formatRupiah(orders?.payment.pay ?? 0)}</p>
-                                        </div>
-                                        <div className='flex justify-between items-center w-full '>
-                                            <p>Kembalian</p>
-                                            <p>{formatRupiah(orders?.payment.change ?? 0)}</p>
-                                        </div>
+                            <div className='bg-white relative flex flex-col items-center rounded-lg md:p-10 w-full '>
+                                <div className='flex flex-col items-center gap-5'>
+                                    <div className='bg-orange-400 rounded-full border border-black w-20 h-20 flex items-center justify-center'>
+                                        <Check className='scale-[2] text-white' />
                                     </div>
-                                )}
-                            </div>
 
-                            <div className='w-full text-center md:text-base text-xs flex flex-col gap-2 mt-10'>
-                                <p>Belanja Menjadi Lebih Mudah Melalui Kami!</p>
+                                    <p className='font-semibold text-orange-400 text-xl'>Pembayaran Berhasil</p>
+                                </div>
 
-                                <p>Terima kasih telah berkunjung!</p>
-                                <div>
-                                    <span className='italic'>Powered by </span>
-                                    <span><strong>STIQR</strong></span>
+                                <div className='w-max flex items-center gap-5 absolute md:top-5 md:right-5 top-0 right-0'>
+                                    <button className='p-3  text-orange-400 ' onClick={() => handleShare()}>
+                                        <Share2 />
+                                    </button>
+
+                                    <button className='text-orange-400' onClick={() => handleDownloadJPEG()}>
+                                        <Download />
+                                    </button>
+                                </div>
+
+                                <div className='flex justify-between border-b border-gray-400 pb-2 items-center w-full mt-10 md:text-xl text-xs font-semibold'>
+                                    <p>No Transaksi</p>
+
+                                    <p>{orders?.no_transaksi}</p>
+                                </div>
+
+                                <div className='w-full flex flex-col gap-5 mt-5 md:text-base text-xs'>
+                                    <div className='flex justify-between items-center w-full '>
+                                        <p>Jenis Layanan</p>
+
+                                        <p>{orders?.type == 'takeaway' ? 'Bayar Sekarang' : 'Bayar Nanti'}</p>
+                                    </div>
+
+                                    <div className='flex justify-between items-center w-full '>
+                                        <p>Tanggal Pembayaran</p>
+
+                                        <p>
+                                            {orders?.date && !isNaN(new Date(orders.date).getTime())
+                                                ? formatDate(orders.date)
+                                                : '-'}
+                                        </p>
+                                    </div>
+
+                                    <div className='flex justify-between items-center w-full '>
+                                        <p>Antrian</p>
+                                        <p>{orders?.queue}</p>
+                                    </div>
+
+                                    <div className='flex justify-between items-center w-full '>
+                                        <p>Metode Pembayaran</p>
+                                        <p>{orders?.payment.method}</p>
+                                    </div>
+                                </div>
+
+                                <div className='border-b border-gray-400 pb-2 w-full mt-10 md:text-xl text-sm font-semibold'>
+                                    <p>Detail Pesanan</p>
+                                </div>
+
+                                <table className="w-full mt-5 md:text-sm text-xs">
+                                    <thead>
+                                        <tr>
+                                            <th className="text-left w-1/6 font-medium">No</th>
+                                            <th className="text-left font-medium">Nama Produk</th>
+                                            <th className="text-right w-1/3 font-medium">Total Harga</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {orders?.products.map((item, index) => (
+                                            <tr key={index} className="align-top">
+                                                <td className="py-2">{index + 1}</td>
+
+                                                <td className="py-2">
+                                                    <div className="font-medium">{item.name}</div>
+                                                    <div className="font-medium">{item.qty} x {formatRupiah(item.price)}</div>
+                                                    {item.variants && (
+                                                        <div className="text-gray-500 text-sm">
+                                                            {item.variants.map((variant, index) => (
+                                                                <p key={index}>
+                                                                    + {variant.name} {`(${item.qty + ` x ` + formatRupiah(variant.price)})`}
+                                                                </p>
+                                                            ))}
+                                                        </div>
+                                                    )}
+
+                                                    <div className="text-gray-500 text-sm">Note: -</div>
+                                                </td>
+
+
+                                                <td className="py-2 text-right font-medium">
+                                                    {formatRupiah(item.subtotal)}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+
+                                <div className='border-b border-gray-400 pb-2 w-full mt-5 md:text-xl text-sm font-semibold'>
+                                    <p>Rincian Transaksi</p>
+                                </div>
+
+                                <div className='w-full flex flex-col gap-5 mt-5 md:text-base text-xs'>
+                                    <div className='flex justify-between items-center w-full'>
+                                        <p>Subtotal</p>
+
+                                        {/* nanti jika sudah ada diskon atau pajak buat key baru untuk subtotal ya, karena pajak dan diskon belum ada jadi sementara valuenya disamakan dengan total */}
+                                        <p>{formatRupiah(orders?.payment.total ?? 0)}</p>
+                                    </div>
+                                    {/* kalo misal ada diskon atau pajak tambahin disini */}
+
+                                    <div className='flex justify-between items-center w-full font-semibold'>
+                                        <p>Total</p>
+
+                                        <p>{formatRupiah(orders?.payment.total ?? 0)}</p>
+                                    </div>
+
+                                    {orders?.payment.method == 'Tunai' && (
+                                        <div className="border-t border-gray-400 pt-2 w-full flex flex-col gap-2 ">
+                                            <div className='flex justify-between items-center w-full '>
+                                                <p>Tunai Diterima</p>
+                                                <p>{formatRupiah(orders?.payment.pay ?? 0)}</p>
+                                            </div>
+                                            <div className='flex justify-between items-center w-full '>
+                                                <p>Kembalian</p>
+                                                <p>{formatRupiah(orders?.payment.change ?? 0)}</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className='w-full text-center md:text-base text-xs flex flex-col gap-2 mt-10'>
+                                    <p>Belanja Menjadi Lebih Mudah Melalui Kami!</p>
+
+                                    <p>Terima kasih telah berkunjung!</p>
+                                    <div>
+                                        <span className='italic'>Powered by </span>
+                                        <span><strong>STIQR</strong></span>
+                                    </div>
                                 </div>
                             </div>
+                            <div className='md:block hidden'>
+                                <Button onClick={() => setShowReceipt(false)} className='bg-green-500 text-white'>Generate QR</Button>
+                            </div>
                         </div>
+                        <div className='flex flex-row justify-between gap-3 w-full md:hidden '>
+                            <Button onClick={() => navigate(-1)} className='bg-orange-500 text-white'>Kembali</Button>
 
-                        <div>
                             <Button onClick={() => setShowReceipt(false)} className='bg-green-500 text-white'>Generate QR</Button>
                         </div>
-                    </div>
+                    </>
                 )}
             </div >
 
@@ -516,7 +521,7 @@ const EReceipt = () => {
                             {orders?.merchant.address}
                         </div>
 
-                        <div className='w-full h-[2px] bg-gray-400 bounded-lg my-5'></div>
+                        <div className='w-full h-[2px] bg-gray-400 bounded-lg my-4'></div>
 
                         <div className="flex justify-between items-start">
                             {/* Kiri: Informasi Transaksi */}
@@ -542,9 +547,9 @@ const EReceipt = () => {
                             </div>
                         </div>
 
-                        <div className='w-full h-[2px] bg-gray-400 bounded-lg my-5'></div>
+                        <div className='w-full h-[2px] bg-gray-400 bounded-lg my-4 '></div>
 
-                        <table className="w-full mt-5 md:text-sm text-xs">
+                        <table className="w-full mb-8 md:text-sm text-xs">
                             <thead>
                                 <tr>
                                     <th className="text-left w-1/6 font-medium">No</th>
@@ -556,9 +561,9 @@ const EReceipt = () => {
                             <tbody>
                                 {orders?.products.map((item, index) => (
                                     <tr key={index} className="align-top">
-                                        <td className="py-2">{index + 1}</td>
+                                        <td >{index + 1}</td>
 
-                                        <td className="py-2">
+                                        <td >
                                             <div className="font-medium">{item.name}</div>
                                             <div className="font-medium">{item.qty} x {formatRupiah(item.price)}</div>
                                             {item.variants && (
@@ -574,8 +579,7 @@ const EReceipt = () => {
                                             <div className="text-gray-500 text-sm">Note: -</div>
                                         </td>
 
-
-                                        <td className="py-2 text-right font-medium">
+                                        <td className="text-right font-medium">
                                             {formatRupiah(item.subtotal)}
                                         </td>
                                     </tr>
@@ -584,7 +588,7 @@ const EReceipt = () => {
                         </table>
 
 
-                        <div className='border-t border-gray-400 w-full flex flex-col mt-2 gap-2 md:text-base text-xs'>
+                        <div className='border-t border-gray-400 w-full flex flex-col mt-4 gap-2 md:text-base text-xs'>
                             <div className='flex justify-between items-center w-full'>
                                 <p>Subtotal</p>
 
