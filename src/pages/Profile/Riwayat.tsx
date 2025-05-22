@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, Filter, FileText, ChevronsLeft, ChevronsRight, ChevronRight } from "lucide-react";
+import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, Filter, FileText, ChevronsLeft, ChevronsRight, ChevronRight, Calendar, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 // import html2canvas from "html2canvas";
@@ -246,26 +246,46 @@ const Riwayat = () => {
                     className={`absolute inset-0 ${type === "Uang Masuk" ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-full"} transition-all duration-500 ease-in-out`}
                 >
                     <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg">
-                        <div className="w-full flex gap-5 overflow-x-auto my-5">
-                            {/* Pilih tanggal manual */}
-                            <Button onClick={() => {
-                                setShowCalendar(!showCalendar); setFilter("dateRange");
-                            }} className={`${filter === "dateRange" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>Pilih Tanggal Transaksi</Button>
-                            <Button onClick={() => { setFilterHandler("today"); setShowCalendar(false) }} className={`${filter === "today" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                                Hari Ini
-                            </Button>
-                            <Button onClick={() => { setFilterHandler("yesterday"); setShowCalendar(false) }} className={`${filter === "yesterday" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                                Kemarin
-                            </Button>
-                            <Button onClick={() => { setFilterHandler("2days"); setShowCalendar(false) }} className={`${filter === "2days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                                2 Hari
-                            </Button>
-                            <Button onClick={() => { setFilterHandler("7days"); setShowCalendar(false) }} className={`${filter === "7days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`
-                            }>
-                                7 Hari
-                            </Button>
-                        </div>
+                        <div className="w-full flex items-center justify-between flex-wrap gap-3 p-3 bg-white rounded-lg shadow-sm">
+                            <div className="flex items-center justend gap-3 w-full sm:w-auto">
+                                {/* Kalender Icon */}
+                                <button
+                                    onClick={() => { setShowCalendar(!showCalendar); setFilter("dateRange"); }}
+                                    className="p-2 rounded-full hover:bg-orange-400 hover:text-white  text-orange-400 border border-orange-400 transition-all"
+                                    title="Pilih Tanggal"
+                                >
+                                    <Calendar className="w-5 h-5" />
+                                </button>
 
+                                {/* Filter Dropdown */}
+                                <div className="relative w-full sm:w-auto">
+                                    <select
+                                        value={filter}
+                                        onChange={(e) => {
+                                            setFilterHandler(e.target.value);
+                                            if (e.target.value === "dateRange") {
+                                                setShowCalendar(true);
+                                            } else {
+                                                setDateRange({ startDate: undefined, endDate: undefined });
+                                                setShowCalendar(false);
+                                            }
+                                        }}
+                                        className="appearance-none pr-10 pl-4 py-2  hover:bg-orange-400 hover:text-white  text-orange-400 border border-orange-400 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-orange-400 w-full cursor-pointer"
+                                    >
+                                        <option value="all">Lihat Semua</option>
+                                        <option value="today">Hari Ini</option>
+                                        <option value="yesterday">Kemarin</option>
+                                        <option value="2days">2 Hari</option>
+                                        <option value="7days">7 Hari</option>
+                                        <option value="dateRange">Rentang Tanggal</option>
+                                    </select>
+
+                                    <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center ">
+                                        <ChevronDown className="w-5 h-5 text-orange-300" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div className="flex flex-col items-center gap-5 justify-between">
                             <Button
                                 className={`${showCalendar ? 'block' : 'hidden'} text-sm bg-gray-200 border w-full border-gray-400 text-gray-700 rounded-lg px-3 py-2`}

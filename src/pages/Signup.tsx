@@ -19,7 +19,6 @@ import TermsandCondition from "@/components/TermsandCondition"
 import PinInput from "@/components/PinInput"
 import axiosInstance from "@/hooks/axiosInstance"
 import Notification from "@/components/Notification"
-import { useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Loading from "@/components/Loading"
@@ -35,8 +34,6 @@ const Signup = () => {
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
-
-    const navigate = useNavigate();
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
@@ -275,7 +272,8 @@ const Signup = () => {
             const result = await response.json();
             if (result.status) {
                 handleNext();
-                localStorage.setItem("registerID", "12345")
+                localStorage.setItem("registerID", crypto.randomUUID());
+                localStorage.setItem("email", payload.email)
                 setShowNotification(false)
                 localStorage.removeItem("token");
                 const formattedPhone = payload.phoneNumber.replace(/^0/, '');
@@ -410,10 +408,6 @@ const Signup = () => {
                 <div>
                     <div key={currentSection} className={`${createPin ? 'hidden' : 'flex'} w-full flex-col p-10`}>
                         <div className="flex items-center w-full">
-                            <button onClick={() => { navigate("/") }}>
-                                <ChevronLeft />
-                            </button>
-
                             <p data-aos="zoom-in" className="uppercase m-auto text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : 'Kode Otp'}</p>
                         </div>
 

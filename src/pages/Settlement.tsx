@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, FileText, Info, XCircle, ChevronDown, ChevronsLeft, ChevronRight, ChevronsRight } from "lucide-react";
+import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, FileText, Info, XCircle, ChevronDown, ChevronsLeft, ChevronRight, ChevronsRight, Calendar, X, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom"; // Remove Form import from react-router-dom
 import { useEffect, useState } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
@@ -29,6 +29,8 @@ interface BankAccount {
     account_id: string;
     bank_name: string;
     account_number: string;
+    type: string;
+    owner_name: string;
 }
 interface IBalance {
     amount: number;
@@ -145,7 +147,8 @@ const Settlement = () => {
                     account_id: data.account_id,
                     pin: pin.join(''),
                     mdr_amount: mdr,
-                    type: section
+                    type: section,
+                    admin_fee: 3000,
                 });
 
                 if (response.data.success) {
@@ -294,7 +297,15 @@ const Settlement = () => {
         fetchSettlement()
     }, [currentPage, filter, dateRange, section]);
 
-    console.log(latestTunai)
+    const [step, setStep] = useState(0);
+    const handleNext = () => {
+        setStep((prev) => prev + 1);
+    };
+    const [selectedAccount, setSelectedAccount] = useState({
+        type: "",
+        account: "",
+        owner: ""
+    });
     return (
         <div>
             <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
@@ -391,7 +402,14 @@ const Settlement = () => {
                                                         {accounts?.map((account, i) => (
                                                             <DropdownMenuItem
                                                                 key={i}
-                                                                onSelect={() => field.onChange(account.account_id)}
+                                                                onSelect={() => {
+                                                                    field.onChange(account.account_id);
+                                                                    setSelectedAccount({
+                                                                        type: account.type,
+                                                                        account: `${account.account_number} - ${account.bank_name}`,
+                                                                        owner: account.owner_name
+                                                                    })
+                                                                }}
                                                                 className="cursor-pointer px-4 py-2 hover:bg-gray-100 rounded-md"
                                                             >
                                                                 {account.bank_name} - {account.account_number}
@@ -404,7 +422,6 @@ const Settlement = () => {
                                         </FormItem>
                                     )}
                                 />
-                                <div className="w-full h-[1px] bg-gray-300 my-3" />
                                 <p className="">Saldo Yang Ingin Ditarik</p>
                                 <FormField
                                     control={form.control}
@@ -429,7 +446,7 @@ const Settlement = () => {
                                                         const margin = Number(value) * 0.007;
                                                         if (Number(value) >= 12000) {
                                                             setMarginMdr(Math.ceil(margin));
-                                                            setMdr(Math.ceil(Number(value) - margin - 3000));
+                                                            setMdr(Math.ceil(Number(value) - margin));
                                                         } else if (Number(value) < 12000) {
                                                             setMarginMdr(0);
                                                             setMdr(0);
@@ -442,29 +459,6 @@ const Settlement = () => {
                                     )}
                                 />
                                 <p className="text-xs text-gray-500 italic -mt-1">*Minimal penarikan Rp 12.000</p>
-
-
-                                <div className="flex justify-between">
-                                    <p>MDR <i> (0,7%)</i> </p>
-                                    <p className="font-bold">{formatRupiah(marginMdr)}</p>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <p>Biaya Admin </p>
-                                        {/* <p className="text-xs text-gray-500 italic ">*sementara ditanggung oleh tim STIQR</p> */}
-                                    </div>
-                                    <p className="font-bold">
-                                        {formatRupiah(3000)}
-                                    </p>
-
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <p>Saldo yang Diterima </p>
-                                        <p className="text-xs text-gray-500 italic ">*saldo yang masuk ke rekening Anda.</p>
-                                    </div>
-                                    <p className="font-bold">{formatRupiah(mdr)}</p>
-                                </div>
                             </div>
 
                             <Button disabled={form.getValues("amount") < 12000} type="submit" className={`mt-5 w-full text-base bg-orange-500 `}>
@@ -474,63 +468,119 @@ const Settlement = () => {
                             {showPinInput && (
                                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                     <div className="bg-white w-[90%] p-6 rounded-lg">
-                                        <h2 className="text-xl font-semibold text-center mb-4">Masukkan PIN Anda</h2>
+                                        {
+                                            step == 0 ? (
+                                                <>
+                                                    <div className="flex items-center justify-between">
+                                                        <h2 className="text-lg font-bold">Konfirmasi Penarikan</h2>
+                                                        <X className="cursor-pointer h-5 w-5" onClick={() => setShowPinInput(false)} />
+                                                    </div>
+                                                    <hr className="my-3" />
+                                                    <div className="flex justify-between text-sm my-1">
+                                                        <p>Metode Penarikan</p>
+                                                        <p>{selectedAccount.type.toUpperCase()}</p>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm my-1">
+                                                        <p>Akun Penarikan</p>
+                                                        <p>{selectedAccount.account}</p>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm my-1">
+                                                        <p>Nama Pemilik</p>
+                                                        <p>{selectedAccount.owner}</p>
+                                                    </div>
+                                                    <hr className="my-3" />
+                                                    <div className="flex justify-between text-sm my-1">
+                                                        <p>Jumlah Penarikan</p>
+                                                        <p>{formatRupiah(form.getValues("amount"))}</p>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm my-1">
+                                                        <p>MDR <i> (0,7%)</i> </p>
+                                                        <p className="text-red-500">- {formatRupiah(marginMdr)}</p>
+                                                    </div>
 
-                                        {/* PIN Indicator */}
-                                        <div className="flex justify-center mb-6">
-                                            {[...Array(6)].map((_, index) => (
-                                                <div
-                                                    key={index}
-                                                    className={`w-4 h-4 mx-1 rounded-full ${pin[index] ? 'bg-green-500' : 'bg-gray-300'}`}
-                                                ></div>
-                                            ))}
-                                        </div>
+                                                    <div className="flex justify-between text-sm my-1 items-center font-bold">
+                                                        <div>
+                                                            <p>Saldo yang Diterima </p>
+                                                            <p className="text-xs text-gray-500 italic font-normal">*saldo yang masuk ke rekening Anda.</p>
+                                                        </div>
+                                                        <p>{formatRupiah(mdr)}</p>
+                                                    </div>
+                                                    <hr className="my-3" />
+                                                    <div className="flex justify-between text-sm my-1 items-center">
+                                                        <div>
+                                                            <p>Biaya Admin </p>
+                                                        </div>
+                                                        <p>
+                                                            {formatRupiah(3000)}
+                                                        </p>
+                                                    </div>
+                                                    <Button className="mt-5 w-full text-base bg-green-500 flex justify-between flex-row" onClick={handleNext}>
+                                                        <p className="flex flex-row gap-3 items-center">Lanjutkan Penarikan <ArrowRight /> </p>
+                                                        <p>{formatRupiah(form.getValues("amount") + 3000)}</p>
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <h2 className="text-xl font-semibold text-center mb-4">Masukkan PIN Anda</h2>
 
-                                        {/* Number Pad */}
-                                        <div className="grid grid-cols-3 gap-5 mb-5 max-w-[400px] mx-auto">
-                                            {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((number) => (
-                                                <button
-                                                    key={number}
-                                                    type="button"
-                                                    onClick={() => handleNumberClick(number)}
-                                                    className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
-                                                >
-                                                    {number}
-                                                </button>
-                                            ))}
-                                            <div></div>
-                                            <button
-                                                onClick={() => handleNumberClick("0")}
-                                                type="button"
-                                                className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
-                                            >
-                                                0
-                                            </button>
-                                            <button
-                                                onClick={handleDelete}
-                                                type="button"
-                                                className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold"
-                                            >
-                                                ⌫
-                                            </button>
-                                        </div>
+                                                    {/* PIN Indicator */}
+                                                    <div className="flex justify-center mb-6">
+                                                        {[...Array(6)].map((_, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className={`w-4 h-4 mx-1 rounded-full ${pin[index] ? 'bg-green-500' : 'bg-gray-300'}`}
+                                                            ></div>
+                                                        ))}
+                                                    </div>
 
-                                        <div className="flex justify-between">
-                                            <Button
-                                                onClick={() => setShowPinInput(false)}
-                                                type="button"
-                                                className="w-full mr-2 bg-gray-400 text-white"
-                                            >
-                                                Batal
-                                            </Button>
-                                            <Button
-                                                type="submit"
-                                                className="w-full ml-2 bg-green-500 text-white"
-                                                disabled={pin.length !== 6 || loading}
-                                            >
-                                                Konfirmasi
-                                            </Button>
-                                        </div>
+                                                    {/* Number Pad */}
+                                                    <div className="grid grid-cols-3 gap-5 mb-5 max-w-[400px] mx-auto">
+                                                        {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((number) => (
+                                                            <button
+                                                                key={number}
+                                                                type="button"
+                                                                onClick={() => handleNumberClick(number)}
+                                                                className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
+                                                            >
+                                                                {number}
+                                                            </button>
+                                                        ))}
+                                                        <div></div>
+                                                        <button
+                                                            onClick={() => handleNumberClick("0")}
+                                                            type="button"
+                                                            className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
+                                                        >
+                                                            0
+                                                        </button>
+                                                        <button
+                                                            onClick={handleDelete}
+                                                            type="button"
+                                                            className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold"
+                                                        >
+                                                            ⌫
+                                                        </button>
+                                                    </div>
+
+                                                    <div className="flex justify-between">
+                                                        <Button
+                                                            onClick={() => { setShowPinInput(false); setStep(0) }}
+                                                            type="button"
+                                                            className="w-full mr-2 bg-gray-400 text-white"
+                                                        >
+                                                            Batal
+                                                        </Button>
+                                                        <Button
+                                                            type="submit"
+                                                            className="w-full ml-2 bg-green-500 text-white"
+                                                            disabled={pin.length !== 6 || loading}
+                                                        >
+                                                            Konfirmasi
+                                                        </Button>
+                                                    </div>
+                                                </>
+                                            )
+                                        }
                                     </div>
                                 </div>
                             )}
@@ -666,24 +716,46 @@ const Settlement = () => {
             </div>
 
             <div className="pb-32 flex flex-col gap-5 w-[90%] m-auto shadow-lg bg-white rounded-lg">
-                <p className="text-xl text-center font-bold my-3">{section === "Penarikan" ? 'Riwayat Penarikan' : 'Riwayat Tunai'}</p>
-                <div className="w-full flex gap-5 overflow-x-auto my-5 p-3">
-                    <Button onClick={() => {
-                        setShowCalendar(!showCalendar); setFilter("dateRange");
-                    }} className={`${filter === "dateRange" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>Pilih Tanggal Transaksi</Button>
-                    <Button onClick={() => { setFilterHandler("today"); setShowCalendar(false) }} className={`${filter === "today" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                        Hari Ini
-                    </Button>
-                    <Button onClick={() => { setFilterHandler("yesterday"); setShowCalendar(false) }} className={`${filter === "yesterday" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                        Kemarin
-                    </Button>
-                    <Button onClick={() => { setFilterHandler("2days"); setShowCalendar(false) }} className={`${filter === "2days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                        2 Hari
-                    </Button>
-                    <Button onClick={() => { setFilterHandler("7days"); setShowCalendar(false) }} className={`${filter === "7days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`
-                    }>
-                        7 Hari
-                    </Button>
+                <p className="text-xl text-center font-bold mt-3">{section === "Penarikan" ? 'Riwayat Penarikan' : 'Riwayat Tunai'}</p>
+                <div className="w-full flex items-center justify-between flex-wrap gap-3 p-3 bg-white rounded-lg shadow-sm">
+                    <div className="flex items-center justend gap-3 w-full sm:w-auto">
+                        {/* Kalender Icon */}
+                        <button
+                            onClick={() => { setShowCalendar(!showCalendar); setFilter("dateRange"); }}
+                            className="p-2 rounded-full hover:bg-orange-400 hover:text-white  text-orange-400 border border-orange-400 transition-all"
+                            title="Pilih Tanggal"
+                        >
+                            <Calendar className="w-5 h-5" />
+                        </button>
+
+                        {/* Filter Dropdown */}
+                        <div className="relative w-full sm:w-auto">
+                            <select
+                                value={filter}
+                                onChange={(e) => {
+                                    setFilterHandler(e.target.value);
+                                    if (e.target.value === "dateRange") {
+                                        setShowCalendar(true);
+                                    } else {
+                                        setDateRange({ startDate: undefined, endDate: undefined });
+                                        setShowCalendar(false);
+                                    }
+                                }}
+                                className="appearance-none pr-10 pl-4 py-2  hover:bg-orange-400 hover:text-white  text-orange-400 border border-orange-400 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-orange-400 w-full cursor-pointer"
+                            >
+                                <option value="all">Lihat Semua</option>
+                                <option value="today">Hari Ini</option>
+                                <option value="yesterday">Kemarin</option>
+                                <option value="2days">2 Hari</option>
+                                <option value="7days">7 Hari</option>
+                                <option value="dateRange">Rentang Tanggal</option>
+                            </select>
+
+                            <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center ">
+                                <ChevronDown className="w-5 h-5 text-orange-300" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div className="flexflex-col items-center gap-5 justify-between">
                     <Button
