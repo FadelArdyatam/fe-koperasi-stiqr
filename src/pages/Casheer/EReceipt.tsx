@@ -146,11 +146,12 @@ const EReceipt = () => {
 
     return (
         <>
-            <div className="p-10 flex flex-col md:bg-orange-400 min-h-screen items-center justify-center gap-6">
+            <div className="p-5 md:p-10 flex flex-col bg-orange-400 min-h-screen items-center justify-center gap-6">
                 {orderId && !showReceipt ? (
                     <div className='fixed flex items-center justify-center top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10'>
-                        <div className="bg-white md:w-[50%] p-10 flex flex-col items-center justify-center rounded-md shadow-md">
+                        <div className="bg-white w-[90%] md:w-[50%] p-10 flex flex-col items-center justify-center rounded-md shadow-md">
                             <QRCode value={currentUrl} />
+
                             <p className="text-black font-semibold text-lg text-center mt-10">*Scan QR Code Berikut untuk mendapatkan Struk Digital Anda!</p>
 
                             <div className="flex w-full flex-col gap-5 mt-6">
@@ -175,31 +176,8 @@ const EReceipt = () => {
                 )}
 
                 {showInvoice && (
-                    <div className='fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-50'>
-                        <div className="relative max-w-4xl w-[90%] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-gray-50 shadow-lg p-10 rounded-lg">
-
-                            {/* Background Logo */}
-                            <div className="absolute inset-0 opacity-90  pointer-events-none z-0">
-                                <div
-                                    className="grid -rotate-[15deg] justify-center items-center scale-[1.5]"
-                                    style={{
-                                        gridTemplateColumns: "repeat(auto-fill, minmax(50px, 1fr))",
-                                        gap: "50px",
-                                        width: "100%",
-                                        height: "100%",
-                                    }}
-                                >
-                                    {Array.from({ length: 70 }).map((_, index) => (
-                                        <img
-                                            key={index}
-                                            src={logo}
-                                            alt="Background Logo"
-                                            className="w-[50px] h-[50px] opacity-10"
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-
+                    <div className='fixed inset-0 flex flex-col py-2 items-center justify-center bg-black bg-opacity-50 z-50'>
+                        <div className="relative max-w-4xl w-[90%] md:max-h-[90vh] overflow-y-auto overflow-x-hidden bg-gray-50 shadow-lg p-10 rounded-lg">
                             {/* Konten Utama */}
                             <div className="relative z-10">
                                 <img className="w-[40%] mx-auto" src={logo} alt="" />
@@ -317,19 +295,19 @@ const EReceipt = () => {
                             </div>
                         </div>
 
-                        <Button className='max-w-4xl w-full bg-red-500 mt-5' onClick={() => setShowInvoice(false)}>Close</Button>
+                        <Button className='max-w-4xl w-[90%] md:w-full bg-red-500 mt-5' onClick={() => setShowInvoice(false)}>Close</Button>
                     </div>
                 )}
 
                 {orders && (
                     <>
-                        <div className='relative flex flex-col items-end gap-5 md:w-[80%] w-full'>
-                            <div className='md:absolute md:block hidden top-0 -left-20'>
+                        <div className='relative flex flex-col items-end gap-5 w-full md:w-[80%]'>
+                            <div className='absolute block top-5 left-5 md:-left-20 md:top-0 z-10'>
                                 <button onClick={() => navigate(-1)}>
                                     <ChevronLeft className='text-black scale-[2]' />
                                 </button>
                             </div>
-                            <div className='bg-white relative flex flex-col items-center rounded-lg md:p-10 w-full '>
+                            <div className='bg-white relative flex flex-col items-center rounded-lg p-10 w-full '>
                                 <div className='flex flex-col items-center gap-5'>
                                     <div className='bg-orange-400 rounded-full border border-black w-20 h-20 flex items-center justify-center'>
                                         <Check className='scale-[2] text-white' />
@@ -338,7 +316,7 @@ const EReceipt = () => {
                                     <p className='font-semibold text-orange-400 text-xl'>Pembayaran Berhasil</p>
                                 </div>
 
-                                <div className='w-max flex items-center gap-5 absolute md:top-5 md:right-5 top-0 right-0'>
+                                <div className='w-max flex items-center gap-5 absolute top-5 right-5'>
                                     <button className='p-3  text-orange-400 ' onClick={() => handleShare()}>
                                         <Share2 />
                                     </button>
@@ -468,14 +446,9 @@ const EReceipt = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className='md:block hidden'>
+                            <div className='block'>
                                 <Button onClick={() => setShowReceipt(false)} className='bg-green-500 text-white'>Generate QR</Button>
                             </div>
-                        </div>
-                        <div className='flex flex-row justify-between gap-3 w-full md:hidden '>
-                            <Button onClick={() => navigate(-1)} className='bg-orange-500 text-white'>Kembali</Button>
-
-                            <Button onClick={() => setShowReceipt(false)} className='bg-green-500 text-white'>Generate QR</Button>
                         </div>
                     </>
                 )}
