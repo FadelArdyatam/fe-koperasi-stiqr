@@ -301,11 +301,13 @@ const Settlement = () => {
     const handleNext = () => {
         setStep((prev) => prev + 1);
     };
-    const [selectedAccount, setSelectedAccount] = useState({
-        type: "",
-        account: "",
-        owner: ""
-    });
+    const [selectedAccount, setSelectedAccount] = useState<{ type: string, account: string, owner: string, bank?: string }>
+        ({
+            type: "",
+            account: "",
+            owner: "",
+            bank: "",
+        });
     return (
         <div>
             <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
@@ -406,8 +408,9 @@ const Settlement = () => {
                                                                     field.onChange(account.account_id);
                                                                     setSelectedAccount({
                                                                         type: account.type,
-                                                                        account: `${account.account_number} - ${account.bank_name}`,
-                                                                        owner: account.owner_name
+                                                                        account: account.account_number,
+                                                                        owner: account.owner_name,
+                                                                        bank: account.bank_name,
                                                                     })
                                                                 }}
                                                                 className="cursor-pointer px-4 py-2 hover:bg-gray-100 rounded-md"
@@ -462,7 +465,7 @@ const Settlement = () => {
                             </div>
 
                             <Button disabled={form.getValues("amount") < 12000} type="submit" className={`mt-5 w-full text-base bg-orange-500 `}>
-                                Tarik Saldo
+                                Konfirmasi Penarikan
                             </Button>
 
                             {showPinInput && (
@@ -478,7 +481,7 @@ const Settlement = () => {
                                                     <hr className="my-3" />
                                                     <div className="flex justify-between text-sm my-1">
                                                         <p>Metode Penarikan</p>
-                                                        <p>{selectedAccount.type.toUpperCase()}</p>
+                                                        <p>{selectedAccount.bank}</p>
                                                     </div>
                                                     <div className="flex justify-between text-sm my-1">
                                                         <p>Akun Penarikan</p>
@@ -501,10 +504,10 @@ const Settlement = () => {
                                                     <div className="flex justify-between text-sm my-1 items-center font-bold">
                                                         <div>
                                                             <p>Saldo yang Diterima </p>
-                                                            <p className="text-xs text-gray-500 italic font-normal">*saldo yang masuk ke rekening Anda.</p>
                                                         </div>
                                                         <p>{formatRupiah(mdr)}</p>
                                                     </div>
+                                                    <p className="text-xs text-gray-500 italic font-normal">*saldo yang masuk ke rekening Anda.</p>
                                                     <hr className="my-3" />
                                                     <div className="flex justify-between text-sm my-1 items-center">
                                                         <div>
@@ -514,8 +517,8 @@ const Settlement = () => {
                                                             {formatRupiah(3000)}
                                                         </p>
                                                     </div>
-                                                    <Button className="mt-5 w-full text-base bg-green-500 flex justify-between flex-row" onClick={handleNext}>
-                                                        <p className="flex flex-row gap-3 items-center">Lanjutkan Penarikan <ArrowRight /> </p>
+                                                    <Button className="mt-5 w-full bg-green-500 flex justify-between flex-row  md:text-lg text-sm" onClick={handleNext}>
+                                                        <p>Tarik Saldo </p>
                                                         <p>{formatRupiah(form.getValues("amount") + 3000)}</p>
                                                     </Button>
                                                 </>
