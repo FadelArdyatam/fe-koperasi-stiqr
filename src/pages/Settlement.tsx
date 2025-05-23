@@ -165,6 +165,7 @@ const Settlement = () => {
             setMessage(error.response.data.message);
             setIsSuccess(false)
             setShowPinInput(false)
+            setStep(0);
             setPin([])
             setLoading(false)
             console.error(error);
