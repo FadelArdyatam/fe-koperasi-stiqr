@@ -138,6 +138,7 @@ const EditProduct: React.FC<EditProductProps> = ({
     const [showError, setShowError] = useState(false);
     const [allData, setAllData] = useState<any>([]);
     const [stock, setStock] = useState({ stock: "", minimumStock: "" });
+    const [loadingSubmit, setLoadingSubmit] = useState(false);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -310,6 +311,8 @@ const EditProduct: React.FC<EditProductProps> = ({
     });
 
     const onSubmitVariant = async (data: z.infer<typeof FormSchemaVariant>) => {
+        setLoadingSubmit(true);
+
         const payload = {
             variant_name: data.name,
             product_id: data.products.join(","), // Konversi array ke string dengan koma
@@ -341,10 +344,15 @@ const EditProduct: React.FC<EditProductProps> = ({
         } catch (error: any) {
             console.error("Terjadi kesalahan saat mengirim data:", error.response?.data || error.message);
         }
+
+        setLoadingSubmit(false);
     };
 
     const deleteHandler = async () => {
+
         try {
+            setLoadingSubmit(true);
+
             const response = await axiosInstance.delete(
                 `/product/${editIndex}/delete`,
             );
@@ -352,6 +360,7 @@ const EditProduct: React.FC<EditProductProps> = ({
             console.log(response.data);
 
             // Close the form modal
+            setLoadingSubmit(false);
             setOpen({ id: "", status: false });
             setReset(true);
         } catch (error) {
@@ -364,6 +373,8 @@ const EditProduct: React.FC<EditProductProps> = ({
     }
 
     const addProductHandler = async () => {
+        setLoadingSubmit(true);
+
         const data = {
             is_stok: showField.stock,
             is_variant: showField.variant,
@@ -387,6 +398,8 @@ const EditProduct: React.FC<EditProductProps> = ({
 
         setShowNotification(true);
         setReset(true)
+
+        setLoadingSubmit(false);
     }
 
     const addNewChoice = () => {
@@ -498,6 +511,13 @@ const EditProduct: React.FC<EditProductProps> = ({
                 {error && (
                     <div className="bg-red-100 text-red-600 p-3 rounded-lg mt-5 text-center">
                         {error}
+                    </div>
+                )}
+
+                {/* Loading */}
+                {loadingSubmit && (
+                    <div className="fixed top-0 bottom-0 left-0 right-0 z-20 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
                     </div>
                 )}
 
@@ -832,7 +852,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                 </div>
                             </div>
 
-                            <Button className="bg-orange-500 text-white" onClick={addProductHandler}>Simpan</Button>
+                            <Button disabled={loadingSubmit ? true : false} className="bg-orange-500 text-white" onClick={addProductHandler}>Simpan</Button>
                         </div>
 
                         {/* Variant Control */}
@@ -949,7 +969,7 @@ const EditProduct: React.FC<EditProductProps> = ({
                                                 </div>
 
                                                 <div className="mt-3 flex items-center gap-5 justify-between">
-                                                    <p className="text-gray-500">{choise.price}</p>
+                                                    <p className="text-gray-500">{formatRupiah(choise.price)}</p>
 
                                                     <div
                                                         onClick={() => updateShowChoises(index)}
@@ -987,10 +1007,13 @@ const EditProduct: React.FC<EditProductProps> = ({
 
                                                 <Input
                                                     className="mt-3"
-                                                    type="number"
+                                                    type="text"
                                                     placeholder="Harga"
-                                                    value={newChoicePrice}
-                                                    onChange={(e) => setNewChoicePrice(Number(e.target.value))}
+                                                    value={formatRupiah(newChoicePrice.toString())}
+                                                    onChange={(e) => {
+                                                        const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                                                        setNewChoicePrice(Number(rawValue));
+                                                    }}
                                                 />
 
                                                 {showError && <p className="text-red-500 text-sm">Harga harus positif</p>}
@@ -1063,12 +1086,17 @@ const EditProduct: React.FC<EditProductProps> = ({
 
                                                 <Input
                                                     className="mt-3"
-                                                    type="number"
+                                                    type="text"
                                                     placeholder="Harga"
-                                                    value={displayChoises[showEditChoisesInput.index].price}
+                                                    value={formatRupiah(displayChoises[showEditChoisesInput.index].price.toString())}
                                                     onChange={(e) => {
+                                                        const rawValue = e.target.value.replace(/[^0-9]/g, ''); // hanya angka
+                                                        const newPrice = Number(rawValue);
+
                                                         const updatedChoises = displayChoises.map((choise, index) =>
-                                                            index === showEditChoisesInput.index ? { ...choise, price: Number(e.target.value) } : choise
+                                                            index === showEditChoisesInput.index
+                                                                ? { ...choise, price: newPrice }
+                                                                : choise
                                                         );
 
                                                         formVariant.setValue("choises", updatedChoises);
@@ -1219,12 +1247,19 @@ const EditProduct: React.FC<EditProductProps> = ({
                                     )}
                                 />
 
-                                <Button type="submit" className="w-full bg-green-500 text-white">
+                                <Button disabled={loadingSubmit ? true : false} type="submit" className="w-full bg-green-500 text-white">
                                     Simpan Varian
                                 </Button>
                             </form>
                         </Form>
                     </div>
+
+                    {/* Loading */}
+                    {loadingSubmit && (
+                        <div className="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                        </div>
+                    )}
                 </div>
             )}
 

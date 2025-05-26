@@ -70,6 +70,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
     const [showChoice, setShowChoice] = useState(false);
     const [showError, setShowError] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
+    const [loadingSubmit, setLoadingSubmit] = useState(false);
 
     useEffect(() => {
         const choises = variantToEdit?.detail_variant.map((item: any) => ({
@@ -174,6 +175,8 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
 
     const deleteHandler = async () => {
         try {
+            setLoadingSubmit(true);
+
             console.log("Deleting variant with ID:", editIndex);
 
             const response = await axiosInstance.delete(
@@ -184,6 +187,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
 
             // Close the form modal
             setOpen({ id: "", status: false });
+            setLoadingSubmit(false);
             setReset(true);
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -250,12 +254,21 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                     </div>
                 )}
 
+                {/* Loading */}
+                {loadingSubmit && (
+                    <div className="fixed top-0 bottom-0 left-0 right-0 z-20 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                    </div>
+                )}
+
                 {!loading && !error && (
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit((data) => {
+                                setLoadingSubmit(true);
                                 console.log("Form submitted with data:", data);
                                 onSubmit(data);
+                                setLoadingSubmit(false);
                             },
                                 (errors) => {
                                     console.error("Form validation errors:", errors);
@@ -444,7 +457,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                                 )}
                             />
 
-                            <Button data-aos="fade-up" data-aos-delay={500} type="submit" className="w-full bg-green-500 text-white">
+                            <Button data-aos="fade-up" data-aos-delay={500} type="submit" disabled={loadingSubmit ? true : false} className="w-full bg-green-500 text-white">
                                 Simpan Perubahan
                             </Button>
 
