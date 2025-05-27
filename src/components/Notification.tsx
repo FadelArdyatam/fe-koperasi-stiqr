@@ -24,7 +24,7 @@ const Notification: React.FC<NotificationProps> = ({ message, onClose, status })
                     <AlertCircle className="text-red-500 scale-150 mx-auto mt-5" />
                 )}
                 <p
-                    className={`text-center mt-5 text-lg font-medium ${status === "success" ? "text-green-500" : "text-red-500"
+                    className={`text-center mt-5 text-sm font-medium ${status === "success" ? "text-green-500" : "text-red-500"
                         }`}
                 >
                     {message}

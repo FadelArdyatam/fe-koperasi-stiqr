@@ -61,26 +61,30 @@ const Listrik = () => {
     useEffect(() => {
         const checkProfile = async () => {
             try {
-                const responseProducts = await axiosInstance.post("/ayoconnect/products",
-                    {
-                        "category": "listrik",
-                        "status": "active",
-                        "biller": type == 'Token Listrik' ? "PLN prepaid" : "PLN postpaid"
-                    },);
-                setProducts(responseProducts.data.data);
+                const responseProducts = await axiosInstance.post("/ayoconnect/products", {
+                    category: "listrik",
+                    status: "active",
+                    biller: type === 'Token Listrik' ? "PLN prepaid" : "PLN postpaid"
+                });
 
+                setProducts(responseProducts.data.data ?? []);
                 console.log("Products Response:", responseProducts.data);
             } catch (err) {
-                console.error("Error saat mengambil profile:", err);
+                console.error("Terjadi kesalahan saat mengambil data produk listrik:", err);
+                setType("")
+                setError({ show: true, message: "Tidak dapat memproses permintaan saat ini. Silakan ulangi beberapa saat lagi." })
             }
         };
 
         checkProfile();
-    }, [type])
+    }, [type]);
+
 
     const sendBill = async () => {
         if (!selectedProduct) {
+
             setError({ show: true, message: "Silakan pilih produk terlebih dahulu." });
+            setType("")
             return;
         }
         setLoading(true)
@@ -109,9 +113,8 @@ const Listrik = () => {
             }
         } catch (err: any) {
             setLoading(false)
-            setError({ show: true, message: err.response.data ? err.response.data.message : "Terjadi kesalahan saat melakukan pembelian paket. Silakan coba lagi." });
+            setError({ show: true, message: "Tidak dapat memproses permintaan saat ini. Silakan ulangi beberapa saat lagi." })
         }
-
     };
 
     const handleDropdownChange = (value: string) => {
@@ -124,9 +127,8 @@ const Listrik = () => {
         setType(value);
         console.log(value);
         if (!products) {
-            console.log(type)
-            console.log('MASOK');
-            setError({ show: true, message: "Terjadi Kesalahan, tunggu beberapa saat lagi" });
+            setError({ show: true, message: "Tidak dapat memproses permintaan saat ini. Silakan ulangi beberapa saat lagi." })
+            setType("")
             return;
         }
         AOS.refresh();
@@ -135,6 +137,7 @@ const Listrik = () => {
             setSelecteProduct(products[0])
         }
     };
+    console.log(type);
 
     return (
         <>
@@ -177,7 +180,7 @@ const Listrik = () => {
                     <RadioGroup
                         data-aos="fade-up"
                         data-aos-delay="200"
-                        defaultValue=""
+                        value={type} // ini yang penting
                         onValueChange={handleRadioChange}
                         className="mt-10 w-full flex items-center gap-5 justify-center"
                     >
@@ -190,6 +193,7 @@ const Listrik = () => {
                             <Label htmlFor="r2">Tagihan Listrik</Label>
                         </div>
                     </RadioGroup>
+
 
                     <div data-aos="fade-up" data-aos-delay="300" className="mt-10">
                         <div className="flex flex-row justify-between ">

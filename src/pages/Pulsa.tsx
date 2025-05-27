@@ -11,6 +11,7 @@ import provider from "@/data/provider.json"
 import RecomendationModalPPOB from "@/components/RecomendationModalPPOB"
 import MarginPPOB from "@/components/MarginPPOB"
 import useMarginPPOB from "@/hooks/useMarginPPOB"
+import img from '../images/no-data-catalog.png'
 
 interface BillData {
     product: string;
@@ -125,19 +126,26 @@ const Pulsa = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             if (category != null && selectedProvider != null) {
-                const responseProducts = await axiosInstance.post("/ayoconnect/products",
-                    {
-                        "category": category,
-                        "status": "active",
-                        "biller": selectedProvider
+                try {
+                    const responseProducts = await axiosInstance.post("/ayoconnect/products", {
+                        category: category,
+                        status: "active",
+                        biller: selectedProvider
                     });
-                console.log("Products Response:", responseProducts.data);
-                setProducts(responseProducts.data.data);
-            }
-        }
+                    console.log("Products Response:", responseProducts.data);
+                    setProducts(responseProducts.data.data ?? []);
 
-        fetchProduct()
+                } catch (error) {
+                    console.error("Error fetching products:", error);
+                    setProducts([]);
+                    setError({ show: true, message: "Tidak dapat memproses permintaan saat ini. Silakan ulangi beberapa saat lagi." });
+                }
+            }
+        };
+
+        fetchProduct();
     }, [category, selectedProvider]);
+
 
 
     return (
@@ -251,10 +259,19 @@ const Pulsa = () => {
 
                 <div className="mt-5 w-[90%] mb-10 m-auto flex flex-col items-center gap-5 shadow-lg">
                     <div className="w-full flex flex-wrap">
-                        {products.map((product, index) => (
+                        {products.length > 0 && products.map((product, index) => (
                             <button type="button" data-aos={isClicked ? undefined : 'fade-up'} data-aos-delay={index * 100} key={index} onClick={() => selectedAmountHandler(product, index)} className={`${indexButton === index ? 'bg-orange-400' : ''} p-10 border transition-all border-gray-300 w-[50%] text-md text-center font-semibold`}>{product.name}</button>
                         ))}
                     </div>
+                    {category &&
+                        selectedProvider &&
+                        products.length == 0 && (
+                            <div className="mb-10 flex flex-col justify-center items-center">
+                                <img className="w-2/3 place-items-center self-center" src={img} />
+                                <p className="text-orange-500 font-bold text-ceneter">Produk Tidak Tersedia</p>
+                            </div>
+                        )
+                    }
                 </div>
 
                 <Button

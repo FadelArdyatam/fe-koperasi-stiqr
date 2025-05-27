@@ -21,6 +21,7 @@ interface IOrder {
         subtotal: number;
         variants?: { name: string, price: number; }[];
         total?: number;
+        notes?:string;
     }[],
     payment: {
         total: number;
@@ -226,7 +227,7 @@ const EReceiptCustomer = () => {
                                                 </div>
                                             )}
 
-                                            <div className="text-gray-500 text-sm">Note: -</div>
+                                            <div className="text-gray-500 text-sm">Note: {item.notes}</div>
                                         </td>
 
 
@@ -379,7 +380,7 @@ const EReceiptCustomer = () => {
                                                 </div>
                                             )}
 
-                                            <div className="text-gray-500 text-sm">Note: -</div>
+                                            <div className="text-gray-500 text-sm">Note: {item.notes}</div>
                                         </td>
 
 

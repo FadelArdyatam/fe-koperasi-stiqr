@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, Filter, FileText, ChevronsLeft, ChevronsRight, ChevronRight, Calendar, ChevronDown } from "lucide-react";
+import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, FileText, ChevronsLeft, ChevronsRight, ChevronRight, Calendar, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 // import html2canvas from "html2canvas";
@@ -43,21 +43,6 @@ interface ISales {
     payment_method: string;
 }
 
-// interface ISales {
-//     sales_id: string;
-//     total_amount: number;
-//     channel: number;
-//     transaction_date: string;
-//     transaction_id: string;
-//     transaction_status: string;
-//     sales?: {
-//         orderId: string;
-//     },
-//     qr_transaction?: {
-//         orderId: string;
-//     }
-//     payment_method: string;
-// }
 
 const Riwayat = () => {
 
@@ -89,7 +74,7 @@ const Riwayat = () => {
         setDateRange({ startDate: start || undefined, endDate: end || undefined });
         setFilter("dateRange");
     };
-    const [isOpenFilter, setIsOpenFilter] = useState(false)
+    // const [isOpenFilter, setIsOpenFilter] = useState(false)
     const [filterStatus, setFilterStatus] = useState<string | null>(null)
     const [months, setMonths] = useState(2);
 
@@ -110,10 +95,11 @@ const Riwayat = () => {
         setFilter(newFilter);
         setCurrentPage(1);
     };
+    const [limitPurchase, setLimitPurchase] = useState(10);
     useEffect(() => {
         const params: any = {
             page: currentPage,
-            limit: 10,
+            limit: limitPurchase,
             status: filterStatus
         }
         // setDataUser(userData);
@@ -125,7 +111,7 @@ const Riwayat = () => {
         }
 
         fetchPurchase();
-    }, [currentPage, filterStatus]);
+    }, [currentPage, filterStatus, limitPurchase]);
 
     useEffect(() => {
         // Jika filter dateRange, pastikan startDate sudah ada dulu
@@ -344,7 +330,8 @@ const Riwayat = () => {
                                 <div>
                                     {sales.map((history, index) => (
                                         <div key={index}
-                                            className="cursor-pointer"
+                                            className={`${history.sales?.orderId ? 'cursor-pointer' : ''}`}
+                                            title={history.sales?.orderId ? 'Lihat Detail' : ''}
                                             onClick={() => {
                                                 const orderId = history.sales?.orderId;
                                                 if (orderId) {
@@ -370,7 +357,12 @@ const Riwayat = () => {
                                                         </div>
                                                         {history.sales_id == null && history.qr_transaction?.keterangan != null ? <p className="text-sm text-gray-700 break-all">{history.qr_transaction?.keterangan}</p> : ""}
 
-                                                        <p className="text-xs text-gray-400 text-start">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
+                                                        <p className="text-xs text-gray-400 text-start"><p className="text-xs text-gray-400 text-start">
+                                                            {history.transaction_id}
+                                                            {history.sales?.orderId || history.qr_transaction?.orderId
+                                                                ? ` | ${history.sales?.orderId || history.qr_transaction?.orderId}`
+                                                                : ''}
+                                                        </p></p>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col items-end md:mt-0 mt-2">
@@ -455,99 +447,136 @@ const Riwayat = () => {
 
                 {/* Konten Pembelian */}
                 < div
-                    className={`absolute inset-0 ${type === "Pembelian" ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"} transition-all duration-500 ease-in-out`}
+                    className={`absolute inset-0 ${type === "Pembelian" ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"} transition-all duration-500 ease-in-out `}
                 >
-                    <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg">
+                    <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg ">
                         {purchases.length === 0 ? (
                             <div className="flex items-center flex-col justify-center gap-10">
                                 <img className="" src={noTransactionImage} alt="" />
 
                                 <p className="font-semibold text-orange-500 text-center">Belum ada transaksi pembelian</p>
-                            </div>) :
-                            purchases.map((purchase, index) => (
-                                <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-10' : 'mb-0'} block`} key={index}>
-                                    <div
-                                        className={`${index === 0 ? "hidden" : "block"
-                                            } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
-                                    ></div>
+                            </div>) : (
+                            <>
+                                <label htmlFor="filter-status" className="text-sm text-gray-700">Filter Status:</label>
+                                <select
+                                    id="filter-status"
+                                    value={filterStatus || ""}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        setFilterStatus(value === "" ? null : value);
+                                        setCurrentPage(1);
+                                    }}
+                                    className="text-sm border border-gray-300 rounded px-2 py-1 -mt-3 mb-3"
+                                >
+                                    <option value="">Semua</option>
+                                    <option value="Berhasil">Berhasil</option>
+                                    <option value="Dalam Proses">Dalam Proses</option>
+                                    <option value="Gagal">Gagal</option>
+                                </select>
+                                {purchases.map((purchase, index) => (
+                                    <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-10' : 'mb-0'} block`} key={index}>
+                                        <div
+                                            className={`${index === 0 ? "hidden" : "block"
+                                                } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
+                                        ></div>
 
-                                    <div className="flex md:items-center md:justify-between md:flex-row flex-col">
-                                        <div className="flex md:items-start items-center gap-5">
-                                            <img
-                                                src={`https://is3.cloudhost.id/stiqr/ppob/${purchase.biller}.png`}
-                                                className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
-                                                alt=""
-                                            />
+                                        <div className="flex md:items-center md:justify-between md:flex-row flex-col">
+                                            <div className="flex md:items-start items-center gap-5">
+                                                <img
+                                                    src={`https://is3.cloudhost.id/stiqr/ppob/${purchase.biller}.png`}
+                                                    className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
+                                                    alt=""
+                                                />
 
-                                            <div className="flex md:flex-row flex-col items-start gap-5">
-                                                <div className="flex flex-col gap-2">
-                                                    <p className="uppercase text-sm">{purchase.type}</p>
-                                                    <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
+                                                <div className="flex md:flex-row flex-col items-start gap-5">
+                                                    <div className="flex flex-col gap-2">
+                                                        <p className="uppercase text-sm">{purchase.type}</p>
+                                                        <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
+                                                    </div>
+                                                    <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
+                                                        <p>{purchase.status}</p>
+                                                    </div>
+
                                                 </div>
-                                                <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
-                                                    <p>{purchase.status}</p>
-                                                </div>
-
                                             </div>
-                                        </div>
 
-                                        <div className="flex md:mt-0 mt-5 flex-col items-end">
-                                            <p className="text-md font-semibold">
-                                                Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
-                                            </p>
-                                            {
-                                                (purchase.marginFee ?? 0) > 0 && (
-                                                    <p className="text-md text-green-500">
-                                                        + {formatRupiah(purchase.marginFee || 0)}
+                                            <div className="flex md:mt-0 mt-5 flex-col items-end">
+                                                <p className="text-md font-semibold">
+                                                    Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
+                                                </p>
+                                                {
+                                                    (purchase.marginFee ?? 0) > 0 && (
+                                                        <p className="text-md text-green-500">
+                                                            + {formatRupiah(purchase.marginFee || 0)}
+                                                        </p>
+                                                    )
+                                                }
+
+                                                <div className="flex items-center">
+                                                    <p className="text-xs">
+                                                        {new Date(purchase.date).toLocaleDateString('id-ID', {
+                                                            day: '2-digit',
+                                                            month: 'long',
+                                                            year: 'numeric',
+                                                        })}
                                                     </p>
-                                                )
-                                            }
 
-                                            <div className="flex items-center">
-                                                <p className="text-xs">
-                                                    {new Date(purchase.date).toLocaleDateString('id-ID', {
-                                                        day: '2-digit',
-                                                        month: 'long',
-                                                        year: 'numeric',
-                                                    })}
-                                                </p>
+                                                    <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
 
-                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-
-                                                <p className="text-xs">
-                                                    {new Date(purchase.date).toLocaleTimeString('id-ID', {
-                                                        hour: '2-digit',
-                                                        minute: '2-digit',
-                                                    })}
-                                                </p>
+                                                    <p className="text-xs">
+                                                        {new Date(purchase.date).toLocaleTimeString('id-ID', {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                        })}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </button>
-                            ))
+                                    </button>
+                                ))}
+                            </>
+                        )
+
                         }
                         {
                             totalPages > 0 && (
-                                <div className="flex flex-col items-center w-full mb-32">
-                                    <div className="flex items-center justify-center gap-5 mb-5">
-                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
-                                            <ChevronsLeft />
-                                        </Button>
+                                <div className="flex flex-col items-center w-full mb-10">
+                                    <div className="flex justify-between w-full">
+                                        <select
+                                            className="h-10 border border-gray-300 rounded-md md:w-20 w-14 text-center"
+                                            value={limitPurchase}
+                                            onChange={(e) => { setLimitPurchase(Number(e.target.value)); setCurrentPage(1); }}
+                                        >
+                                            <option value="5">5</option>
+                                            <option value="10">10</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                        </select>
+                                        <div className="flex flex-col md:justify-center justify-end items-center flex-1 md:gap-5 ">
+                                            <div className="flex gap-5 items-center ">
+                                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                                                    <ChevronsLeft />
+                                                </Button>
 
-                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
-                                            <ChevronLeft />
-                                        </Button>
+                                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
+                                                    <ChevronLeft />
+                                                </Button>
 
 
-                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
-                                            <ChevronRight />
-                                        </Button>
+                                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
+                                                    <ChevronRight />
+                                                </Button>
 
-                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
-                                            <ChevronsRight />
-                                        </Button>
+                                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+                                                    <ChevronsRight />
+                                                </Button>
+                                            </div>
+                                            <div>
+                                                <span className="md:block hidden text-center">Halaman {currentPage} dari {totalPages}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span className="text-center">Halaman {currentPage} dari {totalPages}</span>
+                                    <span className="text-center md:hidden block">Halaman {currentPage} dari {totalPages}</span>
                                 </div>
                             )
                         }
@@ -555,7 +584,7 @@ const Riwayat = () => {
                 </div >
             </div >
 
-            {
+            {/* {
                 type != "Uang Masuk" && (
                     <div className={`${showDescription.status ? 'hidden' : 'fixed bottom-32 w-full m-auto flex items-center justify-center'} `}>
                         <div className="flex relative items-center justify-center py-3 px-5 rounded-full bg-white shadow-lg gap-5">
@@ -584,15 +613,10 @@ const Riwayat = () => {
                                     </button>
                                 </div>
                             )}
-
-                            {/* <button onClick={sortingHandler} className="flex items-center gap-2 text-gray-500">
-                                <ArrowDownAZ />
-                                <p>Sorting</p>
-                            </button> */}
                         </div>
                     </div>
                 )
-            }
+            } */}
 
             {/* Deskripsi Pembelian */}
             <div ref={contentRef} className={`${showDescription.status ? 'block' : 'hidden'} w-full xs:w-[90%] mt-24 left-[50%] -translate-x-[50%] p-5 z-20 absolute rounded-lg `}>

@@ -23,6 +23,7 @@ interface IOrder {
         subtotal: number;
         variants?: { name: string, price: number }[];
         total?: number;
+        notes?: string;
     }[],
     payment: {
         total: number;
@@ -241,7 +242,7 @@ const EReceipt = () => {
                                                         </div>
                                                     )}
 
-                                                    <div className="text-gray-500 text-sm">Note: -</div>
+                                                    <div className="text-gray-500 text-sm">Note: {item.notes}</div>
                                                 </td>
 
 
@@ -390,10 +391,8 @@ const EReceipt = () => {
                                                             ))}
                                                         </div>
                                                     )}
-
-                                                    <div className="text-gray-500 text-sm">Note: -</div>
+                                                    <div className="text-gray-500 text-sm">Note: {item.notes}</div>
                                                 </td>
-
 
                                                 <td className="py-2 text-right font-medium">
                                                     {formatRupiah(item.subtotal)}
@@ -549,7 +548,7 @@ const EReceipt = () => {
                                                 </div>
                                             )}
 
-                                            <div className="text-gray-500 text-sm">Note: -</div>
+                                            <div className="text-gray-500 text-sm">Note: {item.notes}</div>
                                         </td>
 
                                         <td className="text-right font-medium">

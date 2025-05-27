@@ -402,7 +402,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                                 render={({ field }) => (
                                     <FormItem data-aos="fade-up" data-aos-delay={400}>
                                         <div className="flex items-center gap-5 justify-between">
-                                            <FormLabel>Harus Dipilih?</FormLabel>
+                                            <FormLabel>Apakah varian wajib dipilih ?</FormLabel>
                                             <FormControl>
                                                 <div
                                                     className={`w-14 h-8 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${field.value ? "bg-orange-400" : "bg-gray-300"
@@ -433,7 +433,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                                                     <input
                                                         type="radio"
                                                         value="single"
-                                                        defaultChecked={variantToEdit?.is_multiple === false ? true : false}
+                                                        checked={field.value === "single"}
                                                         onChange={() => field.onChange("single")}
                                                         className="mr-2"
                                                     />
@@ -444,7 +444,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                                                     <input
                                                         type="radio"
                                                         value="more"
-                                                        defaultChecked={variantToEdit?.is_multiple === true ? true : false}
+                                                        checked={field.value === "more"}
                                                         onChange={() => field.onChange("more")}
                                                         className="mr-2"
                                                     />

@@ -22,6 +22,9 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { formatRupiah } from "@/hooks/convertRupiah";
 import CalculatorComponent from "@/components/CalculatorComponent";
+import { QRCodeStatic } from "./QRCodeStatic";
+import successAudio from '../images/sound.mp3';
+
 
 const payments = [visa, masterCard, gopay, ovo, dana, linkAja];
 
@@ -58,6 +61,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
     const userData = userItem ? JSON.parse(userItem) : null;
     const [orderIdInstant, setOrderIdInstant] = useState<string | null>(null)
 
+
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
@@ -74,7 +78,8 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
             const socket = getSocket();
             const handlePaymentSuccess = (data: { orderId: string; status: string; amount?: number }) => {
                 if ((orderId === data.orderId || orderIdInstant === data.orderId) && (data.status === 'PAID' || data.status === "SUCCESS")) {
-                    console.log("Payment success:", data);
+                    const audio = new Audio(successAudio)
+                    audio.play()
                     navigate('/payment-success', {
                         state: {
                             orderId: data.orderId ?? "dummy-order-id",
@@ -312,10 +317,11 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
         }
     };
 
+    const [isQrisStatic, setIsQrisStatic] = useState(true);
 
     return (
         <>
-            {/* Tampilan QR Code */}
+
             <div className={`${(showQRCode || showQRInstant) && showPaymentMehodComponent === false ? 'block' : 'hidden'} w-full min-h-screen p-8 bg-orange-400`}>
                 <div className="flex items-center justify-between gap-5 w-full">
                     <AlertDialog>
@@ -414,7 +420,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
 
             {/* Input Jumlah Pembayaran */}
             <div className={`${(showQRCode || showQRInstant) || type !== '' ? "hidden" : "block"}`}>
-                <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
+                <div className={`fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400 ${isQrisStatic ? 'md:pb-56' : ''} `}>
                     <Link to={"/dashboard"} className="bg-transparent hover:bg-transparent">
                         <ChevronLeft className="scale-[1.3] text-white" />
                     </Link>
@@ -458,60 +464,65 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </Link>
                 </div>
 
-                <div data-aos="fade-up" data-aos-delay="100" className="mt-28 w-[90%] shadow-lg m-auto p-5 rounded-lg bg-white">
-                    <div className="flex md:flex-row flex-col items-center gap-3 bg-blue-50 px-2 py-3 rounded-md shadow-sm border border-blue-200 mb-3">
-                        <div className="flex gap-2">
-                            <Info className="md:w-4 md:h-4 w-5 h-5 text-blue-500" />
-                            <p className="text-sm md:hidden block text-blue-500 font-semibold">Info</p>
-                        </div>
-                        <p className="text-xs text-gray-800">
-                            Saat ini nama tujuan rekening dari Qr Code masih dengan atas nama <span className="font-bold"> PT. Digital Nusantara Sinergi</span>. Pengguna dapat melakukan pengajuan pergantian NAMA dengan menghubungi <Link to={'/profile/help-center'} className="underline font-bold"> Customer Service</Link>
-                        </p>
-                    </div>
-                    <p className="text-gray-700 font-medium">Keterangan</p>
+                <div className={` m-auto p-5 rounded-lg ${!isQrisStatic ? 'bg-white shadow-lg mt-28 w-[90%]' : 'w-[70%] md:mt-10 mt-28'} `}>
+                    {
+                        isQrisStatic ? <QRCodeStatic setIsQrisStatic={setIsQrisStatic} /> : (
+                            <>
+                                <div className="flex md:flex-row flex-col items-center gap-3 bg-blue-50 px-2 py-3 rounded-md shadow-sm border border-blue-200 mb-3">
+                                    <div className="flex gap-2">
+                                        <Info className="md:w-4 md:h-4 w-5 h-5 text-blue-500" />
+                                        <p className="text-sm md:hidden block text-blue-500 font-semibold">Info</p>
+                                    </div>
+                                    <p className="text-xs text-gray-800">
+                                        Saat ini nama tujuan rekening dari Qr Code masih dengan atas nama <span className="font-bold"> PT. Digital Nusantara Sinergi</span>. Pengguna dapat melakukan pengajuan pergantian NAMA dengan menghubungi <Link to={'/profile/help-center'} className="underline font-bold"> Customer Service</Link>
+                                    </p>
+                                </div>
+                                <p className="text-gray-700 font-medium">Keterangan</p>
 
-                    <div className="relative mt-3">
-                        <Input onChange={(e) => handleChange(e)} maxLength={50} type="text" className={`pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent `} />
-                        <div className="flex flex-row justify-between mt-2">
-                            <p className="text-xs text-gray-400 italic ">*Maksimal 50 karakter</p>
-                            <p className="text-xs text-gray-400">{`${keterangan.length + 1}/50`}</p>
-                        </div>
-                    </div>
+                                <div className="relative mt-3">
+                                    <Input onChange={(e) => handleChange(e)} maxLength={50} type="text" className={`pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent `} />
+                                    <div className="flex flex-row justify-between mt-2">
+                                        <p className="text-xs text-gray-400 italic ">*Maksimal 50 karakter</p>
+                                        <p className="text-xs text-gray-400">{`${keterangan.length + 1}/50`}</p>
+                                    </div>
+                                </div>
 
-                    <p className="text-gray-700 font-medium mt-5">Masukan Jumlah</p>
+                                <p className="text-gray-700 font-medium mt-5">Masukan Jumlah</p>
 
-                    <div className="relative mt-3">
-                        <Input
-                            type="text"
-                            inputMode="numeric"  // Menampilkan keyboard angka di mobile
-                            pattern="[1-9][0-9]*"  // Mencegah karakter non-angka dan angka 0 di awal
-                            className="pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-                            onChange={(e) => {
-                                let value = e.target.value.replace(/\D/g, ""); // Hanya angka
+                                <div className="relative mt-3">
+                                    <Input
+                                        type="text"
+                                        inputMode="numeric"  // Menampilkan keyboard angka di mobile
+                                        pattern="[1-9][0-9]*"  // Mencegah karakter non-angka dan angka 0 di awal
+                                        className="pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                                        onChange={(e) => {
+                                            let value = e.target.value.replace(/\D/g, ""); // Hanya angka
 
-                                // Mencegah angka nol di awal
-                                if (value.startsWith("0")) {
-                                    value = value.replace(/^0+/, ""); // Hapus semua nol di awal
-                                }
+                                            // Mencegah angka nol di awal
+                                            if (value.startsWith("0")) {
+                                                value = value.replace(/^0+/, ""); // Hapus semua nol di awal
+                                            }
 
-                                if (value.length <= 10) {
-                                    setAmount(value);
-                                }
-                            }}
-                            value={formatRupiah(amount)}
-                            placeholder="1.00" // Placeholder awal minimal 1 rupiah
-                        />
-                    </div>
+                                            if (value.length <= 9) {
+                                                setAmount(value);
+                                            }
+                                        }}
+                                        value={formatRupiah(amount)}
+                                        placeholder="1.00" 
+                                    />
+                                </div>
+                                <div className="m-auto flex items-center gap-5 !mt-10">
+
+                                    <button type="button" onClick={() => setShowCalculator(true)} className="bg-orange-500 text-white rounded-lg p-2"><Calculator /></button>
+
+                                    <Button onClick={showShareLinkGenerator} disabled={Number(amount) <= 0 ? true : false} className={`${Number(amount) <= 0 ? 'bg-gray-500' : 'bg-green-400'} transition-all uppercase w-full m-auto block`}>
+                                        Buat
+                                    </Button>
+                                </div>
+                            </>
+                        )
+                    }
                 </div>
-
-                <div className="m-auto flex items-center gap-5 w-[90%] !mt-10">
-                    <button type="button" onClick={() => setShowCalculator(true)} className="bg-orange-500 text-white rounded-lg p-2"><Calculator /></button>
-
-                    <Button onClick={showShareLinkGenerator} disabled={Number(amount) <= 0 ? true : false} className={`${Number(amount) <= 0 ? 'bg-gray-500' : 'bg-green-400'} transition-all uppercase w-full m-auto block`}>
-                        Buat
-                    </Button>
-                </div>
-
                 {showCalculator && <CalculatorComponent setAmount={setAmount} amount={amount} setShowCalculator={setShowCalculator} />}
             </div>
 

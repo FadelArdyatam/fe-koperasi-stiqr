@@ -408,6 +408,9 @@ const Signup = () => {
                 <div>
                     <div key={currentSection} className={`${createPin ? 'hidden' : 'flex'} w-full flex-col p-10`}>
                         <div className="flex items-center w-full">
+                            {
+                                currentSection === 0 && (<ChevronLeft className="cursor-pointer" onClick={() => setShowTermsandConditions(true)} />)
+                            }
                             <p data-aos="zoom-in" className="uppercase m-auto text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : 'Kode Otp'}</p>
                         </div>
 

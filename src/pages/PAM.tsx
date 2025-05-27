@@ -54,32 +54,22 @@ const PAM = () => {
 
     useEffect(() => {
         const checkProfile = async () => {
-            const token = localStorage.getItem("token");
-
-            if (!token) {
-                console.warn("Token tidak ditemukan untuk otorisasi.");
-                return;
-            }
-
             try {
+                const responseProducts = await axiosInstance.post("/ayoconnect/products", {
+                    category: "PDAM",
+                    status: "active"
+                });
 
-                const responseProducts = await axiosInstance.post("/ayoconnect/products",
-                    {
-                        "category": "PDAM",
-                        "status": "active"
-                    },
-                );
-
-                setProducts(responseProducts.data.data);
-
+                setProducts(responseProducts.data.data ?? []);
                 console.log("Products Response:", responseProducts.data);
             } catch (err) {
-                console.error("Error saat mengambil profile:", err);
+                console.error("Terjadi kesalahan saat mengambil data produk:", err);
+                setError({ show: true, message: "Tidak dapat memproses permintaan saat ini. Silakan ulangi beberapa saat lagi." })
             }
         };
 
         checkProfile();
-    }, [])
+    }, []);
 
     const sendBill = async () => {
         if (!selectedProduct) {

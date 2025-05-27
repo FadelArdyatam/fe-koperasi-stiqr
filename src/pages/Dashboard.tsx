@@ -435,12 +435,18 @@ const Dashboard = () => {
                                                                     : "QRCode"
                                                                 : "Penjualan"}{" "}
                                                             | {history.payment_method}
-                                                        </p>                                                        <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} w-fit px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                        </p>
+                                                        <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} w-fit px-2 rounded-md text-white text-xs py-[0.5]"`}>
                                                             <p>{history.transaction_status}</p>
                                                         </div>
                                                     </div>
                                                     {history.sales_id == null && history.qr_transaction?.keterangan != null ? <p className="text-sm text-gray-700 break-all">{history.qr_transaction?.keterangan}</p> : ""}
-                                                    <p className="text-xs text-gray-400 text-start">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
+                                                    <p className="text-xs text-gray-400 text-start">
+                                                        {history.transaction_id}
+                                                        {history.sales?.orderId || history.qr_transaction?.orderId
+                                                            ? ` | ${history.sales?.orderId || history.qr_transaction?.orderId}`
+                                                            : ''}
+                                                    </p>
                                                 </div>
                                             </div>
                                             <div className="flex flex-col items-end md:mt-0 mt-2">

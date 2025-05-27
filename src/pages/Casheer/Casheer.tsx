@@ -57,7 +57,7 @@ const Casheer = () => {
                             product: product.product_name,
                             quantity: 1,
                             price: product.product_price,
-                            notes: "",
+                            notes: product.notes,
                             date: new Date().toLocaleString(),
                             detail_variant: [],
                             service: showService?.service,

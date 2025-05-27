@@ -162,7 +162,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 quantity: item.quantity,
                 price: item.price,
                 subtotal: (item.price) * (item.quantity),
-                detail_variants: item.detail_variants
+                detail_variants: item.detail_variants,
+                notes: item.notes,
             }));
 
 
