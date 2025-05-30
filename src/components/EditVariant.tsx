@@ -201,7 +201,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
     }
 
     const addNewChoice = () => {
-        if (newChoiceName && newChoicePrice) {
+        if (newChoiceName && newChoicePrice !== "") {
             if (newChoicePrice < 0) {
                 setShowError(true);
                 return;
