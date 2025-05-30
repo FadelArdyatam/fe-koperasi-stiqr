@@ -314,7 +314,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         },
     });
 
-    console.log("variants", variants);
 
     const onSubmitVariant = async (data: z.infer<typeof FormSchemaVariant>) => {
         const userItem = sessionStorage.getItem("user");
@@ -339,13 +338,12 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             console.log(response.data.data);
 
             if (response.status === 200 || response.status === 201) {
-                // Agar varian yang baru ditambahkan langsung muncul di halaman varian
-
                 setVariants(prevVariants => [...prevVariants, response.data.data]);
-
                 setShowPopUpAddVariant(false)
                 setShowNotificationVariant(true);
                 setReset(true)
+                formVariant.reset();
+                setDisplayChoises([]);
             } else {
                 console.error("Gagal menambahkan varian:", response.data);
             }
@@ -353,8 +351,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             console.error("Terjadi kesalahan saat mengirim data:", error.response?.data || error.message);
         }
     };
-
-    console.log("SelectedVariants", selectedVariants)
 
     const addProductHandler = async () => {
         const data = {
@@ -799,7 +795,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                         <div className="flex items-center justify-between">
                             <p className="font-semibold text-xl">Pilih Variant</p>
                             <button onClick={() => setShowAddVariant(false)}>
-                                <ChevronLeft />
+                                <X />
                             </button>
                         </div>
 
@@ -869,9 +865,9 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                 <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-start overflow-y-auto py-10 justify-center">
                     <div data-aos="fade-up" className="bg-white p-5 rounded-lg w-[90%]">
                         <div className="flex items-center justify-between">
-                            <p className="font-semibold text-xl">Add Variant</p>
+                            <p className="font-semibold text-xl">Tambah Varian</p>
                             <button onClick={() => setShowPopUpAddVariant(false)}>
-                                <ChevronLeft />
+                                <X />
                             </button>
                         </div>
 
@@ -1182,7 +1178,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                     )}
                                 /> */}
 
-                                <Button data-aos="fade-up" data-aos-delay="600" type="submit" className="w-full bg-green-500 text-white">
+                                <Button type="submit" className="w-full bg-green-500 text-white">
                                     Simpan Varian
                                 </Button>
                             </form>

@@ -16,7 +16,7 @@ import {
     X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import OrderProcessed from "../Casheer/OrderProcessed";
 import { formatRupiah } from "../../hooks/convertRupiah";
 import { convertDate, convertTime } from "@/hooks/convertDate";
@@ -185,6 +185,8 @@ const Booking = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [currentPage]);
 
+    const navigate = useNavigate()
+
     return (
         <div>
             <div className={`${showOrderProcess || !showReceipt.show && showReceipt.type !== "" ? "hidden" : "flex"} pb-10 w-full flex-col min-h-screen items-center bg-orange-50`}>
@@ -323,9 +325,9 @@ const Booking = () => {
                                                         Tambah Pesanan
                                                     </Link>
 
-                                                    <Button onClick={() => setShowReceipt({ type: "", show: true, index: index })} className="w-full rounded-full bg-orange-200 border border-orange-500 text-sm md:text-base text-orange-500">
+                                                    <Button onClick={() => navigate(`/order?orderId=${data.orderId ?? ""}`)} className={`${status == 'done' ? 'block' : 'hidden'} w-full rounded-full bg-orange-200 border border-orange-500 text-sm md:text-base text-orange-500`}>
                                                         <p className="md:text-base text-sm">
-                                                            Cetak Struk
+                                                            Lihat Struk
                                                         </p>
                                                     </Button>
                                                 </div>

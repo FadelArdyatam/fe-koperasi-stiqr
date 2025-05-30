@@ -203,14 +203,17 @@ const EReceipt = () => {
 
                                         <span>Jenis Layanan</span>
                                         <span>: {orders?.type == 'takeaway' ? 'Bayar Sekarang' : 'Bayar Nanti'}</span>
+                                        
+                                        <span>No. Antrian</span>
+                                        <span>: {orders?.queue}</span>
 
                                     </div>
 
-                                    {/* Kanan: No Antrian */}
+                                    {/* Kanan: No Antrian
                                     <div className="text-center">
                                         <p className="text-sm">No Antrian:</p>
                                         <p className="text-4xl font-bold">{orders?.queue}</p>
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 <div className='w-full h-[2px] bg-gray-400 bounded-lg my-5'></div>

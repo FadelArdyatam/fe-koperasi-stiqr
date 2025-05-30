@@ -207,13 +207,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 setTagih(true)
             }
         } catch (error: any) {
-            if (error.response) {
-                console.error('Response error:', error.response.data);
-            } else if (error.request) {
-                console.error('Request error:', error.request);
-            } else {
-                console.error('Setup error:', error.message);
-            }
+            
             setLoading(false)
         }
     };

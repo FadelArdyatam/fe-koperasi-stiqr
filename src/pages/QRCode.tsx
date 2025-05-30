@@ -242,19 +242,23 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
 
                 throw new Error("NOBU gagal tanpa response valid");
 
-            } catch (error) {
-                console.log("NOBU gagal, mencoba Finpay:", error);
+            } catch (error: any) {
+                // alert(`${error.response.data.message}`);
+                setError({ show: true, message: error.response.data.message })
+                navigate('/qr-code');
 
+                // --- Fallback Finpay dinonaktifkan, tetap disimpan untuk referensi ---
+                /*
                 try {
                     const initiateHooks = await axiosInstance.post("/finpay/initiate", requestBody);
                     await axiosInstance.post('/sales/payment-qr', paymentQR);
-
+            
                     if (initiateHooks.data && initiateHooks.data.response?.stringQr) {
                         setStringQRInstant(initiateHooks.data.response.stringQr);
                         setDataForPaymentMethod(requestBody);
                         setShowQRInstant(true);
                         setOrderIdInstant(generateOrderId);
-
+            
                         const timer = setInterval(() => {
                             setTimeLeft((prevTime) => {
                                 if (prevTime <= 1) {
@@ -265,19 +269,20 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                                 return prevTime - 1;
                             });
                         }, 1000);
-
+            
                         return () => clearInterval(timer);
                     } else {
                         alert("Gagal membuat link pembayaran. Mohon coba lagi.");
                     }
                 } catch (finpayError) {
-                    console.error("Finpay juga gagal:", finpayError);
                     alert("Gagal Melakukan Pembayaran. Silakan coba lagi nanti.");
                     navigate('/booking');
                 }
+                */
             } finally {
                 setIsLoading(false);
             }
+
         }
     };
 
@@ -508,7 +513,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                                             }
                                         }}
                                         value={formatRupiah(amount)}
-                                        placeholder="1.00" 
+                                        placeholder="1.00"
                                     />
                                 </div>
                                 <div className="m-auto flex items-center gap-5 !mt-10">

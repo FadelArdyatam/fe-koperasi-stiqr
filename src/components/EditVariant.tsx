@@ -128,7 +128,9 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
             z.object({
                 detail_variant_id: z.string().optional().nullable(),
                 name: z.string().nonempty("Nama pilihan wajib diisi"),
-                price: z.number().positive("Harga harus positif"),
+                price: z.number().refine((val) => val >= 0, {
+                    message: "Harga tidak boleh negatif",
+                }),
                 show: z.boolean(),  // Tambahkan atribut show
             })
         ),
@@ -347,8 +349,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
 
                                             <Input
                                                 className="mt-3"
-                                                inputMode="numeric"  // Menampilkan keyboard angka di mobile
-                                                pattern="[0-9]*"     // Mencegah karakter non-angka
+                                                inputMode="numeric"
                                                 type="text"
                                                 placeholder="Harga"
                                                 value={formatRupiah(newChoicePrice.toString())}
@@ -379,6 +380,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                                         <div className="flex items-center gap-5 mt-5">
                                             <Button
                                                 onClick={addNewChoice}
+                                                type="button"
                                                 className="bg-green-500 w-full"
                                             >
                                                 Simpan

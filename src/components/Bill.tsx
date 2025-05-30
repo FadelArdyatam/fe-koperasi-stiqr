@@ -108,11 +108,14 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
 
             throw new Error("NOBU gagal tanpa response valid");
         } catch (error) {
-            console.error("NOBU error, fallback ke Finpay:", error);
+            alert("Gagal melakukan pembayaran,coba beberapa saat lagi");
+            navigate("/dashboard");
 
+            // --- Fallback Finpay DISABLED sesuai permintaan ---
+            /*
             try {
                 await validatePinBalance(userData.merchant.id, pin.join(''), total + Number(marginFee));
-
+    
                 // --- FINPAY PAYMENT ---
                 const requestBody = {
                     email: userData.email,
@@ -125,14 +128,14 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                     type: "qris",
                     orderId: orderIdQris,
                 };
-
+    
                 const response = await axiosInstance.post(`/finpay/initiate`, requestBody);
                 console.log(response);
-
+    
                 if (response.data && response.data.response?.stringQr) {
                     setStringQR(response.data.response.stringQr);
                     setShowQRCode(true);
-
+    
                     const timer = setInterval(() => {
                         setTimeLeft(prevTime => {
                             if (prevTime <= 1) {
@@ -143,19 +146,21 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                             return prevTime - 1;
                         });
                     }, 1000);
-
+    
                     return () => clearInterval(timer);
                 }
-
+    
                 throw new Error("Finpay gagal tanpa response valid");
             } catch (finpayError) {
                 console.error("Finpay juga gagal:", finpayError);
                 setError("Gagal membuat link pembayaran dari NOBU maupun Finpay. Mohon coba lagi nanti.");
             }
+            */
         } finally {
             setLoading(false);
         }
     };
+
 
 
 

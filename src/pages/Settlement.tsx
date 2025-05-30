@@ -279,6 +279,9 @@ const Settlement = () => {
     const [latestTunai, setLatestTunai] = useState(null)
 
     useEffect(() => {
+        if (filter === "dateRange" && !dateRange.startDate) {
+            return; // skip fetch jika belum ada tanggal startDate
+        }
         const fetchSettlement = async () => {
             const params: any = {
                 filter,

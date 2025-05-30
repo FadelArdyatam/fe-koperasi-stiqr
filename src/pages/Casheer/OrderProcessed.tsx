@@ -90,11 +90,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
         if (calledRef.current) return; // ⛔ Skip kalau sudah pernah jalan
         calledRef.current = true; // ✅ Set agar tidak jalan lagi
 
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
-
         const orderAmount = calculateTotalAmount();
-
         const startTimer = () => {
             const timer = setInterval(() => {
                 setTimeLeft((prevTime) => {
@@ -133,8 +129,11 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
 
             throw new Error("NOBU gagal tanpa response valid");
         } catch (error) {
-            console.error("NOBU error, mencoba Finpay:", error);
+            alert("Gagal Melakukan Pembayaran melalui NOBU. Silakan coba lagi nanti.");
+            navigate('/booking'); // Kembali ke halaman sebelumnya
 
+            // --- Simpan kode Finpay untuk referensi tapi tidak dijalankan ---
+            /*
             try {
                 const requestBody = {
                     email: userData?.email,
@@ -148,23 +147,25 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                     orderId: orderId,
                     item: prepareItems(),
                 };
-
+        
                 const response = await axiosInstance.post(`/finpay/initiate`, requestBody);
-
+        
                 if (response.data?.response?.stringQr) {
                     setStringQR(response.data.response.stringQr);
                     setShowQRCode(true);
                     if (setTagih) setTagih(false);
                     return startTimer();
                 }
-
+        
                 throw new Error("Finpay gagal tanpa response valid");
             } catch (finpayError) {
                 console.error("Finpay juga gagal:", finpayError);
                 alert("Gagal Melakukan Pembayaran. Silakan coba lagi nanti.");
-                navigate('/booking'); // Kembali ke halaman sebelumnya
+                navigate('/booking');
             }
+            */
         }
+
     }, [
         orderId,
         calculateTotalAmount,
