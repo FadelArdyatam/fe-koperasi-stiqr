@@ -252,4 +252,3 @@ deploy-oncloud:
   only: 
     - production
     - on-cloud
-
