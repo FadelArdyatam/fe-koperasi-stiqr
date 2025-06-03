@@ -302,16 +302,22 @@ const Dashboard = () => {
                 <div data-aos="fade-up" data-aos-delay="250" className="flex items-center w-full justify-center gap-5 mt-5">
                     <div className="text-center w-[100px] min-w-[100px]">
                         <p className="text-base text-gray-500">Non Tunai</p>
-
-                        <p>{formatRupiah(Number(balance.non_cash_amount) ?? 0)}</p>
+                        {
+                            showBalance
+                                ? <p>{formatRupiah(Number(balance.non_cash_amount) ?? 0)}</p>
+                                : <p>Rp ****</p>
+                        }
                     </div>
 
                     <div className="w-10 h-[2px] bg-gray-300 rotate-90"></div>
 
                     <div className="text-center w-[100px] min-w-[100px]">
                         <p className="text-base text-gray-500">Tunai</p>
-
-                        <p>{formatRupiah(Number(balance.cash_amount) ?? 0)}</p>
+                        {
+                            showBalance
+                                ? <p>{formatRupiah(Number(balance.cash_amount) ?? 0)}</p>
+                                : <p>Rp ****</p>
+                        }
                     </div>
                 </div>
 
@@ -323,8 +329,10 @@ const Dashboard = () => {
 
                         <div>
                             <p className="text-xs text-gray-500">Uang Masuk</p>
+                            {
+                                showBalance ? <p className="text-sm font-semibold">{formatRupiah(uangMasuk)}</p> : <p className="text-sm font-semibold">Rp ****</p>
+                            }
 
-                            <p className="text-sm font-semibold">{formatRupiah(uangMasuk)}</p>
                         </div>
                     </div>
 
@@ -337,8 +345,10 @@ const Dashboard = () => {
 
                         <div>
                             <p className="text-xs text-gray-500">Uang Keluar</p>
+                            {
+                                showBalance ? <p className="text-sm font-semibold">{formatRupiah(uangKeluar)}</p> : <p className="text-sm font-semibold">Rp ****</p>
+                            }
 
-                            <p className="text-sm font-semibold">{formatRupiah(uangKeluar)}</p>
                         </div>
                     </div>
                 </div>

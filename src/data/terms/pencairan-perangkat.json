@@ -1,0 +1,46 @@
+[
+  {
+    "title": "Pencairan Saldo",
+    "list": [
+      {
+        "text": "Pencairan saldo pada aplikasi STIQR dapat dilakukan dengan memperhatikan ketentuan sebagai berikut:",
+        "list": [
+          "Setiap Merchant/Pengguna memiliki batas limit pencairan saldo yang telah ditetapkan oleh STIQR.",
+          "Merchant/Pengguna dapat melakukan pencairan saldo pada hari yang sama (H-0) selama jumlah pencairan tidak melebihi batas limit harian yang telah ditentukan.",
+          "Apabila jumlah pencairan yang diajukan pada hari yang sama (H-0) melebihi limit yang ditetapkan, maka proses pencairan dapat dilakukan pada hari berikutnya (H+1) sesuai dengan jumlah limit yang telah ditentukan.",
+          "Jika jumlah pencairan yang diajukan melebihi limit yang ditetapkan, maka pencairan tersebut tidak dapat dilakukan.",
+          "Pencairan saldo STIQR akan dikenakan tambahan biaya layanan sebesar Rp3.000",
+          "Total limit pencairan akan diatur ulang setiap hari pada pukul 00:00 WIB.",
+          "Pencairan saldo hanya dapat dilakukan setiap hari pada pukul 18:00 - 23:59 WIB.",
+          "Pencairan saldo STIQR hanya dapat dilakukan dari saldo Non-Tunai yang tersedia di aplikasi."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Ketentuan Penggunaan Perangkat",
+    "list": [
+      {
+        "text": "Apabila terdapat perangkat yang disediakan oleh STIQR, Merchant/Pengguna dilarang melakukan tindakan berikut tanpa persetujuan tertulis dari STIQR dan/atau afiliasinya:",
+        "list": [
+          "Memindahkan perangkat dari lokasi gerai Merchant/Pengguna.",
+          "Memperbaiki atau mengganti perangkat. ",
+          "Menggunakan perangkat untuk tujuan lain yang tidak diatur, termasuk namun tidak terbatas pada layanan video streaming, akses media sosial, permainan, atau kegiatan lain yang tidak berhubungan dengan layanan STIQR. ",
+          "Melakukan tindakan yang dapat merusak perangkat atau sistem di dalamnya."
+        ]
+      },
+      {
+        "text": "Biaya perbaikan atau penggantian perangkat yang rusak akan diatur sesuai dengan kebijakan STIQR."
+      },
+      {
+        "text": "Kerusakan yang disebabkan oleh kelalaian, kesalahan, penanganan yang tidak tepat, penyalahgunaan, atau modifikasi tanpa persetujuan STIQR merupakan tanggung jawab penuh dari Merchant/Pengguna."
+      },
+      {
+        "text": "Merchant/Pengguna bertanggung jawab atas kehilangan atau kerusakan perangkat yang tidak dapat diperbaiki."
+      },
+      {
+        "text": "Merchant/Pengguna wajib memberitahukan STIQR dan/atau afiliasinya terkait kehilangan atau kerusakan perangkat dan bertanggung jawab atas biaya yang ditetapkan."
+      }
+    ]
+  }
+]

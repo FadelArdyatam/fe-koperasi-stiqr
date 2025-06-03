@@ -1,0 +1,104 @@
+{
+  "title": "Dengan menggunakan layanan STIQR, Anda menyetujui Syarat dan Ketentuan Pengelolaan Data Pribadi ini, yang disusun berdasarkan Undang-Undang No. 27 Tahun 2022 tentang Perlindungan Data Pribadi (UU PDP) di Indonesia.",
+  "list": [
+    {
+      "title": "Definisi",
+      "desc": "",
+      "list": [
+        {
+          "text": "\"Data Pribadi\" adalah setiap data mengenai individu yang teridentifikasi atau dapat diidentifikasi, baik secara langsung maupun tidak langsung, melalui sistem elektronik dan/atau non-elektronik."
+        },
+        {
+          "text": "\"Pemrosesan Data Pribadi\" mencakup kegiatan pengumpulan, penyimpanan, pengolahan, penganalisisan, pengiriman, pengungkapan, hingga penghapusan Data Pribadi."
+        }
+      ]
+    },
+    {
+      "title": "Pengumpulan Data Pribadi",
+      "desc": "",
+      "list": [
+        {
+          "text": "STIQR mengumpulkan Data Pribadi secara sah, terbatas, dan sesuai dengan tujuan yang telah ditentukan."
+        },
+        {
+          "text": "\"Pemrosesan Data Pribadi\" mencakup kegiatan pengumpulan, penyimpanan, pengolahan, penganalisisan, pengiriman, pengungkapan, hingga penghapusan Data Pribadi.",
+          "list": [
+            "Nama Lengkap;",
+            "Alamat Email;",
+            "Nomor Telepon;",
+            "Data Lokasi (geolokasi);",
+            "Informasi Transaksi dan Riwayat Penggunaan Layanan"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Persetujuan Pengguna",
+      "desc": "",
+      "list": [
+        {
+          "text": "Dengan menggunakan layanan STIQR, Pengguna/Merchant memberikan persetujuan yang jelas dan eksplisit atas pengumpulan, pemrosesan, penyimpanan, dan penggunaan Data Pribadi sesuai dengan kebijakan ini."
+        },
+        {
+          "text": "Pengguna/Merchant berhak mencabut persetujuan atas pemrosesan Data Pribadi sewaktu-waktu melalui pengajuan permohonan resmi kepada STIQR sesuai dengan prosedur yang berlaku."
+        }
+      ]
+    },
+    {
+      "title": "Keamanan Data Pribadi",
+      "desc": "",
+      "list": [
+        {
+          "text": "STIQR menerapkan langkah-langkah teknis, fisik, dan organisasi yang memadai untuk melindungi Data Pribadi dari akses tidak sah, pengungkapan, perubahan, atau penggunaan yang melanggar hukum."
+        }
+      ]
+    },
+    {
+      "title": "Hak Pengguna",
+      "desc": "Berdasarkan Undang-Undang No. 27 Tahun 2022 tentang Perlindungan Data Pribadi, Pengguna/Merchant memiliki hak sebagai berikut: ",
+      "list": [
+        {
+          "text": "Akses Data Pribadi - Memperoleh informasi dan salinan Data Pribadi yang berada di bawah pengelolaan STIQR."
+        },
+        {
+          "text": "Perbaikan Data Pribadi - Meminta koreksi atau pembaruan atas Data Pribadi yang tidak akurat atau tidak lengkap."
+        },
+        {
+          "text": "Penghapusan Data Pribadi - Meminta penghapusan Data Pribadi dalam kondisi tertentu sebagaimana diatur oleh hukum yang berlaku."
+        },
+        {
+          "text": "Penarikan Persetujuan - Menarik persetujuan atas pemrosesan Data Pribadi dan meminta penghentian pengelolaan Data Pribadi tersebut."
+        }
+      ]
+    },
+    {
+      "title": "Penyimpanan Data Pribadi",
+      "desc": "Data Pribadi akan disimpan selama diperlukan untuk memenuhi tujuan pengumpulan atau sebagaimana diwajibkan oleh peraturan perundang-undangan yang berlaku.",
+      "list": []
+    },
+    {
+      "title": "Pembagian Data Pribadi kepada Pihak Ketiga",
+      "desc": "",
+      "list": [
+        {
+          "text": "STIQR tidak akan membagikan Data Pribadi Pengguna/Merchant kepada pihak ketiga diluar keperluan proses layanan STIQR dan diwajibkan oleh hukum atau peraturan perundang-undangan."
+        },
+        {
+          "text": "Apabila Data Pribadi dibagikan kepada mitra atau penyedia layanan pihak ketiga dalam rangka penyediaan layanan STIQR, pihak tersebut diwajibkan mematuhi standar perlindungan Data Pribadi yang berlaku di Indonesia."
+        }
+      ]
+    },
+    {
+      "title": "Perubahan Syarat dan Ketentuan",
+      "desc": "",
+      "list": [
+        {
+          "text": "STIQR berhak untuk mengubah, memperbarui, atau menyesuaikan kebijakan ini sewaktu-waktu sesuai dengan kebutuhan dan peraturan yang berlaku."
+        },
+        {
+          "text": "STIQR akan memberitahukan perubahan kebijakan kepada Pengguna/Merchant melalui media yang dianggap layak. Dengan tetap menggunakan layanan STIQR setelah adanya perubahan, Pengguna/Merchant dianggap menyetujui Syarat dan Ketentuan Pengelolaan Data Pribadi yang telah diperbarui."
+        }
+      ]
+    }
+  ]
+}

@@ -1,10 +1,21 @@
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@radix-ui/react-accordion";
-import { ChevronDown, ChevronLeft, Info } from "lucide-react";
+import { Accordion } from "@radix-ui/react-accordion";
+import { ChevronLeft, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import ketentuanUmum from "../data/terms/ketentuan-umum.json";
+import ketentuanAkun from "../data/terms/ketentuan-akun.json";
+import perangkatLunak from "../data/terms/perangkat-lunak.json";
+import tindakanLarangan from "../data/terms/tindakan-larangan.json";
+import penggunaanDataPribadi from "../data/terms/penggunaan-data-pribadi.json";
+import pengelolaanDataPribadi from "../data/terms/pengelolaan-data-pribadi.json";
+import kerahasiaan from "../data/terms/kerahasiaan.json";
+import ketentuanQris from "../data/terms/ketentuan-qris.json";
+import pencairanPerangkat from "../data/terms/pencairan-perangkat.json";
+import layananPpob from "../data/terms/layanan-ppob.json";
+import { TermsList } from "./TermsList";
 
 interface TermsandConditionProps {
     setShowTermsandConditions: (show: boolean) => void;
@@ -20,6 +31,10 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
         "item-4": false,
         "item-5": false,
         "item-6": false,
+        "item-7": false,
+        "item-8": false,
+        "item-9": false,
+        "item-10": false,
     });
     const [showNotification, setShowNotification] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
@@ -42,10 +57,14 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
     const termsTitles: { [key: string]: string } = {
         "item-1": "Ketentuan Umum",
         "item-2": "Ketentuan Akun STIQR",
-        "item-3": "Perangkat Lunak Aplikasi STIQR",
-        "item-4": "Pencairan Saldo STIQR",
-        "item-5": "Tindakan Kecurangan",
-        "item-6": "Kerahasiaan",
+        "item-3": "Perangkat Lunak",
+        "item-4": "Tindakan yang Dilarang Dilakukan di Aplikasi STIQR",
+        "item-5": "Kebijakan Penggunaan Data Pribadi STIQR",
+        "item-6": "Kebijakan Pengelolaan Data Pribadi STIQR",
+        "item-7": "Kerahasiaan",
+        "item-8": "Ketentuan QRIS",
+        "item-9": "Ketentuan Pencairan dan Perangkat",
+        "item-10": "Layanan PPOB (BPJS, PDAM, Listrik, Pulsa, dan Paket Data)",
     };
 
     const termsandConditionHandler = () => {
@@ -59,7 +78,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
         } else {
             setErrorMessage("");
             setShowNotification(false);
-            setShowTermsandConditions(false); // Asumsi fungsi ini sudah ada
+            setShowTermsandConditions(false);
         }
     };
 
@@ -79,342 +98,257 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                 <p data-aos="zoom-in" className="font-semibold m-auto text-xl text-white text-center">Syarat dan Ketentuan</p>
             </div>
 
-            <div className="w-full -translate-y-20 overflow-y-auto">
-                <div className="w-[90%] mx-auto bg-white shadow-lg rounded-lg !text-black block p-2">
+            <div className="w-full -translate-y-28 overflow-y-auto">
+                <div className="w-[90%] mx-auto bg-white shadow-lg rounded-lg !text-black block p-2 mb-3">
                     <Accordion
                         type="single"
                         collapsible
-                        className="w-full flex flex-col gap-2"
+                        className="w-full flex flex-col gap-2 "
                         value={openItem || ""}
                         onValueChange={handleAccordionChange}
                     >
-                        <AccordionItem value="item-1" data-aos="fade-up" className="w-full border-b pb-2">
-                            <AccordionTrigger className="flex items-center text-start justify-between w-full py-2 px-4 gap-5">
-                                <span>Ketentuan Umum</span>
-
-                                <ChevronDown
-                                    className={`transform transition-transform duration-200 ${openItem === "item-1" ? "rotate-180" : "rotate-0"
-                                        }`}
-                                />
-                            </AccordionTrigger>
-                            <AccordionContent className="py-2 px-4">
-                                <ol className="list-decimal pl-6 space-y-2">
-                                    <li>
-                                        Ketentuan Pemakaian STIQR ini merupakan kesepakatan antara Pemilik Merchant dan PT Digital Nusantara Digital (DNS) yang mengatur akses dan pemakaian aplikasi, situs web, serta produk yang disediakan oleh DNS, termasuk pemesanan, pembayaran, atau pemakaian layanan yang ada di aplikasi STIQR.
-                                    </li>
-                                    <li>
-                                        Dengan mengakses aplikasi STIQR dan memiliki Akun STIQR, Pemilik Usaha dianggap telah menyetujui Ketentuan Pemakaian STIQR, termasuk menyetujui SOP, Syarat dan Ketentuan khusus setiap Layanan yang dipilih, serta perubahannya, yang merupakan bagian tidak terpisahkan dari Ketentuan Pemakaian STIQR ini.
-                                    </li>
-                                    <li>
-                                        Pemilik Merchant menyetujui bahwa Ketentuan Pemakaian STIQR ini diterima secara elektronik sesuai dengan Undang-Undang Republik Indonesia No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik, serta Peraturan Pemerintah No. 71 Tahun 2019 tentang Penyelenggaraan Sistem dan Transaksi Elektronik beserta perubahannya.
-                                    </li>
-                                    <li>
-                                        DNS memiliki wewenang untuk mengubah, menambah, atau menghapus bagian dari Ketentuan Pemakaian STIQR kapan saja dengan memberikan pemberitahuan melalui Aplikasi STIQR atau cara lain yang dipilih oleh DNS.
-                                    </li>
-                                    <li>
-                                        DNS dan Pemilik Merchant masing-masing disebut sebagai "Pihak" dan secara bersama-sama disebut sebagai "Para Pihak."
-                                    </li>
-                                    <li>
-                                        Dengan memperhatikan seluruh ketentuan dalam Ketentuan Pemakaian STIQR, Para Pihak sepakat pada Ketentuan Pemakaian STIQR ini.
-                                    </li>
-                                </ol>
-
-                                <div className="flex items-center gap-5 mt-5">
-                                    <input
-                                        type="checkbox"
-                                        id="item-1-checkbox"
-                                        checked={checkedItems["item-1"] || false}
-                                        onChange={() => handleCheckboxChange("item-1")}
-                                        className="mt-1"
-                                    />
-
-                                    <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="item-2" data-aos="fade-up" data-aos-delay="100" className="w-full border-b pb-2">
-                            <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                                <span>Ketentuan Akun STIQR</span>
-
-                                <ChevronDown
-                                    className={`transform transition-transform duration-200 ${openItem === "item-2" ? "rotate-180" : "rotate-0"
-                                        }`}
-                                />
-                            </AccordionTrigger>
-                            <AccordionContent className="py-2 px-4">
-                                <ol className="list-decimal pl-6 space-y-2">
-                                    <li>
-                                        Akun STIQR yang dimiliki oleh Pemilik Merchant hanya boleh digunakan oleh Pemilik Merchant itu sendiri dan tidak bisa dipindahkan kepada pihak ketiga dalam situasi apa pun. DNS berhak menolak pesanan jika diketahui atau ada kecurigaan bahwa Akun STIQR digunakan oleh pihak lain selain Pemilik Merchant. Pemilik Merchant juga dilarang menggunakan akun pribadinya atau akun orang lain untuk memesan Layanan yang akan diterimanya sendiri sebagai Penyedia Layanan.
-                                    </li>
-                                    <li>
-                                        Keamanan dan kerahasiaan dari Akun STIQR, termasuk nama, alamat email, nomor telepon, rincian pembayaran, dan Metode Pembayaran yang digunakan serta kode verifikasi yang dihasilkan oleh sistem DNS atau Penyedia Metode Pembayaran sepenuhnya merupakan tanggung jawab Pemilik Merchant. Segala risiko dan kerugian akibat kelalaian dalam menjaga informasi tersebut akan ditanggung oleh Pemilik Merchant sendiri. Dalam hal ini, DNS akan menganggap setiap aktivitas di akun tersebut sebagai permintaan resmi dari Pemilik Merchant.
-                                    </li>
-                                    <li>
-                                        Pemilik Merchant memahami bahwa DNS hanya menyediakan Aplikasi STIQR sebagaimana adanya dan tidak menjamin atau bertanggung jawab atas keandalan, ketepatan waktu, kualitas, atau keamanan aplikasi untuk memenuhi kebutuhan Pemilik Merchant. Layanan, Konten Pihak Ketiga, Promosi, dan Metode Pembayaran sepenuhnya menjadi tanggung jawab Penyedia Layanan, Penyedia Konten, Penyedia Promosi, dan Penyedia Metode Pembayaran.
-                                    </li>
-                                    <li>
-                                        DNS tidak berkewajiban untuk memantau pemakaian Aplikasi STIQR oleh Pemilik Merchant, tetapi DNS tetap berhak melakukan pengawasan untuk memastikan kelancaran pemakaian aplikasi dan memastikan kepatuhan terhadap Ketentuan Pemakaian STIQR, hukum yang berlaku, serta keputusan otoritas terkait.
-                                    </li>
-                                    <li>
-                                        Jika Pemilik Merchant menduga bahwa akun mereka telah digunakan tanpa izin, mereka wajib melaporkannya kepada DNS. DNS akan mengambil tindakan yang diperlukan, seperti menghentikan akses akun atau bekerja sama dengan Penyedia Layanan untuk menghentikan Layanan yang diberikan.
-                                    </li>
-                                    <li>
-                                        DNS tidak memiliki kewajiban untuk menangani atau menyelesaikan perselisihan antara Pemilik Merchant dan Penyedia Layanan, Konten Pihak Ketiga, Promosi, atau Penyedia Metode Pembayaran.
-                                    </li>
-                                    <li>
-                                        Pemilik Merchant setuju untuk menggunakan Aplikasi STIQR, Layanan, Konten Pihak Ketiga, Promosi, atau Metode Pembayaran sesuai dengan tujuan yang telah ditentukan, dan tidak untuk tujuan penipuan atau tindakan lain yang dapat merugikan orang lain.
-                                    </li>
-                                    <li>
-                                        Pemilik Merchant juga memahami dan menyetujui peran yang melekat pada setiap Akun STIQR serta tunduk pada Syarat dan Ketentuan Penunjukan Peran Akun STIQR yang merupakan bagian dari Ketentuan Pemakaian ini.
-                                    </li>
-                                </ol>
-
-                                <div className="flex items-center gap-5 mt-5">
-                                    <input
-                                        type="checkbox"
-                                        id="item-2-checkbox"
-                                        checked={checkedItems["item-2"] || false}
-                                        onChange={() => handleCheckboxChange("item-2")}
-                                        className="mt-1"
-                                    />
-
-                                    <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="item-3" data-aos="fade-up" data-aos-delay="200" className="w-full border-b pb-2">
-                            <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                                <span>Perangkat Lunak Aplikasi STIQR</span>
-
-                                <ChevronDown
-                                    className={`transform transition-transform duration-200 ${openItem === "item-3" ? "rotate-180" : "rotate-0"
-                                        }`}
-                                />
-                            </AccordionTrigger>
-                            <AccordionContent className="py-2 px-4">
-                                <ol className="list-decimal pl-6 space-y-2">
-                                    <li>
-                                        DNS hanya menyediakan portal web STIQR melalui browser
-                                    </li>
-                                    <li>
-                                        Aplikasi STIQR hanya boleh digunakan pada perangkat telepon genggam, tablet, laptop, atau komputer.
-                                    </li>
-                                    <li>
-                                        Pemakaian web STIQR dari sumber selain browser resmi dan/atau pada perangkat yang tidak sesuai (selain perangkat telepon genggam, tablet, laptop, atau komputer.) dianggap sebagai pelanggaran terhadap Ketentuan Pemakaian STIQR dan hak kekayaan intelektual DNS.
-                                    </li>
-                                </ol>
-
-                                <div className="flex items-center gap-5 mt-5">
-                                    <input
-                                        type="checkbox"
-                                        id="item-3-checkbox"
-                                        checked={checkedItems["item-3"] || false}
-                                        onChange={() => handleCheckboxChange("item-3")}
-                                        className="mt-1"
-                                    />
-
-                                    <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="item-4" data-aos="fade-up" data-aos-delay="300" className="w-full border-b pb-2">
-                            <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                                <span>Pencairan Saldo STIQR</span>
-
-                                <ChevronDown
-                                    className={`transform transition-transform duration-200 ${openItem === "item-4" ? "rotate-180" : "rotate-0"
-                                        }`}
-                                />
-                            </AccordionTrigger>
-                            <AccordionContent className="py-2 px-4">
-                                <ol className="list-decimal pl-6 space-y-2">
-                                    <li>
-                                        Pencairan saldo pada aplikasi STIQR dapat dilakukan dengan memperhatikan ketentuan sebagai berikut:
-                                        <ol className="list-disc pl-6 space-y-2">
-                                            <li>
-                                                Pemilik merchant dapat melakukan pencairan saldo pada hari yang sama (H0) selama jumlah pencairan tidak melebihi batas limit yang telah ditentukan.
-                                            </li>
-                                            <li>
-                                                Apabila jumlah pencairan yang diajukan pada hari yang sama (H0) melebihi limit yang ditetapkan, maka proses pencairan akan dilakukan pada hari berikutnya (H+1)
-                                            </li>
-                                            <li>
-                                                Sistem secara otomatis menjadwalkan pencairan ke H+1 tanpa perlu pengajuan ulang dari pengguna.
-                                            </li>
-                                            <li>
-                                                Untuk pencairan saldo H+1 tidak ada batasan limit jumlah pencairan.
-                                            </li>
+                        <TermsList
+                            title={"Ketentuan Umum"}
+                            openItem={openItem}
+                            item={"item-1"}
+                            checkedItems={checkedItems}
+                            handleCheckboxChange={handleCheckboxChange}>
+                            <ol className="list-decimal pl-6 space-y-2">
+                                {
+                                    ketentuanUmum.map((item, index) => (
+                                        <li key={index}>
+                                            {item.text}
+                                        </li>
+                                    ))
+                                }
+                            </ol>
+                        </TermsList>
+                        <TermsList
+                            title={"Ketentuan Akun STIQR"}
+                            openItem={openItem}
+                            item={"item-2"}
+                            checkedItems={checkedItems}
+                            handleCheckboxChange={handleCheckboxChange}>
+                            <ol className="list-decimal pl-6 space-y-2">
+                                {
+                                    ketentuanAkun.map((item, index) => (
+                                        <li key={index}>
+                                            {item.text}
+                                        </li>
+                                    ))
+                                }
+                            </ol>
+                        </TermsList>
+                        <TermsList
+                            title={"Perangkat Lunak"}
+                            openItem={openItem}
+                            item={"item-3"}
+                            checkedItems={checkedItems}
+                            handleCheckboxChange={handleCheckboxChange}>
+                            <ol className="list-decimal pl-6 space-y-2">
+                                {
+                                    perangkatLunak.map((data, index) => (
+                                        <li key={index} dangerouslySetInnerHTML={{ __html: data.text }}>
+                                        </li>
+                                    ))
+                                }
+                            </ol>
+                        </TermsList>
+                        <TermsList
+                            title={"Tindakan yang Dilarang Dilakukan di Aplikasi STIQR"}
+                            openItem={openItem}
+                            item={"item-4"}
+                            checkedItems={checkedItems}
+                            handleCheckboxChange={handleCheckboxChange}>
+                            <ol className="list-decimal pl-6 space-y-2">
+                                {tindakanLarangan.map((data, index) => (
+                                    <li key={index}>
+                                        <p>{data.text}</p>
+                                        <ol className="list-[lower-alpha] pl-6">
+                                            {data.list.map((item, idx) => (
+                                                <li key={idx}>{item}</li>
+                                            ))}
                                         </ol>
                                     </li>
-                                    <li>
-                                        Pemilik Merchant dilarang melakukan hal-hal berikut tanpa persetujuan tertulis dari DNS dan/atau Afiliasinya:
-                                        <ol className="list-disc pl-6 space-y-2">
-                                            <li>Memindahkan perangkat STIQR dari lokasi Gerai Pemilik Merchant.</li>
-                                            <li>Memperbaiki atau mengganti perangkat STIQR.</li>
-                                            <li>
-                                                Menggunakan perangkat STIQR untuk tujuan lain yang tidak diatur, termasuk tetapi tidak terbatas pada online video streaming, akses media sosial, permainan, dan lainnya.
-                                            </li>
-                                            <li>Melakukan tindakan yang dapat merusak perangkat STIQR atau sistem di dalamnya.</li>
+                                ))}
+                            </ol>
+                        </TermsList>
+                        <TermsList
+                            title={"Kebijakan Penggunaan Data Pribadi STIQR"}
+                            openItem={openItem}
+                            item={"item-5"}
+                            checkedItems={checkedItems}
+                            handleCheckboxChange={handleCheckboxChange}>
+                            <p>{penggunaanDataPribadi.title}</p>
+                            <ol className="list-decimal pl-6 space-y-2">
+                                {penggunaanDataPribadi.list.map((data, index) => (
+                                    <li key={index}>
+                                        {data}
+                                    </li>
+                                ))}
+                            </ol>
+                            <p>{penggunaanDataPribadi.footer}</p>
+                        </TermsList>
+                        <TermsList
+                            title={"Kebijakan Pengelolaan Data Pribadi STIQR"}
+                            openItem={openItem}
+                            item={"item-6"}
+                            checkedItems={checkedItems}
+                            handleCheckboxChange={handleCheckboxChange}>
+                            <p>{pengelolaanDataPribadi.title}</p>
+                            <ol className="list-decimal pl-6 space-y-2">
+                                {pengelolaanDataPribadi.list.map((data, index) => (
+                                    <li key={index}>
+                                        <p>{data.title}</p>
+                                        <p>{data.desc}</p>
+                                        <ol className="list-[lower-alpha] pl-6 mt-1 space-y-1">
+                                            {data.list.map((item, idx) => (
+                                                <li key={idx}>
+                                                    {item.text}
+                                                    {item.list && (
+                                                        <ul className="list-disc pl-6 mt-1 space-y-1">
+                                                            {item.list.map((subItem, subIdx) => (
+                                                                <li key={subIdx}>{subItem}</li>
+                                                            ))}
+                                                        </ul>
+                                                    )}
+                                                </li>
+                                            ))}
                                         </ol>
                                     </li>
-                                    <li>
-                                        Biaya perbaikan atau penggantian perangkat STIQR yang rusak diatur sesuai kebijakan DNS.
-                                    </li>
-                                    <li>
-                                        Kerusakan yang disebabkan oleh kelalaian, kesalahan, penanganan yang tidak tepat, penyalahgunaan, atau modifikasi tanpa persetujuan dianggap sebagai tanggung jawab Pemilik Merchant.
-                                    </li>
-                                    <li>
-                                        Pemilik Merchant bertanggung jawab atas kehilangan atau kerusakan perangkat STIQR yang tidak dapat diperbaiki.
-                                    </li>
-                                    <li>
-                                        Pemilik Merchant wajib memberi tahu DNS dan/atau Afiliasinya tentang kehilangan atau kerusakan dan bertanggung jawab atas biaya yang ditetapkan.
-                                    </li>
-                                </ol>
+                                ))}
+                            </ol>
+                        </TermsList>
 
-                                <div className="flex items-center gap-5 mt-5">
-                                    <input
-                                        type="checkbox"
-                                        id="item-4-checkbox"
-                                        checked={checkedItems["item-4"] || false}
-                                        onChange={() => handleCheckboxChange("item-4")}
-                                        className="mt-1"
-                                    />
+                        <TermsList
+                            title={"Kerahasiaan"}
+                            openItem={openItem}
+                            item={"item-7"}
+                            checkedItems={checkedItems}
+                            handleCheckboxChange={handleCheckboxChange}>
+                            <ol className="list-decimal pl-6 space-y-2">
+                                {
+                                    kerahasiaan.map((item, index) => (
+                                        <li key={index}>
+                                            {item.text}
+                                            <ol className="list-[lower-alpha] pl-6 mt-1 space-y-1">
+                                                {item.list && item.list.map((subItem, subIndex) => (
+                                                    <li key={subIndex}>{subItem}</li>
+                                                ))}
+                                                <ol className="list-[lower-roman] pl-6">
+                                                    {
+                                                        item.sublist && item.sublist.map((subItem, subIndex) => (
+                                                            <li key={subIndex}>{subItem}</li>
+                                                        ))
+                                                    }
+                                                </ol>
+                                            </ol>
+                                        </li>
+                                    ))
+                                }
+                            </ol>
+                        </TermsList>
+                        <TermsList
+                            title={"Ketentuan QRIS"}
+                            openItem={openItem}
+                            item={"item-8"}
+                            checkedItems={checkedItems}
+                            handleCheckboxChange={handleCheckboxChange}>
+                            <ol className="list-decimal pl-6 space-y-2">
+                                {ketentuanQris.map((section, sectionIndex) => (
+                                    <li key={sectionIndex}>
+                                        <p >{section.title}</p>
+                                        <ol className="list-decimal pl-6 space-y-2 mt-2">
+                                            {section.subtitle.map((sub, subIndex) => (
+                                                <li key={subIndex} className="list-none">
+                                                    <p>{sectionIndex + 1}.{subIndex + 1} {sub.title}</p>
 
-                                    <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
+                                                    {sub.desc && <p className="mt-1">{sub.desc}</p>}
 
-                        <AccordionItem value="item-5" data-aos="fade-up" data-aos-delay="400" className="w-full border-b pb-2">
-                            <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                                <span>Tindakan Kecurangan</span>
+                                                    {sub.list && (
+                                                        <ul className="list-disc pl-5 mt-1 space-y-1 ml-2">
+                                                            {sub.list.map((item, i) => (
+                                                                <li key={i}>{item}</li>
+                                                            ))}
+                                                        </ul>
+                                                    )}
 
-                                <ChevronDown
-                                    className={`transform transition-transform duration-200 ${openItem === "item-5" ? "rotate-180" : "rotate-0"
-                                        }`}
-                                />
-                            </AccordionTrigger>
-                            <AccordionContent className="py-2 px-4">
-                                <ol className="list-decimal pl-6 space-y-2">
-                                    <li>
-                                        Berikut adalah beberapa contoh yang termasuk dalam definisi "Tindakan Kecurangan":
-                                        <ol className="list-disc pl-6 space-y-2">
-                                            <li>
-                                                Transaksi Mencurigakan: Adanya transaksi yang tidak sesuai dengan pola atau kebiasaan transaksi yang biasa dilakukan oleh Pemilik Merchant.
-                                            </li>
-                                            <li>
-                                                Penyalahgunaan dan/atau Transaksi Fiktif: Meliputi tindakan yang dilakukan oleh Pemilik Merchant atau karyawannya yang bertujuan untuk memperoleh keuntungan secara tidak sah, seperti membuat transaksi yang tidak nyata.
-                                            </li>
-                                            <li>
-                                                Kerja Sama dengan Penipu: Pemilik Merchant yang berkolaborasi atau terlibat dengan individu atau kelompok yang diketahui melakukan penipuan.
-                                            </li>
-                                            <li>
-                                                Penipuan: Tindakan penipuan yang dilakukan oleh Pemilik Merchant atau karyawannya, baik terhadap DNS maupun pihak ketiga.
-                                            </li>
+                                                    {sub.isSpecial && sub.category && (
+                                                        <div className="mt-2 space-y-2">
+                                                            {sub.category.map((cat, catIndex) => (
+                                                                <div key={catIndex}>
+                                                                    <p >{cat.title}</p>
+                                                                    <ol className="list-[lower-alpha] pl-6 space-y-1 mt-1">
+                                                                        {cat.sublist.map((item, idx) => (
+                                                                            <li key={idx} dangerouslySetInnerHTML={{ __html: item }} />
+                                                                        ))}
+                                                                    </ol>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </li>
+                                            ))}
                                         </ol>
                                     </li>
-                                    <li>
-                                        Berikut adalah beberapa tindakan yang dapat diambil oleh DNS jika terdapat indikasi dan/atau terbukti terjadinya Tindakan Kecurangan:
-                                        <ol className="list-disc pl-6 space-y-2">
-                                            <li>
-                                                Menghentikan Kegiatan Promosi dan/atau Pemasaran: DNS dapat menghentikan semua kegiatan promosi dan pemasaran yang berkaitan dengan Pemilik Merchant.
-                                            </li>
-                                            <li>
-                                                Menghentikan Sementara Layanan: DNS berhak untuk menghentikan sementara layanan yang diberikan kepada Pemilik Merchant berdasarkan Syarat dan Ketentuan Umum.
-                                            </li>
-                                            <li>
-                                                Menahan dan/atau Menangguhkan Dana Settlement: DNS dapat menahan dana yang seharusnya dibayarkan kepada Pemilik Merchant hingga masalah kecurangan diselesaikan.
-                                            </li>
-                                            <li>
-                                                Menolak Pembayaran dan/atau Memotong Bagian dari Dana Settlement: DNS berhak untuk menolak pembayaran atau memotong sebagian dari dana yang harus dibayarkan sebagai pemulihan atas kerugian yang dialami.
-                                            </li>
-                                            <li>
-                                                Memasukkan Pemilik Merchant ke Dalam Daftar Hitam: DNS dapat memutuskan untuk memasukkan Pemilik Merchant ke dalam daftar hitam, yang berarti Pemilik Merchant tidak akan lagi dapat berpartisipasi dalam program atau layanan DNS.
-                                            </li>
-                                            <li>
-                                                Mengajukan Klaim atau Tuntutan Hukum: DNS berhak untuk mengajukan klaim, gugatan, atau tuntutan hukum atas kerugian yang dialami akibat tindakan kecurangan.
-                                            </li>
+                                ))}
+                            </ol>
+                        </TermsList>
+
+                        <TermsList
+                            title={"Ketentuan Pencairan dan Perangkat"}
+                            openItem={openItem}
+                            item={"item-9"}
+                            checkedItems={checkedItems}
+                            handleCheckboxChange={handleCheckboxChange}>
+                            <ol className="list-[upper-alpha] pl-6 space-y-2">
+                                {
+                                    pencairanPerangkat.map((item, index) => (
+                                        <li key={index}>
+                                            {item.title}
+                                            <ol className="list-decimal pl-6 mt-1 space-y-1">
+                                                {item.list && item.list.map((subItem, subIndex) => (
+                                                    <li key={subIndex}>{subItem.text}</li>
+                                                ))}
+                                                <ol className="list-[lower-alpha] pl-6">
+                                                    {
+                                                        item.list && item.list.map((subItem, subIndex) => (
+                                                            <li key={subIndex}>{subItem.text}</li>
+                                                        ))
+                                                    }
+                                                </ol>
+                                            </ol>
+                                        </li>
+                                    ))
+                                }
+                            </ol>
+                        </TermsList>
+
+                        <TermsList
+                            title={"Layanan PPOB (BPJS, PDAM, Listrik, Pulsa, dan Paket Data)"}
+                            openItem={openItem}
+                            item={"item-10"}
+                            checkedItems={checkedItems}
+                            handleCheckboxChange={handleCheckboxChange}>
+                            <ol className="list-decimal pl-6 space-y-2">
+                                {layananPpob.map((data, index) => (
+                                    <li key={index}>
+                                        <p>{data.text}</p>
+                                        <ol className="list-[lower-alpha] pl-6">
+                                            {data.list && data.list.map((item, idx) => (
+                                                <li key={idx}>{item}</li>
+                                            ))}
                                         </ol>
                                     </li>
-                                    <li>
-                                        DNS berhak meminta Pemilik Merchant untuk menyerahkan bukti pendukung sebagai bagian dari proses banding terkait tindakan yang diambil. Bukti pendukung tersebut harus diserahkan dalam waktu 7 (tujuh) hari kerja kalender setelah permintaan dari DNS. Setelah menerima bukti tersebut, DNS akan melakukan penilaian dan, berdasarkan kebijakannya sendiri, akan memutuskan apakah akan melanjutkan proses penyelesaian atau tetap menggunakan hak-haknya yang telah ditetapkan.
-                                    </li>
-                                </ol>
-
-                                <div className="flex items-center gap-5 mt-5">
-                                    <input
-                                        type="checkbox"
-                                        id="item-5-checkbox"
-                                        checked={checkedItems["item-5"] || false}
-                                        onChange={() => handleCheckboxChange("item-5")}
-                                        className="mt-1"
-                                    />
-
-                                    <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="item-6" data-aos="fade-up" data-aos-delay="500" className="w-full pb-2">
-                            <AccordionTrigger className="flex items-center justify-between w-full py-2 px-4">
-                                <span>Kerahasiaan</span>
-
-                                <ChevronDown
-                                    className={`transform transition-transform duration-200 ${openItem === "item-6" ? "rotate-180" : "rotate-0"
-                                        }`}
-                                />
-                            </AccordionTrigger>
-                            <AccordionContent className="py-2 px-4">
-                                <ol className="list-decimal pl-6 space-y-2">
-                                    <li>
-                                        Salah satu Pihak dapat menyampaikan Informasi Rahasia kepada Pihak lainnya sesuai dengan Ketentuan Pemakaian STIQR ini. Kedua Pihak setuju bahwa pengungkapan, penerimaan, dan pemanfaatan Informasi Rahasia tersebut akan dilakukan sesuai dengan ketentuan yang diatur dalam pasal ini.
-                                    </li>
-                                    <li>
-                                        Semua Informasi Rahasia dan data yang berkaitan dengan Ketentuan STIQR ini yang diterima oleh Para Pihak harus dirahasiakan, dan Para Pihak sepakat untuk tidak mengungkapkan atau memberikan data tersebut, baik sebagian maupun seluruhnya, kepada pihak ketiga mana pun. Selain itu, mereka tidak boleh menggunakan informasi dan data tersebut untuk kepentingan yang tidak terkait dengan Ketentuan Pemakaian STIQR ini, kecuali:
-                                        <ol className="list-disc pl-6 space-y-2">
-                                            <li>
-                                                Dengan adanya persetujuan tertulis dari Pihak lainnya.
-                                            </li>
-                                            <li>
-                                                Informasi yang disampaikan oleh salah satu Pihak kepada pegawai, bank, konsultan finansial, konsultan hukum, atau konsultan lain terkait dengan Ketentuan Pemakaian STIQR ini.
-                                            </li>
-                                            <li>
-                                                Data tersebut sudah menjadi informasi yang umum dan tidak disebabkan oleh kesalahan Pihak yang menerima informasi.
-                                            </li>
-                                            <li>
-                                                Berdasarkan putusan dari pengadilan atau proses arbitrase.
-                                            </li>
-                                            <li>
-                                                Diberikan oleh DNS kepada Afiliasinya, Penyedia Layanan, dan/atau pihak yang memiliki kerjasama dengan DNS untuk mendukung penyediaan Aplikasi STIQR dan/atau Layanan, serta untuk menawarkan produk atau layanan lain dari DNS.
-                                            </li>
-                                        </ol>
-                                    </li>
-                                    <li>
-                                        Pemilik Merchant setuju bahwa DNS memiliki hak untuk: (1) menginformasikan semua data dan Informasi Rahasia kepada vendor, subkontraktor, agen, atau konsultan hanya untuk tujuan pelaksanaan Ketentuan Pemakaian STIQR ini; dan/atau (2) mengolah serta memanfaatkan data Pemilik Merchant untuk (a) meningkatkan layanan yang diberikan oleh DNS, Afiliasinya, atau Penyedia Layanan kepada Pemilik Merchant (termasuk untuk sistem deteksi penipuan, aturan penipuan, dan kebutuhan audit korporasi); serta (b) untuk menawarkan produk dan/atau layanan DNS, Afiliasinya, atau Penyedia Layanan lainnya kepada Pemilik Merchant.
-                                    </li>
-                                </ol>
-
-                                <div className="flex items-center gap-5 mt-5">
-                                    <input
-                                        type="checkbox"
-                                        id="item-6-checkbox"
-                                        checked={checkedItems["item-6"] || false}
-                                        onChange={() => handleCheckboxChange("item-6")}
-                                        className="mt-1"
-                                    />
-
-                                    <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
+                                ))}
+                            </ol>
+                        </TermsList>
                     </Accordion>
                 </div>
             </div>
 
-            <div className={`w-[90%] ${openItem ? 'fixed bottom-4 m-auto' : ''} z-20`}>
-                <Button data-aos="fade-up" data-aos-delay="600" onClick={termsandConditionHandler} className="w-full bg-green-400">Lanjutkan</Button>
+            <div className={`w-[90%] ${openItem ? 'fixed bottom-4 m-auto' : ''} z-20 -mt-28`}>
+                <Button onClick={termsandConditionHandler} className="w-full bg-green-400">Lanjutkan</Button>
             </div>
 
             {showNotification && (

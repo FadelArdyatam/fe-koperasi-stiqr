@@ -14,6 +14,7 @@ interface PaymentMethodProps {
 }
 
 const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPaymentMethodComponent, selectedMethod, orderId }) => {
+    console.log('MUNCULLLLLL')
     const [paymentAmount, setPaymentAmount] = useState<string>(""); // Nominal pembayaran
     const [errorMessage, setErrorMessage] = useState(""); // Pesan error
     const [change, setChange] = useState(0); // Kembalian

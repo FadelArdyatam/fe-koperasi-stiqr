@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import qrisImg from '../images/qris-static-dns.jpeg'
+// import qrisImg from '../images/qris-static-dns.jpeg'
 import { Button } from '@/components/ui/button'
 import { getSocket } from '@/hooks/websocket'
 import { Edit } from 'lucide-react'
@@ -7,10 +7,11 @@ import successAudio from '../images/sound.mp3'
 import { useNavigate } from 'react-router-dom'
 
 interface QRCodeStaticProps {
+    url: string;
     setIsQrisStatic: (value: boolean) => void;
 }
 
-export const QRCodeStatic = ({ setIsQrisStatic }: QRCodeStaticProps) => {
+export const QRCodeStatic = ({ url, setIsQrisStatic }: QRCodeStaticProps) => {
 
     const navigate = useNavigate()
     useEffect(() => {
@@ -37,8 +38,8 @@ export const QRCodeStatic = ({ setIsQrisStatic }: QRCodeStaticProps) => {
     return (
         <div className="flex flex-col gap-3 justify-center items-center w-full pb-10">
             <img
-                src={qrisImg}
-                className="w-full max-w-xs h-auto mt-5 md:z-20 rounded-md md:p-6 border md:bg-white"
+                src={url}
+                className="w-full md:max-w-xs h-auto mt-5 md:z-20 rounded-md md:p-6 border md:bg-white"
                 alt="QRIS"
             />
             <Button onClick={() => setIsQrisStatic(false)} className="md:max-w-xs w-full md:mb-10 bg-orange-500 h-8">

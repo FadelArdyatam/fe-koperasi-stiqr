@@ -64,7 +64,7 @@ const Settlement = () => {
     const [message, setMessage] = useState<string>('');
     const [accounts, setAccounts] = useState<BankAccount[]>([])
     const [mdr, setMdr] = useState(0)
-    const [marginMdr, setMarginMdr] = useState(0)
+    // const [marginMdr, setMarginMdr] = useState(0)
     const [balance, setBalance] = useState<IBalance>({
         amount: 0,
         cash_amount: 0,
@@ -282,6 +282,7 @@ const Settlement = () => {
         if (filter === "dateRange" && !dateRange.startDate) {
             return; // skip fetch jika belum ada tanggal startDate
         }
+
         const fetchSettlement = async () => {
             const params: any = {
                 filter,
@@ -291,8 +292,16 @@ const Settlement = () => {
             }
 
             if (filter === "dateRange" && dateRange.startDate) {
-                params.startDate = dateRange.startDate;
-                params.endDate = dateRange.endDate ?? dateRange.startDate;
+                const start = new Date(dateRange.startDate);
+                const end = new Date(dateRange.endDate ?? dateRange.startDate);
+
+                // Tambahkan 1 hari
+                start.setDate(start.getDate() + 1);
+                end.setDate(end.getDate() + 1);
+
+                // Simpan full ISO string termasuk waktu (bagian setelah T)
+                params.startDate = start.toISOString();
+                params.endDate = end.toISOString();
             }
             const res = await axiosInstance.get(`/settlement/${userData.merchant.id}`, { params })
             setSettlements(res.data.data)
@@ -455,12 +464,12 @@ const Settlement = () => {
                                                                 value = String(maxAmount);
                                                             }
                                                             field.onChange(value ? Number(value) : "");
-                                                            const margin = Number(value) * 0.007;
+                                                            // const margin = Number(value) * 0.007;
                                                             if (Number(value) >= 12000) {
-                                                                setMarginMdr(Math.ceil(margin));
-                                                                setMdr(Math.ceil(Number(value) - margin));
+                                                                // setMarginMdr(Math.ceil(margin));
+                                                                setMdr(Number(value));
                                                             } else if (Number(value) < 12000) {
-                                                                setMarginMdr(0);
+                                                                // setMarginMdr(0);
                                                                 setMdr(0);
                                                             }
                                                         }}
@@ -505,10 +514,10 @@ const Settlement = () => {
                                                             <p>Jumlah Penarikan</p>
                                                             <p>{formatRupiah(form.getValues("amount"))}</p>
                                                         </div>
-                                                        <div className="flex justify-between text-sm my-1">
+                                                        {/* <div className="flex justify-between text-sm my-1">
                                                             <p>MDR <i> (0,7%)</i> </p>
                                                             <p className="text-red-500">- {formatRupiah(marginMdr)}</p>
-                                                        </div>
+                                                        </div> */}
 
                                                         <div className="flex justify-between text-sm my-1 items-center font-bold">
                                                             <div>

@@ -126,10 +126,17 @@ const Riwayat = () => {
         };
 
         if (filter === "dateRange") {
-            params.startDate = dateRange.startDate;
-            params.endDate = dateRange.endDate ?? dateRange.startDate;
-        }
+            const start = dateRange.startDate ? new Date(dateRange.startDate) : new Date();
+            const end = new Date(dateRange.endDate ?? dateRange.startDate ?? new Date().toISOString());
 
+            // Tambahkan 1 hari
+            start.setDate(start.getDate() + 1);
+            end.setDate(end.getDate() + 1);
+
+            // Simpan full ISO string termasuk waktu (bagian setelah T)
+            params.startDate = start.toISOString();
+            params.endDate = end.toISOString();
+        }
         const fetchPurchase = async () => {
             try {
                 const response = await axiosInstance.get(`/history/sales/${userData.merchant.id}`, { params });
