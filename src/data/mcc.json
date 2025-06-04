@@ -1,0 +1,1522 @@
+[
+  {
+    "mcc_code": "0742",
+    "mcc_name": "Layanan Hewan"
+  },
+  {
+    "mcc_code": "0763",
+    "mcc_name": "Koperasi Pertanian"
+  },
+  {
+    "mcc_code": "0780",
+    "mcc_name": "Layanan Lansekap & Hortikultura"
+  },
+  {
+    "mcc_code": "1520",
+    "mcc_name": "Kontraktor Umum - Perumahan & Komersial"
+  },
+  {
+    "mcc_code": "1711",
+    "mcc_name": "Kontraktor pemanas, pipa ledeng, & pendingin udara"
+  },
+  {
+    "mcc_code": "1731",
+    "mcc_name": "Kontraktor Listrik"
+  },
+  {
+    "mcc_code": "1740",
+    "mcc_name": "Masonry, Stonework, Pengaturan Ubin, Kontraktor Plester & Insulasi"
+  },
+  {
+    "mcc_code": "1750",
+    "mcc_name": "Kontraktor pertukangan"
+  },
+  {
+    "mcc_code": "1761",
+    "mcc_name": "Atap, berpihak, dan kontraktor kerja lembaran logam"
+  },
+  {
+    "mcc_code": "1771",
+    "mcc_name": "Pekerjaan Kontraktor-Kontrak"
+  },
+  {
+    "mcc_code": "1799",
+    "mcc_name": "Kontraktor Perdagangan Khusus (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "2741",
+    "mcc_name": "Misc. Penerbitan & Pencetakan"
+  },
+  {
+    "mcc_code": "2791",
+    "mcc_name": "Layanan penyiapan, membuat piring, & layanan terkait"
+  },
+  {
+    "mcc_code": "2842",
+    "mcc_name": "Persiapan pembersihan, pemolesan, & sanitasi khusus"
+  },
+  {
+    "mcc_code": "3103",
+    "mcc_name": "Garuda (Indonesia)-Garuda"
+  },
+  {
+    "mcc_code": "3501",
+    "mcc_name": "Holiday Inn Express # Holiday Inns"
+  },
+  {
+    "mcc_code": "3503",
+    "mcc_name": "Hotel Sheraton"
+  },
+  {
+    "mcc_code": "3504",
+    "mcc_name": "Hilton Hotels"
+  },
+  {
+    "mcc_code": "3509",
+    "mcc_name": "Marriott"
+  },
+  {
+    "mcc_code": "3511",
+    "mcc_name": "Hotel Arabella"
+  },
+  {
+    "mcc_code": "3512",
+    "mcc_name": "Hotel antar-benua"
+  },
+  {
+    "mcc_code": "3513",
+    "mcc_name": "Westin (Westin Hotels)"
+  },
+  {
+    "mcc_code": "3519",
+    "mcc_name": "Hotel Pullman International"
+  },
+  {
+    "mcc_code": "3520",
+    "mcc_name": "Hotel Meridien"
+  },
+  {
+    "mcc_code": "3533",
+    "mcc_name": "Hotel Ibis"
+  },
+  {
+    "mcc_code": "3535",
+    "mcc_name": "Hilton Internationals"
+  },
+  {
+    "mcc_code": "3543",
+    "mcc_name": "Hotel Four Seasons"
+  },
+  {
+    "mcc_code": "3546",
+    "mcc_name": "Hotel Sierra Suites"
+  },
+  {
+    "mcc_code": "3548",
+    "mcc_name": "Hotel Melia"
+  },
+  {
+    "mcc_code": "3577",
+    "mcc_name": "Hotel Oriental Mandarin"
+  },
+  {
+    "mcc_code": "3579",
+    "mcc_name": "Hotel Mercure"
+  },
+  {
+    "mcc_code": "3640",
+    "mcc_name": "Hyatt Hotels"
+  },
+  {
+    "mcc_code": "3642",
+    "mcc_name": "Hotel Novotel"
+  },
+  {
+    "mcc_code": "3710",
+    "mcc_name": "The Ritz-Carlton"
+  },
+  {
+    "mcc_code": "3741",
+    "mcc_name": "Hotel Milenium"
+  },
+  {
+    "mcc_code": "3778",
+    "mcc_name": "Empat poin hotel"
+  },
+  {
+    "mcc_code": "3780",
+    "mcc_name": "Disney Resorts"
+  },
+  {
+    "mcc_code": "3790",
+    "mcc_name": "Hotel Raffles"
+  },
+  {
+    "mcc_code": "4011",
+    "mcc_name": "Kereta Api - Pengangkutan"
+  },
+  {
+    "mcc_code": "4111",
+    "mcc_name": "Transportasi penumpang komuter lokal dan pinggiran kota, termasuk feri"
+  },
+  {
+    "mcc_code": "4112",
+    "mcc_name": "Kereta Api Penumpang"
+  },
+  {
+    "mcc_code": "4119",
+    "mcc_name": "Layanan Ambulans"
+  },
+  {
+    "mcc_code": "4121",
+    "mcc_name": "Taxicabs & Limousines"
+  },
+  {
+    "mcc_code": "4131",
+    "mcc_name": "Jalur bus, termasuk charter, bus wisata # bus wisata"
+  },
+  {
+    "mcc_code": "4214",
+    "mcc_name": "Pengangkut & Truk Pengangkutan Motor"
+  },
+  {
+    "mcc_code": "4215",
+    "mcc_name": "Layanan Kurir"
+  },
+  {
+    "mcc_code": "4225",
+    "mcc_name": "Pergudangan publik"
+  },
+  {
+    "mcc_code": "4225",
+    "mcc_name": "Pergudangan & Penyimpanan Publik"
+  },
+  {
+    "mcc_code": "4411",
+    "mcc_name": "Kapal uap & pelayaran"
+  },
+  {
+    "mcc_code": "4457",
+    "mcc_name": "Penyewaan & Sewa Kapal"
+  },
+  {
+    "mcc_code": "4468",
+    "mcc_name": "Layanan & Persediaan Laut Marinas"
+  },
+  {
+    "mcc_code": "4511",
+    "mcc_name": "Maskapai penerbangan & pembawa udara (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "4582",
+    "mcc_name": "Bandara, Ladang Terbang, & Terminal Bandara"
+  },
+  {
+    "mcc_code": "4722",
+    "mcc_name": "Agen Perjalanan & Operator Tur"
+  },
+  {
+    "mcc_code": "4761",
+    "mcc_name": "Telemarketing Layanan Terkait Perjalanan dan V"
+  },
+  {
+    "mcc_code": "4784",
+    "mcc_name": "Biaya tol dan jembatan"
+  },
+  {
+    "mcc_code": "4789",
+    "mcc_name": "Layanan Transportasi (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "4812",
+    "mcc_name": "Peralatan Telekomunikasi & Penjualan Telepon"
+  },
+  {
+    "mcc_code": "4813",
+    "mcc_name": "Pedagang Telekomunikasi Khusus"
+  },
+  {
+    "mcc_code": "4814",
+    "mcc_name": "Layanan telekomunikasi, termasuk panggilan lokal dan jarak jauh, panggilan kartu kredit, panggilan melalui penggunaan telepon magnetic stripe bacaan dan layanan faks"
+  },
+  {
+    "mcc_code": "4816",
+    "mcc_name": "Jaringan Komputer / Layanan Informasi"
+  },
+  {
+    "mcc_code": "4821",
+    "mcc_name": "Layanan telegraf"
+  },
+  {
+    "mcc_code": "4829",
+    "mcc_name": "Pesanan Uang Transfer Kawat (WTMOS)"
+  },
+  {
+    "mcc_code": "4899",
+    "mcc_name": "Satelit Kabel & Layanan Televisi & Radio Bayar Lainnya"
+  },
+  {
+    "mcc_code": "4900",
+    "mcc_name": "Utilitas-listrik, gas, air, sanitasi"
+  },
+  {
+    "mcc_code": "5013",
+    "mcc_name": "Supplies Kendaraan Bermotor & Suku Cadang Baru"
+  },
+  {
+    "mcc_code": "5021",
+    "mcc_name": "Kantor & Perabotan Komersial"
+  },
+  {
+    "mcc_code": "5039",
+    "mcc_name": "Bahan konstruksi (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "5044",
+    "mcc_name": "Peralatan & Persediaan Mikrofilm Fotokopi Fotografi"
+  },
+  {
+    "mcc_code": "5045",
+    "mcc_name": "Komputer & Peralatan & Layanan Periferal Komputer"
+  },
+  {
+    "mcc_code": "5046",
+    "mcc_name": "Peralatan komersial (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "5047",
+    "mcc_name": "Peralatan & Persediaan Ophthalmic & Rumah Sakit Medis"
+  },
+  {
+    "mcc_code": "5051",
+    "mcc_name": "Pusat & Kantor Layanan Logam"
+  },
+  {
+    "mcc_code": "5065",
+    "mcc_name": "Bagian dan Peralatan Listrik"
+  },
+  {
+    "mcc_code": "5072",
+    "mcc_name": "Perangkat keras, peralatan dan persediaan"
+  },
+  {
+    "mcc_code": "5074",
+    "mcc_name": "Peralatan & Persediaan Pipa dan Pemanasan"
+  },
+  {
+    "mcc_code": "5085",
+    "mcc_name": "Pasokan industri (bukan di tempat lain clssified)"
+  },
+  {
+    "mcc_code": "5094",
+    "mcc_name": "Batu berharga, logam, jam tangan, & perhiasan"
+  },
+  {
+    "mcc_code": "5099",
+    "mcc_name": "Barang tahan lama (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "5111",
+    "mcc_name": "Toko alat tulis kantor & toko persediaan sekolah"
+  },
+  {
+    "mcc_code": "5122",
+    "mcc_name": "Obat -obatan Proprietarium Obat & Serba Marketir"
+  },
+  {
+    "mcc_code": "5131",
+    "mcc_name": "Barang sepotong, gagasan, dan barang kering lainnya"
+  },
+  {
+    "mcc_code": "5137",
+    "mcc_name": "Seragam pria, wanita, & anak -anak, & pakaian komersial"
+  },
+  {
+    "mcc_code": "5139",
+    "mcc_name": "Alas kaki komersial"
+  },
+  {
+    "mcc_code": "5169",
+    "mcc_name": "Produk Bahan Kimia & Sekutu (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "5172",
+    "mcc_name": "Produk Minyak & Minyak Minyak"
+  },
+  {
+    "mcc_code": "5192",
+    "mcc_name": "Buku, majalah, & surat kabar"
+  },
+  {
+    "mcc_code": "5193",
+    "mcc_name": "Persediaan toko bunga, stok pembibitan, & bunga"
+  },
+  {
+    "mcc_code": "5198",
+    "mcc_name": "Cat, pernis, & persediaan"
+  },
+  {
+    "mcc_code": "5199",
+    "mcc_name": "Barang yang tidak dapat dibawakan (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "5200",
+    "mcc_name": "Toko Warehouse Pasokan Rumah"
+  },
+  {
+    "mcc_code": "5211",
+    "mcc_name": "Toko Bahan Kayu & Bangunan"
+  },
+  {
+    "mcc_code": "5231",
+    "mcc_name": "Toko kaca, cat, & wallpaper"
+  },
+  {
+    "mcc_code": "5251",
+    "mcc_name": "Toko perangkat keras"
+  },
+  {
+    "mcc_code": "5261",
+    "mcc_name": "Nurseries & Lawn & Garden Supply Stores"
+  },
+  {
+    "mcc_code": "5262",
+    "mcc_name": "Pasar"
+  },
+  {
+    "mcc_code": "5271",
+    "mcc_name": "Dealer rumah mobil"
+  },
+  {
+    "mcc_code": "5309",
+    "mcc_name": "Toko Bebas Bea"
+  },
+  {
+    "mcc_code": "5310",
+    "mcc_name": "TOKO DISKON"
+  },
+  {
+    "mcc_code": "5311",
+    "mcc_name": "Department store"
+  },
+  {
+    "mcc_code": "5331",
+    "mcc_name": "Toko varietas"
+  },
+  {
+    "mcc_code": "5399",
+    "mcc_name": "Misc. Barang Dagang Umum"
+  },
+  {
+    "mcc_code": "5407",
+    "mcc_name": "Kredit keamanan"
+  },
+  {
+    "mcc_code": "5411",
+    "mcc_name": "Toko kelontong & supermarket"
+  },
+  {
+    "mcc_code": "5422",
+    "mcc_name": "Penyedia daging freezer & loker"
+  },
+  {
+    "mcc_code": "5441",
+    "mcc_name": "Candy, Nut, & Confectionery Stores"
+  },
+  {
+    "mcc_code": "5451",
+    "mcc_name": "Toko Produk Susu"
+  },
+  {
+    "mcc_code": "5462",
+    "mcc_name": "Toko roti"
+  },
+  {
+    "mcc_code": "5499",
+    "mcc_name": "Misc. Toko Makanan-Konvenen Toko Makanan & Pasar Khusus"
+  },
+  {
+    "mcc_code": "5511",
+    "mcc_name": "Dealer Mobil & Truk (Baru & Bekas) Perbaikan Layanan Penjualan Suku Cadang & Leasing"
+  },
+  {
+    "mcc_code": "5521",
+    "mcc_name": "Dealer Mobil & Truk (Hanya Bekas) Perbaikan Layanan Penjualan Suku Cadang & Leasing"
+  },
+  {
+    "mcc_code": "5531",
+    "mcc_name": "Toko Auto & Home Supply (tidak lagi valid MCC)"
+  },
+  {
+    "mcc_code": "5532",
+    "mcc_name": "Toko ban otomotif"
+  },
+  {
+    "mcc_code": "5533",
+    "mcc_name": "Toko Suku Cadang & Aksesori Otomotif"
+  },
+  {
+    "mcc_code": "5541",
+    "mcc_name": "Stasiun Layanan"
+  },
+  {
+    "mcc_code": "5542",
+    "mcc_name": "Dispenser bahan bakar otomatis"
+  },
+  {
+    "mcc_code": "5551",
+    "mcc_name": "Dealer Perahu"
+  },
+  {
+    "mcc_code": "5561",
+    "mcc_name": "Dealer Camper, Recreational & Utility Trailer"
+  },
+  {
+    "mcc_code": "5571",
+    "mcc_name": "Dealer sepeda motor"
+  },
+  {
+    "mcc_code": "5592",
+    "mcc_name": "Dealer Rumah Motor"
+  },
+  {
+    "mcc_code": "5599",
+    "mcc_name": "Misc. Dealer Otomotif, Pesawat, & Peralatan Pertanian (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "5611",
+    "mcc_name": "Toko pakaian & aksesoris pria & anak laki -laki"
+  },
+  {
+    "mcc_code": "5612",
+    "mcc_name": "Toko siap pakai wanita"
+  },
+  {
+    "mcc_code": "5621",
+    "mcc_name": "Toko siap pakai wanita"
+  },
+  {
+    "mcc_code": "5631",
+    "mcc_name": "Toko Aksesori & Khusus Wanita"
+  },
+  {
+    "mcc_code": "5641",
+    "mcc_name": "Pakaian anak -anak dan bayi"
+  },
+  {
+    "mcc_code": "5651",
+    "mcc_name": "Toko pakaian keluarga"
+  },
+  {
+    "mcc_code": "5655",
+    "mcc_name": "Toko Pakaian Olahraga & Berkendara"
+  },
+  {
+    "mcc_code": "5661",
+    "mcc_name": "Toko sepatu"
+  },
+  {
+    "mcc_code": "5681",
+    "mcc_name": "Furriers & Fur Shops"
+  },
+  {
+    "mcc_code": "5691",
+    "mcc_name": "Toko Pakaian & Aksesoris Mens & Boys"
+  },
+  {
+    "mcc_code": "5697",
+    "mcc_name": "Penjahit penjahit memperbaiki & perubahan"
+  },
+  {
+    "mcc_code": "5698",
+    "mcc_name": "Toko wig dan toupee"
+  },
+  {
+    "mcc_code": "5699",
+    "mcc_name": "Misc. Pakaian & Aksesori"
+  },
+  {
+    "mcc_code": "5712",
+    "mcc_name": "Furniture Home Furnishings & Equipment Store Kecuali Peralatan"
+  },
+  {
+    "mcc_code": "5713",
+    "mcc_name": "Toko penutup lantai"
+  },
+  {
+    "mcc_code": "5714",
+    "mcc_name": "Toko gorden, penutup jendela, & pelapis toko"
+  },
+  {
+    "mcc_code": "5718",
+    "mcc_name": "Toko Perapian, Layar Perapian & Aksesori"
+  },
+  {
+    "mcc_code": "5719",
+    "mcc_name": "Misc. Toko -toko khusus perabot rumah"
+  },
+  {
+    "mcc_code": "5722",
+    "mcc_name": "Toko alat rumah tangga"
+  },
+  {
+    "mcc_code": "5732",
+    "mcc_name": "Toko Elektronik"
+  },
+  {
+    "mcc_code": "5733",
+    "mcc_name": "Toko Musik - Alat Musik Piano & Lembaran Musik"
+  },
+  {
+    "mcc_code": "5734",
+    "mcc_name": "Store Perangkat Lunak Komputer"
+  },
+  {
+    "mcc_code": "5735",
+    "mcc_name": "Toko rekaman"
+  },
+  {
+    "mcc_code": "5811",
+    "mcc_name": "Katering"
+  },
+  {
+    "mcc_code": "5812",
+    "mcc_name": "Makan Tempat & Restoran"
+  },
+  {
+    "mcc_code": "5813",
+    "mcc_name": "Tempat Minum - Bar Taverns Klub Malam Koktail Lounge & diskotik"
+  },
+  {
+    "mcc_code": "5814",
+    "mcc_name": "RESTORAN CEPAT SAJI"
+  },
+  {
+    "mcc_code": "5815",
+    "mcc_name": "Media Barang Digital - Buku, Film, Musik"
+  },
+  {
+    "mcc_code": "5816",
+    "mcc_name": "Barang digital - Game"
+  },
+  {
+    "mcc_code": "5817",
+    "mcc_name": "Barang digital - Aplikasi (tidak termasuk game)"
+  },
+  {
+    "mcc_code": "5818",
+    "mcc_name": "Barang Digital - Pedagang Barang Digital Besar"
+  },
+  {
+    "mcc_code": "5912",
+    "mcc_name": "Toko Obat & Apotek"
+  },
+  {
+    "mcc_code": "5921",
+    "mcc_name": "Paket toko - Bir, anggur & minuman keras"
+  },
+  {
+    "mcc_code": "5931",
+    "mcc_name": "Barang dagangan bekas & toko barang bekas"
+  },
+  {
+    "mcc_code": "5932",
+    "mcc_name": "Toko Antik - Perbaikan Penjualan & Layanan Restorasi"
+  },
+  {
+    "mcc_code": "5933",
+    "mcc_name": "Toko gadai"
+  },
+  {
+    "mcc_code": "5935",
+    "mcc_name": "Penghancuran dan penyelamatan yard"
+  },
+  {
+    "mcc_code": "5937",
+    "mcc_name": "Reproduksi antik"
+  },
+  {
+    "mcc_code": "5940",
+    "mcc_name": "Sales & Layanan Toko Sepeda"
+  },
+  {
+    "mcc_code": "5941",
+    "mcc_name": "Toko barang olahraga"
+  },
+  {
+    "mcc_code": "5942",
+    "mcc_name": "Toko buku"
+  },
+  {
+    "mcc_code": "5943",
+    "mcc_name": "Toko alat tulis"
+  },
+  {
+    "mcc_code": "5944",
+    "mcc_name": "Toko perhiasan jam tangan & toko peralatan perak"
+  },
+  {
+    "mcc_code": "5945",
+    "mcc_name": "Toko Mainan & Game Hobi"
+  },
+  {
+    "mcc_code": "5946",
+    "mcc_name": "Toko persediaan kamera & fotografi"
+  },
+  {
+    "mcc_code": "5947",
+    "mcc_name": "Toko kebaruan kartu hadiah & suvenir"
+  },
+  {
+    "mcc_code": "5948",
+    "mcc_name": "Toko Bagasi & Barang Kulit"
+  },
+  {
+    "mcc_code": "5949",
+    "mcc_name": "Menjahit jarum, kain, & toko barang sepotong"
+  },
+  {
+    "mcc_code": "5950",
+    "mcc_name": "Gelas / toko kristal"
+  },
+  {
+    "mcc_code": "5960",
+    "mcc_name": "Pemasaran Langsung - Layanan Asuransi"
+  },
+  {
+    "mcc_code": "5961",
+    "mcc_name": "PESANAN MELALUI POS"
+  },
+  {
+    "mcc_code": "5962",
+    "mcc_name": "Pemasaran Langsung - Layanan Pengaturan Terkait Perjalanan (MCC Risiko Tinggi)"
+  },
+  {
+    "mcc_code": "5963",
+    "mcc_name": "Penjualan pintu ke pintu"
+  },
+  {
+    "mcc_code": "5964",
+    "mcc_name": "Pemasaran Langsung - Pedagang Katalog"
+  },
+  {
+    "mcc_code": "5965",
+    "mcc_name": "Pemasaran Langsung - Katalog Kombinasi dan Pedagang Ritel"
+  },
+  {
+    "mcc_code": "5966",
+    "mcc_name": "Pemasaran Langsung - Pedagang Telemarketing Luar (MCC Risiko Tinggi)"
+  },
+  {
+    "mcc_code": "5967",
+    "mcc_name": "Pemasaran Langsung - Pedagang TeleServices Inbound (MCC Risiko Tinggi)"
+  },
+  {
+    "mcc_code": "5968",
+    "mcc_name": "Pemasaran Langsung - Merch Kontinuitas/Langganan"
+  },
+  {
+    "mcc_code": "5969",
+    "mcc_name": "Pemasaran Langsung - Pemasar Langsung Lainnya (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "5970",
+    "mcc_name": "Toko Pasokan & Kerajinan Seniman"
+  },
+  {
+    "mcc_code": "5971",
+    "mcc_name": "Dealer & Galeri Seni"
+  },
+  {
+    "mcc_code": "5972",
+    "mcc_name": "Toko Stempel dan Koin - Persediaan Philatelic dan Numismatik"
+  },
+  {
+    "mcc_code": "5973",
+    "mcc_name": "Toko Barang Agama"
+  },
+  {
+    "mcc_code": "5975",
+    "mcc_name": "Alat bantu pendengaran - Layanan Penjualan & Pasokan"
+  },
+  {
+    "mcc_code": "5976",
+    "mcc_name": "Barang Ortopedi - Perangkat palsu"
+  },
+  {
+    "mcc_code": "5977",
+    "mcc_name": "Toko kosmetik"
+  },
+  {
+    "mcc_code": "5978",
+    "mcc_name": "Penjualan Tok Store, Penyewaan, Layanan"
+  },
+  {
+    "mcc_code": "5983",
+    "mcc_name": "Dealer Bahan Bakar - Minyak Bahan Bakar, Kayu, Batubara, Minyak Cair"
+  },
+  {
+    "mcc_code": "5992",
+    "mcc_name": "Toko bunga"
+  },
+  {
+    "mcc_code": "5993",
+    "mcc_name": "Toko dan dudukan cerutu"
+  },
+  {
+    "mcc_code": "5994",
+    "mcc_name": "Dealer berita & kios berita"
+  },
+  {
+    "mcc_code": "5995",
+    "mcc_name": "Toko hewan peliharaan, makanan hewan peliharaan & toko persediaan"
+  },
+  {
+    "mcc_code": "5996",
+    "mcc_name": "Kolam Renang - Penjualan & Layanan"
+  },
+  {
+    "mcc_code": "5997",
+    "mcc_name": "Toko pisau cukur listrik"
+  },
+  {
+    "mcc_code": "5998",
+    "mcc_name": "Toko tenda dan tenda"
+  },
+  {
+    "mcc_code": "5999",
+    "mcc_name": "Misc. Ritel dan Ritel Khusus"
+  },
+  {
+    "mcc_code": "6010",
+    "mcc_name": "Lembaga Keuangan - Pencairan Tunai Manual"
+  },
+  {
+    "mcc_code": "6011",
+    "mcc_name": "Lembaga Keuangan Pencairan Tunai Otomatis"
+  },
+  {
+    "mcc_code": "6012",
+    "mcc_name": "Merchandise & Services Lembaga Keuangan"
+  },
+  {
+    "mcc_code": "6050",
+    "mcc_name": "Quasi Cash - Lembaga Keuangan Anggota"
+  },
+  {
+    "mcc_code": "6051",
+    "mcc_name": "Institusi Non-Keuangan-Mata Uang Luar Negeri, Pesanan Uang (bukan Transfer Kawat) dan Periksa Pelancong"
+  },
+  {
+    "mcc_code": "6211",
+    "mcc_name": "Pialang / Dealer Keamanan"
+  },
+  {
+    "mcc_code": "6300",
+    "mcc_name": "Penjualan Penjualan & Premi Asuransi"
+  },
+  {
+    "mcc_code": "6381",
+    "mcc_name": "ASURANSI PREMIUM"
+  },
+  {
+    "mcc_code": "6399",
+    "mcc_name": "Asuransi tidak diklasifikasikan di tempat lain"
+  },
+  {
+    "mcc_code": "6513",
+    "mcc_name": "Agen real estat, manajer & sewa"
+  },
+  {
+    "mcc_code": "6529",
+    "mcc_name": "Quasi Cash - Load Nilai Tersimpan Jarak Jauh - Institut Keuangan"
+  },
+  {
+    "mcc_code": "6530",
+    "mcc_name": "Quasi Cash - Load Nilai Tersimpan Jarak Jauh - Pedagang"
+  },
+  {
+    "mcc_code": "6531",
+    "mcc_name": "Penyedia layanan pembayaran"
+  },
+  {
+    "mcc_code": "6532",
+    "mcc_name": "Lembaga Keuangan Anggota-Penyedia Layanan Pembayaran-Transaksi Pembayaran"
+  },
+  {
+    "mcc_code": "6533",
+    "mcc_name": "Penyedia Layanan Pedagang-Pembayaran-Transaksi Pembayaran"
+  },
+  {
+    "mcc_code": "6534",
+    "mcc_name": "Quasi Cash - Transfer Uang - Lembaga Keuangan Anggota"
+  },
+  {
+    "mcc_code": "6535",
+    "mcc_name": "Nilai Pembelian-Lembaga Keuangan Anggota"
+  },
+  {
+    "mcc_code": "6760",
+    "mcc_name": "Obligasi tabungan"
+  },
+  {
+    "mcc_code": "7011",
+    "mcc_name": "LODGING - Hotel Motel Resorts & Layanan Reservasi Pusat (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "7012",
+    "mcc_name": "Timeshares"
+  },
+  {
+    "mcc_code": "7032",
+    "mcc_name": "Kamp olahraga & rekreasi"
+  },
+  {
+    "mcc_code": "7033",
+    "mcc_name": "Taman Trailer & Situs Kamp"
+  },
+  {
+    "mcc_code": "7210",
+    "mcc_name": "Layanan cucian, pembersihan, & garmen"
+  },
+  {
+    "mcc_code": "7211",
+    "mcc_name": "Laundries - Keluarga & Komersial"
+  },
+  {
+    "mcc_code": "7216",
+    "mcc_name": "Pembersih kering"
+  },
+  {
+    "mcc_code": "7217",
+    "mcc_name": "Pembersihan karpet dan pelapis"
+  },
+  {
+    "mcc_code": "7221",
+    "mcc_name": "Pantra studio fotografi"
+  },
+  {
+    "mcc_code": "7230",
+    "mcc_name": "Toko kecantikan & tukang cukur"
+  },
+  {
+    "mcc_code": "7251",
+    "mcc_name": "Toko Perbaikan Sepatu, Toko Bersinar Sepatu & Topi Pembersih Topi"
+  },
+  {
+    "mcc_code": "7261",
+    "mcc_name": "Layanan Pemakaman & Krematoris"
+  },
+  {
+    "mcc_code": "7276",
+    "mcc_name": "Layanan Persiapan Pajak"
+  },
+  {
+    "mcc_code": "7277",
+    "mcc_name": "Layanan Konseling"
+  },
+  {
+    "mcc_code": "7278",
+    "mcc_name": "Beli & Belanja Layanan dan Klub"
+  },
+  {
+    "mcc_code": "7296",
+    "mcc_name": "Pakaian Pakaian - Seragam Kostum & Pakaian Formal"
+  },
+  {
+    "mcc_code": "7297",
+    "mcc_name": "PANTI PIJAT"
+  },
+  {
+    "mcc_code": "7298",
+    "mcc_name": "Spa Kesehatan & Kecantikan"
+  },
+  {
+    "mcc_code": "7299",
+    "mcc_name": "Misc. Layanan Pribadi (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "7311",
+    "mcc_name": "Layanan Periklanan"
+  },
+  {
+    "mcc_code": "7321",
+    "mcc_name": "Agen pelaporan kredit konsumen"
+  },
+  {
+    "mcc_code": "7322",
+    "mcc_name": "Agen penagihan utang"
+  },
+  {
+    "mcc_code": "7332",
+    "mcc_name": "Layanan cetak biru dan fotokopi"
+  },
+  {
+    "mcc_code": "7333",
+    "mcc_name": "Seni & Grafik Fotografi Komersial"
+  },
+  {
+    "mcc_code": "7338",
+    "mcc_name": "Layanan Reproduksi Salin Cepat & Cetak Cetak"
+  },
+  {
+    "mcc_code": "7339",
+    "mcc_name": "Dukungan Stenografi & Sekretaris"
+  },
+  {
+    "mcc_code": "7341",
+    "mcc_name": "Layanan Pembersihan Jendela"
+  },
+  {
+    "mcc_code": "7342",
+    "mcc_name": "Layanan Pemusnahan & Disinfeksi"
+  },
+  {
+    "mcc_code": "7349",
+    "mcc_name": "Layanan Pemeliharaan & Kebersihan Pembersihan"
+  },
+  {
+    "mcc_code": "7361",
+    "mcc_name": "Lembaga Ketenagakerjaan & Layanan Bantuan Sementara"
+  },
+  {
+    "mcc_code": "7372",
+    "mcc_name": "Pemrosesan Data Pemrograman Komputer & Layanan Desain Sistem Terpadu"
+  },
+  {
+    "mcc_code": "7375",
+    "mcc_name": "Layanan Pengambilan Informasi"
+  },
+  {
+    "mcc_code": "7379",
+    "mcc_name": "Pemeliharaan, Perbaikan, & Layanan Komputer (bukan di tempat lain yang dikelompokkan)"
+  },
+  {
+    "mcc_code": "7392",
+    "mcc_name": "Layanan Manajemen, Konsultasi, & Hubungan Masyarakat"
+  },
+  {
+    "mcc_code": "7393",
+    "mcc_name": "Layanan Pelindung dan Keamanan - termasuk mobil lapis baja dan anjing penjaga"
+  },
+  {
+    "mcc_code": "7394",
+    "mcc_name": "Peralatan, alat, furnitur, & penyewaan dan penyewaan alat"
+  },
+  {
+    "mcc_code": "7395",
+    "mcc_name": "Potret Laboratorium & Foto Berkembang"
+  },
+  {
+    "mcc_code": "7399",
+    "mcc_name": "Layanan Bisnis (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "7511",
+    "mcc_name": "Quasi Cash - Truck Stop Transaction"
+  },
+  {
+    "mcc_code": "7512",
+    "mcc_name": "Agen penyewaan mobil"
+  },
+  {
+    "mcc_code": "7513",
+    "mcc_name": "Penyewaan Truk Truk dan Utilitas"
+  },
+  {
+    "mcc_code": "7519",
+    "mcc_name": "Penyewaan Motor Home & Recreational Vehicle"
+  },
+  {
+    "mcc_code": "7523",
+    "mcc_name": "Tempat parkir & garasi"
+  },
+  {
+    "mcc_code": "7524",
+    "mcc_name": "Pedagang Layanan Pembayaran Ekspres - Tempat Parkir dan Garasi"
+  },
+  {
+    "mcc_code": "7531",
+    "mcc_name": "Perbaikan atas dan tubuh otomotif"
+  },
+  {
+    "mcc_code": "7534",
+    "mcc_name": "Toko Vulkanisir & Perbaikan Ban"
+  },
+  {
+    "mcc_code": "7535",
+    "mcc_name": "Paint Shops-Automotive"
+  },
+  {
+    "mcc_code": "7538",
+    "mcc_name": "Toko Layanan Otomotif (Non-Dealer)"
+  },
+  {
+    "mcc_code": "7542",
+    "mcc_name": "Mencuci mobil"
+  },
+  {
+    "mcc_code": "7549",
+    "mcc_name": "Layanan Towing"
+  },
+  {
+    "mcc_code": "7622",
+    "mcc_name": "Toko Perbaikan Elektronik"
+  },
+  {
+    "mcc_code": "7623",
+    "mcc_name": "Toko Perbaikan AC & Refrigerasi"
+  },
+  {
+    "mcc_code": "7629",
+    "mcc_name": "Toko Perbaikan Peralatan & Peralatan Kecil"
+  },
+  {
+    "mcc_code": "7631",
+    "mcc_name": "Tonton, jam & perbaikan perhiasan"
+  },
+  {
+    "mcc_code": "7641",
+    "mcc_name": "Furniture - Repholstery, Repair, & Refinishing"
+  },
+  {
+    "mcc_code": "7692",
+    "mcc_name": "Layanan pengelasan"
+  },
+  {
+    "mcc_code": "7699",
+    "mcc_name": "Misc. Toko Perbaikan & Layanan Terkait"
+  },
+  {
+    "mcc_code": "7829",
+    "mcc_name": "GAMBAR GAMBAR & VIDEO PRODUMENSI & DISTRIBUSI"
+  },
+  {
+    "mcc_code": "7832",
+    "mcc_name": "Teater film"
+  },
+  {
+    "mcc_code": "7841",
+    "mcc_name": "GAMBAR GAMBAR & PRODUKSI VIDEO"
+  },
+  {
+    "mcc_code": "7911",
+    "mcc_name": "Ruang dansa, studio, dan sekolah"
+  },
+  {
+    "mcc_code": "7922",
+    "mcc_name": "Produsen teater (kecuali film) dan agen tiket"
+  },
+  {
+    "mcc_code": "7929",
+    "mcc_name": "Band, orkestra, dan penghibur lain -lain (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "7932",
+    "mcc_name": "Perusahaan Billard dan Pool"
+  },
+  {
+    "mcc_code": "7933",
+    "mcc_name": "Lorong bowling"
+  },
+  {
+    "mcc_code": "7941",
+    "mcc_name": "Olahraga Komersial, Klub Olahraga Profesional, Lapangan Atletik & Promotor Olahraga"
+  },
+  {
+    "mcc_code": "7991",
+    "mcc_name": "Tempat wisata & pameran"
+  },
+  {
+    "mcc_code": "7992",
+    "mcc_name": "Lapangan Golf - Publik"
+  },
+  {
+    "mcc_code": "7993",
+    "mcc_name": "Persediaan Game Hiburan Video"
+  },
+  {
+    "mcc_code": "7994",
+    "mcc_name": "Arcades / Perusahaan Video Game"
+  },
+  {
+    "mcc_code": "7996",
+    "mcc_name": "Taman hiburan, karnaval, sirkus, peramal"
+  },
+  {
+    "mcc_code": "7997",
+    "mcc_name": "Klub Negara Keanggotaan Klub Negara & Lapangan Golf Pribadi"
+  },
+  {
+    "mcc_code": "7998",
+    "mcc_name": "Akuarium, laut laut, lumba-lumba"
+  },
+  {
+    "mcc_code": "7999",
+    "mcc_name": "Layanan Hiburan & Rekreasi"
+  },
+  {
+    "mcc_code": "8011",
+    "mcc_name": "Dokter & Dokter (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "8021",
+    "mcc_name": "Dokter Gigi & Ortodontis"
+  },
+  {
+    "mcc_code": "8031",
+    "mcc_name": "Osteopaths"
+  },
+  {
+    "mcc_code": "8041",
+    "mcc_name": "Chiropractor"
+  },
+  {
+    "mcc_code": "8042",
+    "mcc_name": "Ahli Kacamata & Oftalmologi"
+  },
+  {
+    "mcc_code": "8043",
+    "mcc_name": "Optik Barang Optik & Kacamata"
+  },
+  {
+    "mcc_code": "8044",
+    "mcc_name": "Barang dan kacamata optik"
+  },
+  {
+    "mcc_code": "8049",
+    "mcc_name": "Ahli chiropodis, ahli penyakit kaki"
+  },
+  {
+    "mcc_code": "8050",
+    "mcc_name": "Fasilitas Perawatan & Perawatan Pribadi"
+  },
+  {
+    "mcc_code": "8062",
+    "mcc_name": "Rumah sakit"
+  },
+  {
+    "mcc_code": "8071",
+    "mcc_name": "Laboratorium Medis & Gigi"
+  },
+  {
+    "mcc_code": "8099",
+    "mcc_name": "Layanan Medis dan Praktisi Kesehatan (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "8111",
+    "mcc_name": "Layanan Hukum & Pengacara"
+  },
+  {
+    "mcc_code": "8211",
+    "mcc_name": "Sekolah Dasar & Menengah"
+  },
+  {
+    "mcc_code": "8220",
+    "mcc_name": "Sekolah Tinggi, Sekolah Tinggi Junior, Universitas, dan Sekolah Profesional"
+  },
+  {
+    "mcc_code": "8241",
+    "mcc_name": "Sekolah Korespondensi"
+  },
+  {
+    "mcc_code": "8244",
+    "mcc_name": "Sekolah Bisnis & Sekretaris"
+  },
+  {
+    "mcc_code": "8249",
+    "mcc_name": "Sekolah Kejuruan & Perdagangan"
+  },
+  {
+    "mcc_code": "8299",
+    "mcc_name": "Sekolah & Layanan Pendidikan (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "8351",
+    "mcc_name": "Layanan penitipan anak"
+  },
+  {
+    "mcc_code": "8398",
+    "mcc_name": "Organisasi Layanan Amal & Sosial"
+  },
+  {
+    "mcc_code": "8641",
+    "mcc_name": "Asosiasi Sipil, Sosial, & Persaudaraan."
+  },
+  {
+    "mcc_code": "8651",
+    "mcc_name": "Organisasi politik"
+  },
+  {
+    "mcc_code": "8661",
+    "mcc_name": "Organisasi keagamaan"
+  },
+  {
+    "mcc_code": "8675",
+    "mcc_name": "Asosiasi Mobil"
+  },
+  {
+    "mcc_code": "8699",
+    "mcc_name": "Organisasi keanggotaan (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "8734",
+    "mcc_name": "Laboratorium Pengujian (Pengujian Non-Medis)"
+  },
+  {
+    "mcc_code": "8911",
+    "mcc_name": "Layanan Arsitektur, Teknik, & Survei"
+  },
+  {
+    "mcc_code": "8931",
+    "mcc_name": "Layanan Akuntansi, Audit, & Pembukuan"
+  },
+  {
+    "mcc_code": "8999",
+    "mcc_name": "Sevices profesional (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "9211",
+    "mcc_name": "Biaya pengadilan, termasuk tunjangan & tunjangan anak"
+  },
+  {
+    "mcc_code": "9222",
+    "mcc_name": "Denda"
+  },
+  {
+    "mcc_code": "9223",
+    "mcc_name": "Pembayaran jaminan dan obligasi"
+  },
+  {
+    "mcc_code": "9311",
+    "mcc_name": "Pembayaran pajak"
+  },
+  {
+    "mcc_code": "9399",
+    "mcc_name": "Layanan Pemerintah (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "9401",
+    "mcc_name": "I-Purchasing"
+  },
+  {
+    "mcc_code": "9402",
+    "mcc_name": "Layanan Pos - Hanya Pemerintah"
+  },
+  {
+    "mcc_code": "9411",
+    "mcc_name": "Pembayaran pinjaman pemerintah"
+  },
+  {
+    "mcc_code": "9700",
+    "mcc_name": "Layanan Rujukan Otomatis"
+  },
+  {
+    "mcc_code": "9701",
+    "mcc_name": "KERJA SAMA"
+  },
+  {
+    "mcc_code": "9702",
+    "mcc_name": "Layanan Darurat (GCA)"
+  },
+  {
+    "mcc_code": "9703",
+    "mcc_name": "BPR/Bank Pedesaan"
+  },
+  {
+    "mcc_code": "9704",
+    "mcc_name": "Perusahaan distribusi pemasaran piramida atau multi -level"
+  },
+  {
+    "mcc_code": "9705",
+    "mcc_name": "Prosesor pihak ketiga (agregator)"
+  },
+  {
+    "mcc_code": "9753",
+    "mcc_name": "Pembelian antar perusahaan"
+  },
+  {
+    "mcc_code": "9950",
+    "mcc_name": "Pembelian antar perusahaan"
+  },
+  {
+    "mcc_code": "5172",
+    "mcc_name": "Produk Minyak & Minyak Minyak"
+  },
+  {
+    "mcc_code": "5541",
+    "mcc_name": "Stasiun Layanan"
+  },
+  {
+    "mcc_code": "5542",
+    "mcc_name": "Dispenser bahan bakar otomatis"
+  },
+  {
+    "mcc_code": "5983",
+    "mcc_name": "Dealer Bahan Bakar - Minyak Bahan Bakar, Kayu, Batubara, Minyak Cair"
+  },
+  {
+    "mcc_code": "8211",
+    "mcc_name": "Sekolah Dasar & Menengah"
+  },
+  {
+    "mcc_code": "8220",
+    "mcc_name": "Sekolah Tinggi, Sekolah Tinggi Junior, Universitas, dan Sekolah Profesional"
+  },
+  {
+    "mcc_code": "8241",
+    "mcc_name": "Sekolah Korespondensi"
+  },
+  {
+    "mcc_code": "8244",
+    "mcc_name": "Sekolah Bisnis & Sekretaris"
+  },
+  {
+    "mcc_code": "8249",
+    "mcc_name": "Sekolah Kejuruan & Perdagangan"
+  },
+  {
+    "mcc_code": "8299",
+    "mcc_name": "Sekolah & Layanan Pendidikan (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "8398",
+    "mcc_name": "Organisasi Layanan Amal & Sosial"
+  },
+  {
+    "mcc_code": "8661",
+    "mcc_name": "Organisasi keagamaan"
+  },
+  {
+    "mcc_code": "9211",
+    "mcc_name": "Biaya pengadilan, termasuk tunjangan & tunjangan anak"
+  },
+  {
+    "mcc_code": "9222",
+    "mcc_name": "Denda"
+  },
+  {
+    "mcc_code": "9311",
+    "mcc_name": "Pembayaran pajak"
+  },
+  {
+    "mcc_code": "9399",
+    "mcc_name": "Layanan Pemerintah (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "4812",
+    "mcc_name": "Peralatan Telekomunikasi & Penjualan Telepon"
+  },
+  {
+    "mcc_code": "5812",
+    "mcc_name": "Makan Tempat & Restoran"
+  },
+  {
+    "mcc_code": "5814",
+    "mcc_name": "RESTORAN CEPAT SAJI"
+  },
+  {
+    "mcc_code": "5912",
+    "mcc_name": "Toko Obat & Apotek"
+  },
+  {
+    "mcc_code": "5732",
+    "mcc_name": "Toko Elektronik"
+  },
+  {
+    "mcc_code": "5733",
+    "mcc_name": "Toko Musik - Alat Musik Piano & Lembaran Musik"
+  },
+  {
+    "mcc_code": "5137",
+    "mcc_name": "Seragam pria, wanita, & anak -anak, & pakaian komersial"
+  },
+  {
+    "mcc_code": "5111",
+    "mcc_name": "Toko alat tulis kantor & toko persediaan sekolah"
+  },
+  {
+    "mcc_code": "5944",
+    "mcc_name": "Toko perhiasan jam tangan & toko peralatan perak"
+  },
+  {
+    "mcc_code": "5942",
+    "mcc_name": "Toko buku"
+  },
+  {
+    "mcc_code": "5941",
+    "mcc_name": "Toko barang olahraga"
+  },
+  {
+    "mcc_code": "7538",
+    "mcc_name": "Toko Layanan Otomotif (Non-Dealer)"
+  },
+  {
+    "mcc_code": "7542",
+    "mcc_name": "Mencuci mobil"
+  },
+  {
+    "mcc_code": "7512",
+    "mcc_name": "Agen penyewaan mobil"
+  },
+  {
+    "mcc_code": "5970",
+    "mcc_name": "Toko Pasokan & Kerajinan Seniman"
+  },
+  {
+    "mcc_code": "5945",
+    "mcc_name": "Toko Mainan & Game Hobi"
+  },
+  {
+    "mcc_code": "5661",
+    "mcc_name": "Toko sepatu"
+  },
+  {
+    "mcc_code": "5533",
+    "mcc_name": "Toko Suku Cadang & Aksesori Otomotif"
+  },
+  {
+    "mcc_code": "4215",
+    "mcc_name": "Layanan Kurir"
+  },
+  {
+    "mcc_code": "7332",
+    "mcc_name": "Layanan cetak biru dan fotokopi"
+  },
+  {
+    "mcc_code": "8999",
+    "mcc_name": "Sevices profesional (tidak diklasifikasikan di tempat lain)"
+  },
+  {
+    "mcc_code": "8220",
+    "mcc_name": "Sekolah Tinggi, Sekolah Tinggi Junior, Universitas, dan Sekolah Profesional"
+  },
+  {
+    "mcc_code": "7941",
+    "mcc_name": "Olahraga Komersial, Klub Olahraga Profesional, Lapangan Atletik & Promotor Olahraga"
+  },
+  {
+    "mcc_code": "7622",
+    "mcc_name": "Toko Perbaikan Elektronik"
+  },
+  {
+    "mcc_code": "7298",
+    "mcc_name": "Spa Kesehatan & Kecantikan"
+  },
+  {
+    "mcc_code": "7230",
+    "mcc_name": "Toko kecantikan & tukang cukur"
+  },
+  {
+    "mcc_code": "7210",
+    "mcc_name": "Layanan cucian, pembersihan, & garmen"
+  },
+  {
+    "mcc_code": "5931",
+    "mcc_name": "Barang dagangan bekas & toko barang bekas"
+  },
+  {
+    "mcc_code": "5712",
+    "mcc_name": "Furniture Home Furnishings & Equipment Store Kecuali Peralatan"
+  }
+]

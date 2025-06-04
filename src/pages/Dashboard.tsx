@@ -21,6 +21,7 @@ interface History {
     total_amount: number;
     payment_method: string;
     qr_transaction_id?: string;
+    net_amount?: number;
     sales_id?: string;
     date: string;
     time: string;
@@ -461,6 +462,16 @@ const Dashboard = () => {
                                             </div>
                                             <div className="flex flex-col items-end md:mt-0 mt-2">
                                                 <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
+                                                {
+                                                    history.payment_method == 'QRIS' && (
+                                                        <p className="text-xs text-red-500 mb-2">
+                                                            - {history.net_amount == null || history.total_amount == history.net_amount
+                                                                ? formatRupiah(0)
+                                                                : formatRupiah((history.total_amount ?? 0) - history.net_amount) + ` (MDR)`
+                                                            }
+                                                        </p>
+                                                    )
+                                                }
                                                 <div className="flex items-center">
                                                     <p className="text-xs">{convertDate(history.transaction_date)}</p>
                                                     <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>

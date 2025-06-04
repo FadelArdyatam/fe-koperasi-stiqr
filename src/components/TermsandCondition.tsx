@@ -112,7 +112,8 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             openItem={openItem}
                             item={"item-1"}
                             checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}>
+                            handleCheckboxChange={handleCheckboxChange}
+                            showCheckbox={true}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {
                                     ketentuanUmum.map((item, index) => (
@@ -128,7 +129,8 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             openItem={openItem}
                             item={"item-2"}
                             checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}>
+                            handleCheckboxChange={handleCheckboxChange}
+                            showCheckbox={true}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {
                                     ketentuanAkun.map((item, index) => (
@@ -144,7 +146,8 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             openItem={openItem}
                             item={"item-3"}
                             checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}>
+                            handleCheckboxChange={handleCheckboxChange}
+                            showCheckbox={true}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {
                                     perangkatLunak.map((data, index) => (
@@ -159,7 +162,8 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             openItem={openItem}
                             item={"item-4"}
                             checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}>
+                            handleCheckboxChange={handleCheckboxChange}
+                            showCheckbox={true}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {tindakanLarangan.map((data, index) => (
                                     <li key={index}>
@@ -178,7 +182,8 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             openItem={openItem}
                             item={"item-5"}
                             checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}>
+                            handleCheckboxChange={handleCheckboxChange}
+                            showCheckbox={true}>
                             <p>{penggunaanDataPribadi.title}</p>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {penggunaanDataPribadi.list.map((data, index) => (
@@ -194,7 +199,8 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             openItem={openItem}
                             item={"item-6"}
                             checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}>
+                            handleCheckboxChange={handleCheckboxChange}
+                            showCheckbox={true}>
                             <p>{pengelolaanDataPribadi.title}</p>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {pengelolaanDataPribadi.list.map((data, index) => (
@@ -219,13 +225,13 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                 ))}
                             </ol>
                         </TermsList>
-
                         <TermsList
                             title={"Kerahasiaan"}
                             openItem={openItem}
                             item={"item-7"}
                             checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}>
+                            handleCheckboxChange={handleCheckboxChange}
+                            showCheckbox={true}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {
                                     kerahasiaan.map((item, index) => (
@@ -253,7 +259,8 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             openItem={openItem}
                             item={"item-8"}
                             checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}>
+                            handleCheckboxChange={handleCheckboxChange}
+                            showCheckbox={true}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {ketentuanQris.map((section, sectionIndex) => (
                                     <li key={sectionIndex}>
@@ -300,7 +307,8 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             openItem={openItem}
                             item={"item-9"}
                             checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}>
+                            handleCheckboxChange={handleCheckboxChange}
+                            showCheckbox={true}>
                             <ol className="list-[upper-alpha] pl-6 space-y-2">
                                 {
                                     pencairanPerangkat.map((item, index) => (
@@ -308,15 +316,18 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                             {item.title}
                                             <ol className="list-decimal pl-6 mt-1 space-y-1">
                                                 {item.list && item.list.map((subItem, subIndex) => (
-                                                    <li key={subIndex}>{subItem.text}</li>
+                                                    <>
+                                                        <li key={subIndex}>{subItem.text}</li>
+                                                        <ol className="list-[lower-alpha] pl-6">
+                                                            {
+                                                                subItem.list && subItem.list.map((subItem, subIndex) => (
+                                                                    <li key={subIndex}>{subItem}</li>
+                                                                ))
+                                                            }
+                                                        </ol>
+                                                    </>
                                                 ))}
-                                                <ol className="list-[lower-alpha] pl-6">
-                                                    {
-                                                        item.list && item.list.map((subItem, subIndex) => (
-                                                            <li key={subIndex}>{subItem.text}</li>
-                                                        ))
-                                                    }
-                                                </ol>
+
                                             </ol>
                                         </li>
                                     ))
@@ -329,7 +340,8 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                             openItem={openItem}
                             item={"item-10"}
                             checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}>
+                            handleCheckboxChange={handleCheckboxChange}
+                            showCheckbox={true}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {layananPpob.map((data, index) => (
                                     <li key={index}>
@@ -357,7 +369,7 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                         <div className="flex justify-center p-5">
                             <Info className="text-red-500" size={60} />
                         </div>
-                        <p className="text-red-500 text-sm">{errorMessage}</p>
+                        <p className="text-red-500 text-sm text-center">{errorMessage}</p>
                         <div className="flex items-center gap-5 mt-5">
                             <Button onClick={() => setShowNotification(false)} className="w-full bg-red-400">Tutup</Button>
                         </div>

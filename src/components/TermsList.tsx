@@ -3,14 +3,15 @@ import { ChevronDown } from 'lucide-react'
 
 interface TermsListProps {
     title: string;
-    handleCheckboxChange: (item: string) => void;
     children: React.ReactNode;
     openItem?: string | null;
     item: string;
-    checkedItems: Record<string, boolean>;
+    checkedItems?: Record<string, boolean>;
+    handleCheckboxChange?: (item: string) => void;
+    showCheckbox?: boolean;
 }
+export const TermsList = ({ title, handleCheckboxChange, children, openItem, item, checkedItems, showCheckbox = false }: TermsListProps) => {
 
-export const TermsList = ({ title, handleCheckboxChange, children, openItem, item, checkedItems }: TermsListProps) => {
     return (
         <div>
             <AccordionItem value={item} className="w-full border-b pb-2">
@@ -23,17 +24,19 @@ export const TermsList = ({ title, handleCheckboxChange, children, openItem, ite
                 </AccordionTrigger>
                 <AccordionContent className="py-2 px-4">
                     {children}
-
-                    <div className="flex items-center gap-5 mt-5">
-                        <input
-                            type="checkbox"
-                            id={`${item}-checkbox`}
-                            checked={checkedItems[item] || false}
-                            onChange={() => handleCheckboxChange(item)}
-                            className="mt-1"
-                        />
-                        <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
-                    </div>
+                    {
+                        showCheckbox &&
+                        <div className="flex items-center gap-5 mt-5">
+                            <input
+                                type="checkbox"
+                                id={`${item}-checkbox`}
+                                checked={(checkedItems ?? {})[item] || false}
+                                onChange={() => handleCheckboxChange && handleCheckboxChange(item)}
+                                className="mt-1"
+                            />
+                            <p>Saya telah membaca dan menyetujui Syarat dan Ketentuan</p>
+                        </div>
+                    }
                 </AccordionContent>
             </AccordionItem>
         </div>

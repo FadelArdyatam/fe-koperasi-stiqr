@@ -161,6 +161,24 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
         }
     };
 
+    const [isActiveQris, setIsActiveQris] = useState<boolean>(false);
+    useEffect(() => {
+        const checkQris = async () => {
+            setLoading(true)
+            try {
+                const check = await axiosInstance.get('/merchant/check-qris')
+                if (check.data.success) {
+                    setIsActiveQris(true)
+                }
+            } catch (error) {
+                setIsActiveQris(false)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        checkQris()
+    }, []);
 
 
 
@@ -336,7 +354,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                                     >
                                         <option selected hidden>Pilih Metode Pembayaran</option>
                                         <option value="tunai">Tunai</option>
-                                        <option value="qris">QRIS</option>
+                                        <option value="qris" hidden={!isActiveQris}>QRIS</option>
                                     </select>
                                 </div>
                             </>
