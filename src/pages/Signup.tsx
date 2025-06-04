@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ChevronDown, ChevronLeft, ChevronRight, Eye, EyeOff, Save, Smartphone, Store, UserRound } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronRight, Eye, EyeOff, Save, Sheet, Smartphone, Store, UserRound } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -24,8 +24,8 @@ import "aos/dist/aos.css";
 import Loading from "@/components/Loading"
 
 const Signup = () => {
-    const [showTermsandConditions, setShowTermsandConditions] = useState(true)
-    const [section, setSection] = useState([true, false, false]);
+    const [showTermsandConditions, setShowTermsandConditions] = useState(false)
+    const [section, setSection] = useState([true, false, false, false]);
     const [currentSection, setCurrentSection] = useState(0);
     const [showPassword, setShowPassword] = useState(false)
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
@@ -137,18 +137,6 @@ const Signup = () => {
         merchantName: z.string().min(2, {
             message: "Nama merchant harus terdiri dari minimal 2 karakter.",
         }),
-        merchantProvince: z.string().min(1, {
-            message: "Nama provinsi harus terdiri dari minimal 2 karakter.",
-        }),
-        merchantRegency: z.string().min(1, {
-            message: "Nama kabupaten/kota harus terdiri dari minimal 2 karakter.",
-        }),
-        merchantDistrict: z.string().min(1, {
-            message: "Nama kecamatan harus terdiri dari minimal 2 karakter.",
-        }),
-        merchantVillage: z.string().min(1, {
-            message: "Nama desa/kelurahan harus terdiri dari minimal 2 karakter.",
-        }),
         merchantCategory: z.enum(
             [
                 "Makanan & Minuman",
@@ -167,6 +155,27 @@ const Signup = () => {
                 message: "Harap pilih kategori merchant.",
             }
         ),
+        RTMerchant: z.string().min(1, {
+            message: "RT harus terdiri dari minimal 1 karakter.",
+        }),
+        RWMerchant: z.string().min(1, {
+            message: "RW harus terdiri dari minimal 1 karakter.",
+        }),
+        NoMerchant: z.string().min(1, {
+            message: "Nomor harus terdiri dari minimal 1 karakter.",
+        }),
+        merchantProvince: z.string().min(1, {
+            message: "Nama provinsi harus terdiri dari minimal 2 karakter.",
+        }),
+        merchantRegency: z.string().min(1, {
+            message: "Nama kabupaten/kota harus terdiri dari minimal 2 karakter.",
+        }),
+        merchantDistrict: z.string().min(1, {
+            message: "Nama kecamatan harus terdiri dari minimal 2 karakter.",
+        }),
+        merchantVillage: z.string().min(1, {
+            message: "Nama desa/kelurahan harus terdiri dari minimal 2 karakter.",
+        }),
         postalCode: z.string().min(5, {
             message: "Kode pos harus terdiri dari minimal 5 karakter.",
         }),
@@ -184,6 +193,7 @@ const Signup = () => {
         merchantEmail: z.string().email({
             message: "Alamat email tidak valid.",
         }),
+        merchantContact: z.string().optional(),
     });
 
     const formMerchant = useForm<z.infer<typeof FormSchemaMerchant>>({
@@ -191,11 +201,14 @@ const Signup = () => {
         defaultValues: {
             typeBusinessEntity: undefined, // Nilai default kosong
             merchantName: "",
+            merchantCategory: undefined,
+            RTMerchant: "",
+            RWMerchant: "",
+            NoMerchant: "",
             merchantProvince: "",
             merchantRegency: "",
             merchantDistrict: "",
             merchantVillage: "",
-            merchantCategory: undefined,
             postalCode: "",
             merchantAddress: "",
             phoneNumberMerchant: "",
@@ -294,6 +307,82 @@ const Signup = () => {
         }
     };
 
+    const FormSchemaSubmissionQRIS = z.object({
+        Omzet: z.string().min(1, {
+            message: "RT harus terdiri dari minimal 1 karakter.",
+        }),
+        KTP: z.instanceof(File, {
+            message: "KTP harus diupload.",
+        }).refine(file => file.size <= 2 * 1024 * 1024, {
+            message: "File KTP tidak boleh lebih dari 2MB.",
+        }),
+        NIB: z.instanceof(File, {
+            message: "NIB harus diupload.",
+        }).refine(file => file.size <= 2 * 1024 * 1024, {
+            message: "File NIB tidak boleh lebih dari 2MB.",
+        }),
+        businessPhoto: z.instanceof(File, {
+            message: "Foto Usaha harus diupload.",
+        }).refine(file => file.size <= 2 * 1024 * 1024, {
+            message: "File Foto Usaha tidak boleh lebih dari 2MB.",
+        }),
+        incomePerDay: z.string().min(1, {
+            message: "Penghasilan per hari harus diisi.",
+        }),
+        transactionPerDay: z.string().min(1, {
+            message: "Jumlah transaksi per hari harus diisi.",
+        }),
+    });
+
+    const formSubmissionQRIS = useForm<z.infer<typeof FormSchemaSubmissionQRIS>>({
+        resolver: zodResolver(FormSchemaSubmissionQRIS),
+        defaultValues: {
+            Omzet: "",
+            KTP: undefined,
+            NIB: undefined,
+            businessPhoto: undefined,
+            incomePerDay: "",
+            transactionPerDay: "",
+        },
+    });
+
+    const onSubmitSubmissionQRIS = async (data: z.infer<typeof FormSchemaSubmissionQRIS>) => {
+        const registerID = localStorage.getItem("registerID");
+        if (!registerID) {
+            console.error("Register ID tidak ditemukan.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("Omzet", data.Omzet);
+        formData.append("KTP", data.KTP);
+        formData.append("NIB", data.NIB);
+        formData.append("businessPhoto", data.businessPhoto);
+        formData.append("incomePerDay", data.incomePerDay);
+        formData.append("transactionPerDay", data.transactionPerDay);
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/merchant/submit`, {
+                method: "POST",
+                body: formData,
+            });
+
+            const result = await response.json();
+            if (result.status) {
+                console.log("Pengajuan QRIS berhasil:", result);
+                setCreatePin(true);
+                setShowNotification(false)
+            } else {
+                setShowNotification(true)
+                setErrorMessage(result.message)
+            }
+        } catch (error: any) {
+            console.error("Error:", error);
+            setShowNotification(true)
+            setErrorMessage(error.message || "Terjadi Kesalahan")
+        }
+    };
+
     const handleNext = async () => {
         let isValid = false;
 
@@ -317,7 +406,6 @@ const Signup = () => {
             alert("Harap lengkapi data pada section ini!");
         }
     };
-
 
     const [provinces, setProvinces] = useState<{ id: number; name: string }[]>([]);
     const [regencies, setRegencies] = useState<{ id: number; province_id: string, name: string }[]>([]);
@@ -408,7 +496,7 @@ const Signup = () => {
                 <div>
                     <div key={currentSection} className={`${createPin ? 'hidden' : 'flex'} w-full flex-col p-10`}>
                         <div className="flex items-center w-full">
-                            <p data-aos="zoom-in" className="uppercase m-auto text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : 'Kode Otp'}</p>
+                            <p data-aos="zoom-in" className="uppercase m-auto text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : currentSection === 2 ? 'Pengajuan QR' : 'Kode OTP'}</p>
                         </div>
 
                         <div className="mt-10 w-full flex items-center">
@@ -424,7 +512,13 @@ const Signup = () => {
 
                             <div className="w-full h-[2px] bg-black"></div>
 
-                            <div className={`${section[2] ? 'bg-green-500' : 'bg-gray-500'} transition-all w-12 min-w-12 h-12 rounded-full flex items-center justify-center`}>
+                            <div className={`${section[2] ? 'bg-yellow-500' : 'bg-gray-500'} transition-all w-12 min-w-12 h-12 rounded-full flex items-center justify-center`}>
+                                <Sheet className="text-white" />
+                            </div>
+
+                            <div className="w-full h-[2px] bg-black"></div>
+
+                            <div className={`${section[3] ? 'bg-green-500' : 'bg-gray-500'} transition-all w-12 min-w-12 h-12 rounded-full flex items-center justify-center`}>
                                 <Smartphone className="text-white" />
                             </div>
                         </div>
@@ -750,9 +844,94 @@ const Signup = () => {
                                             name="merchantName"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <Input data-aos="fade-up" data-aos-delay="100" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Merchant" {...field} />
+                                                    <FormControl className="flex items-center gap-3">
+                                                        <Input data-aos="fade-up" data-aos-delay="100" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Usaha" {...field} />
                                                     </FormControl>
+
+                                                    <p className="text-sm text-gray-500 italic">*Nama Usaha adalah Nama yang akan di tampilkan di QRIS Anda</p>
+
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={formMerchant.control}
+                                            name="merchantCategory"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <div data-aos="fade-up" data-aos-delay="600" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                                    <button type="button" className="">
+                                                                        {field.value || "Kategori Usaha"} {/* Display selected value */}
+                                                                    </button>
+
+                                                                    <ChevronDown />
+                                                                </div>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent className="w-full">
+                                                                <DropdownMenuLabel>Category</DropdownMenuLabel>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Makanan & Minuman")} className="w-full">Makanan & Minuman</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Fashion & Aksesori")} className="w-full">Fashion & Aksesori</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Elektronik & Gadget")} className="w-full">Elektronik & Gadget</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Kesehatan & Kecantikan")} className="w-full">Kesehatan & Kecantikan</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Rumah & Dekorasi")} className="w-full">Rumah & Dekorasi</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Otomotif")} className="w-full">Otomotif</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Hobi & Hiburan")} className="w-full">Hobi & Hiburan</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Jasa & Layanan")} className="w-full">Jasa & Layanan</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Bahan Pokok & Grosir")} className="w-full">Bahan Pokok & Grosir</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Teknologi & Digital")} className="w-full">Teknologi & Digital</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Lainnya")} className="w-full">Lainnya</DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <div className="flex items-center gap-5 w-full">
+                                            <FormField
+                                                control={formMerchant.control}
+                                                name="RTMerchant"
+                                                render={({ field }) => (
+                                                    <FormItem className="w-full">
+                                                        <FormControl>
+                                                            <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="RT Sesuai Alamat" {...field} />
+                                                        </FormControl>
+
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            <FormField
+                                                control={formMerchant.control}
+                                                name="RWMerchant"
+                                                render={({ field }) => (
+                                                    <FormItem className="w-full">
+                                                        <FormControl>
+                                                            <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="RW Sesuai Alamat" {...field} />
+                                                        </FormControl>
+
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+
+                                        <FormField
+                                            control={formMerchant.control}
+                                            name="NoMerchant"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nomor/Blok Tempat Usaha" {...field} />
+                                                    </FormControl>
+
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
@@ -764,8 +943,11 @@ const Signup = () => {
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
                                                     <FormControl>
-                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Alamat Merchant" {...field} />
+                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Alamat Usaha" {...field} />
                                                     </FormControl>
+
+                                                    <p className="text-sm text-gray-500 italic">*Jika tidak ada Toko Fisik, Anda dapat mengisi alamat sesuai KTP</p>
+
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
@@ -995,44 +1177,6 @@ const Signup = () => {
 
                                         <FormField
                                             control={formMerchant.control}
-                                            name="merchantCategory"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <div data-aos="fade-up" data-aos-delay="600" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                    <button type="button" className="">
-                                                                        {field.value || "Kategori Usaha"} {/* Display selected value */}
-                                                                    </button>
-
-                                                                    <ChevronDown />
-                                                                </div>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full">
-                                                                <DropdownMenuLabel>Category</DropdownMenuLabel>
-                                                                <DropdownMenuSeparator />
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Makanan & Minuman")} className="w-full">Makanan & Minuman</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Fashion & Aksesori")} className="w-full">Fashion & Aksesori</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Elektronik & Gadget")} className="w-full">Elektronik & Gadget</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Kesehatan & Kecantikan")} className="w-full">Kesehatan & Kecantikan</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Rumah & Dekorasi")} className="w-full">Rumah & Dekorasi</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Otomotif")} className="w-full">Otomotif</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Hobi & Hiburan")} className="w-full">Hobi & Hiburan</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Jasa & Layanan")} className="w-full">Jasa & Layanan</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Bahan Pokok & Grosir")} className="w-full">Bahan Pokok & Grosir</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Teknologi & Digital")} className="w-full">Teknologi & Digital</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Lainnya")} className="w-full">Lainnya</DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formMerchant.control}
                                             name="phoneNumberMerchant"
                                             render={({ field }) => (
                                                 <FormItem className="w-full">
@@ -1073,6 +1217,25 @@ const Signup = () => {
                                                 </FormItem>
                                             )}
                                         />
+
+                                        <FormField
+                                            control={formMerchant.control}
+                                            name="merchantContact"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input
+                                                            data-aos="fade-up"
+                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                            placeholder="Contact Merchant"
+                                                            {...field}
+                                                            onChange={(e) => field.onChange(e.target.value.toLowerCase())}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
                                     </div>
 
                                     <div data-aos="fade-up" className="flex items-center w-full justify-between gap-5">
@@ -1081,6 +1244,245 @@ const Signup = () => {
                                             type="submit"
                                             disabled={isSubmitting}
                                             className={`${currentSection === 1 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] hover:bg-[#7ED321] rounded-lg `}> <Save /> Kirim </Button>
+                                    </div>
+                                </form>
+                            </Form>
+
+                            <Form {...formSubmissionQRIS}>
+                                <form onSubmit={formSubmissionQRIS.handleSubmit(onSubmitSubmissionQRIS)}>
+                                    <div className={`${currentSection === 2 ? 'block' : 'hidden'} flex flex-col items-start w-full space-y-7`}>
+                                        <p className="font-semibold text-xl text-orange-500">Kategori Usaha Berdasarkan Omzet Pertahun</p>
+
+                                        <FormField
+                                            control={formSubmissionQRIS.control}
+                                            name="Omzet"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input
+                                                            data-aos="fade-up"
+                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                                            type="number"
+                                                            placeholder="Omzet / Tahun"
+                                                            {...field}
+                                                            onInput={(e) => {
+                                                                const value = (e.target as HTMLInputElement).value;
+                                                                if (value.length > 5) {
+                                                                    (e.target as HTMLInputElement).value = value.slice(0, 5); // Limit to 5 digits
+                                                                }
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <p className="font-semibold text-xl text-orange-500">Kelengkapan Dokumen Usaha</p>
+
+                                        <FormField
+                                            control={formSubmissionQRIS.control}
+                                            name="KTP"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <p className="font-semibold">KTP</p>
+
+                                                    <p className="mt-2">Unggah foto KTP Anda dalam format PNG, JPEG, JPG, atau PDF dengan ukuran maksimal 2 MB. <span className="font-semibold">Pastikan foto terlihat jelas secara keseluruhan</span></p>
+
+                                                    <FormControl>
+                                                        <input
+                                                            className="p-2 w-full border border-orange-500 rounded-lg"
+                                                            type="file"
+                                                            accept="image/*,application/pdf"
+                                                            onChange={(e) => {
+                                                                const file = e.target.files?.[0];
+                                                                if (file) {
+                                                                    // Validasi ukuran file (max 2MB)
+                                                                    if (file.size > 2 * 1024 * 1024) {
+                                                                        setShowNotification(true);
+                                                                        setErrorMessage('File KTP tidak boleh lebih dari 2MB.');
+                                                                        return;
+                                                                    }
+                                                                    // Validasi tipe file (opsional, misal hanya gambar/pdf)
+                                                                    const validTypes = ["image/jpeg", "image/png", "image/gif", "application/pdf"];
+                                                                    if (!validTypes.includes(file.type)) {
+                                                                        setShowNotification(true);
+                                                                        setErrorMessage('Tipe file tidak valid. Silakan unggah gambar atau PDF.');
+                                                                        return;
+                                                                    }
+                                                                    field.onChange(file);
+                                                                }
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={formSubmissionQRIS.control}
+                                            name="NIB"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <p className="font-semibold">NIB</p>
+
+                                                    <p className="mt-2">Unggah foto NIB Anda dalam format <span className="font-semibold">PNG, JPEG, JPG, atau PDF</span> dengan ukuran maksimal 2 MB. <span className="font-semibold">Pastikan foto terlihat jelas secara keseluruhan</span></p>
+
+                                                    <FormControl>
+                                                        <input
+                                                            className="p-2 w-full border border-orange-500 rounded-lg"
+                                                            type="file"
+                                                            accept="image/*,application/pdf"
+                                                            onChange={(e) => {
+                                                                const file = e.target.files?.[0];
+                                                                if (file) {
+                                                                    // Validasi ukuran file (max 2MB)
+                                                                    if (file.size > 2 * 1024 * 1024) {
+                                                                        setShowNotification(true);
+                                                                        setErrorMessage('File NIB tidak boleh lebih dari 2MB.');
+                                                                        return;
+                                                                    }
+                                                                    // Validasi tipe file (opsional, misal hanya gambar/pdf)
+                                                                    const validTypes = ["image/jpeg", "image/png", "image/gif", "application/pdf"];
+                                                                    if (!validTypes.includes(file.type)) {
+                                                                        setShowNotification(true);
+                                                                        setErrorMessage('Tipe file tidak valid. Silakan unggah gambar atau PDF.');
+                                                                        return;
+                                                                    }
+                                                                    field.onChange(file);
+                                                                }
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={formSubmissionQRIS.control}
+                                            name="businessPhoto"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <p className="font-semibold">Foto Tempat Usaha</p>
+
+                                                    <p className="mt-2">Unggah foto Tempat Usaha Anda dalam format <span className="font-semibold">PNG, JPEG, JPG, atau PDF</span> dengan ukuran maksimal 2 MB. <span className="font-semibold">Pastikan foto terlihat jelas secara keseluruhan</span></p>
+
+                                                    <FormControl>
+                                                        <input
+                                                            className="p-2 w-full border border-orange-500 rounded-lg"
+                                                            type="file"
+                                                            accept="image/*,application/pdf"
+                                                            onChange={(e) => {
+                                                                const file = e.target.files?.[0];
+                                                                if (file) {
+                                                                    // Validasi ukuran file (max 2MB)
+                                                                    if (file.size > 2 * 1024 * 1024) {
+                                                                        setShowNotification(true);
+                                                                        setErrorMessage('File Foto Usaha tidak boleh lebih dari 2MB.');
+                                                                        return;
+                                                                    }
+                                                                    // Validasi tipe file (opsional, misal hanya gambar/pdf)
+                                                                    const validTypes = ["image/jpeg", "image/png", "image/gif", "application/pdf"];
+                                                                    if (!validTypes.includes(file.type)) {
+                                                                        setShowNotification(true);
+                                                                        setErrorMessage('Tipe file tidak valid. Silakan unggah gambar atau PDF.');
+                                                                        return;
+                                                                    }
+                                                                    field.onChange(file);
+                                                                }
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={formSubmissionQRIS.control}
+                                            name="incomePerDay"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <div data-aos="fade-up" data-aos-delay="600" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                                    <button type="button" className="">
+                                                                        {field.value || "Rata-rata total pendapatan per hari"} {/* Display selected value */}
+                                                                    </button>
+
+                                                                    <ChevronDown />
+                                                                </div>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent className="w-full">
+                                                                <DropdownMenuLabel>Category</DropdownMenuLabel>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Makanan & Minuman")} className="w-full">Makanan & Minuman</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Fashion & Aksesori")} className="w-full">Fashion & Aksesori</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Elektronik & Gadget")} className="w-full">Elektronik & Gadget</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Kesehatan & Kecantikan")} className="w-full">Kesehatan & Kecantikan</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Rumah & Dekorasi")} className="w-full">Rumah & Dekorasi</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Otomotif")} className="w-full">Otomotif</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Hobi & Hiburan")} className="w-full">Hobi & Hiburan</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Jasa & Layanan")} className="w-full">Jasa & Layanan</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Bahan Pokok & Grosir")} className="w-full">Bahan Pokok & Grosir</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Teknologi & Digital")} className="w-full">Teknologi & Digital</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Lainnya")} className="w-full">Lainnya</DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={formSubmissionQRIS.control}
+                                            name="transactionPerDay"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <div data-aos="fade-up" data-aos-delay="600" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
+                                                                    <button type="button" className="">
+                                                                        {field.value || "Rata-rata total transaksi per hari"} {/* Display selected value */}
+                                                                    </button>
+
+                                                                    <ChevronDown />
+                                                                </div>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent className="w-full">
+                                                                <DropdownMenuLabel>Category</DropdownMenuLabel>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Makanan & Minuman")} className="w-full">Makanan & Minuman</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Fashion & Aksesori")} className="w-full">Fashion & Aksesori</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Elektronik & Gadget")} className="w-full">Elektronik & Gadget</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Kesehatan & Kecantikan")} className="w-full">Kesehatan & Kecantikan</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Rumah & Dekorasi")} className="w-full">Rumah & Dekorasi</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Otomotif")} className="w-full">Otomotif</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Hobi & Hiburan")} className="w-full">Hobi & Hiburan</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Jasa & Layanan")} className="w-full">Jasa & Layanan</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Bahan Pokok & Grosir")} className="w-full">Bahan Pokok & Grosir</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Teknologi & Digital")} className="w-full">Teknologi & Digital</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={() => field.onChange("Lainnya")} className="w-full">Lainnya</DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+
+                                    <div data-aos="fade-up" className="flex items-center w-full justify-between gap-5">
+                                        <Button type="button" onClick={() => { setCurrentSection(1) }} className={`${currentSection === 2 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-orange-400 hover:bg-orange-400 rounded-lg`}> <ChevronLeft /> Kembali</Button>
+                                        <Button
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                            className={`${currentSection === 2 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] hover:bg-[#7ED321] rounded-lg `}> <Save /> Ajukan </Button>
                                     </div>
                                 </form>
                             </Form>
