@@ -16,7 +16,7 @@ import { FormMerchant } from "@/components/register/FormMerchant"
 import { FormPersonal } from '../components/register/FormPersonal';
 
 const Signup = () => {
-    const [showTermsandConditions, setShowTermsandConditions] = useState(false)
+    const [showTermsandConditions, setShowTermsandConditions] = useState(true)
     const [section, setSection] = useState([true, false, false, false]);
     const [currentSection, setCurrentSection] = useState(0);
     const [showPassword, setShowPassword] = useState(false)
