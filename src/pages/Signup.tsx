@@ -1,19 +1,8 @@
-import { Button } from "@/components/ui/button"
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ChevronDown, ChevronLeft, ChevronRight, Eye, EyeOff, Save, Smartphone, Store, UserRound } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { ChevronLeft, Sheet, Smartphone, Store, UserRound } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useEffect, useState } from "react"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import OTP from "@/components/OTP"
 import TermsandCondition from "@/components/TermsandCondition"
 import PinInput from "@/components/PinInput"
@@ -22,10 +11,13 @@ import Notification from "@/components/Notification"
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Loading from "@/components/Loading"
+import { FormPengajuanQris } from "@/components/register/FormPengajuanQris"
+import { FormMerchant } from "@/components/register/FormMerchant"
+import { FormPersonal } from '../components/register/FormPersonal';
 
 const Signup = () => {
-    const [showTermsandConditions, setShowTermsandConditions] = useState(true)
-    const [section, setSection] = useState([true, false, false]);
+    const [showTermsandConditions, setShowTermsandConditions] = useState(false)
+    const [section, setSection] = useState([true, false, false, false]);
     const [currentSection, setCurrentSection] = useState(0);
     const [showPassword, setShowPassword] = useState(false)
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
@@ -43,14 +35,14 @@ const Signup = () => {
         AOS.refresh();  // Refresh AOS setiap kali currentSection berubah
     }, [currentSection]);
 
-    useEffect(() => {
-        const registerID = localStorage.getItem("registerID")
+    // useEffect(() => {
+    //     const registerID = localStorage.getItem("registerID")
 
-        if (registerID) {
-            setCurrentSection(2)
-            setShowTermsandConditions(false)
-        }
-    }, [])
+    //     if (registerID) {
+    //         setCurrentSection(4)
+    //         setShowTermsandConditions(false)
+    //     }
+    // }, [])
 
     const FormSchemaUser = z.object({
         photo: z.union([z.instanceof(File, {
@@ -134,39 +126,34 @@ const Signup = () => {
                 message: "Harap pilih jenis badan usaha.",
             }
         ),
-        merchantName: z.string().min(2, {
-            message: "Nama merchant harus terdiri dari minimal 2 karakter.",
+        merchantName: z.string().min(3, {
+            message: "Nama merchant harus terdiri dari minimal 3 karakter.",
+        }),
+        merchantCategory: z.string().min(1, {
+            message: "Harap pilih kategori merchant.",
+        }
+        ),
+        rt_number: z.string().min(1, {
+            message: "RT harus terdiri wajib diisi.",
+        }),
+        rw_number: z.string().min(1, {
+            message: "RW harus terdiri wajib diisi.",
+        }),
+        block_number: z.string().min(1, {
+            message: "Nomor/Blok Tempat Usaha wajib diisi.",
         }),
         merchantProvince: z.string().min(1, {
-            message: "Nama provinsi harus terdiri dari minimal 2 karakter.",
+            message: "Nama provinsi wajib diisi.",
         }),
         merchantRegency: z.string().min(1, {
-            message: "Nama kabupaten/kota harus terdiri dari minimal 2 karakter.",
+            message: "Nama kabupaten/kota wajib diisi.",
         }),
         merchantDistrict: z.string().min(1, {
-            message: "Nama kecamatan harus terdiri dari minimal 2 karakter.",
+            message: "Nama kecamatan wajib diisi.",
         }),
         merchantVillage: z.string().min(1, {
-            message: "Nama desa/kelurahan harus terdiri dari minimal 2 karakter.",
+            message: "Nama desa/kelurahan wajib diisi.",
         }),
-        merchantCategory: z.enum(
-            [
-                "Makanan & Minuman",
-                "Fashion & Aksesori",
-                "Elektronik & Gadget",
-                "Kesehatan & Kecantikan",
-                "Rumah & Dekorasi",
-                "Otomotif",
-                "Hobi & Hiburan",
-                "Jasa & Layanan",
-                "Bahan Pokok & Grosir",
-                "Teknologi & Digital",
-                "Lainnya",
-            ],
-            {
-                message: "Harap pilih kategori merchant.",
-            }
-        ),
         postalCode: z.string().min(5, {
             message: "Kode pos harus terdiri dari minimal 5 karakter.",
         }),
@@ -184,6 +171,7 @@ const Signup = () => {
         merchantEmail: z.string().email({
             message: "Alamat email tidak valid.",
         }),
+        merchantContact: z.string().optional(),
     });
 
     const formMerchant = useForm<z.infer<typeof FormSchemaMerchant>>({
@@ -191,11 +179,14 @@ const Signup = () => {
         defaultValues: {
             typeBusinessEntity: undefined, // Nilai default kosong
             merchantName: "",
+            merchantCategory: undefined,
+            rt_number: "",
+            rw_number: "",
+            block_number: "",
             merchantProvince: "",
             merchantRegency: "",
             merchantDistrict: "",
             merchantVillage: "",
-            merchantCategory: undefined,
             postalCode: "",
             merchantAddress: "",
             phoneNumberMerchant: "",
@@ -205,17 +196,14 @@ const Signup = () => {
 
     const [phone, setPhone] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [merchantId, setMerchantId] = useState("")
     const onSubmitMerchant = async (data: z.infer<typeof FormSchemaMerchant>) => {
         const userDatas = allData[0] as z.infer<typeof FormSchemaUser>;
-
-        // Debug email user sebelum membuat payload
-        console.log("Email user yang digunakan:", userDatas?.email);
         setIsSubmitting(true)
-
         const payload = {
             username: userDatas?.ownerName,
             nik: userDatas?.nik,
-            email: userDatas?.email, // Pastikan ini adalah email terbaru
+            email: userDatas?.email,
             password: userDatas?.password,
             confirmPassword: userDatas?.confirmPassword,
             phoneNumber: userDatas?.phoneNumber,
@@ -232,6 +220,9 @@ const Signup = () => {
             phoneNumberMerchant: data.phoneNumberMerchant,
             postalCode: data.postalCode,
             typeBusinessEntity: data.typeBusinessEntity,
+            rt_number: data.rt_number,
+            rw_number: data.rw_number,
+            block_number: data.block_number,
             photo: userDatas.photo instanceof File ? userDatas.photo : "https://via.placeholder.com/150",
         };
 
@@ -255,6 +246,11 @@ const Signup = () => {
         formData.append("phoneNumberMerchant", payload.phoneNumberMerchant);
         formData.append("postalCode", payload.postalCode);
         formData.append("typeBusinessEntity", payload.typeBusinessEntity);
+        formData.append("rt_number", payload.rt_number);
+        formData.append("rw_number", payload.rw_number);
+        formData.append("block_number", payload.block_number);
+        formData.append("mcc_name", mcc.name);
+        formData.append("mcc_code", mcc.code);
 
         const userData = allData[0] as z.infer<typeof FormSchemaUser>;
         if (userData.photo instanceof File) {
@@ -270,6 +266,7 @@ const Signup = () => {
             });
 
             const result = await response.json();
+            console.log("Hasil response:", result);
             if (result.status) {
                 handleNext();
                 localStorage.setItem("registerID", crypto.randomUUID());
@@ -279,6 +276,7 @@ const Signup = () => {
                 const formattedPhone = payload.phoneNumber.replace(/^0/, '');
                 setPhone(formattedPhone);
                 localStorage.setItem('phone', formattedPhone);
+                setMerchantId(result.merchant_id);
             } else {
                 setIsSubmitting(false)
                 setShowNotification(true)
@@ -290,7 +288,142 @@ const Signup = () => {
             setShowNotification(true)
             setErrorMessage(error.message || "Terjadi Kesalahan")
         } finally {
-            setIsSubmitting(false); // Set loading state to false when submission ends (whether success or error)
+            setIsSubmitting(false);
+        }
+    };
+
+    const FormSchemaSubmissionQRIS = z.object({
+        annual_revenue: z.string().min(1, {
+            message: "Omzet Pertahun harus diisi.",
+        }),
+        ktp: z
+            .instanceof(File)
+            .optional()
+            .refine(file => !file || file.size <= 5 * 1024 * 1024, {
+                message: "File KTP tidak boleh lebih dari 5MB.",
+            }),
+        nib: z
+            .instanceof(File)
+            .optional()
+            .refine(file => !file || file.size <= 5 * 1024 * 1024, {
+                message: "File NIB tidak boleh lebih dari 5MB.",
+            }),
+        npwp: z
+            .instanceof(File)
+            .optional()
+            .refine(file => !file || file.size <= 5 * 1024 * 1024, {
+                message: "File NPWP tidak boleh lebih dari 5MB.",
+            }),
+        bussiness_photo: z
+            .instanceof(File)
+            .optional()
+            .refine(file => !file || file.size <= 5 * 1024 * 1024, {
+                message: "File Foto Usaha tidak boleh lebih dari 5MB.",
+            }),
+        deed_doc: z
+            .instanceof(File)
+            .optional()
+            .refine(file => !file || file.size <= 5 * 1024 * 1024, {
+                message: "File Akta Pendirian tidak boleh lebih dari 5MB.",
+            }),
+        deed_update_doc: z
+            .instanceof(File)
+            .optional()
+            .refine(file => !file || file.size <= 5 * 1024 * 1024, {
+                message: "File Perubahan Akta Pendirian tidak boleh lebih dari 5MB.",
+            }),
+        legal_doc: z
+            .instanceof(File)
+            .optional()
+            .refine(file => !file || file.size <= 5 * 1024 * 1024, {
+                message: "File SK Kemenkumham Pendirian tidak boleh lebih dari 5MB.",
+            }),
+        legal_update_doc: z
+            .instanceof(File)
+            .optional()
+            .refine(file => !file || file.size <= 5 * 1024 * 1024, {
+                message: "File Perubahan SK Kemenkumham Pendirian tidak boleh lebih dari 5MB.",
+            }),
+        daily_income: z.string().min(1, {
+            message: "Penghasilan per hari harus diisi.",
+        }),
+        daily_transaction: z.string().min(1, {
+            message: "Jumlah transaksi per hari harus diisi.",
+        }),
+    });
+
+    const formSubmissionQRIS = useForm<z.infer<typeof FormSchemaSubmissionQRIS>>({
+        resolver: zodResolver(FormSchemaSubmissionQRIS),
+        defaultValues: {
+            annual_revenue: "",
+            ktp: undefined,
+            nib: undefined,
+            npwp: undefined,
+            bussiness_photo: undefined,
+            deed_doc: undefined,
+            deed_update_doc: undefined,
+            legal_doc: undefined,
+            legal_update_doc: undefined,
+            daily_income: "",
+            daily_transaction: "",
+        },
+    });
+
+
+    const [updateDoc, setUpdateDoc] = useState({
+        is_update_deed_doc: false,
+        is_update_legal_doc: false,
+    });
+
+    const onSubmitSubmissionQRIS = async (data: z.infer<typeof FormSchemaSubmissionQRIS>) => {
+        const registerID = localStorage.getItem("registerID");
+        if (!registerID) {
+            console.error("Register ID tidak ditemukan.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        const formData = new FormData();
+        formData.append("annual_revenue", data.annual_revenue);
+        if (data.ktp) formData.append("ktp", data.ktp);
+        if (data.nib) formData.append("nib", data.nib);
+        if (data.npwp) formData.append("npwp", data.npwp);
+        if (data.deed_doc) formData.append("deed_doc", data.deed_doc);
+        if (data.deed_update_doc) formData.append("deed_update_doc", data.deed_update_doc);
+        if (data.legal_doc) formData.append("legal_doc", data.legal_doc);
+        if (data.legal_update_doc) formData.append("legal_update_doc", data.legal_update_doc);
+        if (data.bussiness_photo) formData.append("bussiness_photo", data.bussiness_photo);
+        formData.append("daily_income", data.daily_income);
+        formData.append("daily_transaction", data.daily_transaction);
+        formData.append("merchant_id", merchantId);
+        formData.append("type", formMerchant.getValues("typeBusinessEntity"));
+        formData.append("is_update_deed_doc", updateDoc.is_update_deed_doc.toString());
+        formData.append("is_update_legal_doc", updateDoc.is_update_legal_doc.toString());
+
+        try {
+            const response = await axiosInstance.post(
+                `${import.meta.env.VITE_API_URL}/register/qris-submission`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            );
+            if (response.data.status) {
+                console.log("Pengajuan QRIS berhasil:", response.data);
+                setShowNotification(false)
+                setCurrentSection(3);
+            } else {
+                setShowNotification(true)
+                setErrorMessage(response.data.message)
+            }
+        } catch (error: any) {
+            console.error("Error:", error);
+            setShowNotification(true)
+            setErrorMessage(error.response.data.message || "Terjadi Kesalahan")
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -317,7 +450,6 @@ const Signup = () => {
             alert("Harap lengkapi data pada section ini!");
         }
     };
-
 
     const [provinces, setProvinces] = useState<{ id: number; name: string }[]>([]);
     const [regencies, setRegencies] = useState<{ id: number; province_id: string, name: string }[]>([]);
@@ -401,6 +533,8 @@ const Signup = () => {
             fetchVillages();
         }
     }, [selectedDistrict]);
+    const [openSearch, setOpenSearch] = useState(false);
+    const [mcc, setMcc] = useState({ code: '', name: '' });
 
     return (
         <div>
@@ -411,7 +545,8 @@ const Signup = () => {
                             {
                                 currentSection === 0 && (<ChevronLeft className="cursor-pointer" onClick={() => setShowTermsandConditions(true)} />)
                             }
-                            <p data-aos="zoom-in" className="uppercase m-auto text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : 'Kode Otp'}</p>
+
+                            <p data-aos="zoom-in" className="uppercase m-auto text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : currentSection === 2 ? 'Pengajuan QRIS' : 'Kode OTP'}</p>
                         </div>
 
                         <div className="mt-10 w-full flex items-center">
@@ -421,672 +556,76 @@ const Signup = () => {
 
                             <div className="w-full h-[2px] bg-black"></div>
 
-                            <div className={`${section[1] ? 'bg-blue-500' : 'bg-gray-500'} transition-all w-12 min-w-12 h-12 rounded-full flex items-center justify-center`}>
+                            <div className={`${section[1] ? 'bg-orange-500' : 'bg-gray-500'} transition-all w-12 min-w-12 h-12 rounded-full flex items-center justify-center`}>
                                 <Store className="text-white" />
                             </div>
 
                             <div className="w-full h-[2px] bg-black"></div>
 
-                            <div className={`${section[2] ? 'bg-green-500' : 'bg-gray-500'} transition-all w-12 min-w-12 h-12 rounded-full flex items-center justify-center`}>
+                            <div className={`${section[2] ? 'bg-orange-500' : 'bg-gray-500'} transition-all w-12 min-w-12 h-12 rounded-full flex items-center justify-center`}>
+                                <Sheet className="text-white" />
+                            </div>
+
+                            <div className="w-full h-[2px] bg-black"></div>
+
+                            <div className={`${section[3] ? 'bg-orange-500' : 'bg-gray-500'} transition-all w-12 min-w-12 h-12 rounded-full flex items-center justify-center`}>
                                 <Smartphone className="text-white" />
                             </div>
                         </div>
 
                         <div className="w-full mt-10">
-                            <Form {...formUser}>
-                                <form onSubmit={formUser.handleSubmit(onSubmitUser)}>
-                                    <div className={`${currentSection === 0 ? 'block' : 'hidden'} flex flex-col items-end w-full space-y-7`}>
-                                        <FormField
-                                            control={formUser.control}
-                                            name="ownerName"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <Input
-                                                            data-aos="fade-up"
-                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                            placeholder="Nama Pemilik"
-                                                            {...field}
-                                                            onChange={(e) => {
-                                                                const formattedValue = e.target.value
-                                                                    .replace(/\b\w/g, (char) => char.toUpperCase())
-                                                                    .slice(0, 60);
-                                                                field.onChange(formattedValue);
-                                                            }}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+                            <FormPersonal
+                                currentSection={currentSection}
+                                formUser={formUser}
+                                onSubmitUser={onSubmitUser}
+                                showPassword={showPassword}
+                                setShowPassword={setShowPassword}
+                                showPasswordConfirm={showPasswordConfirm}
+                                setShowPasswordConfirm={setShowPasswordConfirm}
+                                isPhotoUploaded={isPhotoUploaded}
+                                setIsPhotoUploaded={setIsPhotoUploaded}
+                                setErrorMessage={setErrorMessage}
+                                setShowNotification={setShowNotification}
 
-                                        <FormField
-                                            control={formUser.control}
-                                            name="nik"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <Input
-                                                            data-aos="fade-up"
-                                                            data-aos-delay="100"
-                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                            type="number"
-                                                            placeholder="Nomor Induk Kewarganegaraan"
-                                                            {...field}
-                                                            onChange={(e) => {
-                                                                const value = e.target.value.slice(0, 16);
-                                                                field.onChange(value);
-                                                            }}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+                            />
 
-                                        <FormField
-                                            control={formUser.control}
-                                            name="gender"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <div className="flex flex-col w-full justify-center" data-aos="fade-up" data-aos-delay="200">
-                                                            <FormLabel>Jenis Kelamin</FormLabel>
+                            <FormMerchant
+                                formMerchant={formMerchant}
+                                isSubmitting={isSubmitting} // atau formMerchant.formState.isSubmitting
+                                currentSection={currentSection}
+                                setCurrentSection={setCurrentSection}
+                                onSubmitMerchant={onSubmitMerchant}
+                                loading={loading}
+                                area={{
+                                    provinces,
+                                    regencies,
+                                    districts,
+                                    villages,
+                                }}
+                                selectedProvince={selectedProvince}
+                                setSelectedProvince={setSelectedProvince}
+                                selectedRegency={selectedRegency}
+                                setSelectedRegency={setSelectedRegency}
+                                selectedDistrict={selectedDistrict}
+                                setSelectedDistrict={setSelectedDistrict}
+                                openSearch={openSearch}
+                                setOpenSearch={setOpenSearch}
+                                mcc={mcc}
+                                setMcc={setMcc}
+                            />
 
-                                                            <div className="flex sm:flex-row flex-col items-center w-full gap-5 mt-5 m-auto">
-                                                                {/* Tombol Laki - Laki */}
-                                                                <Button
-                                                                    type="button"
-                                                                    className={`${field.value === "Laki - Laki" ? 'bg-orange-500' : 'bg-gray-100 text-black'} transition-all px-6 py-2 text-lg w-full`}
-                                                                    onClick={() => field.onChange("Laki - Laki")}
-                                                                >
-                                                                    Laki - Laki
-                                                                </Button>
-
-                                                                {/* Tombol Perempuan */}
-                                                                <Button
-                                                                    type="button"
-                                                                    className={`${field.value === "Perempuan" ? 'bg-orange-500' : 'bg-gray-100 text-black'} transition-all px-6 py-2 text-lg w-full`}
-                                                                    onClick={() => field.onChange("Perempuan")}
-                                                                >
-                                                                    Perempuan
-                                                                </Button>
-                                                            </div>
-                                                        </div>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formUser.control}
-                                            name="dateOfBirth"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormLabel>Tanggal Lahir</FormLabel>
-
-                                                    <FormControl>
-                                                        <Input
-                                                            data-aos="fade-up"
-                                                            data-aos-delay="300"
-                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                            type="date"
-                                                            {...field}
-                                                            value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value || ''}
-                                                            onChange={(e) => field.onChange(e.target.value)}  // Ensure the value is updated as a string
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formUser.control}
-                                            name="email"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <div data-aos="fade-up" data-aos-delay="400">
-                                                        <FormControl>
-                                                            <Input
-                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                                placeholder="nama@gmail.com"
-                                                                {...field}
-                                                                onChange={(e) => field.onChange(e.target.value.toLowerCase())}
-                                                            />
-                                                        </FormControl>
-                                                        <p className="text-gray-500 text-xs mt-2 italic">Mohon pastikan email Anda aktif.</p>
-                                                    </div>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formUser.control}
-                                            name="phoneNumber"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <div data-aos="fade-up" data-aos-delay="500">
-                                                        <FormControl>
-                                                            <Input
-                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                                type="tel"
-                                                                placeholder="0812..."
-                                                                {...field}
-                                                                onChange={(e) => {
-                                                                    // Validasi manual untuk panjang dan hanya angka
-                                                                    const value = e.target.value.replace(/\D/g, '').slice(0, 15);
-                                                                    field.onChange(value);
-                                                                }}
-                                                            />
-                                                        </FormControl>
-
-                                                        <p className="text-xs italic text-gray-500 mt-2">Pastikan nomor HP Anda aktif.</p>
-                                                    </div>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            name="photo"
-                                            control={formUser.control}
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <div data-aos="fade-up" data-aos-delay="600">
-                                                            <p className="font-semibold mb-2">
-                                                                Foto Profil
-                                                            </p>
-
-                                                            <input
-                                                                {...field}
-                                                                type="file"
-                                                                id="fileInput"
-                                                                accept="image/*"
-                                                                className="hidden" // Sembunyikan input file bawaan
-                                                                onChange={(e) => {
-                                                                    const file = e.target.files ? e.target.files[0] : null;
-
-                                                                    if (file) {
-                                                                        if (file.size > 2 * 1024 * 1024) {
-                                                                            setShowNotification(true)
-                                                                            setErrorMessage('File poto profil melebihi 2MB');
-                                                                            setIsPhotoUploaded(false)
-                                                                            return;
-                                                                        }
-
-                                                                        const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
-                                                                        if (!validImageTypes.includes(file.type)) {
-                                                                            setShowNotification(true)
-                                                                            setErrorMessage('Tipe file tidak valid. Silakan unggah gambar (JPEG, PNG, atau GIF).');
-                                                                            setIsPhotoUploaded(false)
-                                                                            return;
-                                                                        }
-
-                                                                        setIsPhotoUploaded(true)
-                                                                        field.onChange(file);
-                                                                    } else {
-                                                                        field.onChange(null);
-                                                                    }
-                                                                }}
-                                                                value=""
-                                                            />
-                                                            <label
-                                                                htmlFor="fileInput"
-                                                                className="w-full bg-[#F4F4F4] font-sans font-semibold p-2 rounded-lg inline-flex items-center justify-between cursor-pointer"
-                                                            >
-                                                                <span className="text-gray-500">
-                                                                    {field.value
-                                                                        ? (field.value instanceof File ? field.value.name : field.value)
-                                                                        : "Tidak ada foto yang dipilih"}
-                                                                </span>
-                                                                <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded">
-                                                                    Pilih Foto
-                                                                </span>
-                                                            </label>
-
-
-                                                            {isPhotoUploaded && <p className="text-xs text-green-500 mt-2">Photo berhasil diupload.</p>}
-                                                        </div>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formUser.control}
-                                            name='password'
-                                            render={({ field }) => (
-                                                <FormItem className='w-full'>
-                                                    <div data-aos="fade-up" className='flex items-center relative'>
-                                                        <FormControl>
-                                                            <Input
-                                                                className='w-full font-sans font-semibold p-3 border bg-[#F4F4F4] border-gray-300 rounded-md'
-                                                                placeholder='Password'
-                                                                type={showPassword ? 'text' : 'password'}
-                                                                {...field}
-                                                            />
-                                                        </FormControl>
-
-                                                        <button onClick={() => setShowPassword(!showPassword)} type="button" className='absolute right-5'>{showPassword ? <EyeOff /> : <Eye />}</button>
-                                                    </div>
-
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formUser.control}
-                                            name='confirmPassword'
-                                            render={({ field }) => (
-                                                <FormItem className='w-full'>
-                                                    <div data-aos="fade-up" className='flex items-center relative'>
-                                                        <FormControl>
-                                                            <Input
-                                                                className='w-full font-sans font-semibold p-3 border bg-[#F4F4F4] border-gray-300 rounded-md'
-                                                                placeholder='Retype Password'
-                                                                type={showPasswordConfirm ? 'text' : 'password'}
-                                                                {...field}
-                                                            />
-                                                        </FormControl>
-
-                                                        <button onClick={() => setShowPasswordConfirm(!showPasswordConfirm)} type="button" className='absolute right-5'>{showPasswordConfirm ? <EyeOff /> : <Eye />}</button>
-                                                    </div>
-
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                    <div className="w-full flex justify-end mt-10">
-                                        <Button
-                                            data-aos="fade-up"
-                                            className={`${currentSection === 0 ? 'flex' : 'hidden'} font-sans font-semibold bg-[#7ED321] rounded-lg px-6 py-2 `}
-                                        >
-                                            Selanjutnya <ChevronRight />
-                                        </Button>
-                                    </div>
-                                </form>
-                            </Form>
-
-                            <Form {...formMerchant}>
-                                <form onSubmit={formMerchant.handleSubmit(onSubmitMerchant)}>
-                                    <div className={`${currentSection === 1 ? 'block' : 'hidden'} flex flex-col items-end w-full space-y-7`}>
-                                        <FormField
-                                            control={formMerchant.control}
-                                            name="typeBusinessEntity"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <div data-aos="fade-up" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                    <button className="">
-                                                                        {field.value || "Tipe Usaha"} {/* Display selected value */}
-                                                                    </button>
-
-                                                                    <ChevronDown />
-                                                                </div>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max">
-                                                                <DropdownMenuSeparator />
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Perorangan")} className="w-full">Perorangan</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("CV")} className="w-full">CV</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Koperasi")} className="w-full">Koperasi</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Firma")} className="w-full">Firma</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Perseroan Terbatas")} className="w-full">Perseroan Terbatas</DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formMerchant.control}
-                                            name="merchantName"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <Input data-aos="fade-up" data-aos-delay="100" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Merchant" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formMerchant.control}
-                                            name="merchantAddress"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Alamat Merchant" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formMerchant.control}
-                                            name="merchantProvince"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <div data-aos="fade-up" data-aos-delay="200" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                    <button type="button">
-                                                                        {field.value || "Pilih Provinsi"}
-                                                                    </button>
-                                                                    <ChevronDown />
-                                                                </div>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max max-h-64 overflow-y-auto">
-                                                                {loading ? (
-                                                                    <div>Loading...</div>
-                                                                ) : (
-                                                                    provinces.map((province) => (
-                                                                        <DropdownMenuItem
-                                                                            key={province.id}
-                                                                            onSelect={() => {
-                                                                                field.onChange(province.name); // Store name instead of id
-                                                                                setSelectedProvince(province.id); // Keep ID for fetching dependent data
-                                                                                // Reset dependent fields
-                                                                                formMerchant.setValue('merchantRegency', '');
-                                                                                formMerchant.setValue('merchantDistrict', '');
-                                                                                formMerchant.setValue('merchantVillage', '');
-                                                                                setSelectedRegency(null);
-                                                                                setSelectedDistrict(null);
-                                                                            }}
-                                                                        >
-                                                                            {province.name}
-                                                                        </DropdownMenuItem>
-                                                                    ))
-                                                                )}
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={formMerchant.control}
-                                            name="merchantRegency"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <div
-                                                                    data-aos="fade-up" data-aos-delay="300"
-                                                                    className={`p-3 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4]`}
-                                                                >
-                                                                    <button
-                                                                        disabled={!selectedProvince}
-                                                                        className="w-full text-left"
-                                                                        type="button"
-                                                                        style={{ pointerEvents: !selectedProvince ? "none" : "auto" }}
-                                                                    >
-                                                                        {field.value || "Pilih Kota"}
-                                                                    </button>
-                                                                    <ChevronDown />
-                                                                </div>
-                                                            </DropdownMenuTrigger>
-                                                            {selectedProvince && (
-                                                                <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max max-h-64 overflow-y-auto">
-                                                                    {loading ? (
-                                                                        <div>Loading...</div>
-                                                                    ) : (
-                                                                        regencies.map((regency) => (
-                                                                            <DropdownMenuItem
-                                                                                key={regency.id}
-                                                                                onSelect={() => {
-                                                                                    field.onChange(regency.name);
-                                                                                    setSelectedRegency(regency.id);
-                                                                                    // Reset dependent fields
-                                                                                    formMerchant.setValue('merchantDistrict', '');
-                                                                                    formMerchant.setValue('merchantVillage', '');
-                                                                                    setSelectedDistrict(null);
-                                                                                }}
-                                                                            >
-                                                                                {regency.name}
-                                                                            </DropdownMenuItem>
-                                                                        ))
-                                                                    )}
-                                                                </DropdownMenuContent>
-                                                            )}
-                                                        </DropdownMenu>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formMerchant.control}
-                                            name="merchantDistrict"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <div
-                                                                    data-aos="fade-up" data-aos-delay="400"
-                                                                    className={`p-3 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4]`}
-                                                                >
-                                                                    <button
-                                                                        disabled={!selectedRegency}
-                                                                        className="w-full text-left"
-                                                                        type="button"
-                                                                        style={{ pointerEvents: !selectedRegency ? "none" : "auto" }}
-                                                                    >
-                                                                        {field.value || "Pilih Kecamatan"}
-                                                                    </button>
-                                                                    <ChevronDown />
-                                                                </div>
-                                                            </DropdownMenuTrigger>
-                                                            {selectedRegency && (
-                                                                <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max max-h-64 overflow-y-auto">
-                                                                    {loading ? (
-                                                                        <div>Loading...</div>
-                                                                    ) : (
-                                                                        districts.map((district) => (
-                                                                            <DropdownMenuItem
-                                                                                key={district.id}
-                                                                                onSelect={() => {
-                                                                                    field.onChange(district.name);
-                                                                                    setSelectedDistrict(district.id);
-                                                                                    formMerchant.setValue('merchantVillage', '');
-                                                                                }}
-                                                                            >
-                                                                                {district.name}
-                                                                            </DropdownMenuItem>
-                                                                        ))
-                                                                    )}
-                                                                </DropdownMenuContent>
-                                                            )}
-                                                        </DropdownMenu>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formMerchant.control}
-                                            name="merchantVillage"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <div
-                                                                    data-aos="fade-up" data-aos-delay="500"
-                                                                    className={`p-3 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4]`}
-                                                                >
-                                                                    <button
-                                                                        disabled={!selectedDistrict}
-                                                                        className="w-full text-left"
-                                                                        type="button"
-                                                                        style={{ pointerEvents: !selectedDistrict ? "none" : "auto" }}
-
-                                                                    >
-                                                                        {field.value || "Pilih Kelurahan"}
-                                                                    </button>
-                                                                    <ChevronDown />
-                                                                </div>
-                                                            </DropdownMenuTrigger>
-                                                            {selectedDistrict && ( // Render menu content only if `selectedDistrict` is valid
-                                                                <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max max-h-64 overflow-y-auto">
-                                                                    {loading ? (
-                                                                        <div>Loading...</div>
-                                                                    ) : (
-                                                                        villages.map((village) => (
-                                                                            <DropdownMenuItem
-                                                                                key={village.id}
-                                                                                onSelect={() => {
-                                                                                    field.onChange(village.name); // Store name instead of id
-                                                                                }}
-                                                                            >
-                                                                                {village.name}
-                                                                            </DropdownMenuItem>
-                                                                        ))
-                                                                    )}
-                                                                </DropdownMenuContent>
-                                                            )}
-                                                        </DropdownMenu>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formMerchant.control}
-                                            name="postalCode"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <Input
-                                                            data-aos="fade-up"
-                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                            type="number"
-                                                            placeholder="Kode Pos"
-                                                            {...field}
-                                                            onInput={(e) => {
-                                                                const value = (e.target as HTMLInputElement).value;
-                                                                if (value.length > 5) {
-                                                                    (e.target as HTMLInputElement).value = value.slice(0, 5); // Limit to 5 digits
-                                                                }
-                                                            }}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formMerchant.control}
-                                            name="merchantCategory"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <div data-aos="fade-up" data-aos-delay="600" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                                    <button type="button" className="">
-                                                                        {field.value || "Kategori Usaha"} {/* Display selected value */}
-                                                                    </button>
-
-                                                                    <ChevronDown />
-                                                                </div>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full">
-                                                                <DropdownMenuLabel>Category</DropdownMenuLabel>
-                                                                <DropdownMenuSeparator />
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Makanan & Minuman")} className="w-full">Makanan & Minuman</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Fashion & Aksesori")} className="w-full">Fashion & Aksesori</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Elektronik & Gadget")} className="w-full">Elektronik & Gadget</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Kesehatan & Kecantikan")} className="w-full">Kesehatan & Kecantikan</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Rumah & Dekorasi")} className="w-full">Rumah & Dekorasi</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Otomotif")} className="w-full">Otomotif</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Hobi & Hiburan")} className="w-full">Hobi & Hiburan</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Jasa & Layanan")} className="w-full">Jasa & Layanan</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Bahan Pokok & Grosir")} className="w-full">Bahan Pokok & Grosir</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Teknologi & Digital")} className="w-full">Teknologi & Digital</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={() => field.onChange("Lainnya")} className="w-full">Lainnya</DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formMerchant.control}
-                                            name="phoneNumberMerchant"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <Input
-                                                            data-aos="fade-up"
-                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                            type="tel"
-                                                            placeholder="0812..."
-                                                            {...field}
-                                                            onChange={(e) => {
-                                                                // Validasi manual untuk panjang dan hanya angka
-                                                                const value = e.target.value.replace(/\D/g, '').slice(0, 15);
-                                                                field.onChange(value);
-                                                            }}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={formMerchant.control}
-                                            name="merchantEmail"
-                                            render={({ field }) => (
-                                                <FormItem className="w-full">
-                                                    <FormControl>
-                                                        <Input
-                                                            data-aos="fade-up"
-                                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                                            placeholder="Email Merchant"
-                                                            {...field}
-                                                            onChange={(e) => field.onChange(e.target.value.toLowerCase())}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-
-                                    <div data-aos="fade-up" className="flex items-center w-full justify-between gap-5">
-                                        <Button type="button" onClick={() => { setCurrentSection(0) }} className={`${currentSection === 1 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-orange-400 hover:bg-orange-400 rounded-lg`}> <ChevronLeft /> Kembali</Button>
-                                        <Button
-                                            type="submit"
-                                            disabled={isSubmitting}
-                                            className={`${currentSection === 1 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] hover:bg-[#7ED321] rounded-lg `}> <Save /> Kirim </Button>
-                                    </div>
-                                </form>
-                            </Form>
+                            <FormPengajuanQris
+                                formSubmissionQRIS={formSubmissionQRIS}
+                                onSubmitSubmissionQRIS={onSubmitSubmissionQRIS}
+                                currentSection={currentSection}
+                                setCurrentSection={setCurrentSection}
+                                setShowNotification={setShowNotification}
+                                setErrorMessage={setErrorMessage}
+                                isSubmitting={isSubmitting}
+                                merchant_type={formMerchant.getValues("typeBusinessEntity")}
+                                updateDoc={updateDoc}
+                                setUpdateDoc={setUpdateDoc}
+                            />
                         </div>
 
                         <OTP currentSection={currentSection} setCreatePin={setCreatePin} phone={phone} />
@@ -1102,8 +641,9 @@ const Signup = () => {
                     )}
                     {isSubmitting && <Loading />}
                     {createPin && <PinInput email={formMerchant.getValues("merchantEmail")} />}</div>
-            )}
-        </div>
+            )
+            }
+        </div >
     )
 }
 

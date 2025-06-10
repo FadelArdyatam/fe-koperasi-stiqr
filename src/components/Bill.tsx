@@ -63,6 +63,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
             });
             return response.data; // optional return
         } catch (error: any) {
+            console.log("Error validating PIN and balance:", error);
             // Melempar error agar bisa ditangani di tempat lain (misalnya di handlePaymentQris)
             throw error;
         }
@@ -107,9 +108,13 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
             }
 
             throw new Error("NOBU gagal tanpa response valid");
-        } catch (error) {
-            alert("Gagal melakukan pembayaran,coba beberapa saat lagi");
-            navigate("/dashboard");
+        } catch (error: any) {
+            if (error.response && error.response.status >= 500) {
+                alert('Pembayaran Gagal, coba beberapa saat lagi');
+                navigate("/dashboard");
+            } else {
+                setError(error.response?.data?.message || "Terjadi Kesalahan");
+            }
 
             // --- Fallback Finpay DISABLED sesuai permintaan ---
             /*

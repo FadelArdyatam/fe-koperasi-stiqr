@@ -72,6 +72,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
     const [isActiveQris, setIsActiveQris] = useState(false)
     const [loading, setLoading] = useState(false)
     const [qrisStaticUrl, setQrisStaticUrl] = useState("")
+    const [subMerchantId, setSubMerchantId] = useState<string>("");
     useEffect(() => {
         const checkQris = async () => {
             setLoading(true)
@@ -80,6 +81,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                 if (check.data.success) {
                     setIsActiveQris(true)
                     setQrisStaticUrl(check.data.data.image_qris)
+                    setSubMerchantId(check.data.data.subMerchantId)
                 } else {
                     setIsQrisStatic(false)
                 }
@@ -517,7 +519,10 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                                 </h2>
                             </div>
                         ) : isQrisStatic ? (
-                            <QRCodeStatic url={qrisStaticUrl} setIsQrisStatic={setIsQrisStatic} />
+                            <QRCodeStatic
+                                url={qrisStaticUrl}
+                                setIsQrisStatic={setIsQrisStatic}
+                                subMerchantId={subMerchantId} />
                         ) : (
                             <>
                                 <div className="flex md:flex-row flex-col items-center gap-3 bg-blue-50 px-2 py-3 rounded-md shadow-sm border border-blue-200 mb-3">

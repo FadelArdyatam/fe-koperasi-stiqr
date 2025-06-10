@@ -403,7 +403,7 @@ const EditProduct: React.FC<EditProductProps> = ({
 
         console.log("Merged Data:", mergedData);
 
-        const update = await axiosInstance.patch(`/product/${editIndex}/allProduct`, mergedData, {
+        const update = await axiosInstance.patch(`/product/${editIndex}/update`, mergedData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },

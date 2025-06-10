@@ -17,7 +17,7 @@ interface OTPProps {
 	phone: string;
 }
 
-const OTP = ({ currentSection, setCreatePin, phone }: OTPProps) => {
+const   OTP = ({ currentSection, setCreatePin, phone }: OTPProps) => {
 	const [value, setValue] = useState("");
 	// const [phoneNumber, setPhoneNumber] = useState("");
 	const [codeSent, setCodeSent] = useState(false);
@@ -147,7 +147,7 @@ const OTP = ({ currentSection, setCreatePin, phone }: OTPProps) => {
 	return (
 		<div className="mt-10">
 			<div
-				className={`${currentSection === 2 ? "block" : "hidden"
+				className={`${currentSection === 3 ? "block" : "hidden"
 					} flex flex-col w-full space-y-7`}
 			>
 				<p data-aos="fade-up" className="font-semibold text-xl text-center">

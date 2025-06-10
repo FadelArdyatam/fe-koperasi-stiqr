@@ -9,16 +9,17 @@ import { useNavigate } from 'react-router-dom'
 interface QRCodeStaticProps {
     url: string;
     setIsQrisStatic: (value: boolean) => void;
+    subMerchantId: string;
 }
 
-export const QRCodeStatic = ({ url, setIsQrisStatic }: QRCodeStaticProps) => {
+export const QRCodeStatic = ({ url, setIsQrisStatic, subMerchantId }: QRCodeStaticProps) => {
 
     const navigate = useNavigate()
     useEffect(() => {
         const socket = getSocket()
 
         const handlePaymentSuccess = (data: ({ subMerchantId: string; status: string; amount?: number })) => {
-            if (data.subMerchantId === '25032500000004' && data.status === 'SUCCESS') {
+            if (data.subMerchantId === subMerchantId && data.status === 'SUCCESS') {
                 const audio = new Audio(successAudio)
                 audio.play()
                 navigate('/payment-success', {
