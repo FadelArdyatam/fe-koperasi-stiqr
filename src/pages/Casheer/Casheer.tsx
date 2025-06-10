@@ -2,9 +2,9 @@ import DetailProduct from "@/pages/Casheer/DetailProduct"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import axiosInstance from "@/hooks/axiosInstance"
-import { ArrowLeft, Search, SlidersHorizontal, ShoppingBasket, X } from "lucide-react"
+import { ArrowLeft, Search, SlidersHorizontal, ShoppingBasket, X, Wrench } from "lucide-react"
 import { useEffect, useState, useCallback, useRef } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import takeAway from "../../images/take-away.png"
 import dineIn from "../../images/bayar-sekarang.png"
 import OrderSummary from "./OrderSummary"
@@ -14,6 +14,7 @@ import noProduct from '../../images/no-product.png'
 import { formatRupiah } from "@/hooks/convertRupiah"
 
 const Casheer = () => {
+    const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('')
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -57,7 +58,7 @@ const Casheer = () => {
                             product: product.product_name,
                             quantity: 1,
                             price: product.product_price,
-                            notes: "",
+                            notes: product.notes,
                             date: new Date().toLocaleString(),
                             detail_variant: [],
                             service: showService?.service,
@@ -244,10 +245,6 @@ const Casheer = () => {
         )
         : [];
 
-    console.log("Filtered Products:", filteredProducts);
-
-    console.log("Basket:", basket);
-
     return (
         <>
             <div className={`${showDetailProduct || showService.service !== null ? 'hidden' : 'flex'} w-full pb-32 flex-col min-h-screen items-center bg-orange-50`}>
@@ -259,7 +256,12 @@ const Casheer = () => {
                             <p data-aos="zoom-in" className="font-semibold text-2xl">Kasir</p>
                         </div>
 
-                        <Link data-aos="zoom-in" data-aos-delay="100" to={"/qr-code"} className={`bg-orange-100 rounded-full text-orange-500 p-2`}>+ Input Manual</Link>
+                        <Button data-aos="zoom-in" data-aos-delay="100"
+                            onClick={() => navigate('/qr-code', {
+                                state: {
+                                    isManual: true,
+                                }
+                            })} className={`bg-orange-100 rounded-full text-orange-500 p-2`}>+ Input Manual</Button>
                     </div>
 
                     <div data-aos="zoom-in" data-aos-delay="200" className="mt-10 relative">
@@ -672,23 +674,35 @@ const Casheer = () => {
                             <p className="font-semibold text-2xl">Pilih Layanan</p>
 
                             <div className="mt-5 flex gap-5">
-                                <Button onClick={() => setShowService({ show: true, service: "Pay Later" })} className="w-full h-40 bg-orange-100 rounded-xl text-orange-500 p-5 flex flex-col
-                                ">
-                                    <img className="w-16 h-16 block" src={dineIn} alt="" />
+                                {/* Bayar Nanti - Disabled */}
+                                <div className="relative w-full h-40">
+                                    <Button
+                                        className="w-full h-full bg-orange-100 rounded-xl text-orange-500 p-5 flex flex-col items-center justify-center blur-[2px] cursor-not-allowed"
+                                        disabled
+                                    >
+                                        <img className="w-16 h-16 block" src={dineIn} alt="" />
+                                        <p className="text-lg mt-3 text-wrap">Bayar Nanti</p>
+                                    </Button>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <p className="bg-orange-500 flex gap-2 p-2 font-semibold text-center shadow-md text-white bg-opacity-90 px-3 py-1 rounded">
+                                            <Wrench />   Fitur ini akan segera hadir
+                                        </p>
+                                    </div>
+                                </div>
 
-                                    <p className="text-lg mt-3 text-wrap">Bayar Nanti</p>
-                                </Button>
-
-                                <Button onClick={() => setShowService({ show: true, service: "Pay Now" })} className="w-full h-40 bg-orange-100 rounded-xl text-orange-500 p-5 flex flex-col
-                                ">
+                                {/* Bayar Sekarang - Active */}
+                                <Button
+                                    onClick={() => setShowService({ show: true, service: "Pay Now" })}
+                                    className="w-full h-40 bg-orange-100 rounded-xl text-orange-500 p-5 flex flex-col items-center justify-center"
+                                >
                                     <img className="w-16 h-16 block" src={takeAway} alt="" />
-
                                     <p className="text-lg mt-3">Bayar Sekarang</p>
                                 </Button>
                             </div>
                         </div>
                     </div>
                 )}
+
             </div>
 
             {showDetailProduct && <DetailProduct product={selectedProduct} setShowDetailProduct={setShowDetailProduct} basket={basket} setBasket={setBasket} showService={showService} />}

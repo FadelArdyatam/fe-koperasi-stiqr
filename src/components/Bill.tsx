@@ -7,7 +7,6 @@ import { formatRupiah } from '@/hooks/convertRupiah';
 import InprogressPPOB from './InprogressPPOB';
 import QRCodePage from '@/pages/QRCode';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 
 interface BillProps {
@@ -64,6 +63,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
             });
             return response.data; // optional return
         } catch (error: any) {
+            console.log("Error validating PIN and balance:", error);
             // Melempar error agar bisa ditangani di tempat lain (misalnya di handlePaymentQris)
             throw error;
         }
@@ -78,23 +78,19 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
             // Validasi PIN dan saldo
             await validatePinBalance(userData.merchant.id, pin.join(''), amountToPay);
 
-            // Jika berhasil, lanjut ke payment
-            const requestBody = {
-                email: userData.email,
-                firstName: userData.merchant.name,
-                lastName: userData.username,
-                mobilePhone: userData.phone_number.replace(/^08/, '+628'),
-                amount: amountToPay,
-                description: "Pembayaran Pesanan",
-                successUrl: "http://success",
-                type: "qris",
-                orderId: orderIdQris,
+            // --- NOBU PAYMENT ---
+            const nobuRequest = {
+                partnerReferenceNo: orderIdQris,
+                amount: {
+                    value: `${amountToPay}.00`,
+                    currency: "IDR"
+                },
             };
 
-            const response = await axiosInstance.post(`/finpay/initiate`, requestBody);
+            const initiateHooks = await axiosInstance.post("/nobu/generate-qris/v1.2/qr/qr-mpm-generate/", nobuRequest);
 
-            if (response.data?.response?.stringQr) {
-                setStringQR(response.data.response.stringQr);
+            if (initiateHooks.data && initiateHooks.data.qrContent) {
+                setStringQR(initiateHooks.data.qrContent);
                 setShowQRCode(true);
 
                 const timer = setInterval(() => {
@@ -110,17 +106,85 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
 
                 return () => clearInterval(timer);
             }
+
+            throw new Error("NOBU gagal tanpa response valid");
         } catch (error: any) {
-            if (axios.isAxiosError(error)) {
-                const message = error.response?.data?.message;
-                setError(message || "Gagal Melakukan Pembayaran");
+            if (error.response && error.response.status >= 500) {
+                alert('Pembayaran Gagal, coba beberapa saat lagi');
+                navigate("/dashboard");
             } else {
-                setError("Terjadi kesalahan yang tidak diketahui");
+                setError(error.response?.data?.message || "Terjadi Kesalahan");
             }
+
+            // --- Fallback Finpay DISABLED sesuai permintaan ---
+            /*
+            try {
+                await validatePinBalance(userData.merchant.id, pin.join(''), total + Number(marginFee));
+    
+                // --- FINPAY PAYMENT ---
+                const requestBody = {
+                    email: userData.email,
+                    firstName: userData.merchant.name,
+                    lastName: userData.username,
+                    mobilePhone: userData.phone_number.replace(/^08/, '+628'),
+                    amount: total + Number(marginFee),
+                    description: "Pembayaran Pesanan",
+                    successUrl: "http://success",
+                    type: "qris",
+                    orderId: orderIdQris,
+                };
+    
+                const response = await axiosInstance.post(`/finpay/initiate`, requestBody);
+                console.log(response);
+    
+                if (response.data && response.data.response?.stringQr) {
+                    setStringQR(response.data.response.stringQr);
+                    setShowQRCode(true);
+    
+                    const timer = setInterval(() => {
+                        setTimeLeft(prevTime => {
+                            if (prevTime <= 1) {
+                                clearInterval(timer);
+                                navigate("/dashboard");
+                                return 0;
+                            }
+                            return prevTime - 1;
+                        });
+                    }, 1000);
+    
+                    return () => clearInterval(timer);
+                }
+    
+                throw new Error("Finpay gagal tanpa response valid");
+            } catch (finpayError) {
+                console.error("Finpay juga gagal:", finpayError);
+                setError("Gagal membuat link pembayaran dari NOBU maupun Finpay. Mohon coba lagi nanti.");
+            }
+            */
         } finally {
             setLoading(false);
         }
     };
+
+    const [isActiveQris, setIsActiveQris] = useState<boolean>(false);
+    useEffect(() => {
+        const checkQris = async () => {
+            setLoading(true)
+            try {
+                const check = await axiosInstance.get('/merchant/check-qris')
+                if (check.data.success) {
+                    setIsActiveQris(true)
+                }
+            } catch (error) {
+                setIsActiveQris(false)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        checkQris()
+    }, []);
+
 
 
     const handleSubmitPin = async () => {
@@ -295,7 +359,7 @@ const Bill: React.FC<BillProps> = ({ data, marginTop, marginFee = 0 }) => {
                                     >
                                         <option selected hidden>Pilih Metode Pembayaran</option>
                                         <option value="tunai">Tunai</option>
-                                        <option value="qris">QRIS</option>
+                                        <option value="qris" hidden={!isActiveQris}>QRIS</option>
                                     </select>
                                 </div>
                             </>

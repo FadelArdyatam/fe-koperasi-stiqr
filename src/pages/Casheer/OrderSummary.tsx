@@ -55,8 +55,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
         AOS.init({ duration: 500, once: true });
     }, []);
 
-    console.log("Show Service: ", showService);
-
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
 
@@ -164,10 +162,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 quantity: item.quantity,
                 price: item.price,
                 subtotal: (item.price) * (item.quantity),
-                detail_variants: item.detail_variants
+                detail_variants: item.detail_variants,
+                notes: item.notes,
             }));
 
-            console.log("Modify Basket: ", modifyBasket);
 
             const generateRandomString = (length = 10) => {
                 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -177,7 +175,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
             const generateOrderId = `S${generateRandomString(15)}`;
 
             setOrderId(generateOrderId)
-            console.log(selectedCustomer)
 
             const requestBody = {
                 customer: {
@@ -210,13 +207,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 setTagih(true)
             }
         } catch (error: any) {
-            if (error.response) {
-                console.error('Response error:', error.response.data);
-            } else if (error.request) {
-                console.error('Request error:', error.request);
-            } else {
-                console.error('Setup error:', error.message);
-            }
+            
             setLoading(false)
         }
     };

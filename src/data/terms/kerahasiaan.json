@@ -1,0 +1,58 @@
+[
+  {
+    "text": "Merchant/Pengguna memiliki hak untuk mengubah nama Merchant/Pengguna sesuai dengan kebijakan yang berlaku di STIQR. Merchant/Pengguna bertanggung jawab sepenuhnya atas perubahan tersebut, dan segala tindakan hukum yang terjadi sebelum perubahan nama tetap berlaku."
+  },
+  {
+    "text": "STIQR/DNS tidak akan pernah meminta username, PIN, kata sandi, kode verifikasi SMS, atau kode OTP untuk alasan apa pun. Merchant/Pengguna diwajibkan untuk tidak memberikan informasi tersebut kepada pihak manapun, termasuk pihak yang mengatasnamakan STIQR/DNS atau pihak lain yang tidak memiliki verifikasi keamanan."
+  },
+  {
+    "text": "STIQR tidak bertanggung jawab atas kerugian yang timbul akibat kelalaian Merchant/Pengguna dalam menjaga keamanan akun. Kelalaian tersebut meliputi namun tidak terbatas pada: ",
+    "list": [
+      "Memberikan akses akun kepada pihak lain.",
+      "Mengakses tautan mencurigakan dari sumber yang tidak dikenal.",
+      "Membagikan kode OTP, PIN, kata sandi, atau informasi akun lainnya kepada pihak lain."
+    ]
+  },
+  {
+    "text": "Merchant/Pengguna wajib menjamin keaslian dan keabsahan seluruh informasi serta dokumen yang disampaikan selama proses pendaftaran."
+  },
+  {
+    "text": "Merchant/Pengguna menyetujui bahwa STIQR memiliki hak untuk memberikan informasi yang disampaikan kepada pihak ketiga untuk keperluan verifikasi atau proses lain yang berkaitan dengan pendaftaran."
+  },
+  {
+    "text": "Merchant/Pengguna memberikan izin kepada STIQR untuk mengumpulkan, menyimpan, dan mengelola data pendaftaran serta data transaksi yang dilakukan di dalam sistem STIQR."
+  },
+  {
+    "text": "Merchant/Pengguna menyetujui dan memberikan wewenang kepada STIQR untuk memberikan informasi atau data kepada pihak ketiga yang bekerja sama dengan STIQR guna mendukung operasional dan keamanan layanan."
+  },
+  {
+    "text": "STIQR berkomitmen untuk melindungi data pribadi Merchant/Pengguna sesuai dengan peraturan perundang-undangan yang berlaku di Indonesia."
+  },
+  {
+    "text": "Merchant/Pengguna memahami dan menyetujui bahwa STIQR berhak untuk meminta dokumen administratif tambahan kapanpun selama Merchant/Pengguna menggunakan platform STIQR dan layanan yang tersedia. Merchant/Pengguna wajib menyerahkan dokumen tersebut melalui metode yang ditentukan oleh STIQR, termasuk namun tidak terbatas pada pengunggahan dokumen melalui platform STIQR atau metode lain yang diinformasikan oleh STIQR."
+  },
+  {
+    "text": "Salah satu Pihak dapat menyampaikan Informasi Rahasia kepada Pihak lainnya sesuai dengan Ketentuan Pemakaian STIQR ini. Kedua Pihak sepakat bahwa pengungkapan, penerimaan, dan pemanfaatan Informasi Rahasia tersebut akan dilakukan sesuai dengan ketentuan yang diatur dalam pasal ini."
+  },
+  {
+    "text": "Semua Informasi Rahasia dan data yang berkaitan dengan Ketentuan Pemakaian STIQR yang diterima oleh Para Pihak harus dijaga kerahasiaannya. Para Pihak sepakat untuk tidak mengungkapkan atau memberikan data tersebut, baik sebagian maupun seluruhnya, kepada pihak ketiga mana pun, kecuali dalam keadaan sebagai berikut:",
+    "list": [
+      "Dengan persetujuan tertulis dari Pihak lainnya.",
+      "Pengungkapan kepada pegawai, bank, konsultan finansial, konsultan hukum, atau pihak lain yang terkait dengan Ketentuan Pemakaian STIQR ini.",
+      "Informasi tersebut telah menjadi informasi publik yang bukan diakibatkan oleh pelanggaran atau kelalaian Pihak penerima informasi.",
+      "Pengungkapan berdasarkan perintah pengadilan atau proses arbitrase yang berlaku. ",
+      "Pengungkapan oleh STIQR kepada afiliasi, penyedia layanan, atau pihak lain yang bekerja sama dengan STIQR untuk mendukung penyediaan aplikasi STIQR dan/atau layanan, serta untuk menawarkan produk atau layanan lain dari STIQR."
+    ]
+  },
+  {
+    "text": "Merchant/Pengguna memberikan persetujuan bahwa STIQR memiliki hak untuk: ",
+    "list": [
+      "Mengungkapkan semua data dan Informasi Rahasia kepada vendor, subkontraktor, agen, atau konsultan yang terlibat dalam pelaksanaan Ketentuan Pemakaian STIQR ini.",
+      "Mengelola serta memanfaatkan data Merchant/Pengguna untuk:"
+    ],
+    "sublist": [
+      "Meningkatkan layanan yang disediakan oleh STIQR, afiliasi, atau penyedia layanan, termasuk dalam sistem deteksi penipuan, pengembangan aturan penipuan, dan kebutuhan audit korporasi.",
+      "Menawarkan produk dan/atau layanan dari STIQR, afiliasi, atau penyedia layanan lainnya kepada Merchant/Pengguna."
+    ]
+  }
+]

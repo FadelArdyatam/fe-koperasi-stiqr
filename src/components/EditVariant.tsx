@@ -70,6 +70,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
     const [showChoice, setShowChoice] = useState(false);
     const [showError, setShowError] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
+    const [loadingSubmit, setLoadingSubmit] = useState(false);
 
     useEffect(() => {
         const choises = variantToEdit?.detail_variant.map((item: any) => ({
@@ -127,7 +128,9 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
             z.object({
                 detail_variant_id: z.string().optional().nullable(),
                 name: z.string().nonempty("Nama pilihan wajib diisi"),
-                price: z.number().positive("Harga harus positif"),
+                price: z.number().refine((val) => val >= 0, {
+                    message: "Harga tidak boleh negatif",
+                }),
                 show: z.boolean(),  // Tambahkan atribut show
             })
         ),
@@ -174,6 +177,8 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
 
     const deleteHandler = async () => {
         try {
+            setLoadingSubmit(true);
+
             console.log("Deleting variant with ID:", editIndex);
 
             const response = await axiosInstance.delete(
@@ -184,6 +189,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
 
             // Close the form modal
             setOpen({ id: "", status: false });
+            setLoadingSubmit(false);
             setReset(true);
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -195,7 +201,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
     }
 
     const addNewChoice = () => {
-        if (newChoiceName && newChoicePrice) {
+        if (newChoiceName && newChoicePrice !== "") {
             if (newChoicePrice < 0) {
                 setShowError(true);
                 return;
@@ -250,12 +256,21 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                     </div>
                 )}
 
+                {/* Loading */}
+                {loadingSubmit && (
+                    <div className="fixed top-0 bottom-0 left-0 right-0 z-20 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                    </div>
+                )}
+
                 {!loading && !error && (
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit((data) => {
+                                setLoadingSubmit(true);
                                 console.log("Form submitted with data:", data);
                                 onSubmit(data);
+                                setLoadingSubmit(false);
                             },
                                 (errors) => {
                                     console.error("Form validation errors:", errors);
@@ -334,8 +349,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
 
                                             <Input
                                                 className="mt-3"
-                                                inputMode="numeric"  // Menampilkan keyboard angka di mobile
-                                                pattern="[0-9]*"     // Mencegah karakter non-angka
+                                                inputMode="numeric"
                                                 type="text"
                                                 placeholder="Harga"
                                                 value={formatRupiah(newChoicePrice.toString())}
@@ -366,6 +380,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                                         <div className="flex items-center gap-5 mt-5">
                                             <Button
                                                 onClick={addNewChoice}
+                                                type="button"
                                                 className="bg-green-500 w-full"
                                             >
                                                 Simpan
@@ -389,7 +404,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                                 render={({ field }) => (
                                     <FormItem data-aos="fade-up" data-aos-delay={400}>
                                         <div className="flex items-center gap-5 justify-between">
-                                            <FormLabel>Harus Dipilih?</FormLabel>
+                                            <FormLabel>Apakah varian wajib dipilih ?</FormLabel>
                                             <FormControl>
                                                 <div
                                                     className={`w-14 h-8 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${field.value ? "bg-orange-400" : "bg-gray-300"
@@ -420,7 +435,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                                                     <input
                                                         type="radio"
                                                         value="single"
-                                                        defaultChecked={variantToEdit?.is_multiple === false ? true : false}
+                                                        checked={field.value === "single"}
                                                         onChange={() => field.onChange("single")}
                                                         className="mr-2"
                                                     />
@@ -431,7 +446,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                                                     <input
                                                         type="radio"
                                                         value="more"
-                                                        defaultChecked={variantToEdit?.is_multiple === true ? true : false}
+                                                        checked={field.value === "more"}
                                                         onChange={() => field.onChange("more")}
                                                         className="mr-2"
                                                     />
@@ -444,7 +459,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
                                 )}
                             />
 
-                            <Button data-aos="fade-up" data-aos-delay={500} type="submit" className="w-full bg-green-500 text-white">
+                            <Button data-aos="fade-up" data-aos-delay={500} type="submit" disabled={loadingSubmit ? true : false} className="w-full bg-green-500 text-white">
                                 Simpan Perubahan
                             </Button>
 

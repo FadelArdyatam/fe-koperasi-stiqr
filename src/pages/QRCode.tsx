@@ -1,5 +1,5 @@
 import { ChevronLeft, X, Banknote, Calculator, CircleAlert, CreditCard, FileText, Home, ScanQrCode, UserRound, Share, Info } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
 import { useRef, useState, useEffect } from "react";
 import QRCode from "react-qr-code";
@@ -22,6 +22,10 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { formatRupiah } from "@/hooks/convertRupiah";
 import CalculatorComponent from "@/components/CalculatorComponent";
+import { QRCodeStatic } from "./QRCodeStatic";
+import successAudio from '../images/sound.mp3';
+import noQris from '../images/no-qris.png'
+
 
 const payments = [visa, masterCard, gopay, ovo, dana, linkAja];
 
@@ -38,7 +42,15 @@ interface QRCodePageProps {
 
 const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQRCode, setShowQRCode, timeLeftOpenBill, dataAmount, sales_id }) => {
     const contentRef = useRef<HTMLDivElement>(null);
-    // const [showQRCode, setShowQRCode] = useState(false);
+    const location = useLocation();
+    const isManual = location.state?.isManual || false;
+
+    useEffect(() => {
+        if (isManual) {
+            console.log('Mode manual QR aktif');
+            setIsQrisStatic(false)
+        }
+    }, [isManual]);
     const [amount, setAmount] = useState("");
     const [keterangan, setKeterangan] = useState("")
     const [showOtherMethod, setShowOtherMethod] = useState(false);
@@ -57,6 +69,32 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
     const [orderIdInstant, setOrderIdInstant] = useState<string | null>(null)
+    const [isActiveQris, setIsActiveQris] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [qrisStaticUrl, setQrisStaticUrl] = useState("")
+    const [subMerchantId, setSubMerchantId] = useState<string>("");
+    useEffect(() => {
+        const checkQris = async () => {
+            setLoading(true)
+            try {
+                const check = await axiosInstance.get('/merchant/check-qris')
+                if (check.data.success) {
+                    setIsActiveQris(true)
+                    setQrisStaticUrl(check.data.data.image_qris)
+                    setSubMerchantId(check.data.data.subMerchantId)
+                } else {
+                    setIsQrisStatic(false)
+                }
+            } catch (error) {
+                setIsActiveQris(false)
+                setIsQrisStatic(false)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        checkQris()
+    }, []);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
@@ -73,7 +111,9 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
 
             const socket = getSocket();
             const handlePaymentSuccess = (data: { orderId: string; status: string; amount?: number }) => {
-                if ((orderId === data.orderId || orderIdInstant === data.orderId) && data.status === 'PAID') {
+                if ((orderId === data.orderId || orderIdInstant === data.orderId) && (data.status === 'PAID' || data.status === "SUCCESS")) {
+                    const audio = new Audio(successAudio)
+                    audio.play()
                     navigate('/payment-success', {
                         state: {
                             orderId: data.orderId ?? "dummy-order-id",
@@ -181,37 +221,44 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                 return Array.from({ length }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
             };
             const generateOrderId = `S${generateRandomString(15)}`;
+
+            const requestBody = {
+                email: userData.email,
+                firstName: userData.merchant.name,
+                lastName: userData.username,
+                mobilePhone: userData.phone_number.replace(/^08/, '+628'),
+                amount: amount,
+                description: "Pembayaran",
+                successUrl: "http://success",
+                type: "qris",
+                orderId: generateOrderId
+            };
+
+            const paymentQR = {
+                orderId: generateOrderId,
+                amount: amount,
+                keterangan: keterangan,
+                merchant_id: userData.merchant.id,
+            };
+
             try {
-                const requestBody = {
-                    email: userData.email,
-                    firstName: userData.merchant.name,
-                    lastName: userData.username,
-                    mobilePhone: userData.phone_number.replace(/^08/, '+628'),
-                    amount: amount,
-                    description: "Pembayaran",
-                    successUrl: "http://success",
-                    type: "qris",
-                    orderId: generateOrderId
+                // --- NOBU PAYMENT ---
+                const nobuRequest = {
+                    partnerReferenceNo: generateOrderId,
+                    amount: {
+                        value: `${amount}.00`,
+                        currency: "IDR"
+                    },
                 };
 
-                const paymentQR = {
-                    orderId: generateOrderId,
-                    amount: amount,
-                    keterangan: keterangan,
-                    merchant_id: userData.merchant.id,
-                }
+                const initiateHooks = await axiosInstance.post("/nobu/generate-qris/v1.2/qr/qr-mpm-generate/", nobuRequest);
+                await axiosInstance.post('/sales/payment-qr', paymentQR);
 
-                const initiateHooks = await axiosInstance.post("/finpay/initiate", requestBody);
-                const paymentQRHooks = await axiosInstance.post('/sales/payment-qr', paymentQR)
-
-                console.log(initiateHooks)
-                console.log(paymentQRHooks)
-
-                if (initiateHooks.data) {
-                    setStringQRInstant(initiateHooks.data.response.stringQr);
+                if (initiateHooks.data && initiateHooks.data.qrContent) {
+                    setStringQRInstant(initiateHooks.data.qrContent);
                     setDataForPaymentMethod(requestBody);
                     setShowQRInstant(true);
-                    setOrderIdInstant(generateOrderId)
+                    setOrderIdInstant(generateOrderId);
 
                     const timer = setInterval(() => {
                         setTimeLeft((prevTime) => {
@@ -225,18 +272,54 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     }, 1000);
 
                     return () => clearInterval(timer);
-                } else {
-                    alert("Gagal membuat link pembayaran. Mohon coba lagi.");
                 }
-            } catch (error) {
-                console.log(error)
-                console.log("Gagal membuat link pembayaran:", error);
-                alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
+
+                throw new Error("NOBU gagal tanpa response valid");
+
+            } catch (error: any) {
+                // alert(`${error.response.data.message}`);
+                setError({ show: true, message: error.response.data.message })
+                navigate('/qr-code');
+
+                // --- Fallback Finpay dinonaktifkan, tetap disimpan untuk referensi ---
+                /*
+                try {
+                    const initiateHooks = await axiosInstance.post("/finpay/initiate", requestBody);
+                    await axiosInstance.post('/sales/payment-qr', paymentQR);
+            
+                    if (initiateHooks.data && initiateHooks.data.response?.stringQr) {
+                        setStringQRInstant(initiateHooks.data.response.stringQr);
+                        setDataForPaymentMethod(requestBody);
+                        setShowQRInstant(true);
+                        setOrderIdInstant(generateOrderId);
+            
+                        const timer = setInterval(() => {
+                            setTimeLeft((prevTime) => {
+                                if (prevTime <= 1) {
+                                    clearInterval(timer);
+                                    navigate("/dashboard");
+                                    return 0;
+                                }
+                                return prevTime - 1;
+                            });
+                        }, 1000);
+            
+                        return () => clearInterval(timer);
+                    } else {
+                        alert("Gagal membuat link pembayaran. Mohon coba lagi.");
+                    }
+                } catch (finpayError) {
+                    alert("Gagal Melakukan Pembayaran. Silakan coba lagi nanti.");
+                    navigate('/booking');
+                }
+                */
             } finally {
                 setIsLoading(false);
             }
+
         }
     };
+
 
     const formatTime = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
@@ -273,10 +356,11 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
         }
     };
 
+    const [isQrisStatic, setIsQrisStatic] = useState(true);
 
     return (
         <>
-            {/* Tampilan QR Code */}
+
             <div className={`${(showQRCode || showQRInstant) && showPaymentMehodComponent === false ? 'block' : 'hidden'} w-full min-h-screen p-8 bg-orange-400`}>
                 <div className="flex items-center justify-between gap-5 w-full">
                     <AlertDialog>
@@ -375,7 +459,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
 
             {/* Input Jumlah Pembayaran */}
             <div className={`${(showQRCode || showQRInstant) || type !== '' ? "hidden" : "block"}`}>
-                <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
+                <div className={`fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400 ${isQrisStatic && !loading ? 'md:pb-56' : ''} `}>
                     <Link to={"/dashboard"} className="bg-transparent hover:bg-transparent">
                         <ChevronLeft className="scale-[1.3] text-white" />
                     </Link>
@@ -385,7 +469,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </p>
                 </div>
 
-                <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
+                <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-30">
                     <Link to={'/dashboard'} className="flex gap-3 flex-col items-center">
                         <Home />
 
@@ -419,59 +503,79 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </Link>
                 </div>
 
-                <div data-aos="fade-up" data-aos-delay="100" className="mt-28 w-[90%] shadow-lg m-auto p-5 rounded-lg bg-white">
-                    <div className="flex md:flex-row flex-col items-center gap-3 bg-blue-50 px-2 py-3 rounded-md shadow-sm border border-blue-200 mb-3">
-                        <div className="flex gap-2">
-                            <Info className="md:w-4 md:h-4 w-5 h-5 text-blue-500" />
-                            <p className="text-sm md:hidden block text-blue-500 font-semibold">Info</p>
-                        </div>
-                        <p className="text-xs text-gray-800">
-                            Saat ini nama tujuan rekening dari Qr Code masih dengan atas nama <span className="font-bold"> PT. Digital Nusantara Sinergi</span>. Pengguna dapat melakukan pengajuan pergantian NAMA dengan menghubungi <Link to={'/profile/help-center'} className="underline font-bold"> Customer Service</Link>
-                        </p>
+                {loading && (
+                    <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 w-full h-full flex items-center justify-center z-50">
+                        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
                     </div>
-                    <p className="text-gray-700 font-medium">Keterangan</p>
+                )}
 
-                    <div className="relative mt-3">
-                        <Input onChange={(e) => handleChange(e)} maxLength={50} type="text" className={`pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent `} />
-                        <div className="flex flex-row justify-between mt-2">
-                            <p className="text-xs text-gray-400 italic ">*Maksimal 50 karakter</p>
-                            <p className="text-xs text-gray-400">{`${keterangan.length + 1}/50`}</p>
-                        </div>
+                {!loading && (
+                    <div className={`m-auto p-5 rounded-lg ${!isQrisStatic ? 'bg-white shadow-lg mt-28 w-[90%]' : 'w-[80%] md:mt-10 mt-20'} `}>
+                        {!isActiveQris ? (
+                            <div className="flex flex-col items-center justify-center text-center text-gray-700">
+                                <img src={noQris} className="md:w-3/12 h-auto mb-4 z-20" alt="QRIS Belum Aktif" />
+                                <h2 className="md:text-md text-sm font-semibold  md:w-3/4 pb-10">
+                                    Fitur QRIS saat ini belum aktif. Proses pengajuan QRIS sedang berlangsung dan diperkirakan memerlukan waktu 2 hingga 4 hari kerja.
+                                </h2>
+                            </div>
+                        ) : isQrisStatic ? (
+                            <QRCodeStatic
+                                url={qrisStaticUrl}
+                                setIsQrisStatic={setIsQrisStatic}
+                                subMerchantId={subMerchantId} />
+                        ) : (
+                            <>
+                                <div className="flex md:flex-row flex-col items-center gap-3 bg-blue-50 px-2 py-3 rounded-md shadow-sm border border-blue-200 mb-3">
+                                    <div className="flex gap-2">
+                                        <Info className="md:w-4 md:h-4 w-5 h-5 text-blue-500" />
+                                        <p className="text-sm md:hidden block text-blue-500 font-semibold">Info</p>
+                                    </div>
+                                    <p className="text-xs text-gray-800">
+                                        Saat ini nama tujuan rekening dari Qr Code masih dengan atas nama <span className="font-bold"> PT. Digital Nusantara Sinergi</span>. Pengguna dapat melakukan pengajuan pergantian NAMA dengan menghubungi <Link to={'/profile/help-center'} className="underline font-bold"> Customer Service</Link>
+                                    </p>
+                                </div>
+
+                                <p className="text-gray-700 font-medium">Keterangan</p>
+                                <div className="relative mt-3">
+                                    <Input onChange={(e) => handleChange(e)} maxLength={50} type="text" className="pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent" />
+                                    <div className="flex flex-row justify-between mt-2">
+                                        <p className="text-xs text-gray-400 italic">*Maksimal 50 karakter</p>
+                                        <p className="text-xs text-gray-400">{`${keterangan.length + 1}/50`}</p>
+                                    </div>
+                                </div>
+
+                                <p className="text-gray-700 font-medium mt-5">Masukan Jumlah</p>
+                                <div className="relative mt-3">
+                                    <Input
+                                        type="text"
+                                        inputMode="numeric"
+                                        pattern="[1-9][0-9]*"
+                                        className="pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                                        onChange={(e) => {
+                                            let value = e.target.value.replace(/\D/g, "");
+                                            if (value.startsWith("0")) {
+                                                value = value.replace(/^0+/, "");
+                                            }
+                                            if (value.length <= 9) {
+                                                setAmount(value);
+                                            }
+                                        }}
+                                        value={formatRupiah(amount)}
+                                        placeholder="1.000"
+                                    />
+                                </div>
+
+                                <div className="m-auto flex items-center gap-5 mt-10">
+                                    <button type="button" onClick={() => setShowCalculator(true)} className="bg-orange-500 text-white rounded-lg p-2"><Calculator /></button>
+                                    <Button onClick={showShareLinkGenerator} disabled={Number(amount) <= 0} className={`${Number(amount) <= 0 ? 'bg-gray-500' : 'bg-green-400'} transition-all uppercase w-full`}>
+                                        Buat
+                                    </Button>
+                                </div>
+                            </>
+                        )}
                     </div>
+                )}
 
-                    <p className="text-gray-700 font-medium mt-5">Masukan Jumlah</p>
-
-                    <div className="relative mt-3">
-                        <Input
-                            type="text"
-                            inputMode="numeric"  // Menampilkan keyboard angka di mobile
-                            pattern="[1-9][0-9]*"  // Mencegah karakter non-angka dan angka 0 di awal
-                            className="pl-2 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-                            onChange={(e) => {
-                                let value = e.target.value.replace(/\D/g, ""); // Hanya angka
-
-                                // Mencegah angka nol di awal
-                                if (value.startsWith("0")) {
-                                    value = value.replace(/^0+/, ""); // Hapus semua nol di awal
-                                }
-
-                                if (value.length <= 10) {
-                                    setAmount(value);
-                                }
-                            }}
-                            value={formatRupiah(amount)}
-                            placeholder="1.00" // Placeholder awal minimal 1 rupiah
-                        />
-                    </div>
-                </div>
-
-                <div className="m-auto flex items-center gap-5 w-[90%] !mt-10">
-                    <button type="button" onClick={() => setShowCalculator(true)} className="bg-orange-500 text-white rounded-lg p-2"><Calculator /></button>
-
-                    <Button onClick={showShareLinkGenerator} disabled={Number(amount) <= 0 ? true : false} className={`${Number(amount) <= 0 ? 'bg-gray-500' : 'bg-green-400'} transition-all uppercase w-full m-auto block`}>
-                        Buat
-                    </Button>
-                </div>
 
                 {showCalculator && <CalculatorComponent setAmount={setAmount} amount={amount} setShowCalculator={setShowCalculator} />}
             </div>
@@ -498,53 +602,18 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </div>
 
                     <div className="mt-5 space-y-4">
-                        <label className="flex items-center w-full justify-between">
+                        <div
+                            onClick={() => handleRadioChange("Tunai")}
+                            className={`flex items-center justify-between cursor-pointer border p-4 rounded-lg transition ${selectedMethod === "Tunai" ? "bg-orange-100 border-orange-400" : "bg-white border-gray-300"} hover:bg-orange-50`}>
                             <div className="text-black flex items-center gap-3 font-semibold text-lg">
                                 <Banknote />
-
                                 <p>Tunai</p>
                             </div>
 
-                            <input
-                                type="radio"
-                                name="paymentMethod"
-                                checked={selectedMethod === "Tunai"}
-                                onChange={() => handleRadioChange("Tunai")}
-                                className="form-radio h-5 w-5 text-orange-400"
+                            <div
+                                className={`w-4 h-4 rounded-full border-2 ${selectedMethod === "Tunai" ? "border-orange-400 bg-orange-400" : "border-gray-400"}`}
                             />
-                        </label>
-
-                        {/* <label className="flex items-center w-full justify-between">
-                            <div className="text-black flex items-center gap-3 font-semibold text-lg">
-                                <Calculator />
-
-                                <p>EDC</p>
-                            </div>
-
-                            <input
-                                type="radio"
-                                name="paymentMethod"
-                                checked={selectedMethod === "EDC"}
-                                onChange={() => handleRadioChange("EDC")}
-                                className="form-radio h-5 w-5 text-orange-400"
-                            />
-                        </label>
-
-                        <label className="flex items-center w-full justify-between">
-                            <div className="text-black flex items-center gap-3 font-semibold text-lg">
-                                <ArrowLeftRight />
-
-                                <p>Transfer</p>
-                            </div>
-
-                            <input
-                                type="radio"
-                                name="paymentMethod"
-                                checked={selectedMethod === "Transfer"}
-                                onChange={() => handleRadioChange("Transfer")}
-                                className="form-radio h-5 w-5 text-orange-400"
-                            />
-                        </label> */}
+                        </div>
                     </div>
 
                     <Button

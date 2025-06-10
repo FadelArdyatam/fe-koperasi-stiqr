@@ -52,21 +52,21 @@ const BPJS = () => {
     useEffect(() => {
         const checkProfile = async () => {
             try {
-                const responseProducts = await axiosInstance.post("/ayoconnect/products",
-                    {
-                        "category": "BPJS",
-                        "status": "active",
-                        // "code": "TBPU"
-                    },);
+                const responseProducts = await axiosInstance.post("/ayoconnect/products", {
+                    category: "BPJS",
+                    status: "active",
+                });
+    
                 setProducts(responseProducts.data.data);
                 console.log("Products Response:", responseProducts.data);
             } catch (err) {
-                console.error("Error saat mengambil profile:", err);
+                setError({ show: true, message: "Tidak dapat memproses permintaan saat ini. Silakan ulangi beberapa saat lagi." })
             }
         };
-
+    
         checkProfile();
-    }, [])
+    }, []);
+    
     console.log(products)
     const sendBill = async () => {
         if (!productCode) {
@@ -194,6 +194,7 @@ const BPJS = () => {
                                 }}
                                 type="text"
                                 value={KTP}
+                                disabled={products.length == 0}
                                 className="border border-black"
                             />
                         </div>
@@ -201,7 +202,7 @@ const BPJS = () => {
                     </div>
 
                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+                        <DropdownMenuTrigger asChild disabled={products.length == 0}>
                             <div data-aos="fade-up" data-aos-delay="400" className="mt-10">
                                 <p>Bayar untuk</p>
 
@@ -222,7 +223,7 @@ const BPJS = () => {
                 </div>
 
                 {/* <Button onClick={sendBill} className={`${KTP.length === 0 || type.length === 0 || range.length === 0 ? 'hidden' : 'block'} uppercase mt-5 text-center w-[90%] m-auto mb-10 bg-green-500 text-white`}> */}
-                <Button onClick={sendBill} className={`block uppercase mt-5 text-center w-[90%] m-auto mb-10 bg-green-500 text-white  -mt-16`}>
+                <Button onClick={sendBill} className={`uppercase mt-5 text-center w-[90%] m-auto mb-10 bg-green-500 text-white  -mt-16 ${KTP.length > 0 ? 'block' : 'hidden'}  `}>
                     Lanjutkan
                 </Button>
             </div>

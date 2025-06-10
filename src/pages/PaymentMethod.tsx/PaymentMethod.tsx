@@ -14,6 +14,7 @@ interface PaymentMethodProps {
 }
 
 const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPaymentMethodComponent, selectedMethod, orderId }) => {
+    console.log('MUNCULLLLLL')
     const [paymentAmount, setPaymentAmount] = useState<string>(""); // Nominal pembayaran
     const [errorMessage, setErrorMessage] = useState(""); // Pesan error
     const [change, setChange] = useState(0); // Kembalian
@@ -49,6 +50,7 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ dataPayment, setShowPayme
             const response = await axiosInstance.post("/sales/other-payment", {
                 sales_id: dataPayment.sales_id,
                 paymentType: selectedMethod,
+                pay_amount: paymentAmount,
             });
 
             console.log("Response other payment:", response);

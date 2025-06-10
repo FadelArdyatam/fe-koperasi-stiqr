@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Check } from "lucide-react";
 import axiosInstance from "@/hooks/axiosInstance";
-import BluetoothPrinter from "./BluetoothPrinter";
+// import BluetoothPrinter from "./BluetoothPrinter";
 import { formatRupiah } from "@/hooks/convertRupiah";
 
 const PaymentSuccess: React.FC = () => {
@@ -39,6 +39,8 @@ const PaymentSuccess: React.FC = () => {
     fetchOrder()
   }, [orderId]);
 
+  console.log(orders)
+
   return (
     <div className="min-h-screen bg-orange-400 flex flex-col items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-lg p-8 text-center w-full max-w-md">
@@ -68,20 +70,17 @@ const PaymentSuccess: React.FC = () => {
           diproses.
         </p>
 
-        <div className="flex space-x-4 justify-center">
+        <div className="flex gap-5 justify-center">
+          {orders && (
+            <Link to={`/order?orderId=${orderId}`} className="px-6 py-2 w-full text-white bg-green-500 rounded-md hover:bg-green-600 transition">Bagikan Struk</Link>
+          )}
+
           <Link
             to="/dashboard"
-            className="px-6 py-2 w-40 text-white bg-orange-400 rounded-md hover:bg-orange-500 transition text-center"
+            className="px-6 py-2 w-full text-white bg-orange-400 rounded-md hover:bg-orange-500 transition text-center"
           >
             Kembali
           </Link>
-          {orders && (
-            <BluetoothPrinter
-              style="px-6 py-2 w-40 text-white bg-green-500 rounded-md hover:bg-green-600 transition text-center"
-              data={orders}
-            ></BluetoothPrinter>
-          )}
-
         </div>
       </div>
     </div>

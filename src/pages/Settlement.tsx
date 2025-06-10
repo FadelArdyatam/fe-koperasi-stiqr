@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, FileText, Info, XCircle, ChevronDown, ChevronsLeft, ChevronRight, ChevronsRight } from "lucide-react";
+import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, FileText, Info, XCircle, ChevronDown, ChevronsLeft, ChevronRight, ChevronsRight, Calendar, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom"; // Remove Form import from react-router-dom
 import { useEffect, useState } from "react";
 import axiosInstance from "@/hooks/axiosInstance";
@@ -24,11 +24,14 @@ import { useForm } from "react-hook-form";
 import Notification from "@/components/Notification";
 import imgNoTransaction from "@/images/no-transaction.png";
 import DatePicker from "react-datepicker";
+import { DetailSettlement } from "./Settlement/DetailSettlement";
 
 interface BankAccount {
     account_id: string;
     bank_name: string;
     account_number: string;
+    type: string;
+    owner_name: string;
 }
 interface IBalance {
     amount: number;
@@ -38,13 +41,14 @@ interface IBalance {
 
 interface ISettlement {
     settlement_id: string;
-    created_at: Date;
+    created_at: Date | string;
     amount: number;
     account?: {
         bank_name: string;
         account_number: string;
     },
     type?: string;
+    admin_fee?: number | undefined;
     notes?: string;
 }
 const Settlement = () => {
@@ -60,7 +64,7 @@ const Settlement = () => {
     const [message, setMessage] = useState<string>('');
     const [accounts, setAccounts] = useState<BankAccount[]>([])
     const [mdr, setMdr] = useState(0)
-    const [marginMdr, setMarginMdr] = useState(0)
+    // const [marginMdr, setMarginMdr] = useState(0)
     const [balance, setBalance] = useState<IBalance>({
         amount: 0,
         cash_amount: 0,
@@ -145,7 +149,8 @@ const Settlement = () => {
                     account_id: data.account_id,
                     pin: pin.join(''),
                     mdr_amount: mdr,
-                    type: section
+                    type: section,
+                    admin_fee: 3000,
                 });
 
                 if (response.data.success) {
@@ -162,6 +167,7 @@ const Settlement = () => {
             setMessage(error.response.data.message);
             setIsSuccess(false)
             setShowPinInput(false)
+            setStep(0);
             setPin([])
             setLoading(false)
             console.error(error);
@@ -273,6 +279,10 @@ const Settlement = () => {
     const [latestTunai, setLatestTunai] = useState(null)
 
     useEffect(() => {
+        if (filter === "dateRange" && !dateRange.startDate) {
+            return; // skip fetch jika belum ada tanggal startDate
+        }
+
         const fetchSettlement = async () => {
             const params: any = {
                 filter,
@@ -282,8 +292,16 @@ const Settlement = () => {
             }
 
             if (filter === "dateRange" && dateRange.startDate) {
-                params.startDate = dateRange.startDate;
-                params.endDate = dateRange.endDate ?? dateRange.startDate;
+                const start = new Date(dateRange.startDate);
+                const end = new Date(dateRange.endDate ?? dateRange.startDate);
+
+                // Tambahkan 1 hari
+                start.setDate(start.getDate() + 1);
+                end.setDate(end.getDate() + 1);
+
+                // Simpan full ISO string termasuk waktu (bagian setelah T)
+                params.startDate = start.toISOString();
+                params.endDate = end.toISOString();
             }
             const res = await axiosInstance.get(`/settlement/${userData.merchant.id}`, { params })
             setSettlements(res.data.data)
@@ -294,275 +312,141 @@ const Settlement = () => {
         fetchSettlement()
     }, [currentPage, filter, dateRange, section]);
 
-    console.log(latestTunai)
+    const [step, setStep] = useState(0);
+    const handleNext = () => {
+        setStep((prev) => prev + 1);
+    };
+    const [selectedAccount, setSelectedAccount] = useState<{ type: string, account: string, owner: string, bank?: string }>
+        ({
+            type: "",
+            account: "",
+            owner: "",
+            bank: "",
+        });
+    const [selectedSettlement, setSelectedSettlement] = useState<ISettlement | null>(null);
+
     return (
-        <div>
-            <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
-                <Link to="/dashboard" className="bg-transparent hover:bg-transparent">
-                    <ChevronLeft className="scale-[1.3] text-white" />
-                </Link>
+        <>
+            <div className={`${selectedSettlement ? 'hidden' : 'block '}`}>
+                <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
+                    <Link to="/dashboard" className="bg-transparent hover:bg-transparent">
+                        <ChevronLeft className="scale-[1.3] text-white" />
+                    </Link>
 
-                <p data-aos="zoom-in" className="font-semibold m-auto text-xl text-white text-center uppercase">
-                    Penarikan
-                </p>
-            </div>
-
-            <div className="w-[90%] m-auto pb-10">
-                {showNotification && (
-                    <div data-aos="fade-up" data-aos-delay="100" className="flex items-center justify-between gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <Info className="w-5 min-w-5 h-5 text-blue-500" />
-
-                            <p className="text-sm text-black">
-                                Penarikan dana hanya bisa dilakukan pada jam 18:00 s/d 23:59. Limit penarikan akan kembali semula setiap harinya pada jam 00:00
-                            </p>
-                        </div>
-
-                        <button onClick={() => setShowNotification(false)} className="text-gray-400 hover:text-gray-600">
-                            <XCircle className="w-5 h-5" />
-                        </button>
-                    </div>
-                )}
-
-                <div data-aos="fade-up" data-aos-delay="200" className={`${showNotification ? 'mt-10' : 'mt-24'} w-full border border-gray-300 rounded-lg p-5`}>
-                    <div>
-                        <p className="font-semibold text-lg">Total Saldo Stiqr</p>
-                        <p className="mt-2 font-semibold text-3xl">{formatRupiah(Number(balance.amount ?? 0))}</p>
-                    </div>
-
-                    <div className="w-full h-[1px] bg-gray-300 my-5" />
-
-                    <div className="w-full flex flex-col gap-5">
-                        <div className="w-full flex items-center gap-5 justify-between">
-                            <p className="text-gray-500">Total Uang Masuk</p>
-                            <p className="font-semibold text-lg">{formatRupiah(uangMasuk)}</p>
-                        </div>
-
-                        <div className="w-full flex items-center gap-5 justify-between">
-                            <p className="text-gray-500">Total Uang Keluar</p>
-                            <p className="font-semibold text-lg">{formatRupiah(uangKeluar)}</p>
-                        </div>
-
-                        <div className="w-full flex items-center gap-5 justify-between">
-                            <p className="text-gray-500">Saldo Non Tunai</p>
-                            <p className="font-semibold text-lg">{formatRupiah(balance.non_cash_amount ?? 0)}</p>
-                        </div>
-
-                        <div className="w-full flex items-center gap-5 justify-between">
-                            <p className="text-gray-500">Saldo Tunai</p>
-                            <p className="font-semibold text-lg">{formatRupiah(balance.cash_amount ?? 0)}</p>
-                        </div>
-                    </div>
+                    <p data-aos="zoom-in" className="font-semibold m-auto text-xl text-white text-center uppercase">
+                        Penarikan
+                    </p>
                 </div>
 
-                <p className="text-xs text-gray-500 mt-3">*Saldo yang dapat ditarik adalah Saldo Non Tunai</p>
+                <div className="w-[90%] m-auto pb-10">
+                    {showNotification && (
+                        <div data-aos="fade-up" data-aos-delay="100" className="flex items-center justify-between gap-3 p-4 mt-24 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <Info className="w-5 min-w-5 h-5 text-blue-500" />
 
-                <div className="w-[90%] md:w-[50%] m-auto items-center justify-center flex mt-10 border border-orange-500 rounded-lg overflow-hidden">
-                    <button onClick={() => setSection("Penarikan")} className={`${section === "Penarikan" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all text-sm w-full text-center p-1 bg-orange-500 font-medium`}>
-                        Penarikan Non Tunai
-                    </button>
-
-                    <button onClick={() => setSection("Tunai")} className={`${section === "Tunai" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all text-sm w-full text-center p-1 bg-orange-500 font-medium`}>
-                        Catat Tunai
-                    </button>
-                </div>
-
-                {section === "Penarikan" ? (
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5">
-                            <div data-aos="fade-up" data-aos-delay="300" className="flex flex-col gap-3">
-                                <p>Pilih Akun</p>
-                                <FormField
-                                    control={form.control}
-                                    name="account_id"
-                                    render={({ field }) => (
-                                        <FormItem className="w-full">
-                                            <FormControl>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger className="w-full p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center justify-between rounded-lg border border-gray-300">
-                                                        {accounts.find(account => account.account_id === field.value)?.bank_name || "Pilih Akun Penarikan"}
-                                                        <ChevronDown className="ml-2 h-4 w-4" />
-                                                    </DropdownMenuTrigger>
-
-                                                    <DropdownMenuContent
-                                                        className="bg-white p-3 border mt-2 z-10 rounded-lg w-[var(--radix-popper-anchor-width)] max-h-64 overflow-y-auto flex flex-col gap-2 shadow-lg"
-                                                        align="start"
-                                                    >
-                                                        {accounts?.map((account, i) => (
-                                                            <DropdownMenuItem
-                                                                key={i}
-                                                                onSelect={() => field.onChange(account.account_id)}
-                                                                className="cursor-pointer px-4 py-2 hover:bg-gray-100 rounded-md"
-                                                            >
-                                                                {account.bank_name} - {account.account_number}
-                                                            </DropdownMenuItem>
-                                                        ))}
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <div className="w-full h-[1px] bg-gray-300 my-3" />
-                                <p className="">Saldo Yang Ingin Ditarik</p>
-                                <FormField
-                                    control={form.control}
-                                    name="amount"
-                                    render={({ field }) => (
-                                        <FormItem className="w-full font-bold">
-                                            <FormControl>
-                                                <Input
-                                                    type="text"
-                                                    inputMode="numeric" // Menampilkan numpad di mobile
-                                                    autoComplete="off"
-                                                    value={formatRupiah(String(field.value) || "0")}
-                                                    placeholder="Masukkan Jumlah Saldo"
-                                                    onChange={(e) => {
-                                                        let value = e.target.value.replace(/\D/g, ""); // Hanya angka
-                                                        value = value.slice(0, 7);
-                                                        const maxAmount = balance.non_cash_amount;
-                                                        if (Number(value) > maxAmount) {
-                                                            value = String(maxAmount);
-                                                        }
-                                                        field.onChange(value ? Number(value) : "");
-                                                        const margin = Number(value) * 0.007;
-                                                        setMarginMdr(Math.ceil(margin));
-                                                        setMdr(Math.ceil(Number(value) - margin));
-                                                    }}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <div className="flex justify-between">
-                                    <p>MDR <i> (0,7%)</i> </p>
-                                    <p className="font-bold">{formatRupiah(marginMdr)}</p>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <p>Biaya Admin </p>
-                                        <p className="text-xs text-gray-500 italic ">*sementara ditanggung oleh tim STIQR</p>
-                                    </div>
-                                    <p className="font-bold">
-                                        <span className="line-through font-semibold decoration-red-500">{formatRupiah(1000)}</span> {formatRupiah(0)}
-                                    </p>
-
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <p>Saldo yang Diterima </p>
-                                        <p className="text-xs text-gray-500 italic ">*saldo yang masuk ke rekening Anda.</p>
-                                    </div>
-                                    <p className="font-bold">{formatRupiah(mdr)}</p>
-                                </div>
+                                <p className="text-sm text-black">
+                                    Penarikan dana hanya bisa dilakukan pada jam 18:00 s/d 23:59. Limit penarikan akan kembali semula setiap harinya pada jam 00:00
+                                </p>
                             </div>
 
-                            <Button type="submit" className="mt-5 w-full text-base bg-orange-500">
-                                Tarik Saldo
-                            </Button>
+                            <button onClick={() => setShowNotification(false)} className="text-gray-400 hover:text-gray-600">
+                                <XCircle className="w-5 h-5" />
+                            </button>
+                        </div>
+                    )}
 
-                            {showPinInput && (
-                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                                    <div className="bg-white w-[90%] p-6 rounded-lg">
-                                        <h2 className="text-xl font-semibold text-center mb-4">Masukkan PIN Anda</h2>
-
-                                        {/* PIN Indicator */}
-                                        <div className="flex justify-center mb-6">
-                                            {[...Array(6)].map((_, index) => (
-                                                <div
-                                                    key={index}
-                                                    className={`w-4 h-4 mx-1 rounded-full ${pin[index] ? 'bg-green-500' : 'bg-gray-300'}`}
-                                                ></div>
-                                            ))}
-                                        </div>
-
-                                        {/* Number Pad */}
-                                        <div className="grid grid-cols-3 gap-5 mb-5 max-w-[400px] mx-auto">
-                                            {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((number) => (
-                                                <button
-                                                    key={number}
-                                                    type="button"
-                                                    onClick={() => handleNumberClick(number)}
-                                                    className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
-                                                >
-                                                    {number}
-                                                </button>
-                                            ))}
-                                            <div></div>
-                                            <button
-                                                onClick={() => handleNumberClick("0")}
-                                                type="button"
-                                                className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
-                                            >
-                                                0
-                                            </button>
-                                            <button
-                                                onClick={handleDelete}
-                                                type="button"
-                                                className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold"
-                                            >
-                                                ⌫
-                                            </button>
-                                        </div>
-
-                                        <div className="flex justify-between">
-                                            <Button
-                                                onClick={() => setShowPinInput(false)}
-                                                type="button"
-                                                className="w-full mr-2 bg-gray-400 text-white"
-                                            >
-                                                Batal
-                                            </Button>
-                                            <Button
-                                                type="submit"
-                                                className="w-full ml-2 bg-green-500 text-white"
-                                                disabled={pin.length !== 6 || loading}
-                                            >
-                                                Konfirmasi
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </form>
-                    </Form>
-                ) : (
-                    <div>
-                        <div className="flex items-center justify-between gap-3 p-2 mt-5 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
-                            <p>* Pencatatan tunai akan tercatat di Riwayat Tunai dibawah</p>
+                    <div data-aos="fade-up" data-aos-delay="200" className={`${showNotification ? 'mt-10' : 'mt-24'} w-full border border-gray-300 rounded-lg p-5`}>
+                        <div>
+                            <p className="font-semibold text-lg">Total Saldo Stiqr</p>
+                            <p className="mt-2 font-semibold text-3xl">{formatRupiah(Number(balance.amount ?? 0))}</p>
                         </div>
 
-                        <p className="font-semibold mt-5">Terakhir Pencatatan : {latestTunai ? `${convertDate(latestTunai)} | ${convertTime(latestTunai)}` : '-'}  </p>
+                        <div className="w-full h-[1px] bg-gray-300 my-5" />
 
-                        <Form {...formCatat}>
-                            <form onSubmit={formCatat.handleSubmit(onSubmitCatat)} className="mt-5">
+                        <div className="w-full flex flex-col gap-5">
+                            <div className="w-full flex items-center gap-5 justify-between">
+                                <p className="text-gray-500">Total Uang Masuk</p>
+                                <p className="font-semibold text-lg">{formatRupiah(uangMasuk)}</p>
+                            </div>
+
+                            <div className="w-full flex items-center gap-5 justify-between">
+                                <p className="text-gray-500">Total Uang Keluar</p>
+                                <p className="font-semibold text-lg">{formatRupiah(uangKeluar)}</p>
+                            </div>
+
+                            <div className="w-full flex items-center gap-5 justify-between">
+                                <p className="text-gray-500">Saldo Non Tunai</p>
+                                <p className="font-semibold text-lg">{formatRupiah(balance.non_cash_amount ?? 0)}</p>
+                            </div>
+
+                            <div className="w-full flex items-center gap-5 justify-between">
+                                <p className="text-gray-500">Saldo Tunai</p>
+                                <p className="font-semibold text-lg">{formatRupiah(balance.cash_amount ?? 0)}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p className="text-xs text-gray-500 mt-3">*Saldo yang dapat ditarik adalah Saldo Non Tunai</p>
+
+                    <div className="w-[90%] md:w-[50%] m-auto items-center justify-center flex mt-10 border border-orange-500 rounded-lg overflow-hidden">
+                        <button onClick={() => setSection("Penarikan")} className={`${section === "Penarikan" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all text-sm w-full text-center p-1 bg-orange-500 font-medium`}>
+                            Penarikan Non Tunai
+                        </button>
+
+                        <button onClick={() => setSection("Tunai")} className={`${section === "Tunai" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all text-sm w-full text-center p-1 bg-orange-500 font-medium`}>
+                            Catat Tunai
+                        </button>
+                    </div>
+
+                    {section === "Penarikan" ? (
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5">
                                 <div data-aos="fade-up" data-aos-delay="300" className="flex flex-col gap-3">
-                                    <p>Keterangan</p>
+                                    <p>Pilih Akun</p>
                                     <FormField
-                                        control={formCatat.control}
-                                        name="description"
+                                        control={form.control}
+                                        name="account_id"
                                         render={({ field }) => (
                                             <FormItem className="w-full">
                                                 <FormControl>
-                                                    <Input
-                                                        type="text"
-                                                        placeholder="Masukkan Keterangan"
-                                                        value={field.value || ""}
-                                                        onChange={field.onChange}
-                                                    />
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger className="w-full p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center justify-between rounded-lg border border-gray-300">
+                                                            {accounts.find(account => account.account_id === field.value)?.bank_name || "Pilih Akun Penarikan"}
+                                                            <ChevronDown className="ml-2 h-4 w-4" />
+                                                        </DropdownMenuTrigger>
+
+                                                        <DropdownMenuContent
+                                                            className="bg-white p-3 border mt-2 z-10 rounded-lg w-[var(--radix-popper-anchor-width)] max-h-64 overflow-y-auto flex flex-col gap-2 shadow-lg"
+                                                            align="start"
+                                                        >
+                                                            {accounts?.map((account, i) => (
+                                                                <DropdownMenuItem
+                                                                    key={i}
+                                                                    onSelect={() => {
+                                                                        field.onChange(account.account_id);
+                                                                        setSelectedAccount({
+                                                                            type: account.type,
+                                                                            account: account.account_number,
+                                                                            owner: account.owner_name,
+                                                                            bank: account.bank_name,
+                                                                        })
+                                                                    }}
+                                                                    className="cursor-pointer px-4 py-2 hover:bg-gray-100 rounded-md"
+                                                                >
+                                                                    {account.bank_name} - {account.account_number}
+                                                                </DropdownMenuItem>
+                                                            ))}
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
                                     />
-
-                                    <p>Jumlah</p>
+                                    <p className="">Saldo Yang Ingin Ditarik</p>
                                     <FormField
-                                        control={formCatat.control}
-                                        name="amountCatat"
+                                        control={form.control}
+                                        name="amount"
                                         render={({ field }) => (
                                             <FormItem className="w-full font-bold">
                                                 <FormControl>
@@ -574,8 +458,20 @@ const Settlement = () => {
                                                         placeholder="Masukkan Jumlah Saldo"
                                                         onChange={(e) => {
                                                             let value = e.target.value.replace(/\D/g, ""); // Hanya angka
-                                                            if (Number(value) > balance.cash_amount) return
+                                                            value = value.slice(0, 7);
+                                                            const maxAmount = balance.non_cash_amount;
+                                                            if (Number(value) > maxAmount) {
+                                                                value = String(maxAmount);
+                                                            }
                                                             field.onChange(value ? Number(value) : "");
+                                                            // const margin = Number(value) * 0.007;
+                                                            if (Number(value) >= 12000) {
+                                                                // setMarginMdr(Math.ceil(margin));
+                                                                setMdr(Number(value));
+                                                            } else if (Number(value) < 12000) {
+                                                                // setMarginMdr(0);
+                                                                setMdr(0);
+                                                            }
                                                         }}
                                                     />
                                                 </FormControl>
@@ -583,282 +479,493 @@ const Settlement = () => {
                                             </FormItem>
                                         )}
                                     />
-
-                                    <Button type="submit" className="mt-5 w-full text-base bg-orange-500">
-                                        Catat Tunai
-                                    </Button>
+                                    <p className="text-xs text-gray-500 italic -mt-1">*Minimal penarikan Rp 12.000</p>
                                 </div>
+
+                                <Button disabled={form.getValues("amount") < 12000} type="submit" className={`mt-5 w-full text-base bg-orange-500 `}>
+                                    Konfirmasi Penarikan
+                                </Button>
 
                                 {showPinInput && (
                                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                         <div className="bg-white w-[90%] p-6 rounded-lg">
-                                            <h2 className="text-xl font-semibold text-center mb-4">Masukkan PIN Anda</h2>
+                                            {
+                                                step == 0 ? (
+                                                    <>
+                                                        <div className="flex items-center justify-between">
+                                                            <h2 className="text-lg font-bold">Konfirmasi Penarikan</h2>
+                                                            <X className="cursor-pointer h-5 w-5" onClick={() => setShowPinInput(false)} />
+                                                        </div>
+                                                        <hr className="my-3" />
+                                                        <div className="flex justify-between text-sm my-1">
+                                                            <p>Metode Penarikan</p>
+                                                            <p>{selectedAccount.bank}</p>
+                                                        </div>
+                                                        <div className="flex justify-between text-sm my-1">
+                                                            <p>Akun Penarikan</p>
+                                                            <p>{selectedAccount.account}</p>
+                                                        </div>
+                                                        <div className="flex justify-between text-sm my-1">
+                                                            <p>Nama Pemilik</p>
+                                                            <p>{selectedAccount.owner}</p>
+                                                        </div>
+                                                        <hr className="my-3" />
+                                                        <div className="flex justify-between text-sm my-1">
+                                                            <p>Jumlah Penarikan</p>
+                                                            <p>{formatRupiah(form.getValues("amount"))}</p>
+                                                        </div>
+                                                        {/* <div className="flex justify-between text-sm my-1">
+                                                            <p>MDR <i> (0,7%)</i> </p>
+                                                            <p className="text-red-500">- {formatRupiah(marginMdr)}</p>
+                                                        </div> */}
 
-                                            {/* PIN Indicator */}
-                                            <div className="flex justify-center mb-6">
-                                                {[...Array(6)].map((_, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className={`w-4 h-4 mx-1 rounded-full ${pin[index] ? 'bg-green-500' : 'bg-gray-300'}`}
-                                                    ></div>
-                                                ))}
-                                            </div>
+                                                        <div className="flex justify-between text-sm my-1 items-center font-bold">
+                                                            <div>
+                                                                <p>Saldo yang Diterima </p>
+                                                            </div>
+                                                            <p>{formatRupiah(mdr)}</p>
+                                                        </div>
+                                                        <p className="text-xs text-gray-500 italic font-normal">*saldo yang masuk ke rekening Anda.</p>
+                                                        <hr className="my-3" />
+                                                        <div className="flex justify-between text-sm my-1 items-center">
+                                                            <div>
+                                                                <p>Biaya Layanan </p>
+                                                            </div>
+                                                            <p>
+                                                                {formatRupiah(3000)}
+                                                            </p>
+                                                        </div>
+                                                        <Button className="mt-5 w-full bg-green-500 flex justify-between flex-row  md:text-lg text-sm" onClick={handleNext}>
+                                                            <p>Tarik Saldo </p>
+                                                            <p>{formatRupiah(form.getValues("amount") + 3000)}</p>
+                                                        </Button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <h2 className="text-xl font-semibold text-center mb-4">Masukkan PIN Anda</h2>
 
-                                            {/* Number Pad */}
-                                            <div className="grid grid-cols-3 gap-5 mb-5 max-w-[400px] mx-auto">
-                                                {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((number) => (
-                                                    <button
-                                                        key={number}
-                                                        type="button"
-                                                        onClick={() => handleNumberClick(number)}
-                                                        className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
-                                                    >
-                                                        {number}
-                                                    </button>
-                                                ))}
-                                                <div></div>
-                                                <button
-                                                    onClick={() => handleNumberClick("0")}
-                                                    type="button"
-                                                    className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
-                                                >
-                                                    0
-                                                </button>
-                                                <button
-                                                    onClick={handleDelete}
-                                                    type="button"
-                                                    className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold"
-                                                >
-                                                    ⌫
-                                                </button>
-                                            </div>
+                                                        {/* PIN Indicator */}
+                                                        <div className="flex justify-center mb-6">
+                                                            {[...Array(6)].map((_, index) => (
+                                                                <div
+                                                                    key={index}
+                                                                    className={`w-4 h-4 mx-1 rounded-full ${pin[index] ? 'bg-green-500' : 'bg-gray-300'}`}
+                                                                ></div>
+                                                            ))}
+                                                        </div>
 
-                                            <div className="flex justify-between">
-                                                <Button
-                                                    onClick={() => setShowPinInput(false)}
-                                                    type="button"
-                                                    className="w-full mr-2 bg-gray-400 text-white"
-                                                >
-                                                    Batal
-                                                </Button>
-                                                <Button
-                                                    type="submit"
-                                                    className="w-full ml-2 bg-green-500 text-white"
-                                                    disabled={pin.length !== 6 || loading}
-                                                >
-                                                    Konfirmasi
-                                                </Button>
-                                            </div>
+                                                        {/* Number Pad */}
+                                                        <div className="grid grid-cols-3 gap-5 mb-5 max-w-[400px] mx-auto">
+                                                            {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((number) => (
+                                                                <button
+                                                                    key={number}
+                                                                    type="button"
+                                                                    onClick={() => handleNumberClick(number)}
+                                                                    className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
+                                                                >
+                                                                    {number}
+                                                                </button>
+                                                            ))}
+                                                            <div></div>
+                                                            <button
+                                                                onClick={() => handleNumberClick("0")}
+                                                                type="button"
+                                                                className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
+                                                            >
+                                                                0
+                                                            </button>
+                                                            <button
+                                                                onClick={handleDelete}
+                                                                type="button"
+                                                                className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold"
+                                                            >
+                                                                ⌫
+                                                            </button>
+                                                        </div>
+
+                                                        <div className="flex justify-between">
+                                                            <Button
+                                                                onClick={() => { setShowPinInput(false); setStep(0) }}
+                                                                type="button"
+                                                                className="w-full mr-2 bg-gray-400 text-white"
+                                                            >
+                                                                Batal
+                                                            </Button>
+                                                            <Button
+                                                                type="submit"
+                                                                className="w-full ml-2 bg-green-500 text-white"
+                                                                disabled={pin.length !== 6 || loading}
+                                                            >
+                                                                Konfirmasi
+                                                            </Button>
+                                                        </div>
+                                                    </>
+                                                )
+                                            }
                                         </div>
                                     </div>
                                 )}
                             </form>
                         </Form>
-                    </div>
-                )}
-            </div>
-
-            <div className="pb-32 flex flex-col gap-5 w-[90%] m-auto shadow-lg bg-white rounded-lg">
-                <p className="text-xl text-center font-bold my-3">{section === "Penarikan" ? 'Riwayat Penarikan' : 'Riwayat Tunai'}</p>
-                <div className="w-full flex gap-5 overflow-x-auto my-5 p-3">
-                    <Button onClick={() => {
-                        setShowCalendar(!showCalendar); setFilter("dateRange");
-                    }} className={`${filter === "dateRange" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>Pilih Tanggal Transaksi</Button>
-                    <Button onClick={() => { setFilterHandler("today"); setShowCalendar(false) }} className={`${filter === "today" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                        Hari Ini
-                    </Button>
-                    <Button onClick={() => { setFilterHandler("yesterday"); setShowCalendar(false) }} className={`${filter === "yesterday" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                        Kemarin
-                    </Button>
-                    <Button onClick={() => { setFilterHandler("2days"); setShowCalendar(false) }} className={`${filter === "2days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                        2 Hari
-                    </Button>
-                    <Button onClick={() => { setFilterHandler("7days"); setShowCalendar(false) }} className={`${filter === "7days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`
-                    }>
-                        7 Hari
-                    </Button>
-                </div>
-                <div className="flexflex-col items-center gap-5 justify-between">
-                    <Button
-                        className={`${showCalendar ? 'block' : 'hidden'} text-sm bg-gray-200 border w-full border-gray-400 text-gray-700 rounded-lg px-3 py-2`}
-                    >
-                        {startDate && endDate
-                            ? `${startDate.toLocaleDateString("id-ID", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                            })} - ${endDate.toLocaleDateString("id-ID", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                            })}`
-                            : "Pilih Tanggal Transaksi"}
-                    </Button>
-                </div>
-
-                {
-                    showCalendar && (
-                        <div className="flex flex-col items-center border p-3 rounded-lg shadow-md">
-                            <DatePicker
-                                selected={startDate}
-                                onChange={onChange}
-                                startDate={startDate}
-                                endDate={endDate}
-                                selectsRange
-                                inline
-                                maxDate={
-                                    startDate
-                                        ? new Date(Math.min(new Date().getTime(), startDate.getTime() + 6 * 24 * 60 * 60 * 1000))
-                                        : new Date()
-                                }
-                                className="w-full"
-                                monthsShown={months}
-                            />
-
-                            <Button
-                                className="w-full mt-3 bg-orange-500 text-white rounded-lg"
-                                onClick={() => {
-                                    setShowCalendar(false);
-                                    setCustomDateRange(
-                                        startDate ? startDate.toISOString() : null,
-                                        endDate ? endDate.toISOString() : null
-                                    )
-                                }}
-                            >
-                                Pilih
-                            </Button>
-                        </div>
-                    )
-                }
-                {
-                    settlements.length > 0 ? (
+                    ) : (
                         <div>
+                            <div className="flex items-center justify-between gap-3 p-2 mt-5 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+                                <p>* Pencatatan tunai akan tercatat di Riwayat Tunai dibawah</p>
+                            </div>
 
-                            {
-                                settlements.map((settlement, index) => (
-                                    <div key={index} className="px-5 m-auto">
-                                        <div className={`${index === 0 ? "hidden" : "block"} w-[100%] h-[2px] my-5 bg-gray-300 rounded-full`}></div>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-start gap-2">
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        {
-                                                            settlement.type == "Tunai" ? `${settlement.notes}` : `${settlement.account?.bank_name || "Unknown Bank"} - ${settlement.account?.account_number || "Unknown Account"}`
-                                                        }
+                            <p className="font-semibold mt-5">Terakhir Pencatatan : {latestTunai ? `${convertDate(latestTunai)} | ${convertTime(latestTunai)}` : '-'}  </p>
 
-                                                    </div>
-                                                    <p className="text-xs text-gray-400">{settlement.settlement_id}</p>
+                            <Form {...formCatat}>
+                                <form onSubmit={formCatat.handleSubmit(onSubmitCatat)} className="mt-5">
+                                    <div data-aos="fade-up" data-aos-delay="300" className="flex flex-col gap-3">
+                                        <p>Keterangan</p>
+                                        <FormField
+                                            control={formCatat.control}
+                                            name="description"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full">
+                                                    <FormControl>
+                                                        <Input
+                                                            type="text"
+                                                            placeholder="Masukkan Keterangan"
+                                                            value={field.value || ""}
+                                                            onChange={field.onChange}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <p>Jumlah</p>
+                                        <FormField
+                                            control={formCatat.control}
+                                            name="amountCatat"
+                                            render={({ field }) => (
+                                                <FormItem className="w-full font-bold">
+                                                    <FormControl>
+                                                        <Input
+                                                            type="text"
+                                                            inputMode="numeric" // Menampilkan numpad di mobile
+                                                            autoComplete="off"
+                                                            value={formatRupiah(String(field.value) || "0")}
+                                                            placeholder="Masukkan Jumlah Saldo"
+                                                            onChange={(e) => {
+                                                                let value = e.target.value.replace(/\D/g, ""); // Hanya angka
+                                                                if (Number(value) > balance.cash_amount) return
+                                                                field.onChange(value ? Number(value) : "");
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <Button type="submit" className="mt-5 w-full text-base bg-orange-500">
+                                            Catat Tunai
+                                        </Button>
+                                    </div>
+
+                                    {showPinInput && (
+                                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                            <div className="bg-white w-[90%] p-6 rounded-lg">
+                                                <h2 className="text-xl font-semibold text-center mb-4">Masukkan PIN Anda</h2>
+
+                                                {/* PIN Indicator */}
+                                                <div className="flex justify-center mb-6">
+                                                    {[...Array(6)].map((_, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className={`w-4 h-4 mx-1 rounded-full ${pin[index] ? 'bg-green-500' : 'bg-gray-300'}`}
+                                                        ></div>
+                                                    ))}
                                                 </div>
-                                            </div>
 
-                                            <div className="flex flex-col items-end">
-                                                <p className="text-md font-semibold">{formatRupiah(Number(settlement.amount) ?? 0)}</p>
+                                                {/* Number Pad */}
+                                                <div className="grid grid-cols-3 gap-5 mb-5 max-w-[400px] mx-auto">
+                                                    {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((number) => (
+                                                        <button
+                                                            key={number}
+                                                            type="button"
+                                                            onClick={() => handleNumberClick(number)}
+                                                            className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
+                                                        >
+                                                            {number}
+                                                        </button>
+                                                    ))}
+                                                    <div></div>
+                                                    <button
+                                                        onClick={() => handleNumberClick("0")}
+                                                        type="button"
+                                                        className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-gray-100 text-xl font-bold"
+                                                    >
+                                                        0
+                                                    </button>
+                                                    <button
+                                                        onClick={handleDelete}
+                                                        type="button"
+                                                        className="w-16 h-16 mx-auto flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold"
+                                                    >
+                                                        ⌫
+                                                    </button>
+                                                </div>
 
-                                                <div className="flex items-center">
-                                                    <p className="text-xs">
-                                                        {new Date(settlement.created_at).toLocaleDateString("id-ID", {
-                                                            day: "2-digit",
-                                                            month: "long",
-                                                            year: "numeric",
-                                                        })}
-                                                    </p>
-
-                                                    <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-
-                                                    <p className="text-xs">
-                                                        {new Date(settlement.created_at).toLocaleTimeString("id-ID", {
-                                                            hour: "2-digit",
-                                                            minute: "2-digit",
-                                                        })}
-                                                    </p>
+                                                <div className="flex justify-between">
+                                                    <Button
+                                                        onClick={() => setShowPinInput(false)}
+                                                        type="button"
+                                                        className="w-full mr-2 bg-gray-400 text-white"
+                                                    >
+                                                        Batal
+                                                    </Button>
+                                                    <Button
+                                                        type="submit"
+                                                        className="w-full ml-2 bg-green-500 text-white"
+                                                        disabled={pin.length !== 6 || loading}
+                                                    >
+                                                        Konfirmasi
+                                                    </Button>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    )}
+                                </form>
+                            </Form>
                         </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center my-10">
-                            <img className="p-5" src={imgNoTransaction} alt="No transactions" />
-                            <p className="mt-5 font-bold text-orange-500">
-                                Belum ada penarikan saldo
-                            </p>
+                    )}
+                </div>
+
+                <div className="pb-32 flex flex-col gap-5 w-[90%] m-auto shadow-lg bg-white rounded-lg">
+                    <p className="text-xl text-center font-bold mt-3">{section === "Penarikan" ? 'Riwayat Penarikan' : 'Riwayat Tunai'}</p>
+                    <div className="w-full flex items-center justify-between flex-wrap gap-3 p-3 bg-white rounded-lg shadow-sm">
+                        <div className="flex items-center justend gap-3 w-full sm:w-auto">
+                            {/* Kalender Icon */}
+                            <button
+                                onClick={() => { setShowCalendar(!showCalendar); setFilter("dateRange"); }}
+                                className="p-2 rounded-full hover:bg-orange-400 hover:text-white  text-orange-400 border border-orange-400 transition-all"
+                                title="Pilih Tanggal"
+                            >
+                                <Calendar className="w-5 h-5" />
+                            </button>
+
+                            {/* Filter Dropdown */}
+                            <div className="relative w-full sm:w-auto">
+                                <select
+                                    value={filter}
+                                    onChange={(e) => {
+                                        setFilterHandler(e.target.value);
+                                        if (e.target.value === "dateRange") {
+                                            setShowCalendar(true);
+                                        } else {
+                                            setDateRange({ startDate: undefined, endDate: undefined });
+                                            setShowCalendar(false);
+                                        }
+                                    }}
+                                    className="appearance-none pr-10 pl-4 py-2  hover:bg-orange-400 hover:text-white  text-orange-400 border border-orange-400 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-orange-400 w-full cursor-pointer"
+                                >
+                                    <option value="all">Lihat Semua</option>
+                                    <option value="today">Hari Ini</option>
+                                    <option value="yesterday">Kemarin</option>
+                                    <option value="2days">2 Hari</option>
+                                    <option value="7days">7 Hari</option>
+                                    <option value="dateRange">Rentang Tanggal</option>
+                                </select>
+
+                                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center ">
+                                    <ChevronDown className="w-5 h-5 text-orange-300" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flexflex-col items-center gap-5 justify-between">
+                        <Button
+                            className={`${showCalendar ? 'block' : 'hidden'} text-sm bg-gray-200 border w-full border-gray-400 text-gray-700 rounded-lg px-3 py-2`}
+                        >
+                            {startDate && endDate
+                                ? `${startDate.toLocaleDateString("id-ID", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                })} - ${endDate.toLocaleDateString("id-ID", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                })}`
+                                : "Pilih Tanggal Transaksi"}
+                        </Button>
+                    </div>
+
+                    {
+                        showCalendar && (
+                            <div className="flex flex-col items-center border p-3 rounded-lg shadow-md">
+                                <DatePicker
+                                    selected={startDate}
+                                    onChange={onChange}
+                                    startDate={startDate}
+                                    endDate={endDate}
+                                    selectsRange
+                                    inline
+                                    maxDate={
+                                        startDate
+                                            ? new Date(Math.min(new Date().getTime(), startDate.getTime() + 6 * 24 * 60 * 60 * 1000))
+                                            : new Date()
+                                    }
+                                    className="w-full"
+                                    monthsShown={months}
+                                />
+
+                                <Button
+                                    className="w-full mt-3 bg-orange-500 text-white rounded-lg"
+                                    onClick={() => {
+                                        setShowCalendar(false);
+                                        setCustomDateRange(
+                                            startDate ? startDate.toISOString() : null,
+                                            endDate ? endDate.toISOString() : null
+                                        )
+                                    }}
+                                >
+                                    Pilih
+                                </Button>
+                            </div>
+                        )
+                    }
+                    {
+                        settlements.length > 0 ? (
+                            <div>
+                                {
+                                    settlements.map((settlement, index) => (
+                                        <div key={index} onClick={() => { if (settlement.type != 'Tunai') setSelectedSettlement(settlement) }} className="px-5 m-auto rounded-md">
+                                            <div className={`${index === 0 ? "hidden" : "block"} w-[100%] h-[1px] my-2 bg-gray-300 rounded-full`}></div>
+                                            <div className={`flex items-center justify-between ${(settlement.type != 'Tunai' ? 'hover:bg-orange-200 duration-300 cursor-pointer transition ease-in-out' : "")}  p-2 rounded-md `}>
+                                                <div className="flex items-start gap-2">
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            {
+                                                                settlement.type == "Tunai" ? `${settlement.notes}` : `${settlement.account?.bank_name || "Unknown Bank"}`
+                                                            }
+
+                                                        </div>
+                                                        <p className="text-sm text-gray-400">{settlement.type != "Tunai" ? settlement.account?.account_number : settlement.settlement_id}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex flex-col items-end">
+                                                    <p className="text-md font-semibold">{formatRupiah((Number(settlement.amount) ?? 0) + (Number(settlement.admin_fee) ?? 0))}</p>
+
+                                                    <div className="flex items-center">
+                                                        <p className="text-xs">
+                                                            {new Date(settlement.created_at).toLocaleDateString("id-ID", {
+                                                                day: "2-digit",
+                                                                month: "long",
+                                                                year: "numeric",
+                                                            })}
+                                                        </p>
+
+                                                        <div className="w-5 h-[1px] bg-gray-300 rotate-90 rounded-full"></div>
+
+                                                        <p className="text-xs">
+                                                            {new Date(settlement.created_at).toLocaleTimeString("id-ID", {
+                                                                hour: "2-digit",
+                                                                minute: "2-digit",
+                                                            })}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center my-10">
+                                <img className="p-5" src={imgNoTransaction} alt="No transactions" />
+                                <p className="mt-5 font-bold text-orange-500">
+                                    Belum ada penarikan saldo
+                                </p>
+                            </div>
+                        )
+                    }
+
+                    {
+                        settlements.length > 0 && (
+                            <div className="flex flex-col items-center">
+                                <div className="flex items-center mt-12 justify-center gap-5 mb-3 ">
+                                    <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                                        <ChevronsLeft />
+                                    </Button>
+
+                                    <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
+                                        <ChevronLeft />
+                                    </Button>
+
+
+                                    <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
+                                        <ChevronRight />
+                                    </Button>
+
+                                    <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+                                        <ChevronsRight />
+                                    </Button>
+                                </div>
+                                <span className="text-center">Halaman {currentPage} dari {totalPages}</span>
+                            </div>
+                        )}
+                </div>
+
+                {
+                    errorNotification && (
+                        <div>
+                            <Notification
+                                message={message}
+                                onClose={() => {
+                                    setErrorNotification(false)
+                                    if (isSuccess) {
+                                        navigate('/dashboard')
+                                    }
+                                }}
+                                status={isSuccess ? 'success' : 'error'}
+                            />
                         </div>
                     )
                 }
 
-                {
-                    settlements.length > 0 && (
-                        <div className="flex flex-col items-center">
-                            <div className="flex items-center mt-12 justify-center gap-5 mb-3 ">
-                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
-                                    <ChevronsLeft />
-                                </Button>
 
-                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
-                                    <ChevronLeft />
-                                </Button>
+                <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
+                    <Link to="/dashboard" className="flex gap-3 flex-col items-center">
+                        <Home />
+                        <p className="uppercase">Home</p>
+                    </Link>
 
+                    <Link to="/qr-code" className="flex gap-3 flex-col items-center">
+                        <ScanQrCode />
+                        <p className="uppercase">Qr Code</p>
+                    </Link>
 
-                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
-                                    <ChevronRight />
-                                </Button>
-
-                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
-                                    <ChevronsRight />
-                                </Button>
-                            </div>
-                            <span className="text-center">Halaman {currentPage} dari {totalPages}</span>
+                    <Link to="/settlement" className="flex relative gap-3 flex-col items-center">
+                        <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
+                            <CreditCard />
                         </div>
-                    )}
-            </div>
+                        <p className="uppercase text-orange-400">Penarikan</p>
+                    </Link>
 
-            {
-                errorNotification && (
-                    <div>
-                        <Notification
-                            message={message}
-                            onClose={() => {
-                                setErrorNotification(false)
-                                if (isSuccess) {
-                                    navigate('/dashboard')
-                                }
-                            }}
-                            status={isSuccess ? 'success' : 'error'}
-                        />
-                    </div>
-                )
-            }
+                    <Link to="/catalog" className="flex gap-3 flex-col items-center">
+                        <FileText />
+                        <p className="uppercase">Catalog</p>
+                    </Link>
 
-            <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
-                <Link to="/dashboard" className="flex gap-3 flex-col items-center">
-                    <Home />
-                    <p className="uppercase">Home</p>
-                </Link>
-
-                <Link to="/qr-code" className="flex gap-3 flex-col items-center">
-                    <ScanQrCode />
-                    <p className="uppercase">Qr Code</p>
-                </Link>
-
-                <Link to="/settlement" className="flex relative gap-3 flex-col items-center">
-                    <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
-                        <CreditCard />
-                    </div>
-                    <p className="uppercase text-orange-400">Penarikan</p>
-                </Link>
-
-                <Link to="/catalog" className="flex gap-3 flex-col items-center">
-                    <FileText />
-                    <p className="uppercase">Catalog</p>
-                </Link>
-
-                <Link to="/profile" className="flex gap-3 flex-col items-center">
-                    <UserRound />
-                    <p className="uppercase">Profile</p>
-                </Link>
-            </div>
-        </div >
+                    <Link to="/profile" className="flex gap-3 flex-col items-center">
+                        <UserRound />
+                        <p className="uppercase">Profile</p>
+                    </Link>
+                </div>
+            </div >
+            {selectedSettlement && (
+                <DetailSettlement
+                    data={{ ...selectedSettlement, admin_fee: selectedSettlement?.admin_fee ?? 0 }}
+                    handleClose={() => setSelectedSettlement(null)}
+                />
+            )}
+        </>
     );
 };
 

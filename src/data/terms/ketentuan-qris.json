@@ -1,0 +1,80 @@
+[
+  {
+    "title": "Transaksi Menggunakan QRIS",
+    "subtitle": [
+      {
+        "title": "Kategori Merchant/Pengguna",
+        "desc": "Transaksi menggunakan QRIS dalam aplikasi STIQR dibedakan berdasarkan kategori merchant berikut:",
+        "list": [
+          "UMI (Usaha Mikro Individu)",
+          "UME (Usaha Mikro Ekonomi)",
+          "UKE (Usaha Kecil Ekonomi)",
+          "UBE (Usaha Besar Ekonomi)"
+        ]
+      },
+      {
+        "title": "Biaya Transaksi QRIS",
+        "desc": "Besaran biaya atau potongan transaksi QRIS ditentukan berdasarkan kategori Merchant/Pengguna sebagai berikut:",
+        "isSpecial": true,
+        "category": [
+          {
+            "title": "Kategori UMI :",
+            "sublist": [
+              "Setiap Transaksi dengan nominal di bawah atau sama dengan Rp500.000 akan dipotong biaya <i>Merchant Discount Rate (MDR)</i> sebesar  0,0% (tanpa potongan)",
+              "Setiap Transaksi dengan nominal lebih dari Rp500.000 akan dipotong biaya <i> Merchant Discount Rate (MDR)</i> sebesar 0,3% dari total transaksi"
+            ]
+          },
+          {
+            "title": "Kategori UME, UKE, dan UBE :",
+            "sublist": [
+              "Semua transaksi dikenakan biaya 0,7% dari total transaksi, tanpa memandang nominal."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Ketentuan Tambahan",
+        "list": [
+          "Kategori Merchant/Pengguna akan ditentukan oleh pihak STIQR pada saat proses pengajuan QRIS berlangsung",
+          "Biaya transaksi QRIS akan dipotong secara otomatis dari nilai transaksi pada saat pembayaran dilakukan.",
+          "Ketentuan ini dapat berubah sewaktu-waktu sesuai kebijakan internal atau regulasi dari Bank Indonesia, dengan atau tanpa pemberitahuan sebelumnya."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Pengajuan Pembuatan QRIS",
+    "subtitle": [
+      {
+        "title": "Formulir Pengajuan",
+        "list": [
+          "Untuk dapat menggunakan fitur QRIS, Merchant/Pengguna wajib mengisi Formulir Pengajuan QRIS pada saat proses registrasi awal ke dalam aplikasi.",
+          "Formulir harus diisi secara lengkap dan akurat, dan menjadi bagian dari persyaratan utama dalam proses aktivasi akun Merchant/Pengguna."
+        ]
+      },
+      {
+        "title": "Proses Verifikasi dan Aktivasi",
+        "list": [
+          "Setelah pengajuan dikirim, sistem akan memproses verifikasi data dan pembuatan QRIS dengan estimasi waktu 2 (dua) hingga 4 (empat) hari kerja, terhitung sejak semua dokumen dan data dinyatakan lengkap.",
+          "Merchant/Pengguna akan mendapatkan informasi status pengajuan melalui notifikasi di aplikasi."
+        ]
+      },
+      {
+        "title": "Penolakan dan Revisi Pengajuan",
+        "list": [
+          "Jika pengajuan QRIS ditolak, Merchant/Pengguna akan mendapatkan pemberitahuan beserta alasan penolakan melalui chat WhatsApp resmi dari tim kami.",
+          "Merchant/Pengguna diberikan kesempatan untuk melakukan revisi dan pengajuan ulang, sesuai dengan koreksi atau dokumen tambahan yang diminta.",
+          "Proses verifikasi akan dimulai kembali setelah revisi diterima dan dinyatakan lengkap."
+        ]
+      },
+      {
+        "title": "Ketentuan Tambahan",
+        "list": [
+          "Pengajuan dapat ditolak apabila ditemukan data yang tidak lengkap, tidak valid, atau tidak sesuai dengan ketentuan hukum dan kebijakan internal kami.",
+          "Merchant/Pengguna bertanggung jawab penuh terhadap keabsahan dan kebenaran data yang diajukan.",
+          "Dengan mengirimkan pengajuan QRIS, pengguna dianggap telah memahami dan menyetujui seluruh syarat dan ketentuan yang berlaku."
+        ]
+      }
+    ]
+  }
+]

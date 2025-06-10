@@ -17,7 +17,7 @@ interface OTPProps {
 	phone: string;
 }
 
-const OTP = ({ currentSection, setCreatePin, phone }: OTPProps) => {
+const   OTP = ({ currentSection, setCreatePin, phone }: OTPProps) => {
 	const [value, setValue] = useState("");
 	// const [phoneNumber, setPhoneNumber] = useState("");
 	const [codeSent, setCodeSent] = useState(false);
@@ -147,7 +147,7 @@ const OTP = ({ currentSection, setCreatePin, phone }: OTPProps) => {
 	return (
 		<div className="mt-10">
 			<div
-				className={`${currentSection === 2 ? "block" : "hidden"
+				className={`${currentSection === 3 ? "block" : "hidden"
 					} flex flex-col w-full space-y-7`}
 			>
 				<p data-aos="fade-up" className="font-semibold text-xl text-center">
@@ -155,8 +155,7 @@ const OTP = ({ currentSection, setCreatePin, phone }: OTPProps) => {
 				</p>
 
 				<p data-aos="fade-up" data-aos-delay="100" className="text-md text-gray-500 text-center">
-					Untuk keamanan akun anda, mohon masukkan kode OTP yang telah kami kirimkan.
-				</p>
+					<span className="font-semibold"> {localStorage.getItem("email")}</span>, Mohon segera melakukan verifikasi kode OTP untuk mengaktifkan akun STIQR Anda dan menjaga keamanannya.				</p>
 
 				<form data-aos="fade-up" data-aos-delay="200" className="mt-10 w-full flex flex-col items-center gap-5">
 					<div className="flex items-center gap-5">
@@ -193,19 +192,19 @@ const OTP = ({ currentSection, setCreatePin, phone }: OTPProps) => {
 							}
 						}}
 					>
-						<InputOTPGroup>
+						<InputOTPGroup className="flex items-center justify-center gap-2">
 							{/* Pastikan InputOTPSlot menerima atribut tambahan */}
-							<InputOTPSlot index={0} inputMode="numeric" />
-							<InputOTPSlot index={1} inputMode="numeric" />
-							<InputOTPSlot index={2} inputMode="numeric" />
-							<InputOTPSlot index={3} inputMode="numeric" />
-							<InputOTPSlot index={4} inputMode="numeric" />
-							<InputOTPSlot index={5} inputMode="numeric" />
+							<InputOTPSlot index={0} inputMode="numeric" className="border border-black rounded-md" />
+							<InputOTPSlot index={1} inputMode="numeric" className="border border-black rounded-md" />
+							<InputOTPSlot index={2} inputMode="numeric" className="border border-black rounded-md" />
+							<InputOTPSlot index={3} inputMode="numeric" className="border border-black rounded-md" />
+							<InputOTPSlot index={4} inputMode="numeric" className="border border-black rounded-md" />
+							<InputOTPSlot index={5} inputMode="numeric" className="border border-black rounded-md" />
 						</InputOTPGroup>
 					</InputOTP>
 					<div className="text-center text-sm">
 						{value === "" ? (
-							<>Enter your one-time password.</>
+							<>Masukkan kode OTP Anda yang telah dikirimkan melalui Whatsapp</>
 						) : (
 							<>You entered: {value}</>
 						)}

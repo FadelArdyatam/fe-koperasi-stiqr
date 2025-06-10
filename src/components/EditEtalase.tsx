@@ -60,6 +60,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
     const [showProductAfterSelected, setShowProductAfterSelected] = useState<{ product_id: string; product_name: string; product_price: number, product_image: string }[]>([]);
     const [showNotification, setShowNotification] = useState(false);
     // const [searchTerm, setSearchTerm] = useState("");
+    const [loadingSubmit, setLoadingSubmit] = useState(false);
 
     useEffect(() => {
         AOS.init({ duration: 500, once: true, offset: 100 });
@@ -100,6 +101,8 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
     }, [editIndex, form]);
 
     const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+        setLoadingSubmit(true);
+
         const payload = {
             showcase_id: etalaseToEdit?.showcase_id,
             products: data.products,
@@ -116,13 +119,20 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
             console.error("Error updating showcase:", error);
             alert("Failed to update showcase. Please try again.");
         }
+
+        setLoadingSubmit(false);
     };
 
     const deleteHandler = async () => {
         try {
+            setLoadingSubmit(true);
+
             const response = await axiosInstance.delete(`/showcase/${editIndex}/delete`);
             console.log(response.data.message);
             setOpen({ id: "", status: false });
+
+            setLoadingSubmit(false);
+
             setReset(true);
         } catch (error: any) {
             console.error("Error deleting showcase:", error.message);
@@ -162,6 +172,13 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
 
                     <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Edit Etalase</p>
                 </div>
+
+                {/* Loading */}
+                {loadingSubmit && (
+                    <div className="fixed top-0 bottom-0 left-0 right-0 z-20 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
+                    </div>
+                )}
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 mt-10 p-5 bg-white rounded-lg">
@@ -248,7 +265,7 @@ const EditEtalase: React.FC<EditEtalaseProps> = ({ setOpen, editIndex, products,
                             </div>
                         </div>
 
-                        <Button data-aos="fade-up" data-aos-delay="300" type="submit" className="w-full bg-blue-500 text-white">
+                        <Button data-aos="fade-up" data-aos-delay="300" disabled={loadingSubmit ? true : false} type="submit" className="w-full bg-blue-500 text-white">
                             Update
                         </Button>
 

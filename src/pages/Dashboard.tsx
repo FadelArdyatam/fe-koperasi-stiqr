@@ -21,6 +21,7 @@ interface History {
     total_amount: number;
     payment_method: string;
     qr_transaction_id?: string;
+    net_amount?: number;
     sales_id?: string;
     date: string;
     time: string;
@@ -302,16 +303,22 @@ const Dashboard = () => {
                 <div data-aos="fade-up" data-aos-delay="250" className="flex items-center w-full justify-center gap-5 mt-5">
                     <div className="text-center w-[100px] min-w-[100px]">
                         <p className="text-base text-gray-500">Non Tunai</p>
-
-                        <p>{formatRupiah(Number(balance.non_cash_amount) ?? 0)}</p>
+                        {
+                            showBalance
+                                ? <p>{formatRupiah(Number(balance.non_cash_amount) ?? 0)}</p>
+                                : <p>Rp ****</p>
+                        }
                     </div>
 
                     <div className="w-10 h-[2px] bg-gray-300 rotate-90"></div>
 
                     <div className="text-center w-[100px] min-w-[100px]">
                         <p className="text-base text-gray-500">Tunai</p>
-
-                        <p>{formatRupiah(Number(balance.cash_amount) ?? 0)}</p>
+                        {
+                            showBalance
+                                ? <p>{formatRupiah(Number(balance.cash_amount) ?? 0)}</p>
+                                : <p>Rp ****</p>
+                        }
                     </div>
                 </div>
 
@@ -323,8 +330,10 @@ const Dashboard = () => {
 
                         <div>
                             <p className="text-xs text-gray-500">Uang Masuk</p>
+                            {
+                                showBalance ? <p className="text-sm font-semibold">{formatRupiah(uangMasuk)}</p> : <p className="text-sm font-semibold">Rp ****</p>
+                            }
 
-                            <p className="text-sm font-semibold">{formatRupiah(uangMasuk)}</p>
                         </div>
                     </div>
 
@@ -337,8 +346,10 @@ const Dashboard = () => {
 
                         <div>
                             <p className="text-xs text-gray-500">Uang Keluar</p>
+                            {
+                                showBalance ? <p className="text-sm font-semibold">{formatRupiah(uangKeluar)}</p> : <p className="text-sm font-semibold">Rp ****</p>
+                            }
 
-                            <p className="text-sm font-semibold">{formatRupiah(uangKeluar)}</p>
                         </div>
                     </div>
                 </div>
@@ -435,16 +446,32 @@ const Dashboard = () => {
                                                                     : "QRCode"
                                                                 : "Penjualan"}{" "}
                                                             | {history.payment_method}
-                                                        </p>                                                        <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} w-fit px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                        </p>
+                                                        <div className={`${history.transaction_status === "success" ? "bg-green-400" : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} w-fit px-2 rounded-md text-white text-xs py-[0.5]"`}>
                                                             <p>{history.transaction_status}</p>
                                                         </div>
                                                     </div>
                                                     {history.sales_id == null && history.qr_transaction?.keterangan != null ? <p className="text-sm text-gray-700 break-all">{history.qr_transaction?.keterangan}</p> : ""}
-                                                    <p className="text-xs text-gray-400 text-start">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
+                                                    <p className="text-xs text-gray-400 text-start">
+                                                        {history.transaction_id}
+                                                        {history.sales?.orderId || history.qr_transaction?.orderId
+                                                            ? ` | ${history.sales?.orderId || history.qr_transaction?.orderId}`
+                                                            : ''}
+                                                    </p>
                                                 </div>
                                             </div>
                                             <div className="flex flex-col items-end md:mt-0 mt-2">
                                                 <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
+                                                {
+                                                    history.payment_method == 'QRIS' && (
+                                                        <p className="text-xs text-red-500 mb-2">
+                                                            - {history.net_amount == null || history.total_amount == history.net_amount
+                                                                ? formatRupiah(0)
+                                                                : formatRupiah((history.total_amount ?? 0) - history.net_amount) + ` (MDR)`
+                                                            }
+                                                        </p>
+                                                    )
+                                                }
                                                 <div className="flex items-center">
                                                     <p className="text-xs">{convertDate(history.transaction_date)}</p>
                                                     <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>

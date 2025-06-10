@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { formatRupiah } from "@/hooks/convertRupiah";
-import { ArrowLeft, CircleAlert, Computer } from "lucide-react"
-import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, useState, useEffect } from "react";
+import { ArrowLeft, Banknote, CircleAlert, Computer, X } from "lucide-react"
+import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, useState, useEffect, useCallback, useRef } from "react";
 import QRCodePage from "../QRCode";
 import axiosInstance from "@/hooks/axiosInstance";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,8 @@ import "aos/dist/aos.css";
 import noProduct from '../../images/no-product.png'
 import { AlertDialogHeader, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@radix-ui/react-alert-dialog";
+import Notification from "@/components/Notification";
+import PaymentMethod from "../PaymentMethod.tsx/PaymentMethod";
 // import { ISales } from "../Booking/Booking";
 
 interface OrderProcessedProps {
@@ -43,7 +45,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
     const [stringQR, setStringQR] = useState<string | null>(null);
 
     const navigate = useNavigate()
-
+    const [notification, setNotification] = useState({ show: false, message: "" });
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
@@ -84,60 +86,104 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
 
     const [timeLeft, setTimeLeft] = useState(300)
 
-    useEffect(() => {
-        if (!tagih) {
-            return
-        }
-        handleTagih()
-    }, []);
+    const calledRef = useRef(false); // 👈 Flag untuk hindari pemanggilan ganda
 
-    const handleTagih = async () => {
-        const userItem = sessionStorage.getItem("user");
-        const userData = userItem ? JSON.parse(userItem) : null;
+    const handleTagih = useCallback(async () => {
+        if (calledRef.current) return; // ⛔ Skip kalau sudah pernah jalan
+        calledRef.current = true; // ✅ Set agar tidak jalan lagi
+
+        const orderAmount = calculateTotalAmount();
+        const startTimer = () => {
+            const timer = setInterval(() => {
+                setTimeLeft((prevTime) => {
+                    if (prevTime <= 1) {
+                        clearInterval(timer);
+                        navigate("/dashboard");
+                        return 0;
+                    }
+                    return prevTime - 1;
+                });
+            }, 1000);
+            return () => clearInterval(timer);
+        };
+
         try {
-            const requestBody = {
-                email: userData.email,
-                firstName: userData.merchant.name,
-                lastName: userData.username,
-                mobilePhone: userData.phone_number.replace(/^08/, '+628'),
-                amount: calculateTotalAmount(),
-                description: "Pembayaran Pesanan",
-                successUrl: "http://success",
-                type: "qris",
-                orderId: orderId,
-                item: prepareItems(),
+            // --- NOBU PAYMENT ---
+            const nobuRequest = {
+                partnerReferenceNo: orderId,
+                amount: {
+                    value: `${orderAmount}.00`,
+                    currency: "IDR",
+                },
             };
 
-            const response = await axiosInstance.post(`/finpay/initiate`, requestBody);
-            if (response.data) {
-                setStringQR(response.data.response.stringQr);
-                setShowQRCode(true)
-                if (setTagih) {
-                    setTagih(false);
-                }
-                const timer = setInterval(() => {
-                    setTimeLeft((prevTime) => {
-                        if (prevTime <= 1) {
-                            clearInterval(timer);
-                            navigate("/dashboard");
-                            return 0;
-                        }
-                        return prevTime - 1;
-                    });
-                }, 1000);
+            const initiateHooks = await axiosInstance.post(
+                "/nobu/generate-qris/v1.2/qr/qr-mpm-generate/",
+                nobuRequest
+            );
 
-                return () => clearInterval(timer);
-            } else {
-                alert("Gagal membuat link pembayaran. Mohon coba lagi.");
+            if (initiateHooks.data?.qrContent) {
+                setStringQR(initiateHooks.data.qrContent);
+                setShowQRCode(true);
+                if (setTagih) setTagih(false);
+                return startTimer();
             }
+
+            throw new Error("NOBU gagal tanpa response valid");
         } catch (error) {
-            console.log(error)
-            console.log("Gagal membuat link pembayaran:", error);
-            alert("Terjadi kesalahan saat menghubungi server. Mohon coba lagi.");
-        } finally {
-            // setIsLoading(false); // Nonaktifkan loading
+            console.log('error disini', error)
+            setNotification({ show: true, message: "Fitur QRIS belum aktif. Proses pengajuan membutuhkan waktu 2–4 hari kerja." });
+
+            // --- Simpan kode Finpay untuk referensi tapi tidak dijalankan ---
+            /*
+            try {
+                const requestBody = {
+                    email: userData?.email,
+                    firstName: userData?.merchant?.name,
+                    lastName: userData?.username,
+                    mobilePhone: userData?.phone_number?.replace(/^08/, "+628"),
+                    amount: orderAmount,
+                    description: "Pembayaran Pesanan",
+                    successUrl: "http://success",
+                    type: "qris",
+                    orderId: orderId,
+                    item: prepareItems(),
+                };
+        
+                const response = await axiosInstance.post(`/finpay/initiate`, requestBody);
+        
+                if (response.data?.response?.stringQr) {
+                    setStringQR(response.data.response.stringQr);
+                    setShowQRCode(true);
+                    if (setTagih) setTagih(false);
+                    return startTimer();
+                }
+        
+                throw new Error("Finpay gagal tanpa response valid");
+            } catch (finpayError) {
+                console.error("Finpay juga gagal:", finpayError);
+                alert("Gagal Melakukan Pembayaran. Silakan coba lagi nanti.");
+                navigate('/booking');
+            }
+            */
         }
-    }
+
+    }, [
+        orderId,
+        calculateTotalAmount,
+        prepareItems,
+        navigate,
+        setShowQRCode,
+        setStringQR,
+        setTagih,
+        setTimeLeft,
+    ]);
+
+    useEffect(() => {
+        if (tagih) {
+            handleTagih();
+        }
+    }, [tagih, handleTagih]);
 
     const handleCancelPayment = async () => {
         try {
@@ -155,11 +201,20 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
         }
     };
 
-    console.log("Basket from OrderProcessed:", basket);
+    const [showOtherMethod, setShowOtherMethod] = useState(false);
+    const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+    const [showPaymentMethodComponent, setShowPaymentMethodComponent] = useState(false);
+    const handleRadioChange = (method: string) => {
+        setSelectedMethod(method);
+    };
+
+    console.log('showQrCode', showQRCode)
+    console.log('tagih', tagih)
+    console.log('showPaymentMethodComponent', showPaymentMethodComponent)
 
     return (
         <>
-            <div className={`${showQRCode && !tagih ? 'hidden' : 'flex'} w-full flex-col min-h-screen pb-[250px] items-center bg-orange-50`}>
+            <div className={`${(showQRCode && !tagih) || showPaymentMethodComponent ? 'hidden' : 'flex'} w-full flex-col min-h-screen pb-[250px] items-center bg-orange-50`}>
                 <div className={`p-5 w-full bg-white`}>
                     <div className="w-full flex items-center gap-5 justify-between">
                         <div className="flex items-center gap-5">
@@ -214,7 +269,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                         <div className="w-full mt-5 flex items-center gap-5 justify-between">
                             <p className="font-semibold text-gray-500">Layanan</p>
 
-                            <p className="font-semibold">{basket?.order_type === 'dinein' ? 'Makan di Tempat' : 'Bawa Pulang'}</p>
+                            <p className="font-semibold">{basket?.order_type === 'dinein' ? 'Bayar Nanti' : 'Bayar Sekarang'}</p>
                         </div>
                         <div className="w-full mt-5 flex  gap-5 flex-col">
                             <p className="font-bold">Informasi Pelanggan</p>
@@ -361,7 +416,7 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
                     </div>
 
                     <div className="w-full mt-10 flex items-center gap-5 justify-between">
-                        <Button type="button" className={`flex bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold`}>Cetak Struk</Button>
+                        <Button type="button" onClick={() => navigate(`/order?orderId=${basket.orderId}`)} className={`flex bg-orange-500 items-center justify-center text-white w-full rounded-full py-6 text-lg font-semibold ${basket.status != 'done' ? 'hidden' : ''}`}>Lihat Struk</Button>
 
                         <Button type="button" onClick={handleTagih} className={`${basket.status === 'done' ? 'hidden' : ''} bg-orange-500 text-white w-full rounded-full py-6 text-lg font-semibold`}>Tagih</Button>
                     </div>
@@ -369,10 +424,75 @@ const OrderProcessed: React.FC<OrderProcessedProps> = ({ basket, setShowOrderPro
             </div>
 
             {
-                tagih && (<div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-orange-400 z-50">
-                    <p className="text-white text-xl font-medium">Loading QR Code...</p>
-                </div>)
+                tagih && (
+                    <>
+                        {
+                            notification.show && (
+                                <Notification
+                                    status="warning"
+                                    message={notification.message || ""}
+                                    onClose={() => {
+                                        setShowOtherMethod(true)
+                                        setNotification({ show: false, message: "" })
+                                    }}
+                                    text="Pilih Metode Pembayaran Lain"
+                                />
+                            )
+                        }
+                        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-orange-400 z-30">
+                            <p className="text-white text-xl font-medium">Loading QR Code...</p>
+                        </div>
+                    </>
+                )
             }
+
+            <div className={`${showOtherMethod ? "block" : "hidden"} fixed bg-black inset-0 bg-opacity-50 flex items-end justify-center z-[99]`}>
+                <div className="w-full bg-white rounded-t-lg p-5">
+                    <div className="flex justify-between items-center">
+                        <p className="font-semibold text-lg">Pilih Metode Pembayaran</p>
+
+                        <Button onClick={() => setShowOtherMethod(false)} className="bg-transparent">
+                            <X className="text-gray-500 scale-[1.5]" />
+                        </Button>
+                    </div>
+
+                    <div className="mt-5 space-y-4">
+                        <div
+                            onClick={() => handleRadioChange("Tunai")}
+                            className={`flex items-center justify-between cursor-pointer border p-4 rounded-lg transition ${selectedMethod === "Tunai" ? "bg-orange-100 border-orange-400" : "bg-white border-gray-300"} hover:bg-orange-50`}>
+                            <div className="text-black flex items-center gap-3 font-semibold text-lg">
+                                <Banknote />
+                                <p>Tunai</p>
+                            </div>
+
+                            <div
+                                className={`w-4 h-4 rounded-full border-2 ${selectedMethod === "Tunai" ? "border-orange-400 bg-orange-400" : "border-gray-400"}`}
+                            />
+                        </div>
+                    </div>
+
+                    <Button
+                        onClick={() => {
+                            setShowOtherMethod(false);
+                            setShowPaymentMethodComponent(true);
+                            if (setTagih) setTagih(false)
+                        }}
+                        className="mt-5 w-full bg-orange-400 text-white"
+                    >
+                        Simpan Pilihan
+                    </Button>
+                </div>
+            </div>
+            <div className="z-50">
+
+                {showPaymentMethodComponent &&
+                    <PaymentMethod dataPayment={{
+                        amount: calculateTotalAmount(),
+                        sales_id: sales_id
+                    }}
+                        setShowPaymentMethodComponent={setShowPaymentMethodComponent} selectedMethod={selectedMethod} orderId={orderId} />
+                }
+            </div>
 
             {showQRCode &&
                 <QRCodePage

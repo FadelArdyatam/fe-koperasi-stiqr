@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, Filter, FileText, ChevronsLeft, ChevronsRight, ChevronRight } from "lucide-react";
+import { ChevronLeft, CreditCard, Home, ScanQrCode, UserRound, FileText, ChevronsLeft, ChevronsRight, ChevronRight, Calendar, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 // import html2canvas from "html2canvas";
 import axiosInstance from "@/hooks/axiosInstance";
 import noTransactionImage from "../../images/no-transaction.png"
@@ -33,6 +33,7 @@ interface ISales {
     transaction_date: string;
     transaction_id: string;
     transaction_status: string;
+    net_amount?: number;
     sales?: {
         orderId: string;
     },
@@ -43,21 +44,6 @@ interface ISales {
     payment_method: string;
 }
 
-// interface ISales {
-//     sales_id: string;
-//     total_amount: number;
-//     channel: number;
-//     transaction_date: string;
-//     transaction_id: string;
-//     transaction_status: string;
-//     sales?: {
-//         orderId: string;
-//     },
-//     qr_transaction?: {
-//         orderId: string;
-//     }
-//     payment_method: string;
-// }
 
 const Riwayat = () => {
 
@@ -89,7 +75,7 @@ const Riwayat = () => {
         setDateRange({ startDate: start || undefined, endDate: end || undefined });
         setFilter("dateRange");
     };
-    const [isOpenFilter, setIsOpenFilter] = useState(false)
+    // const [isOpenFilter, setIsOpenFilter] = useState(false)
     const [filterStatus, setFilterStatus] = useState<string | null>(null)
     const [months, setMonths] = useState(2);
 
@@ -110,10 +96,11 @@ const Riwayat = () => {
         setFilter(newFilter);
         setCurrentPage(1);
     };
+    const [limitPurchase, setLimitPurchase] = useState(10);
     useEffect(() => {
         const params: any = {
             page: currentPage,
-            limit: 10,
+            limit: limitPurchase,
             status: filterStatus
         }
         // setDataUser(userData);
@@ -125,45 +112,44 @@ const Riwayat = () => {
         }
 
         fetchPurchase();
-    }, [currentPage, filterStatus]);
+    }, [currentPage, filterStatus, limitPurchase]);
 
     useEffect(() => {
+        // Jika filter dateRange, pastikan startDate sudah ada dulu
+        if (filter === "dateRange" && !dateRange.startDate) {
+            return; // skip fetch jika belum ada tanggal startDate
+        }
+
         const params: any = {
             filter,
             page: currentPageSales,
             limit: limit
         };
 
-        console.log(dateRange.startDate);
+        if (filter === "dateRange") {
+            const start = dateRange.startDate ? new Date(dateRange.startDate) : new Date();
+            const end = new Date(dateRange.endDate ?? dateRange.startDate ?? new Date().toISOString());
 
-        if (filter === "dateRange" && dateRange.startDate) {
-            params.startDate = dateRange.startDate;
-            params.endDate = dateRange.endDate ?? dateRange.startDate;
+            // Tambahkan 1 hari
+            start.setDate(start.getDate() + 1);
+            end.setDate(end.getDate() + 1);
+
+            // Simpan full ISO string termasuk waktu (bagian setelah T)
+            params.startDate = start.toISOString();
+            params.endDate = end.toISOString();
         }
         const fetchPurchase = async () => {
-            const response = await axiosInstance.get(`/history/sales/${userData.merchant.id}`, { params });
-            setSales(response.data.data);
-            setTotalPagesSales(response.data.pagination.totalPages);
-        }
+            try {
+                const response = await axiosInstance.get(`/history/sales/${userData.merchant.id}`, { params });
+                setSales(response.data.data);
+                setTotalPagesSales(response.data.pagination.totalPages);
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        };
 
         fetchPurchase();
     }, [currentPageSales, filter, dateRange, limit]);
-
-    // const downloadImage = async () => {
-    //     if (contentRef.current) {
-    //         try {
-    //             const canvas = await html2canvas(contentRef.current, { useCORS: true });
-    //             const dataURL = canvas.toDataURL("image/png");
-
-    //             const link = document.createElement("a");
-    //             link.href = dataURL;
-    //             link.download = "CodePayment.png";
-    //             link.click();
-    //         } catch (error) {
-    //             console.error("Error generating image:", error);
-    //         }
-    //     }
-    // };
 
 
     useEffect(() => {
@@ -173,6 +159,11 @@ const Riwayat = () => {
         // setDataUser(userData);
 
     }, [location.state]);
+
+    const navigate = useNavigate();
+    const handleDetailSales = (orderId: string) => {
+        navigate(`/order?orderId=${orderId}`);
+    }
 
     return (
         <div className={`relative h-screen ${!showDescription.status ? 'overflow-y-hidden' : ''} `}>
@@ -249,26 +240,46 @@ const Riwayat = () => {
                     className={`absolute inset-0 ${type === "Uang Masuk" ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-full"} transition-all duration-500 ease-in-out`}
                 >
                     <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg">
-                        <div className="w-full flex gap-5 overflow-x-auto my-5">
-                            {/* Pilih tanggal manual */}
-                            <Button onClick={() => {
-                                setShowCalendar(!showCalendar); setFilter("dateRange");
-                            }} className={`${filter === "dateRange" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>Pilih Tanggal Transaksi</Button>
-                            <Button onClick={() => { setFilterHandler("today"); setShowCalendar(false) }} className={`${filter === "today" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                                Hari Ini
-                            </Button>
-                            <Button onClick={() => { setFilterHandler("yesterday"); setShowCalendar(false) }} className={`${filter === "yesterday" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                                Kemarin
-                            </Button>
-                            <Button onClick={() => { setFilterHandler("2days"); setShowCalendar(false) }} className={`${filter === "2days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`}>
-                                2 Hari
-                            </Button>
-                            <Button onClick={() => { setFilterHandler("7days"); setShowCalendar(false) }} className={`${filter === "7days" ? 'bg-orange-500 text-white' : 'bg-transparent border border-orange-500 text-black'} hover:bg-gray-200 transition-all rounded-full w-full py-2`
-                            }>
-                                7 Hari
-                            </Button>
-                        </div>
+                        <div className="w-full flex items-center justify-between flex-wrap gap-3 p-3 bg-white rounded-lg shadow-sm">
+                            <div className="flex items-center justend gap-3 w-full sm:w-auto">
+                                {/* Kalender Icon */}
+                                <button
+                                    onClick={() => { setShowCalendar(!showCalendar); setFilter("dateRange"); }}
+                                    className="p-2 rounded-full hover:bg-orange-400 hover:text-white  text-orange-400 border border-orange-400 transition-all"
+                                    title="Pilih Tanggal"
+                                >
+                                    <Calendar className="w-5 h-5" />
+                                </button>
 
+                                {/* Filter Dropdown */}
+                                <div className="relative w-full sm:w-auto">
+                                    <select
+                                        value={filter}
+                                        onChange={(e) => {
+                                            setFilterHandler(e.target.value);
+                                            if (e.target.value === "dateRange") {
+                                                setShowCalendar(true);
+                                            } else {
+                                                setDateRange({ startDate: undefined, endDate: undefined });
+                                                setShowCalendar(false);
+                                            }
+                                        }}
+                                        className="appearance-none pr-10 pl-4 py-2  hover:bg-orange-400 hover:text-white  text-orange-400 border border-orange-400 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-orange-400 w-full cursor-pointer"
+                                    >
+                                        <option value="all">Lihat Semua</option>
+                                        <option value="today">Hari Ini</option>
+                                        <option value="yesterday">Kemarin</option>
+                                        <option value="2days">2 Hari</option>
+                                        <option value="7days">7 Hari</option>
+                                        <option value="dateRange">Rentang Tanggal</option>
+                                    </select>
+
+                                    <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center ">
+                                        <ChevronDown className="w-5 h-5 text-orange-300" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div className="flex flex-col items-center gap-5 justify-between">
                             <Button
                                 className={`${showCalendar ? 'block' : 'hidden'} text-sm bg-gray-200 border w-full border-gray-400 text-gray-700 rounded-lg px-3 py-2`}
@@ -326,7 +337,15 @@ const Riwayat = () => {
                             sales.length > 0 ? (
                                 <div>
                                     {sales.map((history, index) => (
-                                        <div key={index}>
+                                        <div key={index}
+                                            className={`${history.sales?.orderId ? 'cursor-pointer' : ''}`}
+                                            title={history.sales?.orderId ? 'Lihat Detail' : ''}
+                                            onClick={() => {
+                                                const orderId = history.sales?.orderId;
+                                                if (orderId) {
+                                                    handleDetailSales(orderId);
+                                                }
+                                            }} >
                                             <div className={`${index === 0 ? "hidden" : "block"} w-full h-[2px] my-5 bg-gray-300 rounded-full`}></div>
                                             <div className="flex md:flex-row flex-col md:items-center justify-between">
                                                 <div className="flex items-start gap-2">
@@ -346,11 +365,26 @@ const Riwayat = () => {
                                                         </div>
                                                         {history.sales_id == null && history.qr_transaction?.keterangan != null ? <p className="text-sm text-gray-700 break-all">{history.qr_transaction?.keterangan}</p> : ""}
 
-                                                        <p className="text-xs text-gray-400 text-start">{history.transaction_id} | {history.sales ? history.sales.orderId : history.qr_transaction?.orderId}</p>
+                                                        <p className="text-xs text-gray-400 text-start"><p className="text-xs text-gray-400 text-start">
+                                                            {history.transaction_id}
+                                                            {history.sales?.orderId || history.qr_transaction?.orderId
+                                                                ? ` | ${history.sales?.orderId || history.qr_transaction?.orderId}`
+                                                                : ''}
+                                                        </p></p>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col items-end md:mt-0 mt-2">
                                                     <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
+                                                    {
+                                                        history.payment_method == 'QRIS' && (
+                                                            <p className="text-xs text-red-500 mb-2">
+                                                                - {history.net_amount == null || history.total_amount == history.net_amount
+                                                                    ? formatRupiah(0)
+                                                                    : formatRupiah((history.total_amount ?? 0) - history.net_amount) + ` (MDR)`
+                                                                }
+                                                            </p>
+                                                        )
+                                                    }
                                                     <div className="flex items-center">
                                                         <p className="text-xs">{convertDate(history.transaction_date)}</p>
                                                         <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
@@ -431,99 +465,136 @@ const Riwayat = () => {
 
                 {/* Konten Pembelian */}
                 < div
-                    className={`absolute inset-0 ${type === "Pembelian" ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"} transition-all duration-500 ease-in-out`}
+                    className={`absolute inset-0 ${type === "Pembelian" ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"} transition-all duration-500 ease-in-out `}
                 >
-                    <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg">
+                    <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg ">
                         {purchases.length === 0 ? (
                             <div className="flex items-center flex-col justify-center gap-10">
                                 <img className="" src={noTransactionImage} alt="" />
 
                                 <p className="font-semibold text-orange-500 text-center">Belum ada transaksi pembelian</p>
-                            </div>) :
-                            purchases.map((purchase, index) => (
-                                <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-10' : 'mb-0'} block`} key={index}>
-                                    <div
-                                        className={`${index === 0 ? "hidden" : "block"
-                                            } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
-                                    ></div>
+                            </div>) : (
+                            <>
+                                <label htmlFor="filter-status" className="text-sm text-gray-700">Filter Status:</label>
+                                <select
+                                    id="filter-status"
+                                    value={filterStatus || ""}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        setFilterStatus(value === "" ? null : value);
+                                        setCurrentPage(1);
+                                    }}
+                                    className="text-sm border border-gray-300 rounded px-2 py-1 -mt-3 mb-3"
+                                >
+                                    <option value="">Semua</option>
+                                    <option value="Berhasil">Berhasil</option>
+                                    <option value="Dalam Proses">Dalam Proses</option>
+                                    <option value="Gagal">Gagal</option>
+                                </select>
+                                {purchases.map((purchase, index) => (
+                                    <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-10' : 'mb-0'} block`} key={index}>
+                                        <div
+                                            className={`${index === 0 ? "hidden" : "block"
+                                                } w-full h-[2px] mb-5 bg-gray-300 rounded-full`}
+                                        ></div>
 
-                                    <div className="flex md:items-center md:justify-between md:flex-row flex-col">
-                                        <div className="flex md:items-start items-center gap-5">
-                                            <img
-                                                src={`https://is3.cloudhost.id/stiqr/ppob/${purchase.biller}.png`}
-                                                className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
-                                                alt=""
-                                            />
+                                        <div className="flex md:items-center md:justify-between md:flex-row flex-col">
+                                            <div className="flex md:items-start items-center gap-5">
+                                                <img
+                                                    src={`https://is3.cloudhost.id/stiqr/ppob/${purchase.biller}.png`}
+                                                    className="rounded-full w-12 h-12 min-w-12 min-h-12 overflow-hidden"
+                                                    alt=""
+                                                />
 
-                                            <div className="flex md:flex-row flex-col items-start gap-5">
-                                                <div className="flex flex-col gap-2">
-                                                    <p className="uppercase text-sm">{purchase.type}</p>
-                                                    <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
+                                                <div className="flex md:flex-row flex-col items-start gap-5">
+                                                    <div className="flex flex-col gap-2">
+                                                        <p className="uppercase text-sm">{purchase.type}</p>
+                                                        <p className="text-xs text-start text-gray-400">{purchase.purchase_id}</p>
+                                                    </div>
+                                                    <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
+                                                        <p>{purchase.status}</p>
+                                                    </div>
+
                                                 </div>
-                                                <div className={`${purchase.status === 'Berhasil' ? 'bg-green-400' : purchase.status === 'Dalam Proses' ? 'bg-yellow-400' : 'bg-red-400'} px-2 rounded-md text-white text-xs py-[0.5] p-1`}>
-                                                    <p>{purchase.status}</p>
-                                                </div>
-
                                             </div>
-                                        </div>
 
-                                        <div className="flex md:mt-0 mt-5 flex-col items-end">
-                                            <p className="text-md font-semibold">
-                                                Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
-                                            </p>
-                                            {
-                                                (purchase.marginFee ?? 0) > 0 && (
-                                                    <p className="text-md text-green-500">
-                                                        + {formatRupiah(purchase.marginFee || 0)}
+                                            <div className="flex md:mt-0 mt-5 flex-col items-end">
+                                                <p className="text-md font-semibold">
+                                                    Rp {new Intl.NumberFormat("id-ID").format(Number(purchase.amount))}
+                                                </p>
+                                                {
+                                                    (purchase.marginFee ?? 0) > 0 && (
+                                                        <p className="text-md text-green-500">
+                                                            + {formatRupiah(purchase.marginFee || 0)}
+                                                        </p>
+                                                    )
+                                                }
+
+                                                <div className="flex items-center">
+                                                    <p className="text-xs">
+                                                        {new Date(purchase.date).toLocaleDateString('id-ID', {
+                                                            day: '2-digit',
+                                                            month: 'long',
+                                                            year: 'numeric',
+                                                        })}
                                                     </p>
-                                                )
-                                            }
 
-                                            <div className="flex items-center">
-                                                <p className="text-xs">
-                                                    {new Date(purchase.date).toLocaleDateString('id-ID', {
-                                                        day: '2-digit',
-                                                        month: 'long',
-                                                        year: 'numeric',
-                                                    })}
-                                                </p>
+                                                    <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
 
-                                                <div className="w-5 h-[2px] bg-gray-300 rotate-90 rounded-full"></div>
-
-                                                <p className="text-xs">
-                                                    {new Date(purchase.date).toLocaleTimeString('id-ID', {
-                                                        hour: '2-digit',
-                                                        minute: '2-digit',
-                                                    })}
-                                                </p>
+                                                    <p className="text-xs">
+                                                        {new Date(purchase.date).toLocaleTimeString('id-ID', {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                        })}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </button>
-                            ))
+                                    </button>
+                                ))}
+                            </>
+                        )
+
                         }
                         {
                             totalPages > 0 && (
-                                <div className="flex flex-col items-center w-full mb-32">
-                                    <div className="flex items-center justify-center gap-5 mb-5">
-                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
-                                            <ChevronsLeft />
-                                        </Button>
+                                <div className="flex flex-col items-center w-full mb-10">
+                                    <div className="flex justify-between w-full">
+                                        <select
+                                            className="h-10 border border-gray-300 rounded-md md:w-20 w-14 text-center"
+                                            value={limitPurchase}
+                                            onChange={(e) => { setLimitPurchase(Number(e.target.value)); setCurrentPage(1); }}
+                                        >
+                                            <option value="5">5</option>
+                                            <option value="10">10</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                        </select>
+                                        <div className="flex flex-col md:justify-center justify-end items-center flex-1 md:gap-5 ">
+                                            <div className="flex gap-5 items-center ">
+                                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                                                    <ChevronsLeft />
+                                                </Button>
 
-                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
-                                            <ChevronLeft />
-                                        </Button>
+                                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev - 1)} disabled={currentPage === 1}>
+                                                    <ChevronLeft />
+                                                </Button>
 
 
-                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
-                                            <ChevronRight />
-                                        </Button>
+                                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(prev => prev + 1)} disabled={currentPage === totalPages}>
+                                                    <ChevronRight />
+                                                </Button>
 
-                                        <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
-                                            <ChevronsRight />
-                                        </Button>
+                                                <Button className="px-2 text-sm sm:text-base sm:px-4 py-2 bg-gray-200 text-black rounded-md disabled:opacity-50" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+                                                    <ChevronsRight />
+                                                </Button>
+                                            </div>
+                                            <div>
+                                                <span className="md:block hidden text-center">Halaman {currentPage} dari {totalPages}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span className="text-center">Halaman {currentPage} dari {totalPages}</span>
+                                    <span className="text-center md:hidden block">Halaman {currentPage} dari {totalPages}</span>
                                 </div>
                             )
                         }
@@ -531,7 +602,7 @@ const Riwayat = () => {
                 </div >
             </div >
 
-            {
+            {/* {
                 type != "Uang Masuk" && (
                     <div className={`${showDescription.status ? 'hidden' : 'fixed bottom-32 w-full m-auto flex items-center justify-center'} `}>
                         <div className="flex relative items-center justify-center py-3 px-5 rounded-full bg-white shadow-lg gap-5">
@@ -560,15 +631,10 @@ const Riwayat = () => {
                                     </button>
                                 </div>
                             )}
-
-                            {/* <button onClick={sortingHandler} className="flex items-center gap-2 text-gray-500">
-                                <ArrowDownAZ />
-                                <p>Sorting</p>
-                            </button> */}
                         </div>
                     </div>
                 )
-            }
+            } */}
 
             {/* Deskripsi Pembelian */}
             <div ref={contentRef} className={`${showDescription.status ? 'block' : 'hidden'} w-full xs:w-[90%] mt-24 left-[50%] -translate-x-[50%] p-5 z-20 absolute rounded-lg `}>

@@ -1,0 +1,28 @@
+[
+  {
+    "text": "Pembelian produk PPOB di aplikasi STIQR hanya dapat dilakukan menggunakan saldo Non-Tunai."
+  },
+  {
+    "text": "Transaksi PPOB yang telah berhasil tidak dapat dibatalkan atau dikembalikan."
+  },
+  {
+    "text": "Segala bentuk kesalahan input data menjadi tanggung jawab penuh Merchant/Pengguna."
+  },
+  {
+    "text": "STIQR memberikan kesempatan kepada Merchant/Pengguna untuk menjadi reseller produk PPOB.",
+    "list": [
+      "Reseller dapat menetapkan biaya tambahan (markup) atas harga dasar produk PPOB sebagai bentuk keuntungan.",
+      "Biaya tambahan tersebut dapat diatur secara mandiri oleh reseller melalui fitur yang tersedia di aplikasi.",
+      "Besaran biaya tambahan maksimal sebesar Rp2.000 per transaksi.",
+      "Biaya tambahan ini akan ditambahkan secara otomatis ke harga produk yang ditampilkan kepada pelanggan reseller.",
+      "Reseller bertanggung jawab penuh atas layanan yang diberikan kepada pelanggan akhir mereka.",
+      "STIQR hanya bertanggung jawab atas transaksi antara reseller dan sistem PPOB, bukan antara reseller dan pelanggannya.",
+      "Seluruh keuntungan dari biaya tambahan akan langsung masuk ke akun Non-Tunai reseller setelah transaksi berhasil.",
+      "STIQR berhak melakukan audit dan pembatasan jika terdapat indikasi markup berlebihan, transaksi tidak wajar, atau penggunaan yang bertentangan dengan hukum.",
+      "Reseller dilarang menyalahgunakan layanan untuk praktik penipuan, pencucian uang, atau kegiatan ilegal lainnya."
+    ]
+  },
+  {
+    "text": "Jika terjadi kendala dalam pembelian produk, Merchant/Pengguna dapat menghubungi layanan pelanggan STIQR melalui nomor 0821-1838-3415."
+  }
+]

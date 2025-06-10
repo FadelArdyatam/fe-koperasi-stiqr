@@ -412,7 +412,7 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
                             render={({ field }) => (
                                 <FormItem data-aos="fade-up" data-aos-delay="300">
                                     <div className="flex items-center gap-5 justify-between">
-                                        <FormLabel>Wajib Dipilih?</FormLabel>
+                                        <FormLabel>Apakah varian wajib dipilih ?</FormLabel>
                                         <FormControl>
                                             <div
                                                 className={`w-14 h-8 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${field.value ? "bg-orange-400" : "bg-gray-300"
@@ -426,9 +426,6 @@ const AddVariant: React.FC<AddVariantProps> = ({ setAddVariant, variants, setVar
                                             </div>
                                         </FormControl>
                                     </div>
-
-                                    <p className="text-sm text-gray-500">Varian harus dipilih pembeli.</p>
-
                                     <FormMessage />
                                 </FormItem>
                             )}
