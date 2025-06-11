@@ -129,11 +129,11 @@ export const FormPengajuanQris: React.FC<FormPengajuanQrisProps> = ({
                         </p>
                         {
                             name == 'bussiness_photo' && (
-                                <p className='font-semibold text-sm text-red-600'>*Wajib menggunakan aplikasi <a className='underline ' href="https://play.google.com/store/apps/details?id=com.gpsmapcamera.geotagginglocationonphoto">geotagging</a></p>
+                                <p className='font-semibold text-sm text-red-600'>*Wajib menggunakan aplikasi <a className='underline' target="_blank" href="https://play.google.com/store/apps/details?id=com.gpsmapcamera.geotagginglocationonphoto">geotagging</a></p>
                             )
                         }
                         {
-                            merchant_type== 'Perorangan' && name == 'nib' && (
+                            merchant_type == 'Perorangan' && name == 'nib' && (
                                 <p className='font-semibold text-sm text-red-600'>*Jika ada, wajib   disertakan</p>
                             )
                         }
