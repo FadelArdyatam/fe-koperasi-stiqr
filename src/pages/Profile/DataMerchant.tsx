@@ -15,7 +15,7 @@ import "aos/dist/aos.css";
 interface MerchantData {
     id: number;
     name: string;
-    category: "Makanan & Minuman" | "Fashion & Aksesori" | "Elektronik & Gadget" | "Kesehatan & Kecantikan" | "Rumah & Dekorasi" | "Otomotif" | "Hobi & Hiburan" | "Jasa & Layanan" | "Bahan Pokok & Grosir" | "Teknologi & Digital" | "Lainnya";
+    category?: string;
     phone_number: string;
     address: string;
     post_code: string;
@@ -46,20 +46,8 @@ const DataMerchant = () => {
         merchantName: z.string().min(1, {
             message: "Nama Merchant wajib diisi",
         }),
-        merchantCategory: z.enum([
-            "Makanan & Minuman",
-            "Fashion & Aksesori",
-            "Elektronik & Gadget",
-            "Kesehatan & Kecantikan",
-            "Rumah & Dekorasi",
-            "Otomotif",
-            "Hobi & Hiburan",
-            "Jasa & Layanan",
-            "Bahan Pokok & Grosir",
-            "Teknologi & Digital",
-            "Lainnya"
-        ], {
-            message: "Kategori Merchant wajib dipilih",
+        merchantCategory: z.string().min(1, {
+            message: "Kategori wajib diisi",
         }),
         merchantProvince: z.string().min(2, {
             message: "Provinsi wajib diisi",
@@ -230,7 +218,7 @@ const DataMerchant = () => {
     const handleEditClick = () => {
         if (merchantData) {
             form.setValue("merchantName", merchantData.name);
-            form.setValue("merchantCategory", merchantData.category);
+            form.setValue("merchantCategory", merchantData.category ?? "");
             form.setValue("merchantProvince", merchantData.province);
             form.setValue("merchantRegency", merchantData.regency);
             form.setValue("merchantDistrict", merchantData.district);
