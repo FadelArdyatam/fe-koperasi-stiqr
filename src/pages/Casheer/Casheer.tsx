@@ -233,10 +233,10 @@ const Casheer = () => {
         return <div>Loading...</div>
     }
 
-    const detailProductHandler = (index: number) => {
-        setShowDetailProduct(true);
-        setSelectedProduct(products[index]);
-    }
+    // const detailProductHandler = (index: number) => {
+    //     setShowDetailProduct(true);
+    //     setSelectedProduct(products[index]);
+    // }
 
     // Validasi sebelum memanggil filter
     const filteredProducts = Array.isArray(products)
@@ -397,8 +397,8 @@ const Casheer = () => {
                         >
                             {/* Detail Produk */}
                             <div
-                                onClick={() => detailProductHandler(index)}
-                                className="flex items-center gap-5 flex-1 cursor-pointer overflow-hidden"
+                                // onClick={() => detailProductHandler(index)}
+                                className="flex items-center gap-5 flex-1 cursor-auto overflow-hidden"
                             >
                                 {/* Gambar Produk */}
                                 <div className="h-12 w-12 min-w-12 bg-gray-200 rounded-md overflow-hidden">
@@ -520,8 +520,8 @@ const Casheer = () => {
                         >
                             {/* Detail Produk */}
                             <div
-                                onClick={() => detailProductHandler(index)}
-                                className="flex items-center gap-4 flex-1 cursor-pointer overflow-hidden"
+                                // onClick={() => detailProductHandler(index)}
+                                className="flex items-center gap-4 flex-1 cursor-auto overflow-hidden"
                             >
                                 {/* Gambar Produk */}
                                 <div className="h-12 w-12 min-w-12 bg-gray-200 rounded-md overflow-hidden">
@@ -708,6 +708,7 @@ const Casheer = () => {
             {showDetailProduct && <DetailProduct product={selectedProduct} setShowDetailProduct={setShowDetailProduct} basket={basket} setBasket={setBasket} showService={showService} />}
 
             {showService.show && showService.service !== null && <OrderSummary references={serviceRef} setBasket={setBasket} basket={basket} setShowService={setShowService} showService={showService} setSelectedProduct={setSelectedProduct} setShowDetailProduct={setShowDetailProduct} />}
+            {/* {showService.show && showService.service !== null && <OrderSummary references={serviceRef} setBasket={setBasket} basket={basket} setShowService={setShowService} showService={showService}  />} */}
         </>
     )
 }

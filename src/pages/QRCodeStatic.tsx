@@ -43,7 +43,7 @@ export const QRCodeStatic = ({ url, setIsQrisStatic, subMerchantId }: QRCodeStat
                 className="w-full md:max-w-xs h-auto mt-5 md:z-20 rounded-md md:p-6 border md:bg-white"
                 alt="QRIS"
             />
-            <Button onClick={() => setIsQrisStatic(false)} className="md:max-w-xs w-full md:mb-10 bg-orange-500 h-8">
+            <Button onClick={() => setIsQrisStatic(false)} className="md:max-w-xs w-full md:mb-10 bg-orange-500 h-8 z-30">
                 <Edit /> Atur Nominal
             </Button>
         </div>

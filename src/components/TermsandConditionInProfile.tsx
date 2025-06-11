@@ -53,8 +53,7 @@ const TermsandConditionInProfile: React.FC<TermsandConditionInProfileProps> = ({
                         <TermsList
                             title={"Ketentuan Umum"}
                             openItem={openItem}
-                            item={"item-1"}
-                            showCheckbox={true}>
+                            item={"item-1"}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {
                                     ketentuanUmum.map((item, index) => (
@@ -68,8 +67,7 @@ const TermsandConditionInProfile: React.FC<TermsandConditionInProfileProps> = ({
                         <TermsList
                             title={"Ketentuan Akun STIQR"}
                             openItem={openItem}
-                            item={"item-2"}
-                            showCheckbox={true}>
+                            item={"item-2"}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {
                                     ketentuanAkun.map((item, index) => (
@@ -83,8 +81,7 @@ const TermsandConditionInProfile: React.FC<TermsandConditionInProfileProps> = ({
                         <TermsList
                             title={"Perangkat Lunak"}
                             openItem={openItem}
-                            item={"item-3"}
-                            showCheckbox={true}>
+                            item={"item-3"}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {
                                     perangkatLunak.map((data, index) => (
@@ -97,8 +94,7 @@ const TermsandConditionInProfile: React.FC<TermsandConditionInProfileProps> = ({
                         <TermsList
                             title={"Tindakan yang Dilarang Dilakukan di Aplikasi STIQR"}
                             openItem={openItem}
-                            item={"item-4"}
-                            showCheckbox={true}>
+                            item={"item-4"}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {tindakanLarangan.map((data, index) => (
                                     <li key={index}>
@@ -115,8 +111,7 @@ const TermsandConditionInProfile: React.FC<TermsandConditionInProfileProps> = ({
                         <TermsList
                             title={"Kebijakan Penggunaan Data Pribadi STIQR"}
                             openItem={openItem}
-                            item={"item-5"}
-                            showCheckbox={true}>
+                            item={"item-5"}>
                             <p>{penggunaanDataPribadi.title}</p>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {penggunaanDataPribadi.list.map((data, index) => (
@@ -130,8 +125,7 @@ const TermsandConditionInProfile: React.FC<TermsandConditionInProfileProps> = ({
                         <TermsList
                             title={"Kebijakan Pengelolaan Data Pribadi STIQR"}
                             openItem={openItem}
-                            item={"item-6"}
-                            showCheckbox={true}>
+                            item={"item-6"}>
                             <p>{pengelolaanDataPribadi.title}</p>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {pengelolaanDataPribadi.list.map((data, index) => (
@@ -159,8 +153,7 @@ const TermsandConditionInProfile: React.FC<TermsandConditionInProfileProps> = ({
                         <TermsList
                             title={"Kerahasiaan"}
                             openItem={openItem}
-                            item={"item-7"}
-                            showCheckbox={true}>
+                            item={"item-7"}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {
                                     kerahasiaan.map((item, index) => (
@@ -186,8 +179,7 @@ const TermsandConditionInProfile: React.FC<TermsandConditionInProfileProps> = ({
                         <TermsList
                             title={"Ketentuan QRIS"}
                             openItem={openItem}
-                            item={"item-8"}
-                            showCheckbox={true}>
+                            item={"item-8"}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {ketentuanQris.map((section, sectionIndex) => (
                                     <li key={sectionIndex}>
@@ -232,8 +224,7 @@ const TermsandConditionInProfile: React.FC<TermsandConditionInProfileProps> = ({
                         <TermsList
                             title={"Ketentuan Pencairan dan Perangkat"}
                             openItem={openItem}
-                            item={"item-9"}
-                            showCheckbox={true}>
+                            item={"item-9"}>
                             <ol className="list-[upper-alpha] pl-6 space-y-2">
                                 {
                                     pencairanPerangkat.map((item, index) => (
@@ -263,8 +254,7 @@ const TermsandConditionInProfile: React.FC<TermsandConditionInProfileProps> = ({
                         <TermsList
                             title={"Layanan PPOB (BPJS, PDAM, Listrik, Pulsa, dan Paket Data)"}
                             openItem={openItem}
-                            item={"item-10"}
-                            showCheckbox={true}>
+                            item={"item-10"}>
                             <ol className="list-decimal pl-6 space-y-2">
                                 {layananPpob.map((data, index) => (
                                     <li key={index}>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import axiosInstance from '@/hooks/axiosInstance';
-import { Check, Download, Share2 } from 'lucide-react';
+import { Check, Download } from 'lucide-react';
 import { formatRupiah } from '@/hooks/convertRupiah';
 import html2canvas from "html2canvas";
 import logo from "@/images/logo.png";
@@ -107,35 +107,35 @@ const EReceiptCustomer = () => {
         document.body.removeChild(link);
     };
 
-    const handleShare = async () => {
-        if (!captureRef.current) return;
+    // const handleShare = async () => {
+    //     if (!captureRef.current) return;
 
-        try {
-            // Capture elemen yang ingin di-download
-            const canvas = await html2canvas(captureRef.current, { backgroundColor: null });
-            const dataUrl = canvas.toDataURL("image/jpeg", 1.0); // Simpan sebagai JPEG
+    //     try {
+    //         // Capture elemen yang ingin di-download
+    //         const canvas = await html2canvas(captureRef.current, { backgroundColor: null });
+    //         const dataUrl = canvas.toDataURL("image/jpeg", 1.0); // Simpan sebagai JPEG
 
-            // Konversi ke file Blob
-            const blob = await (await fetch(dataUrl)).blob();
-            const date = new Date();
-            const formattedDate = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
-            const fileName = `${orders?.no_transaksi}-${formattedDate}.jpg`;
-            const file = new File([blob], `${fileName}`, { type: "image/jpeg" });
+    //         // Konversi ke file Blob
+    //         const blob = await (await fetch(dataUrl)).blob();
+    //         const date = new Date();
+    //         const formattedDate = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+    //         const fileName = `${orders?.no_transaksi}-${formattedDate}.jpg`;
+    //         const file = new File([blob], `${fileName}`, { type: "image/jpeg" });
 
-            // Cek apakah Web Share API didukung
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    title: "Bagikan Struk",
-                    text: "Cek detail pembayaran ini!",
-                });
-            } else {
-                alert("Fitur bagikan tidak didukung di perangkat ini.");
-            }
-        } catch (error) {
-            console.error("Gagal membagikan gambar:", error);
-        }
-    };
+    //         // Cek apakah Web Share API didukung
+    //         if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    //             await navigator.share({
+    //                 files: [file],
+    //                 title: "Bagikan Struk",
+    //                 text: "Cek detail pembayaran ini!",
+    //             });
+    //         } else {
+    //             alert("Fitur bagikan tidak didukung di perangkat ini.");
+    //         }
+    //     } catch (error) {
+    //         console.error("Gagal membagikan gambar:", error);
+    //     }
+    // };
 
     console.log(orders)
 
@@ -153,9 +153,9 @@ const EReceiptCustomer = () => {
                         </div>
 
                         <div className='w-max flex items-center gap-5 absolute top-5 right-5'>
-                            <button className='p-3  text-orange-400 ' onClick={() => handleShare()}>
+                            {/* <button className='p-3  text-orange-400 ' onClick={() => handleShare()}>
                                 <Share2 />
-                            </button>
+                            </button> */}
 
                             <button className='text-orange-400' onClick={() => handleDownloadJPEG()}>
                                 <Download />

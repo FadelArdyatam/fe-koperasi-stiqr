@@ -127,6 +127,16 @@ export const FormPengajuanQris: React.FC<FormPengajuanQrisProps> = ({
                             Unggah foto {label} Anda dalam format PNG, JPEG, JPG, GIF, atau PDF dengan ukuran maksimal 5 MB.{" "}
                             <span className="font-semibold">Pastikan foto terlihat jelas secara keseluruhan</span>
                         </p>
+                        {
+                            name == 'bussiness_photo' && (
+                                <p className='font-semibold text-sm text-red-600'>*Wajib menggunakan aplikasi <a className='underline ' href="https://play.google.com/store/apps/details?id=com.gpsmapcamera.geotagginglocationonphoto">geotagging</a></p>
+                            )
+                        }
+                        {
+                            merchant_type== 'Perorangan' && name == 'nib' && (
+                                <p className='font-semibold text-sm text-red-600'>*Jika ada, wajib   disertakan</p>
+                            )
+                        }
                         <FormControl>
                             <input
                                 className="p-2 w-full border border-orange-500 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"

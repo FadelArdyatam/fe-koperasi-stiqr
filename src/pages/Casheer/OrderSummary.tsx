@@ -1,4 +1,4 @@
-import { ArrowLeft, Trash2, Pencil, ChevronsUpDown } from "lucide-react";
+import { ArrowLeft, Trash2, ChevronsUpDown } from "lucide-react";
 import bayarNanti from "../../images/take-away.png"
 import bayarSekarang from "../../images/bayar-sekarang.png"
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,9 @@ interface OrderSummaryProps {
 }
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showService, setShowService, references, setSelectedProduct, setShowDetailProduct }) => {
+    // const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showService, setShowService, references }) => {
+    console.log(setSelectedProduct)
+    console.log(setShowDetailProduct)
     const [mergedBasket, setMergedBasket] = useState<any[]>([]);
     const [showOrderProcess, setShowOrderProcess] = useState(false);
     const [noMeja, setNoMeja] = useState("");
@@ -207,7 +210,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                 setTagih(true)
             }
         } catch (error: any) {
-            
+
             setLoading(false)
         }
     };
@@ -411,12 +414,12 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ setBasket, basket, showServ
                                 <button onClick={() => removeHandler(index)} className="text-red-500"><Trash2 /></button>
                             </div>
 
-                            <div className="mt-10 flex items-center justify-between gap-5">
-                                <button onClick={() => { setShowService({ show: false, service: null }); setShowDetailProduct(true); setSelectedProduct(basket[index]) }} className="flex items-center gap-3 font-semibold text-orange-400 rounded-lg">
+                            <div className="mt-10 flex items-center justify-end gap-5">
+                                {/* <button onClick={() => { setShowService({ show: false, service: null }); setShowDetailProduct(true); setSelectedProduct(basket[index]) }} className="flex items-center gap-3 font-semibold text-orange-400 rounded-lg">
                                     <Pencil />
 
                                     <p>Edit</p>
-                                </button>
+                                </button> */}
 
                                 <div className="flex items-center gap-3">
                                     <button onClick={() => decreaseHandler(index)} className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold text-2xl">-</button>

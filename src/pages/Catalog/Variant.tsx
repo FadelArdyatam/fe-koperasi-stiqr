@@ -7,7 +7,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect } from "react";
 import imgNoCatalog from "@/images/no-data-catalog.png";
-import { Plus } from "lucide-react";
+import { Info, Plus } from "lucide-react";
 
 interface VariantProps {
     variants: Array<{
@@ -126,11 +126,25 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
     };
 
     console.log("variant", variants)
+    const isHide = true;
 
     return (
         <div className="mb-32 px-5">
             <div className={`${addVariant || open.status || showVariantProductHandler.status ? 'hidden' : 'block'}`}>
-                <div>
+                {
+                    isHide && (
+                        <div data-aos="fade-up" data-aos-delay="100" className="flex items-center justify-between gap-3 p-4 w-full bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <Info className="w-5 min-w-5 h-5 text-blue-500" />
+
+                                <p className="text-sm text-black">
+                                    Fitur varian masih dalam proses pengembangan dan akan segera tersedia
+                                </p>
+                            </div>
+                        </div>
+                    )
+                }
+                <div className={`${isHide ? 'hidden' : 'block'}`}>
                     {variants.map((variant, index) => (
                         <div data-aos="fade-up" data-aos-delay={index * 100} key={variant.id} className="shadow-sm flex flex-col mb-3 bg-white hover:cursor-pointer hover:bg-orange-100 transition-all rounded-md duration-500">
                             <div onClick={() => handleOpen(variant.variant_id)} className="">
@@ -188,7 +202,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                     )}
                 </div>
 
-                <Button onClick={() => { setAddVariant(true); setReset(false) }} className={`${variants?.length === 0 ? 'hidden' : 'block'} fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500`}>
+                <Button disabled onClick={() => { setAddVariant(true); setReset(false) }} className={`${variants?.length === 0 ? 'hidden' : 'block'} fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500`}>
                     Tambah Varian
                 </Button>
             </div>

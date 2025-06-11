@@ -518,25 +518,6 @@ export const FormMerchant = ({
                             </FormItem>
                         )}
                     />
-
-                    <FormField
-                        control={formMerchant.control}
-                        name="merchantContact"
-                        render={({ field }) => (
-                            <FormItem className="w-full">
-                                <FormControl>
-                                    <Input
-                                        data-aos="fade-up"
-                                        className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                        placeholder="Contact Merchant"
-                                        {...field}
-                                        onChange={(e) => field.onChange(e.target.value.toLowerCase())}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
                 </div>
 
                 <div data-aos="fade-up" className="flex items-center w-full justify-between gap-5">

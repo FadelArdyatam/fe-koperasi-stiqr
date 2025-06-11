@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Delete } from "lucide-react";
+import { evaluate } from "mathjs";
+
 
 interface CalculatorProps {
     setAmount: React.Dispatch<React.SetStateAction<string>>;
@@ -33,7 +35,7 @@ const CalculatorComponent: React.FC<CalculatorProps> = ({ setAmount, amount, set
 
     const handleCalculate = () => {
         try {
-            const result = eval(amount);
+            const result = evaluate(amount);
             if (!isNaN(result)) {
                 setAmount(parseFloat(result.toFixed(2)).toString()); // Menampilkan 2 angka desimal
                 setIsCalculated(true);
@@ -111,7 +113,7 @@ const CalculatorComponent: React.FC<CalculatorProps> = ({ setAmount, amount, set
                 </div>
 
                 <div className="mt-4 flex flex-col gap-3">
-                    <p className="text-sm text-gray-500 italic">*Pastikan angka sudah bilangan bulat dengan menekan "="</p>
+                    <p className="text-sm text-gray-500 italic">*Pastikan angka sudah bilangan bulat dengan menekan "="</p>
 
                     <button
                         type="button"

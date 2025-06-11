@@ -14,6 +14,7 @@ import Loading from "@/components/Loading"
 import { FormPengajuanQris } from "@/components/register/FormPengajuanQris"
 import { FormMerchant } from "@/components/register/FormMerchant"
 import { FormPersonal } from '../components/register/FormPersonal';
+import { useNavigate } from "react-router-dom"
 
 const Signup = () => {
     const [showTermsandConditions, setShowTermsandConditions] = useState(true)
@@ -35,14 +36,14 @@ const Signup = () => {
         AOS.refresh();  // Refresh AOS setiap kali currentSection berubah
     }, [currentSection]);
 
-    // useEffect(() => {
-    //     const registerID = localStorage.getItem("registerID")
+    useEffect(() => {
+        const registerID = localStorage.getItem("registerID")
 
-    //     if (registerID) {
-    //         setCurrentSection(4)
-    //         setShowTermsandConditions(false)
-    //     }
-    // }, [])
+        if (registerID) {
+            setCurrentSection(3)
+            setShowTermsandConditions(false)
+        }
+    }, [])
 
     const FormSchemaUser = z.object({
         photo: z.union([z.instanceof(File, {
@@ -535,6 +536,7 @@ const Signup = () => {
     }, [selectedDistrict]);
     const [openSearch, setOpenSearch] = useState(false);
     const [mcc, setMcc] = useState({ code: '', name: '' });
+    const navigate = useNavigate();
 
     return (
         <div>
@@ -544,6 +546,10 @@ const Signup = () => {
                         <div className="flex items-center w-full">
                             {
                                 currentSection === 0 && (<ChevronLeft className="cursor-pointer" onClick={() => setShowTermsandConditions(true)} />)
+                            }
+                            {
+                                currentSection === 3 && (<ChevronLeft className="cursor-pointer" onClick={() => navigate('/')} />)
+
                             }
 
                             <p data-aos="zoom-in" className="uppercase m-auto text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : currentSection === 2 ? 'Pengajuan QRIS' : 'Kode OTP'}</p>

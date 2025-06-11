@@ -376,12 +376,13 @@ const Riwayat = () => {
                                                 <div className="flex flex-col items-end md:mt-0 mt-2">
                                                     <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
                                                     {
-                                                        history.payment_method == 'QRIS' && (
+                                                        history.payment_method == 'QRIS' || history.payment_method == 'QRIS Static' && (
                                                             <p className="text-xs text-red-500 mb-2">
                                                                 - {history.net_amount == null || history.total_amount == history.net_amount
                                                                     ? formatRupiah(0)
-                                                                    : formatRupiah((history.total_amount ?? 0) - history.net_amount) + ` (MDR)`
+                                                                    : formatRupiah((history.total_amount ?? 0) - history.net_amount)
                                                                 }
+                                                                {" "} (MDR)
                                                             </p>
                                                         )
                                                     }

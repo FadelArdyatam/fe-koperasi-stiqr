@@ -24,9 +24,6 @@ interface DetailSettlementProps {
 export const DetailSettlement: React.FC<DetailSettlementProps> = ({ data, handleClose }) => {
     const amount = data.amount ?? 0;
     const adminFee = data.admin_fee ?? 0;
-    const mdr = amount * 0.007;
-    console.log(data)
-
     return (
         <>
             <div className="fixed w-full top-0 z-10 p-5 flex items-center justify-center bg-orange-400">
@@ -78,14 +75,10 @@ export const DetailSettlement: React.FC<DetailSettlementProps> = ({ data, handle
                     <p>Jumlah Penarikan</p>
                     <p>{formatRupiah(amount)}</p>
                 </div>
-                <div className="flex justify-between text-sm my-1">
-                    <p>MDR <i>(0,7%)</i></p>
-                    <p className="text-red-500">- {formatRupiah(mdr)}</p>
-                </div>
-                <div className="flex justify-between text-sm my-1 items-center font-bold">
+                {/* <div className="flex justify-between text-sm my-1 items-center font-bold">
                     <p>Saldo yang Diterima</p>
-                    <p>{formatRupiah(amount - mdr)}</p>
-                </div>
+                    <p>{formatRupiah(amount)}</p>
+                </div> */}
                 <p className="text-xs text-gray-500 italic font-normal">
                     *saldo yang masuk ke rekening Anda.
                 </p>
