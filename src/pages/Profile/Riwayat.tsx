@@ -525,7 +525,7 @@ const Riwayat = () => {
                                                 </p>
                                                 {
                                                     (purchase.marginFee ?? 0) > 0 && (
-                                                        <p className="text-md text-green-500">
+                                                        <p className="text-sm text-green-500">
                                                             + {formatRupiah(purchase.marginFee || 0)}
                                                         </p>
                                                     )

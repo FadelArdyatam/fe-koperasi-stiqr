@@ -39,7 +39,15 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail, margi
 
     const [data, setData] = useState<Data | null>(null);
     const [productDetails, setProductDetails] = useState<any[]>([])
-    const [marginFeeRiwayat, setMarginFeeRiwayat] = useState(0)
+    const [otherInfo, setOtherInfo] = useState<{
+        margin_fee_stiqr?: number;
+        metode?: string;
+        net_amount?: number;
+    }>({
+        margin_fee_stiqr: 0,
+        metode: "",
+        net_amount: 0
+    });
     useEffect(() => {
         const fetchDetail = async () => {
             const response = await axiosInstance.post("/ayoconnect/inquiry/status", {
@@ -56,7 +64,11 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail, margi
             setMessage(response.data.message.ID)
             // setAmount(response.data.data.amount - response.data.data.processingFee - response.data.data.totalAdmin);
             setTotal(response.data.data.amount);
-            setMarginFeeRiwayat(response.data.margin_fee_stiqr)
+            setOtherInfo({
+                margin_fee_stiqr: response.data?.margin_fee_stiqr,
+                metode: response.data?.paymentMethod,
+                net_amount: response.data?.netAmount
+            })
             setLoading(false)
         }
         fetchDetail()
@@ -111,6 +123,10 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail, margi
             console.error("Gagal membagikan gambar:", error);
         }
     };
+
+    const totalTransaksi = Number(total || 0) + Number(marginFee || otherInfo?.margin_fee_stiqr || 0)
+    const mdrCost = totalTransaksi - Number(otherInfo?.net_amount ?? 0)
+    const netAmount = totalTransaksi - mdrCost;
 
     return (
         <>
@@ -255,11 +271,15 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail, margi
                             </div>
                         )}
 
+                        <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
+                            <p>Metode Pembayaran</p>
+                            <p>{otherInfo.metode?.toUpperCase()}</p>
+                        </div>
                         {
-                            Number(marginFee || marginFeeRiwayat) > 0 && (
+                            Number(marginFee || otherInfo.margin_fee_stiqr) > 0 && (
                                 <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
                                     <p>Biaya Layanan</p>
-                                    <p>{formatRupiah(Number(marginFee || marginFeeRiwayat))}</p>
+                                    <p>{formatRupiah(Number(marginFee || otherInfo.margin_fee_stiqr))}</p>
                                 </div>
                             )
                         }
@@ -279,10 +299,27 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail, margi
 
                         <div className="w-full my-5 h-[2px] bg-gray-200"></div>
 
-                        <div className="flex items-center gap-5 justify-between">
-                            <p className="font-bold">Total Bayar</p>
-                            <p className="text-orange-400 font-bold">{formatRupiah(Number(total + Number(marginFee || marginFeeRiwayat)))}</p>
+                        <div className="flex items-center gap-5 justify-between ">
+                            <p className="font-semibold">Total Transaksi</p>
+                            <p className="font-semibold">{formatRupiah(totalTransaksi)}</p>
                         </div>
+                        {
+                            otherInfo.metode == 'qris' && otherInfo.net_amount != null && (
+                                <>
+                                    <div className="flex items-center gap-5 justify-between my-3">
+                                        <p className="font-semibold">Biaya MDR</p>
+                                        <p className="text-red-500 font-semibold">
+                                            - {formatRupiah(mdrCost)}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-5 justify-between">
+                                        <p className="font-semibold">Total Uang Masuk</p>
+                                        <p className="font-semibold">{formatRupiah(netAmount)}</p>
+
+                                    </div>
+                                </>
+                            )
+                        }
                     </div>
 
                 </div>
@@ -432,10 +469,10 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail, margi
 
 
                             {
-                                Number(marginFee || marginFeeRiwayat) > 0 && (
+                                Number(marginFee || otherInfo.margin_fee_stiqr) > 0 && (
                                     <div className="mt-5 flex items-center gap-5 justify-between font-semibold">
                                         <p>Biaya Layanan</p>
-                                        <p>{formatRupiah(Number(marginFee || marginFeeRiwayat))}</p>
+                                        <p>{formatRupiah(Number(marginFee || otherInfo.margin_fee_stiqr))}</p>
                                     </div>
                                 )
                             }
@@ -444,7 +481,7 @@ const Invoice: React.FC<InvoiceProps> = ({ refNumber, marginTop, isDetail, margi
 
                             <div className="flex items-center gap-5 justify-between">
                                 <p className="font-bold">Total Bayar</p>
-                                <p className="text-orange-400 font-bold">{formatRupiah(total + Number(marginFee || marginFeeRiwayat))}</p>
+                                <p className="text-orange-400 font-bold">{formatRupiah(total + Number(marginFee || otherInfo.margin_fee_stiqr))}</p>
                             </div>
                             <div className="text-gray-500">
                                 <p className="text-center mt-5">
