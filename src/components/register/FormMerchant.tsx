@@ -28,7 +28,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, ChevronLeft, ChevronsUpDown, Save } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronsUpDown } from 'lucide-react';
 
 import { UseFormReturn } from 'react-hook-form';
 import mccList from '@/data/mcc.json'
@@ -525,7 +525,7 @@ export const FormMerchant = ({
                     <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className={`${currentSection === 1 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] hover:bg-[#7ED321] rounded-lg `}> <Save /> Kirim </Button>
+                        className={`${currentSection === 1 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] hover:bg-[#7ED321] rounded-lg `}>  Selanjutnya <ChevronRight /> </Button>
                 </div>
             </form>
         </Form>)

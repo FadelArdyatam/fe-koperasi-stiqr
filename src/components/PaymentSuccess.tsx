@@ -53,10 +53,14 @@ const PaymentSuccess: React.FC = () => {
         </h2>
 
         <div className="bg-gray-100 p-4 rounded-md mb-6">
-          <p className="text-gray-700">
-            Order ID:
-            <span className="font-semibold ml-2">{orderId || "N/A"}</span>
-          </p>
+          {
+            orderId && (
+              <p className="text-gray-700">
+                Order ID:
+                <span className="font-semibold ml-2">{orderId || "N/A"}</span>
+              </p>
+            )
+          }
           <p className="text-gray-700">
             Total Bayar:
             <span className="font-semibold ml-2">

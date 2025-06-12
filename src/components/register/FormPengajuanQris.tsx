@@ -349,7 +349,7 @@ export const FormPengajuanQris: React.FC<FormPengajuanQrisProps> = ({
                             disabled={isSubmitting}
                             className={`${currentSection === 2 ? 'flex' : 'hidden'} w-full md:w-auto mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] hover:bg-[#68b317] text-white rounded-lg items-center`}
                         >
-                            <Save className="mr-2 h-5 w-5" /> {isSubmitting ? 'Mengajukan...' : 'Ajukan'}
+                            <Save className="mr-2 h-5 w-5" /> {isSubmitting ? 'Tunggu...' : 'Simpan & Ajukan'}
                         </Button>
                     </div>
                 </form>

@@ -24,7 +24,7 @@ export const QRCodeStatic = ({ url, setIsQrisStatic, subMerchantId }: QRCodeStat
                 audio.play()
                 navigate('/payment-success', {
                     state: {
-                        orderId: "No Order ID",
+                        orderId: null,
                         amount: data.amount ?? 0,
                     },
                 });
