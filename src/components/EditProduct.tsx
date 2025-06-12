@@ -322,7 +322,7 @@ const EditProduct: React.FC<EditProductProps> = ({
             product_id: data.products.join(","),
             variant_description: "Deskripsi untuk variant",
             is_multiple: data.methods === "more",
-            multiple_value: displayChoises.map((choice) => choice.name).join(", "),
+            multiple_value: displayChoises,
             merchant_id: userData?.merchant?.id,
             is_required: data.mustBeSelected
         };

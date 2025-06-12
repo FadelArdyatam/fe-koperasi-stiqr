@@ -292,7 +292,9 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         choises: z.array(
             z.object({
                 name: z.string().nonempty("Nama pilihan wajib diisi"),
-                price: z.number().positive("Harga harus positif"),
+                price: z.number().refine((val) => val >= 0, {
+                    message: "Harga tidak boleh negatif",
+                }),
                 show: z.boolean(),  // Tambahkan atribut show
             })
         ),
@@ -400,12 +402,11 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
     };
 
     const addNewChoice = () => {
-        if (newChoiceName && newChoicePrice) {
+        if (newChoiceName && newChoicePrice !== "") {
             if (newChoicePrice < 0) {
                 setShowError(true);
                 return;
             }
-
             const newChoice = {
                 name: newChoiceName,
                 price: Number(newChoicePrice),
@@ -944,14 +945,13 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                                 <p>Harga</p>
                                                 <Input
                                                     className="mt-3"
-                                                    inputMode="numeric"  // Menampilkan keyboard angka di mobile
-                                                    pattern="[0-9]*"     // Mencegah karakter non-angka
+                                                    inputMode="numeric"
                                                     type="text"
                                                     placeholder="Harga"
-                                                    value={formatRupiah(newChoicePrice.toString())}
+                                                    value={formatRupiah(newChoicePrice.toString() ?? 0)}
                                                     onChange={(e) => {
-                                                        const rawValue = e.target.value.replace(/[^0-9]/g, ""); // Hanya ambil angka
-                                                        setNewChoicePrice(rawValue ? Number(rawValue) : ""); // Simpan angka saja tanpa format
+                                                        const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                                                        setNewChoicePrice(rawValue ? Number(rawValue) : 0);
                                                     }}
                                                 />
                                                 {showError && <p className="text-red-500 text-sm">Harga harus positif</p>}
