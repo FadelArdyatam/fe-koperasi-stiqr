@@ -531,7 +531,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                                         <p className="text-sm md:hidden block text-blue-500 font-semibold">Info</p>
                                     </div>
                                     <p className="text-xs text-gray-800">
-                                        Saat ini nama tujuan rekening dari Qr Code masih dengan atas nama <span className="font-bold"> PT. Digital Nusantara Sinergi</span>. Pengguna dapat melakukan pengajuan pergantian NAMA dengan menghubungi <Link to={'/profile/help-center'} className="underline font-bold"> Customer Service</Link>
+                                        Masukkan nominal pembayaran dan keterangan transaksi. QR Code akan aktif secara otomatis dan dapat dipindai atau dibagikan kepada pembeli.
                                     </p>
                                 </div>
 

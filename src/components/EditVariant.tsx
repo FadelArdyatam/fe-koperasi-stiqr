@@ -20,6 +20,7 @@ import { formatRupiah } from "@/hooks/convertRupiah";
 import axios from "axios";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@radix-ui/react-alert-dialog";
 import { AlertDialogHeader, AlertDialogFooter } from "./ui/alert-dialog";
+import Loading from "./Loading";
 
 interface Choice {
     detail_variant_id?: string | null;
@@ -258,9 +259,7 @@ const EditVariant: React.FC<EditVariantProps> = ({ setOpen, editIndex, setReset 
 
                 {/* Loading */}
                 {loadingSubmit && (
-                    <div className="fixed top-0 bottom-0 left-0 right-0 z-20 bg-black bg-opacity-50 w-full h-full flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-orange-500"></div>
-                    </div>
+                    <Loading />
                 )}
 
                 {!loading && !error && (

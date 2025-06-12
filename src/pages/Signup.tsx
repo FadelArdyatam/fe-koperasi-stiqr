@@ -23,11 +23,16 @@ const Signup = () => {
     const [showPassword, setShowPassword] = useState(false)
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
     const [createPin, setCreatePin] = useState(false)
-    const [allData, setAllData] = useState<{ ownerName?: string } & (z.infer<typeof FormSchemaUser> | z.infer<typeof FormSchemaMerchant>)[]>([])
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
 
+    const [phone, setPhone] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [updateDoc, setUpdateDoc] = useState({
+        is_update_deed_doc: false,
+        is_update_legal_doc: false,
+    });
     useEffect(() => {
         AOS.init({ duration: 500, once: true });
     }, []);
@@ -110,15 +115,7 @@ const Signup = () => {
         },
     })
 
-    function onSubmitUser(data: z.infer<typeof FormSchemaUser>) {
-        console.log("Data user yang dikirim:", data);
 
-        // Update allData dengan data baru
-        const updatedAllData = [data, ...allData.slice(1)];
-        setAllData(updatedAllData);
-
-        handleNext();
-    }
 
     const FormSchemaMerchant = z.object({
         typeBusinessEntity: z.enum(
@@ -194,104 +191,6 @@ const Signup = () => {
             merchantEmail: "",
         },
     });
-
-    const [phone, setPhone] = useState("")
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [merchantId, setMerchantId] = useState("")
-    const onSubmitMerchant = async (data: z.infer<typeof FormSchemaMerchant>) => {
-        const userDatas = allData[0] as z.infer<typeof FormSchemaUser>;
-        setIsSubmitting(true)
-        const payload = {
-            username: userDatas?.ownerName,
-            nik: userDatas?.nik,
-            email: userDatas?.email,
-            password: userDatas?.password,
-            confirmPassword: userDatas?.confirmPassword,
-            phoneNumber: userDatas?.phoneNumber,
-            gender: userDatas?.gender,
-            dateOfBirth: userDatas?.dateOfBirth,
-            merchantAddress: data.merchantAddress,
-            merchantCategory: data.merchantCategory,
-            merchantProvince: data.merchantProvince,
-            merchantRegency: data.merchantRegency,
-            merchantDistrict: data.merchantDistrict,
-            merchantVillage: data.merchantVillage,
-            merchantEmail: data.merchantEmail,
-            merchantName: data.merchantName,
-            phoneNumberMerchant: data.phoneNumberMerchant,
-            postalCode: data.postalCode,
-            typeBusinessEntity: data.typeBusinessEntity,
-            rt_number: data.rt_number,
-            rw_number: data.rw_number,
-            block_number: data.block_number,
-            photo: userDatas.photo instanceof File ? userDatas.photo : "https://via.placeholder.com/150",
-        };
-
-        const formData = new FormData();
-        formData.append("username", payload.username);
-        formData.append("nik", payload.nik);
-        formData.append("email", payload.email);
-        formData.append("password", payload.password);
-        formData.append("confirmPassword", payload.confirmPassword);
-        formData.append("phone_number", payload.phoneNumber);
-        formData.append("gender", payload.gender);
-        formData.append("dateOfBirth", payload.dateOfBirth.toISOString().split('T')[0]);
-        formData.append("merchantAddress", payload.merchantAddress);
-        formData.append("merchantCategory", payload.merchantCategory);
-        formData.append("merchantProvince", payload.merchantProvince);
-        formData.append("merchantRegency", payload.merchantRegency);
-        formData.append("merchantDistrict", payload.merchantDistrict);
-        formData.append("merchantVillage", payload.merchantVillage);
-        formData.append("merchantEmail", payload.merchantEmail);
-        formData.append("merchantName", payload.merchantName);
-        formData.append("phoneNumberMerchant", payload.phoneNumberMerchant);
-        formData.append("postalCode", payload.postalCode);
-        formData.append("typeBusinessEntity", payload.typeBusinessEntity);
-        formData.append("rt_number", payload.rt_number);
-        formData.append("rw_number", payload.rw_number);
-        formData.append("block_number", payload.block_number);
-        formData.append("mcc_name", mcc.name);
-        formData.append("mcc_code", mcc.code);
-
-        const userData = allData[0] as z.infer<typeof FormSchemaUser>;
-        if (userData.photo instanceof File) {
-            formData.append("photo", userData.photo);
-        } else {
-            formData.append("photo", payload.photo);
-        }
-
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
-                method: "POST",
-                body: formData,
-            });
-
-            const result = await response.json();
-            console.log("Hasil response:", result);
-            if (result.status) {
-                handleNext();
-                localStorage.setItem("registerID", crypto.randomUUID());
-                localStorage.setItem("email", payload.email)
-                setShowNotification(false)
-                localStorage.removeItem("token");
-                const formattedPhone = payload.phoneNumber.replace(/^0/, '');
-                setPhone(formattedPhone);
-                localStorage.setItem('phone', formattedPhone);
-                setMerchantId(result.merchant_id);
-            } else {
-                setIsSubmitting(false)
-                setShowNotification(true)
-                setErrorMessage(result.message)
-            }
-        } catch (error: any) {
-            console.log(error)
-            console.error("Error:", error)
-            setShowNotification(true)
-            setErrorMessage(error.message || "Terjadi Kesalahan")
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
 
     const FormSchemaSubmissionQRIS = z.object({
         annual_revenue: z.string().min(1, {
@@ -370,59 +269,104 @@ const Signup = () => {
         },
     });
 
+    const onSubmitAllForms = async (qrisData: z.infer<typeof FormSchemaSubmissionQRIS>) => {
+        console.log("Submitting all forms with data:", qrisData);
+        setIsSubmitting(true);
+        // 1. Ambil semua data dari setiap form
+        const userData = formUser.getValues();
+        const merchantData = formMerchant.getValues();
 
-    const [updateDoc, setUpdateDoc] = useState({
-        is_update_deed_doc: false,
-        is_update_legal_doc: false,
-    });
+        // 2. Buat objek FormData untuk mengirim file dan data
+        const formData = new FormData();
 
-    const onSubmitSubmissionQRIS = async (data: z.infer<typeof FormSchemaSubmissionQRIS>) => {
-        const registerID = localStorage.getItem("registerID");
-        if (!registerID) {
-            console.error("Register ID tidak ditemukan.");
-            return;
+        // 3. Append semua data ke FormData sesuai dengan DTO di backend
+
+        // Data User
+        formData.append("username", userData.ownerName);
+        formData.append("nik", userData.nik);
+        formData.append("email", userData.email);
+        formData.append("password", userData.password);
+        formData.append("confirmPassword", userData.confirmPassword);
+        formData.append("phone_number", userData.phoneNumber);
+        formData.append("gender", userData.gender);
+        const dateOfBirthValue = userData.dateOfBirth;
+        if (dateOfBirthValue) {
+            const formattedDate = new Date(dateOfBirthValue).toISOString().split('T')[0];
+            formData.append("dateOfBirth", formattedDate);
+        }
+        if (userData.photo instanceof File) {
+            formData.append("photo", userData.photo);
         }
 
-        setIsSubmitting(true);
-        const formData = new FormData();
-        formData.append("annual_revenue", data.annual_revenue);
-        if (data.ktp) formData.append("ktp", data.ktp);
-        if (data.nib) formData.append("nib", data.nib);
-        if (data.npwp) formData.append("npwp", data.npwp);
-        if (data.deed_doc) formData.append("deed_doc", data.deed_doc);
-        if (data.deed_update_doc) formData.append("deed_update_doc", data.deed_update_doc);
-        if (data.legal_doc) formData.append("legal_doc", data.legal_doc);
-        if (data.legal_update_doc) formData.append("legal_update_doc", data.legal_update_doc);
-        if (data.bussiness_photo) formData.append("bussiness_photo", data.bussiness_photo);
-        formData.append("daily_income", data.daily_income);
-        formData.append("daily_transaction", data.daily_transaction);
-        formData.append("merchant_id", merchantId);
-        formData.append("type", formMerchant.getValues("typeBusinessEntity"));
+        // Data Merchant
+        formData.append("merchantName", merchantData.merchantName);
+        formData.append("merchantEmail", merchantData.merchantEmail);
+        formData.append("phoneNumberMerchant", merchantData.phoneNumberMerchant);
+        formData.append("typeBusinessEntity", merchantData.typeBusinessEntity);
+        formData.append("merchantAddress", merchantData.merchantAddress);
+        formData.append("postalCode", merchantData.postalCode);
+        formData.append("merchantProvince", merchantData.merchantProvince);
+        formData.append("merchantRegency", merchantData.merchantRegency);
+        formData.append("merchantDistrict", merchantData.merchantDistrict);
+        formData.append("merchantVillage", merchantData.merchantVillage);
+        formData.append("rt_number", merchantData.rt_number);
+        formData.append("rw_number", merchantData.rw_number);
+        formData.append("block_number", merchantData.block_number);
+        // Asumsi `mcc` masih ada di state
+        formData.append("mcc_code", mcc.code);
+        formData.append("mcc_name", mcc.name);
+
+        // Data QRIS Submission
+        formData.append("annual_revenue", qrisData.annual_revenue);
+        formData.append("daily_income", qrisData.daily_income);
+        formData.append("daily_transaction", qrisData.daily_transaction);
+        formData.append("type", merchantData.typeBusinessEntity); // type QRIS diambil dari tipe badan usaha
         formData.append("is_update_deed_doc", updateDoc.is_update_deed_doc.toString());
         formData.append("is_update_legal_doc", updateDoc.is_update_legal_doc.toString());
 
+        // Lampirkan file-file QRIS
+        if (qrisData.ktp) formData.append("ktp", qrisData.ktp);
+        if (qrisData.bussiness_photo) formData.append("bussiness_photo", qrisData.bussiness_photo);
+        if (qrisData.npwp) formData.append("npwp", qrisData.npwp);
+        if (qrisData.nib) formData.append("nib", qrisData.nib);
+        if (qrisData.deed_doc) formData.append("deed_doc", qrisData.deed_doc);
+        if (qrisData.deed_update_doc) formData.append("deed_update_doc", qrisData.deed_update_doc);
+        if (qrisData.legal_doc) formData.append("legal_doc", qrisData.legal_doc);
+        if (qrisData.legal_update_doc) formData.append("legal_update_doc", qrisData.legal_update_doc);
+
+
         try {
+            // 4. Kirim request ke endpoint gabungan
+            // NOTE: Pastikan endpoint ini benar sesuai dengan controller backend Anda
             const response = await axiosInstance.post(
-                `${import.meta.env.VITE_API_URL}/register/qris-submission`,
+                `/register`, // Menggunakan endpoint baru dari controller
                 formData,
                 {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
+                    headers: { 'Content-Type': 'multipart/form-data' },
                 }
             );
-            if (response.data.status) {
-                console.log("Pengajuan QRIS berhasil:", response.data);
-                setShowNotification(false)
-                setCurrentSection(3);
+            console.log(response)
+
+            const result = response.data;
+            if (result.status) {
+                // Sukses
+                localStorage.setItem("registerID", crypto.randomUUID());
+                localStorage.setItem("email", userData.email);
+                localStorage.removeItem("token");
+                const formattedPhone = userData.phoneNumber.replace(/^0/, '');
+                setPhone(formattedPhone);
+                localStorage.setItem('phone', formattedPhone);
+                setShowNotification(false);
+                setCurrentSection(3); // Lanjut ke section OTP
             } else {
-                setShowNotification(true)
-                setErrorMessage(response.data.message)
+                // Gagal dari backend
+                setShowNotification(true);
+                setErrorMessage(result.message || "Terjadi kesalahan pada server.");
             }
         } catch (error: any) {
-            console.error("Error:", error);
-            setShowNotification(true)
-            setErrorMessage(error.response.data.message || "Terjadi Kesalahan")
+            console.error("Error submitting all forms:", error);
+            setShowNotification(true);
+            setErrorMessage(error.response?.data?.message || "Gagal mengirim data. Silakan coba lagi.");
         } finally {
             setIsSubmitting(false);
         }
@@ -583,7 +527,7 @@ const Signup = () => {
                             <FormPersonal
                                 currentSection={currentSection}
                                 formUser={formUser}
-                                onSubmitUser={onSubmitUser}
+                                onSubmitUser={handleNext}
                                 showPassword={showPassword}
                                 setShowPassword={setShowPassword}
                                 showPasswordConfirm={showPasswordConfirm}
@@ -600,7 +544,7 @@ const Signup = () => {
                                 isSubmitting={isSubmitting} // atau formMerchant.formState.isSubmitting
                                 currentSection={currentSection}
                                 setCurrentSection={setCurrentSection}
-                                onSubmitMerchant={onSubmitMerchant}
+                                onSubmitMerchant={handleNext}
                                 loading={loading}
                                 area={{
                                     provinces,
@@ -622,7 +566,7 @@ const Signup = () => {
 
                             <FormPengajuanQris
                                 formSubmissionQRIS={formSubmissionQRIS}
-                                onSubmitSubmissionQRIS={onSubmitSubmissionQRIS}
+                                onSubmitSubmissionQRIS={onSubmitAllForms}
                                 currentSection={currentSection}
                                 setCurrentSection={setCurrentSection}
                                 setShowNotification={setShowNotification}
