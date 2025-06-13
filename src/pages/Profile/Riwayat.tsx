@@ -68,7 +68,7 @@ const Riwayat = () => {
     const [limit, setLimit] = useState(10);
     const [purchases, setPurchases] = useState<Purchase[]>([]);
     const [sales, setSales] = useState<ISales[]>([]);
-    const [filter, setFilter] = useState("today")
+    const [filter, setFilter] = useState("all")
     const [showCalendar, setShowCalendar] = useState(false);
     const [dateRange, setDateRange] = useState<{ startDate?: string; endDate?: string }>({});
     const setCustomDateRange = (start: string | null, end: string | null) => {
@@ -469,6 +469,22 @@ const Riwayat = () => {
                     className={`absolute inset-0 ${type === "Pembelian" ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"} transition-all duration-500 ease-in-out `}
                 >
                     <div className="flex flex-col gap-5 w-[90%] m-auto p-5 shadow-lg bg-white rounded-lg ">
+                        <label htmlFor="filter-status" className="text-sm text-gray-700">Filter Status:</label>
+                        <select
+                            id="filter-status"
+                            value={filterStatus || ""}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setFilterStatus(value === "" ? null : value);
+                                setCurrentPage(1);
+                            }}
+                            className="text-sm border border-gray-300 rounded px-2 py-1 -mt-3 mb-3"
+                        >
+                            <option value="">Semua</option>
+                            <option value="Berhasil">Berhasil</option>
+                            <option value="Dalam Proses">Dalam Proses</option>
+                            <option value="Gagal">Gagal</option>
+                        </select>
                         {purchases.length === 0 ? (
                             <div className="flex items-center flex-col justify-center gap-10">
                                 <img className="" src={noTransactionImage} alt="" />
@@ -476,22 +492,7 @@ const Riwayat = () => {
                                 <p className="font-semibold text-orange-500 text-center">Belum ada transaksi pembelian</p>
                             </div>) : (
                             <>
-                                <label htmlFor="filter-status" className="text-sm text-gray-700">Filter Status:</label>
-                                <select
-                                    id="filter-status"
-                                    value={filterStatus || ""}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        setFilterStatus(value === "" ? null : value);
-                                        setCurrentPage(1);
-                                    }}
-                                    className="text-sm border border-gray-300 rounded px-2 py-1 -mt-3 mb-3"
-                                >
-                                    <option value="">Semua</option>
-                                    <option value="Berhasil">Berhasil</option>
-                                    <option value="Dalam Proses">Dalam Proses</option>
-                                    <option value="Gagal">Gagal</option>
-                                </select>
+
                                 {purchases.map((purchase, index) => (
                                     <button onClick={() => setShowDescription({ status: true, index: index })} className={`${index === purchases.length - 1 ? 'mb-10' : 'mb-0'} block`} key={index}>
                                         <div
