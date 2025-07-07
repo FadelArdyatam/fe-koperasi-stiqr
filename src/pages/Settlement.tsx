@@ -410,12 +410,13 @@ const Settlement = () => {
                                             <FormItem className="w-full">
                                                 <FormControl>
                                                     <DropdownMenu>
-                                                        <DropdownMenuTrigger className="w-full p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center justify-between rounded-lg border border-gray-300">
+                                                        <DropdownMenuTrigger data-cy='bank-account-dropdown' className="w-full p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center justify-between rounded-lg border border-gray-300">
                                                             {accounts.find(account => account.account_id === field.value)?.bank_name || "Pilih Akun Penarikan"}
                                                             <ChevronDown className="ml-2 h-4 w-4" />
                                                         </DropdownMenuTrigger>
 
                                                         <DropdownMenuContent
+                                                            data-cy='bank-accounts-list'
                                                             className="bg-white p-3 border mt-2 z-10 rounded-lg w-[var(--radix-popper-anchor-width)] max-h-64 overflow-y-auto flex flex-col gap-2 shadow-lg"
                                                             align="start"
                                                         >
@@ -452,6 +453,7 @@ const Settlement = () => {
                                                 <FormControl>
                                                     <Input
                                                         type="text"
+                                                        data-cy="amount-withdraw-input"
                                                         inputMode="numeric" // Menampilkan numpad di mobile
                                                         autoComplete="off"
                                                         value={formatRupiah(String(field.value) || "0")}
@@ -482,7 +484,7 @@ const Settlement = () => {
                                     <p className="text-xs text-gray-500 italic -mt-1">*Minimal penarikan Rp 12.000</p>
                                 </div>
 
-                                <Button disabled={form.getValues("amount") < 12000} type="submit" className={`mt-5 w-full text-base bg-orange-500 `}>
+                                <Button data-cy='confirm-dishburment-btn' disabled={form.getValues("amount") < 12000} type="submit" className={`mt-5 w-full text-base bg-orange-500 `}>
                                     Konfirmasi Penarikan
                                 </Button>
 
@@ -535,7 +537,7 @@ const Settlement = () => {
                                                                 {formatRupiah(3000)}
                                                             </p>
                                                         </div>
-                                                        <Button className="mt-5 w-full bg-green-500 flex justify-between flex-row  md:text-lg text-sm" onClick={handleNext}>
+                                                        <Button type="button" data-cy='confirm-tarik-saldo-btn' className="mt-5 w-full bg-green-500 flex justify-between flex-row  md:text-lg text-sm" onClick={handleNext}>
                                                             <p>Tarik Saldo </p>
                                                             <p>{formatRupiah(form.getValues("amount") + 3000)}</p>
                                                         </Button>
@@ -549,6 +551,7 @@ const Settlement = () => {
                                                             {[...Array(6)].map((_, index) => (
                                                                 <div
                                                                     key={index}
+                                                                    data-cy={`pin-indicator-${index}`}
                                                                     className={`w-4 h-4 mx-1 rounded-full ${pin[index] ? 'bg-green-500' : 'bg-gray-300'}`}
                                                                 ></div>
                                                             ))}
@@ -593,6 +596,7 @@ const Settlement = () => {
                                                             </Button>
                                                             <Button
                                                                 type="submit"
+                                                                data-cy='confirm-withdraw-btn'
                                                                 className="w-full ml-2 bg-green-500 text-white"
                                                                 disabled={pin.length !== 6 || loading}
                                                             >
