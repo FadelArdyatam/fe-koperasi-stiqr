@@ -78,6 +78,9 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
             setLoading(true)
             try {
                 const check = await axiosInstance.get('/merchant/check-qris')
+
+                console.log(check)
+
                 if (check.data.success) {
                     setIsActiveQris(true)
                     setQrisStaticUrl(check.data.data.image_qris)
