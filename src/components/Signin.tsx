@@ -84,6 +84,7 @@ const Signin = () => {
 					onChange={(e) => setEmail(e.target.value.toLowerCase())}
 					placeholder="Email"
 					className="w-full border border-black px-4 py-3 rounded-lg"
+					data-cy="email-login-input"
 				/>
 
 				<div data-aos="fade-up" data-aos-delay="200" className="w-full relative flex items-center">
@@ -93,6 +94,7 @@ const Signin = () => {
 						onChange={(e) => setPassword(e.target.value)}
 						placeholder="Password"
 						className="w-full border border-black px-4 py-3 rounded-lg"
+						data-cy="password-login-input"
 					/>
 
 					<button onClick={() => setShowPassword(!showPassword)} type="button" className="absolute right-5">{showPassword ? <EyeOff /> : <Eye />}</button>
@@ -108,6 +110,7 @@ const Signin = () => {
 					data-aos-delay="300"
 					disabled={loading}
 					className={`uppercase px-5 py-3 w-full rounded-lg bg-[#7ED321] text-white`}
+					type="submit"
 				>
 					Masuk
 				</Button>

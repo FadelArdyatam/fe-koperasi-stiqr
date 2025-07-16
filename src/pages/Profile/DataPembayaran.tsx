@@ -46,8 +46,8 @@ const DataPembayaran = () => {
         bankName: z.string().min(1,
             { message: "Nama Bank Tidak Boleh Kosong" }
         ),
-        accountNumber: z.string().min(10,
-            { message: "Nomor Rekening harus lebih dari 10 karakter" }
+        accountNumber: z.string().min(8,
+            { message: "Nomor Rekening harus lebih dari 8 karakter" }
         ),
         ownerName: z.string().min(3,
             { message: "Nama Pemilik Tidak Boleh Kosong" }
@@ -274,7 +274,7 @@ const DataPembayaran = () => {
             </div>
 
             <div className="w-full flex flex-col gap-5">
-                <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setIsAdding({ status: true, section: "bank" })} className={`${isAdding.status || showContent.show ? 'hidden' : 'block'} w-[90%] m-auto -mt-10 sm:mb-40 mb-0 bg-green-400`}>Tambah Akun Pembayaran</Button>
+                <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setIsAdding({ status: true, section: "bank" })} className={`${isAdding.status || showContent.show ? 'hidden' : 'block'} w-[90%] m-auto -mt-10 sm:mb-40 mb-0 bg-green-400`} data-cy='add-account-button'>Tambah Akun Pembayaran</Button>
             </div>
 
             <div key={showContent.show ? "showContent-mode" : "noShowContent-mode"} className={`${showContent.show === true ? 'block' : 'hidden'} w-[90%] bg-white -translate-y-20 p-5 rounded-lg shadow-lg`}>
@@ -343,7 +343,7 @@ const DataPembayaran = () => {
                 <div className="flex gap-5 items-center justify-between w-full">
                     <Button className={`${isAdding.section === "bank" ? 'bg-orange-500 text-white' : 'bg-gray-200 text-black'} w-full`} onClick={() => { setIsAdding({ status: isAdding.status, section: "bank" }), formBank.setValue("bankName", "") }}>Bank</Button>
 
-                    <Button className={`${isAdding.section === "e-wallet" ? 'bg-orange-500 text-white' : 'bg-gray-200 text-black'} w-full`} onClick={() => {
+                    <Button data-cy='e-wallet-btn' className={`${isAdding.section === "e-wallet" ? 'bg-orange-500 text-white' : 'bg-gray-200 text-black'} w-full`} onClick={() => {
                         setIsAdding({ status: isAdding.status, section: "e-wallet" })
                         formBank.setValue("bankName", "DANA");
                     }}>E-Wallet</Button>
@@ -364,6 +364,7 @@ const DataPembayaran = () => {
                                                 <button
                                                     type="button"
                                                     className="p-3 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4] text-left border rounded-md"
+                                                    data-cy="bank-dropdown-button"
                                                     onClick={() => setDropdownOpen(!dropdownOpen)}
                                                 >
                                                     {field.value || "Select Bank"}
@@ -371,7 +372,7 @@ const DataPembayaran = () => {
                                                 </button>
 
                                                 {dropdownOpen && (
-                                                    <ul className="left-0 mt-1 w-full bg-white border rounded-md shadow-lg max-h-64 overflow-y-auto z-50">
+                                                    <ul className="left-0 mt-1 w-full bg-white border rounded-md shadow-lg max-h-64 overflow-y-auto z-50" data-cy="bank-dropdown-list">
                                                         {dataBanks.banks.map((bank, index) => (
                                                             <li
                                                                 key={index}
@@ -401,7 +402,7 @@ const DataPembayaran = () => {
                                         <FormLabel className="text-gray-500">Cabang Bank</FormLabel>
 
                                         <FormControl>
-                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                            <Input data-cy="bank-branches-input" className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -416,7 +417,7 @@ const DataPembayaran = () => {
                                         <FormLabel className="text-gray-500">Nomor Rekening</FormLabel>
 
                                         <FormControl>
-                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field} />
+                                            <Input data-cy="bank-account-number-input" className="w-full bg-[#F4F4F4] font-sans font-semibold" type="number" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -431,7 +432,7 @@ const DataPembayaran = () => {
                                         <FormLabel className="text-gray-500">Nama Pemilik Rekening</FormLabel>
 
                                         <FormControl>
-                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                            <Input data-cy="bank-account-name-input" className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -439,7 +440,7 @@ const DataPembayaran = () => {
                             />
                         </div>
 
-                        <Button disabled={loading ? true : false} type="submit" className={`${isAdding.section === "bank" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
+                        <Button disabled={loading ? true : false} type="submit" data-cy='submit-bank-btn' className={`${isAdding.section === "bank" ? 'block' : 'hidden'} w-full bg-green-400 mt-7`}>Simpan Data</Button>
                     </form>
                 </Form>
 
@@ -472,6 +473,7 @@ const DataPembayaran = () => {
                                             <Input
                                                 className="w-full bg-[#F4F4F4] font-sans font-semibold"
                                                 placeholder="628..."
+                                                data-cy='no-ewallet-input'
                                                 type="text" // Gunakan "text" agar tidak ada spinner pada input number
                                                 inputMode="numeric" // Menampilkan keyboard angka di mobile
                                                 pattern="[0-9]*" // Memastikan hanya angka yang diterima
@@ -501,7 +503,7 @@ const DataPembayaran = () => {
                                         <FormLabel className="text-gray-500">Nama Pemilik E-wallet</FormLabel>
 
                                         <FormControl>
-                                            <Input className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
+                                            <Input data-cy='nama-pemilik-ewallet-input' className="w-full bg-[#F4F4F4] font-sans font-semibold" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -509,7 +511,7 @@ const DataPembayaran = () => {
                             />
                         </div>
 
-                        <Button type="submit" className={`${isAdding.section === "e-wallet" ? 'block' : 'hidden'} w-full bg-green-400 mt-7` } disabled={loading} > {`${loading ? 'Tunggu...' : 'Simpan Data'}`} </Button>
+                        <Button data-cy='submit-ewallet-btn' type="submit" className={`${isAdding.section === "e-wallet" ? 'block' : 'hidden'} w-full bg-green-400 mt-7` } disabled={loading} > {`${loading ? 'Tunggu...' : 'Simpan Data'}`} </Button>
                     </form>
                 </Form>
             </div>

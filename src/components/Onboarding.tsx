@@ -51,7 +51,10 @@ const Onboarding = ({ setShowOnboarding }: OnboardingProps) => {
     return (
         <div className="flex flex-col items-center justify-center p-10">
             {/* Tombol Lewati */}
-            <button className={`${slide <= 1 ? 'block' : 'hidden'} absolute top-14 right-10 z-10`} onClick={() => setShowOnboarding(false)}>
+            <button 
+            className={`${slide <= 1 ? 'block' : 'hidden'} absolute top-14 right-10 z-10`} onClick={() => setShowOnboarding(false)}
+            data-cy="lewati-btn"
+            >
                 Lewati
             </button>
 
