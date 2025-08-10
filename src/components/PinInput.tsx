@@ -1,13 +1,17 @@
 import { Check, RotateCw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const PinInput = ({ email }: { email: string }) => {
     const [step, setStep] = useState(1);
     const [pin, setPin] = useState<string[]>([]);
     const [confirmPin, setConfirmPin] = useState<string[]>([]);
     const [notification, setNotification] = useState({ showRetype: false, showSuccess: false });
+
+    const [searchParams] = useSearchParams();
+
+    const fromApp = searchParams.get("from");
 
     const navigate = useNavigate();
 
@@ -99,17 +103,31 @@ const PinInput = ({ email }: { email: string }) => {
         setNotification({ showRetype: false, showSuccess: false });
     };
 
+    const directWebOrAppHandler = () => {
+        if (fromApp === "app") {
+            window.location.href = "stiqr://login";
+        } else {
+            navigate("/");
+        }
+    };
+
     return (
         <div className="w-full h-screen flex flex-col items-center p-5 justify-center bg-orange-400">
             <h1 className="text-white text-xl font-semibold mb-2 mt-5">
                 {step === 1 ? "Buat 6 Digit PIN" : "Konfirmasi PIN Anda"}
             </h1>
 
-            <p className="text-white text-center mb-6 text-sm">
+            <p className="text-white text-center mb-3 mt-5 text-sm">
                 {step === 1
-                    ? "Pastikan Anda menyimpan PIN dengan aman dan tidak memberikannya kepada pihak mana pun."
-                    : "Masukkan kembali PIN untuk konfirmasi."}
+                    ? "Buat 6 digit PIN untuk keamanan akun Anda. PIN ini akan digunakan saat Penarikan dana, dan akses fitur penting lainnya."
+                    : "Konfirmasi PIN Anda Kembali (masukkan ulang PIN sebelumnya)."}
             </p>
+
+            {step === 1 && (
+                <p className="text-white text-center mb-6 text-sm">
+                    Pastikan Anda menyimpan PIN dengan aman dan tidak memberikannya kepada pihak mana pun.
+                </p>
+            )}
 
             <div className="flex items-center justify-center mb-10">
                 {[...Array(6)].map((_, index) => (
@@ -175,8 +193,7 @@ const PinInput = ({ email }: { email: string }) => {
                         <p className="text-gray-500 text-sm text-center">
                             Mohon untuk tidak memberitahukan PIN Anda kepada siapapun demi keamanan Anda.
                         </p>
-                        <Button onClick={() => navigate('/')
-                        } className="uppercase text-white bg-green-400">
+                        <Button onClick={directWebOrAppHandler} className="uppercase text-white bg-green-400">
                             Saya, Mengerti
                         </Button>
                     </div>
