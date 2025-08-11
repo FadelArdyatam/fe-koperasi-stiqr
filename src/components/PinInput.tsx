@@ -1,13 +1,17 @@
 import { Check, RotateCw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const PinInput = ({ email }: { email: string }) => {
     const [step, setStep] = useState(1);
     const [pin, setPin] = useState<string[]>([]);
     const [confirmPin, setConfirmPin] = useState<string[]>([]);
     const [notification, setNotification] = useState({ showRetype: false, showSuccess: false });
+
+    const [searchParams] = useSearchParams();
+
+    const fromApp = searchParams.get("from");
 
     const navigate = useNavigate();
 
@@ -99,6 +103,14 @@ const PinInput = ({ email }: { email: string }) => {
         setNotification({ showRetype: false, showSuccess: false });
     };
 
+    const directWebOrAppHandler = () => {
+        if (fromApp === "app") {
+            window.location.href = "stiqr://login";
+        } else {
+            navigate("/");
+        }
+    };
+
     return (
         <div className="w-full h-screen flex flex-col items-center p-5 justify-center bg-orange-400">
             <h1 className="text-white text-xl font-semibold mb-2 mt-5">
@@ -175,8 +187,7 @@ const PinInput = ({ email }: { email: string }) => {
                         <p className="text-gray-500 text-sm text-center">
                             Mohon untuk tidak memberitahukan PIN Anda kepada siapapun demi keamanan Anda.
                         </p>
-                        <Button onClick={() => navigate('/')
-                        } className="uppercase text-white bg-green-400">
+                        <Button onClick={directWebOrAppHandler} className="uppercase text-white bg-green-400">
                             Saya, Mengerti
                         </Button>
                     </div>
