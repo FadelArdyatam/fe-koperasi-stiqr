@@ -1,6 +1,6 @@
 import { ChevronLeft, MailCheck } from 'lucide-react'
 import logo from '../images/logo.png'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Form, FormField, FormItem, FormControl, FormMessage } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -16,6 +16,10 @@ const ForgotPassword = () => {
     const [Notification, setNotification] = useState({ status: false, address: '', notificationSuccess: true })
     const [timer, setTimer] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
+
+    const [searchParams] = useSearchParams();
+
+    const fromApp = searchParams.get("from");
 
     useEffect(() => {
         let interval: any;
@@ -144,7 +148,11 @@ const ForgotPassword = () => {
     // //
 
     const closeNotificationHandler = () => {
-        setNotification({ status: false, address: '', notificationSuccess: true })
+        if (fromApp === "app") {
+            window.location.href = "stiqr://login";
+        } else {
+            setNotification({ status: false, address: '', notificationSuccess: true })
+        }
     }
 
     console.log(Notification.notificationSuccess)
