@@ -174,7 +174,7 @@ const Profile = () => {
 
                     <div className="w-full h-[2px] my-5 bg-gray-200"></div>
 
-                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/payment-data"} className="flex items-center gap-5 justify-between">
+                    <Link data-aos="fade-up" data-aos-once="true" to={"/profile/payment-data"} className="flex items-center gap-5 justify-between" data-cy="payment-data-link">
                         <div>
                             <p>Data Pembayaran</p>
 

@@ -207,7 +207,7 @@ const Dashboard = () => {
                     <p className="uppercase">Qr Code</p>
                 </Link>
 
-                <Link to={'/settlement'} className="flex relative gap-3 flex-col items-center">
+                <Link to={'/settlement'} data-cy='penarikan-btn' className="flex relative gap-3 flex-col items-center">
                     <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
                         <CreditCard />
                     </div>
@@ -221,7 +221,7 @@ const Dashboard = () => {
                     <p className="uppercase">Catalog</p>
                 </Link>
 
-                <Link to={'/profile'} className="flex gap-3 flex-col items-center">
+                <Link to={'/profile'} className="flex gap-3 flex-col items-center" data-cy="profile-link">
                     <UserRound />
 
                     <p className="uppercase">Profile</p>
@@ -277,6 +277,7 @@ const Dashboard = () => {
                     <div data-aos="fade-up" data-aos-delay="200" className="flex items-center justify-center gap-2">
                         {showBalance ? (
                             <p
+                                data-cy="balance-amount"
                                 className={`font-bold mt-2 text-orange-400 ${balance.amount > 99999999 ? "sm:text-3xl text-xl" : "sm:text-4xl text-2xl"
                                     }`}
                             >
@@ -291,6 +292,7 @@ const Dashboard = () => {
 
                         <button
                             id="balance"
+                            data-cy="toggle-balance-btn"
                             onClick={() => setShowBalance(!showBalance)}
                             type="button"
                             className="block mt-3"
