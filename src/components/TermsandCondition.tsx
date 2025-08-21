@@ -1,4 +1,3 @@
-import { Accordion } from "@radix-ui/react-accordion";
 import { ChevronLeft, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -15,7 +14,6 @@ import kerahasiaan from "../data/terms/kerahasiaan.json";
 import ketentuanQris from "../data/terms/ketentuan-qris.json";
 import pencairanPerangkat from "../data/terms/pencairan-perangkat.json";
 import layananPpob from "../data/terms/layanan-ppob.json";
-import { TermsList } from "./TermsList";
 
 interface TermsandConditionProps {
     setShowTermsandConditions: (show: boolean) => void;
@@ -23,19 +21,8 @@ interface TermsandConditionProps {
 }
 
 const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: TermsandConditionProps) => {
-    const [openItem, setOpenItem] = useState<string | null>(null);
-    const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({
-        "item-1": false,
-        "item-2": false,
-        "item-3": false,
-        "item-4": false,
-        "item-5": false,
-        "item-6": false,
-        "item-7": false,
-        "item-8": false,
-        "item-9": false,
-        "item-10": false,
-    });
+    const [openItem,] = useState<string | null>(null);
+    const [checked, setChecked] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -43,36 +30,9 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
         AOS.init({ duration: 500, once: true });
     }, []);
 
-    const handleAccordionChange = (value: string) => {
-        setOpenItem((prev) => (prev === value ? null : value));
-    };
-
-    const handleCheckboxChange = (item: string) => {
-        setCheckedItems((prev) => ({
-            ...prev,
-            [item]: !prev[item],
-        }));
-    };
-
-    const termsTitles: { [key: string]: string } = {
-        "item-1": "Ketentuan Umum",
-        "item-2": "Ketentuan Akun STIQR",
-        "item-3": "Perangkat Lunak",
-        "item-4": "Tindakan yang Dilarang Dilakukan di Aplikasi STIQR",
-        "item-5": "Kebijakan Penggunaan Data Pribadi STIQR",
-        "item-6": "Kebijakan Pengelolaan Data Pribadi STIQR",
-        "item-7": "Kerahasiaan",
-        "item-8": "Ketentuan QRIS",
-        "item-9": "Ketentuan Pencairan dan Perangkat",
-        "item-10": "Layanan PPOB (BPJS, PDAM, Listrik, Pulsa, dan Paket Data)",
-    };
-
     const termsandConditionHandler = () => {
-        const uncheckedItems = Object.keys(checkedItems).filter((key) => !checkedItems[key]);
-
-        if (uncheckedItems.length > 0) {
-            const errorList = uncheckedItems.map((key) => termsTitles[key]);
-            const formattedMessage = `Untuk melanjutkan ke tahap selanjutnya dimohon untuk menyetujui syarat ${errorList.join(", ").replace(/, ([^,]*)$/, " dan $1")}`;
+        if (checked === false) {
+            const formattedMessage = `Untuk melanjutkan ke tahap selanjutnya dimohon untuk menyetujui syarat dan ketentuan`;
             setErrorMessage(formattedMessage);
             setShowNotification(true);
         } else {
@@ -99,22 +59,12 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
             </div>
 
             <div className="w-full -translate-y-28 overflow-y-auto">
-                <div className="w-[90%] mx-auto bg-white shadow-lg rounded-lg !text-black block p-2 mb-3">
-                    <Accordion
-                        type="single"
-                        collapsible
-                        className="w-full flex flex-col gap-2 "
-                        value={openItem || ""}
-                        onValueChange={handleAccordionChange}
-                    >
-                        <TermsList
-                            title={"Ketentuan Umum"}
-                            openItem={openItem}
-                            item={"item-1"}
-                            checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}
-                            showCheckbox={true}>
-                            <ol className="list-decimal pl-6 space-y-2">
+                <div className="w-[90%] mx-auto max-h-screen overflow-y-auto bg-white shadow-lg rounded-lg !text-black block p-5 mb-3">
+                    <div>
+                        <div>
+                            <p className="font-semibold text-center text-lg">Ketentuan Umum</p>
+
+                            <ol className="mt-5 list-decimal pl-6 space-y-2">
                                 {
                                     ketentuanUmum.map((item, index) => (
                                         <li key={index}>
@@ -123,15 +73,12 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     ))
                                 }
                             </ol>
-                        </TermsList>
-                        <TermsList
-                            title={"Ketentuan Akun STIQR"}
-                            openItem={openItem}
-                            item={"item-2"}
-                            checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}
-                            showCheckbox={true}>
-                            <ol className="list-decimal pl-6 space-y-2">
+                        </div>
+
+                        <div className="mt-10">
+                            <p className="font-semibold text-lg text-center">Ketentuan Akun STIQR</p>
+
+                            <ol className="mt-5 list-decimal pl-6 space-y-2">
                                 {
                                     ketentuanAkun.map((item, index) => (
                                         <li key={index}>
@@ -140,15 +87,12 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     ))
                                 }
                             </ol>
-                        </TermsList>
-                        <TermsList
-                            title={"Perangkat Lunak"}
-                            openItem={openItem}
-                            item={"item-3"}
-                            checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}
-                            showCheckbox={true}>
-                            <ol className="list-decimal pl-6 space-y-2">
+                        </div>
+
+                        <div className="mt-10">
+                            <p className="font-semibold text-center text-lg">Perangkat Lunak</p>
+
+                            <ol className="mt-5 list-decimal pl-6 space-y-2">
                                 {
                                     perangkatLunak.map((data, index) => (
                                         <li key={index} dangerouslySetInnerHTML={{ __html: data.text }}>
@@ -156,15 +100,12 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     ))
                                 }
                             </ol>
-                        </TermsList>
-                        <TermsList
-                            title={"Tindakan yang Dilarang Dilakukan di Aplikasi STIQR"}
-                            openItem={openItem}
-                            item={"item-4"}
-                            checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}
-                            showCheckbox={true}>
-                            <ol className="list-decimal pl-6 space-y-2">
+                        </div>
+
+                        <div className="mt-10">
+                            <p className="font-semibold text-center text-lg">Tindakan yang Dilarang Dilakukan di Aplikasi STIQR</p>
+
+                            <ol className="mt-5 list-decimal pl-6 space-y-2">
                                 {tindakanLarangan.map((data, index) => (
                                     <li key={index}>
                                         <p>{data.text}</p>
@@ -176,33 +117,27 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     </li>
                                 ))}
                             </ol>
-                        </TermsList>
-                        <TermsList
-                            title={"Kebijakan Penggunaan Data Pribadi STIQR"}
-                            openItem={openItem}
-                            item={"item-5"}
-                            checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}
-                            showCheckbox={true}>
-                            <p>{penggunaanDataPribadi.title}</p>
-                            <ol className="list-decimal pl-6 space-y-2">
+                        </div>
+
+                        <div className="mt-10">
+                            <p className="font-semibold text-center text-lg">Kebijakan Penggunaan Data Pribadi STIQR</p>
+
+                            <p className="mt-5">{penggunaanDataPribadi.title}</p>
+                            <ol className="mt-2 list-decimal pl-6 space-y-2">
                                 {penggunaanDataPribadi.list.map((data, index) => (
                                     <li key={index}>
                                         {data}
                                     </li>
                                 ))}
                             </ol>
-                            <p>{penggunaanDataPribadi.footer}</p>
-                        </TermsList>
-                        <TermsList
-                            title={"Kebijakan Pengelolaan Data Pribadi STIQR"}
-                            openItem={openItem}
-                            item={"item-6"}
-                            checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}
-                            showCheckbox={true}>
-                            <p>{pengelolaanDataPribadi.title}</p>
-                            <ol className="list-decimal pl-6 space-y-2">
+                            <p className="mt-2">{penggunaanDataPribadi.footer}</p>
+                        </div>
+
+                        <div className="mt-10">
+                            <p className="font-semibold text-center text-lg">Kebijakan Pengelolaan Data Pribadi STIQR</p>
+
+                            <p className="mt-5">{pengelolaanDataPribadi.title}</p>
+                            <ol className="mt-2 list-decimal pl-6 space-y-2">
                                 {pengelolaanDataPribadi.list.map((data, index) => (
                                     <li key={index}>
                                         <p>{data.title}</p>
@@ -224,15 +159,12 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     </li>
                                 ))}
                             </ol>
-                        </TermsList>
-                        <TermsList
-                            title={"Kerahasiaan"}
-                            openItem={openItem}
-                            item={"item-7"}
-                            checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}
-                            showCheckbox={true}>
-                            <ol className="list-decimal pl-6 space-y-2">
+                        </div>
+
+                        <div className="mt-10">
+                            <p className="font-semibold text-center text-lg">Kerahasiaan</p>
+
+                            <ol className="mt-5 list-decimal pl-6 space-y-2">
                                 {
                                     kerahasiaan.map((item, index) => (
                                         <li key={index}>
@@ -253,15 +185,12 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     ))
                                 }
                             </ol>
-                        </TermsList>
-                        <TermsList
-                            title={"Ketentuan QRIS"}
-                            openItem={openItem}
-                            item={"item-8"}
-                            checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}
-                            showCheckbox={true}>
-                            <ol className="list-decimal pl-6 space-y-2">
+                        </div>
+
+                        <div className="mt-10">
+                            <p className="font-semibold text-center text-lg">Ketentuan QRIS</p>
+
+                            <ol className="mt-5 list-decimal pl-6 space-y-2">
                                 {ketentuanQris.map((section, sectionIndex) => (
                                     <li key={sectionIndex}>
                                         <p >{section.title}</p>
@@ -300,16 +229,12 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     </li>
                                 ))}
                             </ol>
-                        </TermsList>
+                        </div>
 
-                        <TermsList
-                            title={"Ketentuan Pencairan dan Perangkat"}
-                            openItem={openItem}
-                            item={"item-9"}
-                            checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}
-                            showCheckbox={true}>
-                            <ol className="list-[upper-alpha] pl-6 space-y-2">
+                        <div className="mt-10">
+                            <p className="font-semibold text-center text-lg">Ketentuan Pencairan dan Perangkat</p>
+
+                            <ol className="mt-5 list-[upper-alpha] pl-6 space-y-2">
                                 {
                                     pencairanPerangkat.map((item, index) => (
                                         <li key={index}>
@@ -333,16 +258,12 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     ))
                                 }
                             </ol>
-                        </TermsList>
+                        </div>
 
-                        <TermsList
-                            title={"Layanan PPOB (BPJS, PDAM, Listrik, Pulsa, dan Paket Data)"}
-                            openItem={openItem}
-                            item={"item-10"}
-                            checkedItems={checkedItems}
-                            handleCheckboxChange={handleCheckboxChange}
-                            showCheckbox={true}>
-                            <ol className="list-decimal pl-6 space-y-2">
+                        <div className="mt-10">
+                            <p className="font-semibold text-center text-lg">Layanan PPOB (BPJS, PDAM, Listrik, Pulsa, dan Paket Data)</p>
+
+                            <ol className="mt-5 list-decimal pl-6 space-y-2">
                                 {layananPpob.map((data, index) => (
                                     <li key={index}>
                                         <p>{data.text}</p>
@@ -354,9 +275,23 @@ const TermsandCondition = ({ setShowTermsandConditions, backToPageProfile }: Ter
                                     </li>
                                 ))}
                             </ol>
-                        </TermsList>
-                    </Accordion>
+                        </div>
+                    </div>
+
+                    <div className="mt-10 flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            id="terms"
+                            checked={checked}
+                            onChange={() => setChecked(!checked)}
+                            className="accent-orange-500" // opsional: untuk ganti warna checkbox
+                        />
+                        <label htmlFor="terms" className="cursor-pointer">
+                            Setuju Syarat & Ketentuan
+                        </label>
+                    </div>
                 </div>
+
             </div>
 
             <div className={`w-[90%] ${openItem ? 'fixed bottom-4 m-auto' : ''} z-20 -mt-28`}>
