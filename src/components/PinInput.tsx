@@ -117,11 +117,17 @@ const PinInput = ({ email }: { email: string }) => {
                 {step === 1 ? "Buat 6 Digit PIN" : "Konfirmasi PIN Anda"}
             </h1>
 
-            <p className="text-white text-center mb-6 text-sm">
+            <p className="text-white text-center mb-3 mt-5 text-sm">
                 {step === 1
-                    ? "Pastikan Anda menyimpan PIN dengan aman dan tidak memberikannya kepada pihak mana pun."
-                    : "Masukkan kembali PIN untuk konfirmasi."}
+                    ? "Buat 6 digit PIN untuk keamanan akun Anda. PIN ini akan digunakan saat Penarikan dana, dan akses fitur penting lainnya."
+                    : "Konfirmasi PIN Anda Kembali (masukkan ulang PIN sebelumnya)."}
             </p>
+
+            {step === 1 && (
+                <p className="text-white text-center mb-6 text-sm">
+                    Pastikan Anda menyimpan PIN dengan aman dan tidak memberikannya kepada pihak mana pun.
+                </p>
+            )}
 
             <div className="flex items-center justify-center mb-10">
                 {[...Array(6)].map((_, index) => (
