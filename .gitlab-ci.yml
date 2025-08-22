@@ -1,5 +1,5 @@
 default:
-  image: harbor-regs.wachid.web.id/library/docker:24.0.5
+  image: docker:24.0.5
 
 variables:
 
