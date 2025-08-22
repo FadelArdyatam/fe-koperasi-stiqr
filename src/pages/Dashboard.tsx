@@ -190,10 +190,7 @@ const Dashboard = () => {
 
         fetchPurchase();
     }, [currentPagePurchase]);
-
     // 
-
-    console.log(histories)
 
     return (
         <div className="w-full">
