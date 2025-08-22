@@ -192,6 +192,9 @@ const Dashboard = () => {
     }, [currentPagePurchase]);
 
     // 
+
+    console.log(histories)
+
     return (
         <div className="w-full">
             <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
