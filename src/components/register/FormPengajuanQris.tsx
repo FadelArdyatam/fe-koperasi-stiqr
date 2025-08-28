@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
 
@@ -61,6 +61,14 @@ export const FormPengajuanQris: React.FC<FormPengajuanQrisProps> = ({
     updateDoc
 }) => {
     const [selectedFiles, setSelectedFiles] = useState<{ [key: string]: string }>({});
+    const [menuWidth, setMenuWidth] = useState<number | null>(null);
+    const triggerRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        if (triggerRef.current) {
+            setMenuWidth(triggerRef.current.offsetWidth);
+        }
+    }, []);
 
     const handleFileChange = (
         e: React.ChangeEvent<HTMLInputElement>,
@@ -104,7 +112,7 @@ export const FormPengajuanQris: React.FC<FormPengajuanQrisProps> = ({
         name,
         label,
         selectedFiles,
-        handleFileChange
+        // handleFileChange
     }: {
         name: string,
         label: string,
@@ -127,28 +135,64 @@ export const FormPengajuanQris: React.FC<FormPengajuanQrisProps> = ({
                             Unggah foto {label} Anda dalam format PNG, JPEG, JPG, GIF, atau PDF dengan ukuran maksimal 5 MB.{" "}
                             <span className="font-semibold">Pastikan foto terlihat jelas secara keseluruhan</span>
                         </p>
-                        {
-                            name == 'bussiness_photo' && (
-                                <p className='font-semibold text-sm text-red-600'>*Wajib menggunakan aplikasi <a className='underline ' href="https://play.google.com/store/apps/details?id=com.gpsmapcamera.geotagginglocationonphoto">geotagging</a></p>
-                            )
-                        }
-                        {
-                            merchant_type== 'Perorangan' && name == 'nib' && (
-                                <p className='font-semibold text-sm text-red-600'>*Jika ada, wajib   disertakan</p>
-                            )
-                        }
+
+                        {name === "bussiness_photo" && (
+                            <p className="font-semibold text-sm text-red-600">
+                                *Wajib menggunakan aplikasi{" "}
+                                <a
+                                    className="underline"
+                                    href="https://play.google.com/store/apps/details?id=com.gpsmapcamera.geotagginglocationonphoto"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    geotagging
+                                </a>
+                                , foto tempat usaha harus menampilkan aktivitas usaha atau kehadiran Anda di lokasi tersebut
+                            </p>
+                        )}
+
+                        {merchant_type === "Perorangan" && name === "nib" && (
+                            <p className="font-semibold text-sm text-red-600">*Jika ada, wajib disertakan</p>
+                        )}
+
                         <FormControl>
-                            <input
-                                className="p-2 w-full border border-orange-500 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
-                                type="file"
-                                accept="image/png,image/jpeg,image/jpg,image/gif,application/pdf"
-                                onChange={(e) => handleFileChange(e, field, label, name)}
-                            />
+                            <div className="relative w-full">
+                                {/* Tombol custom */}
+                                <label
+                                    htmlFor={`file-upload-${name}`}
+                                    className="p-2 w-full cursor-pointer border border-orange-500 rounded-lg bg-white flex items-center hover:bg-orange-50 transition-colors"
+                                >
+                                    <span className="text-sm text-orange-700 font-semibold px-4 py-2 bg-orange-50 rounded-full">
+                                        Pilih File
+                                    </span>
+
+                                    <span className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:text-orange-700">
+                                        {selectedFiles[name] || "Pilih file..."}
+                                    </span>
+                                </label>
+
+                                {/* Input asli disembunyikan */}
+                                <input
+                                    id={`file-upload-${name}`}
+                                    type="file"
+                                    accept="image/png,image/jpeg,image/jpg,image/gif,application/pdf"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const files = e.target.files;
+                                        const file = files && files[0];
+                                        if (file) {
+                                            setSelectedFiles((prev) => ({ ...prev, [name]: file.name }));
+                                            field.onChange(file);
+                                        }
+                                    }}
+                                />
+                            </div>
                         </FormControl>
 
                         {selectedFiles[name] && (
                             <p className="text-green-600 text-sm mt-1">✅ {label} Berhasil diunggah</p>
                         )}
+
                         <FormMessage />
                     </FormItem>
                 )}
@@ -250,17 +294,37 @@ export const FormPengajuanQris: React.FC<FormPengajuanQrisProps> = ({
                                     <FormControl>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="outline" data-aos="fade-up" data-aos-delay="600" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between text-left h-auto">
+                                                <Button
+                                                    ref={triggerRef}
+                                                    variant="outline"
+                                                    data-aos="fade-up"
+                                                    data-aos-delay="600"
+                                                    className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between text-left h-auto"
+                                                >
                                                     <span className="flex-1 truncate">
                                                         {field.value || "Omzet /tahun"}
                                                     </span>
                                                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width)]">
+
+                                            <DropdownMenuContent
+                                                align="start"
+                                                sideOffset={4}
+                                                style={{
+                                                    width: menuWidth ?? "auto",
+                                                    maxWidth: "100vw",
+                                                    boxSizing: "border-box",
+                                                }}
+                                                className="max-h-64 overflow-y-auto p-0 z-50"
+                                            >
                                                 <DropdownMenuSeparator />
-                                                {omsetPerYear.map(option => (
-                                                    <DropdownMenuItem key={option} onSelect={() => field.onChange(option)}>
+                                                {omsetPerYear.map((option) => (
+                                                    <DropdownMenuItem
+                                                        key={option}
+                                                        onSelect={() => field.onChange(option)}
+                                                        className="w-full"
+                                                    >
                                                         {option}
                                                     </DropdownMenuItem>
                                                 ))}
@@ -271,6 +335,7 @@ export const FormPengajuanQris: React.FC<FormPengajuanQrisProps> = ({
                                 </FormItem>
                             )}
                         />
+
 
                         <p className="font-semibold text-xl text-orange-500">Kelengkapan Dokumen Usaha</p>
                         {DokumenAttachment()}
@@ -283,18 +348,41 @@ export const FormPengajuanQris: React.FC<FormPengajuanQrisProps> = ({
                                     <FormControl>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="outline" data-aos="fade-up" data-aos-delay="600" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between text-left h-auto">
-                                                    <span className="flex-1 truncate">
-                                                        {field.value || "Rata-rata total pendapatan per hari"}
-                                                    </span>
-                                                    <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                </Button>
+                                                <div>
+                                                    <p className='font-semibold text-black'>Rata-rata Total Pendapatan per Hari</p>
+
+                                                    <Button
+                                                        ref={triggerRef}
+                                                        variant="outline"
+                                                        data-aos="fade-up"
+                                                        data-aos-delay="600"
+                                                        className="p-3 mt-2 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between text-left h-auto"
+                                                    >
+                                                        <span className="flex-1 truncate">
+                                                            {field.value || "Rata-rata Total Pendapatan per Hari"}
+                                                        </span>
+                                                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                    </Button>
+                                                </div>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width)]">
+
+                                            <DropdownMenuContent
+                                                align="start"
+                                                sideOffset={4}
+                                                style={{
+                                                    width: menuWidth ?? "auto",
+                                                    maxWidth: "100vw",
+                                                    boxSizing: "border-box",
+                                                }}
+                                                className="max-h-64 overflow-y-auto p-0 z-50"
+                                            >
                                                 <DropdownMenuSeparator />
-                                                {/* These options should ideally be income ranges, not business categories */}
-                                                {omsetPerDays.map(option => (
-                                                    <DropdownMenuItem key={option} onSelect={() => field.onChange(option)}>
+                                                {omsetPerDays.map((option) => (
+                                                    <DropdownMenuItem
+                                                        key={option}
+                                                        onSelect={() => field.onChange(option)}
+                                                        className="w-full"
+                                                    >
                                                         {option}
                                                     </DropdownMenuItem>
                                                 ))}
@@ -312,24 +400,30 @@ export const FormPengajuanQris: React.FC<FormPengajuanQrisProps> = ({
                             render={({ field }) => (
                                 <FormItem className="w-full">
                                     <FormControl>
-                                        <Input
-                                            data-aos="fade-up"
-                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                            type="number"
-                                            placeholder="Rata-rata Total Transaksi per Hari"
-                                            {...field}
-                                            onInput={(e) => {
-                                                let value = (e.target as HTMLInputElement).value;
+                                        <div>
+                                            <p className='font-semibold text-black'>Rata-rata Total Transaksi per Hari</p>
 
-                                                value = value.replace(/[^0-9]/g, '');
-                                                if (value.length > 7) {
-                                                    (e.target as HTMLInputElement).value = value.slice(0, 10);
-                                                } else {
-                                                    (e.target as HTMLInputElement).value = value;
-                                                }
-                                                field.onChange(value ? parseInt(value) : '');
-                                            }}
-                                        />
+                                            <Input
+                                                data-aos="fade-up"
+                                                className="w-full mt-2 bg-[#F4F4F4] font-sans font-semibold"
+                                                type="number"
+                                                placeholder="Rata-rata Total Transaksi per Hari"
+                                                {...field}
+                                                onInput={(e) => {
+                                                    let value = (e.target as HTMLInputElement).value;
+
+                                                    value = value.replace(/[^0-9]/g, '');
+                                                    if (value.length > 7) {
+                                                        (e.target as HTMLInputElement).value = value.slice(0, 10);
+                                                    } else {
+                                                        (e.target as HTMLInputElement).value = value;
+                                                    }
+                                                    field.onChange(value ? parseInt(value) : '');
+                                                }}
+                                            />
+
+                                            <p className='text-sm text-gray-500 italic mt-2'>Contoh: 1 Hari = 10 Pembeli</p>
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

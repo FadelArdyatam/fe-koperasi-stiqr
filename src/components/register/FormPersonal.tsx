@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { ChevronRight, Eye, EyeOff } from "lucide-react";
 
 import { UseFormReturn } from 'react-hook-form';
+import { Calendar } from "../ui/calendar";
+import { useState, useRef, useEffect } from "react";
 
 interface FormPersonalProps {
     formUser: UseFormReturn<any>;
@@ -40,6 +42,39 @@ export const FormPersonal = ({
     showPasswordConfirm,
     setShowPasswordConfirm
 }: FormPersonalProps) => {
+    const [showCalendar, setShowCalendar] = useState(false);
+    const calendarRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+                setShowCalendar(false);
+            }
+        }
+
+        if (showCalendar) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showCalendar]);
+
+    function parseLocalDate(dateString: string) {
+        const [year, month, day] = dateString.split("-").map(Number);
+        return new Date(year, month - 1, day); // Timezone lokal, tanpa offset UTC
+    }
+
+    // Validasi password
+    const password = formUser.watch("password");
+
+    const isMinLength = password?.length >= 8;
+    const hasNumber = /\d/.test(password || "");
+    const hasUppercase = /[A-Z]/.test(password || "");
+    const hasSpecialChar = /[@#$%^&*!_]/.test(password || "");
+    //
+
     return (
         <Form {...formUser}>
             <form onSubmit={formUser.handleSubmit(onSubmitUser)}>
@@ -50,18 +85,24 @@ export const FormPersonal = ({
                         render={({ field }) => (
                             <FormItem className="w-full">
                                 <FormControl>
-                                    <Input
-                                        data-aos="fade-up"
-                                        className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                        placeholder="Nama Pemilik"
-                                        {...field}
-                                        onChange={(e) => {
-                                            const formattedValue = e.target.value
-                                                .replace(/\b\w/g, (char) => char.toUpperCase())
-                                                .slice(0, 60);
-                                            field.onChange(formattedValue);
-                                        }}
-                                    />
+                                    <div>
+                                        <p className="font-semibold text-black">Nama Pemilik</p>
+
+                                        <Input
+                                            data-aos="fade-up"
+                                            className="w-full mt-2 bg-[#F4F4F4] font-sans font-semibold"
+                                            placeholder="Nama Pemilik"
+                                            {...field}
+                                            onChange={(e) => {
+                                                const onlyLettersAndSpace = e.target.value
+                                                    .replace(/[^a-zA-Z\s]/g, '') // hanya huruf dan spasi
+                                                    .replace(/\b\w/g, (char) => char.toUpperCase()) // kapitalisasi awal kata
+                                                    .slice(0, 60); // batasi panjang
+
+                                                field.onChange(onlyLettersAndSpace);
+                                            }}
+                                        />
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -74,18 +115,22 @@ export const FormPersonal = ({
                         render={({ field }) => (
                             <FormItem className="w-full">
                                 <FormControl>
-                                    <Input
-                                        data-aos="fade-up"
-                                        data-aos-delay="100"
-                                        className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                        type="number"
-                                        placeholder="Nomor Induk Kewarganegaraan"
-                                        {...field}
-                                        onChange={(e) => {
-                                            const value = e.target.value.slice(0, 16);
-                                            field.onChange(value);
-                                        }}
-                                    />
+                                    <div>
+                                        <p className="font-semibold text-black">NIK</p>
+
+                                        <Input
+                                            data-aos="fade-up"
+                                            data-aos-delay="100"
+                                            className="w-full mt-2 bg-[#F4F4F4] font-sans font-semibold"
+                                            type="number"
+                                            placeholder="Nomor Induk Kewarganegaraan"
+                                            {...field}
+                                            onChange={(e) => {
+                                                const value = e.target.value.slice(0, 16);
+                                                field.onChange(value);
+                                            }}
+                                        />
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -132,18 +177,46 @@ export const FormPersonal = ({
                         name="dateOfBirth"
                         render={({ field }) => (
                             <FormItem className="w-full">
-                                <FormLabel>Tanggal Lahir</FormLabel>
-
+                                <FormLabel className="font-semibold">Tanggal Lahir</FormLabel>
                                 <FormControl>
-                                    <Input
-                                        data-aos="fade-up"
-                                        data-aos-delay="300"
-                                        className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                        type="date"
-                                        {...field}
-                                        value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value || ''}
-                                        onChange={(e) => field.onChange(e.target.value)}  // Ensure the value is updated as a string
-                                    />
+                                    <div>
+                                        <Button
+                                            onClick={() => setShowCalendar(!showCalendar)}
+                                            className="w-full hover:bg-transparent bg-transparent border border-orange-500 text-black flex items-start justify-start"
+                                            type="button"
+                                        >
+                                            {field.value
+                                                ? (typeof field.value === "string"
+                                                    ? field.value
+                                                    : `${field.value.getFullYear()}-${String(field.value.getMonth() + 1).padStart(2, "0")}-${String(field.value.getDate()).padStart(2, "0")}`
+                                                )
+                                                : "Pilih Tanggal Lahir"}
+                                        </Button>
+
+                                        <div ref={calendarRef} className="w-max relative">
+                                            <Calendar
+                                                mode="single"
+                                                captionLayout="dropdown"
+                                                selected={
+                                                    typeof field.value === "string"
+                                                        ? parseLocalDate(field.value)
+                                                        : field.value instanceof Date
+                                                            ? field.value
+                                                            : undefined
+                                                }
+                                                onSelect={(date) => {
+                                                    if (date instanceof Date && !isNaN(date.getTime())) {
+                                                        const yyyy = date.getFullYear();
+                                                        const mm = String(date.getMonth() + 1).padStart(2, '0');
+                                                        const dd = String(date.getDate()).padStart(2, '0');
+                                                        const localDate = `${yyyy}-${mm}-${dd}`;
+                                                        field.onChange(localDate);
+                                                    }
+                                                }}
+                                                className={`${showCalendar ? 'block' : 'hidden'} relative rounded-md border shadow-sm`}
+                                            />
+                                        </div>
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -157,12 +230,16 @@ export const FormPersonal = ({
                             <FormItem className="w-full">
                                 <div data-aos="fade-up" data-aos-delay="400">
                                     <FormControl>
-                                        <Input
-                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                            placeholder="nama@gmail.com"
-                                            {...field}
-                                            onChange={(e) => field.onChange(e.target.value.toLowerCase())}
-                                        />
+                                        <div>
+                                            <p className="font-semibold text-black">Email</p>
+
+                                            <Input
+                                                className="w-full mt-2 bg-[#F4F4F4] font-sans font-semibold"
+                                                placeholder="nama@gmail.com"
+                                                {...field}
+                                                onChange={(e) => field.onChange(e.target.value.toLowerCase())}
+                                            />
+                                        </div>
                                     </FormControl>
                                     <p className="text-gray-500 text-xs mt-2 italic">Mohon pastikan email Anda aktif.</p>
                                 </div>
@@ -178,20 +255,24 @@ export const FormPersonal = ({
                             <FormItem className="w-full">
                                 <div data-aos="fade-up" data-aos-delay="500">
                                     <FormControl>
-                                        <Input
-                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                            type="tel"
-                                            placeholder="0812..."
-                                            {...field}
-                                            onChange={(e) => {
-                                                // Validasi manual untuk panjang dan hanya angka
-                                                const value = e.target.value.replace(/\D/g, '').slice(0, 15);
-                                                field.onChange(value);
-                                            }}
-                                        />
+                                        <div>
+                                            <p className="font-semibold text-black">Nomor HP</p>
+
+                                            <Input
+                                                className="w-full mt-2 bg-[#F4F4F4] font-sans font-semibold"
+                                                type="tel"
+                                                placeholder="0812..."
+                                                {...field}
+                                                onChange={(e) => {
+                                                    // Validasi manual untuk panjang dan hanya angka
+                                                    const value = e.target.value.replace(/\D/g, '').slice(0, 15);
+                                                    field.onChange(value);
+                                                }}
+                                            />
+                                        </div>
                                     </FormControl>
 
-                                    <p className="text-xs italic text-gray-500 mt-2">Pastikan nomor HP Anda aktif.</p>
+                                    <p className="text-xs italic text-gray-500 mt-2">Harap pastikan nomor HP yang Anda daftarkan adalah nomor <span className="font-bold text-black">WhatsApp</span> yang aktif untuk pengiriman untuk menerima <span className="font-bold text-black">kode OTP</span>.</p>
                                 </div>
                                 <FormMessage />
                             </FormItem>
@@ -206,7 +287,7 @@ export const FormPersonal = ({
                                 <FormControl>
                                     <div data-aos="fade-up" data-aos-delay="600">
                                         <p className="font-semibold mb-2">
-                                            Foto Profil
+                                            Foto Profil Akun
                                         </p>
 
                                         <input
@@ -261,6 +342,10 @@ export const FormPersonal = ({
                                     </div>
                                 </FormControl>
                                 <FormMessage />
+
+                                <p className="text-xs italic text-gray-500 mt-2">Foto yang diupload akan menjadi foto profile akun STIQR mu</p>
+
+                                <p className="text-xs italic text-gray-500 mt-2">Saran :  Foto Logo Usaha</p>
                             </FormItem>
                         )}
                     />
@@ -272,18 +357,37 @@ export const FormPersonal = ({
                             <FormItem className='w-full'>
                                 <div data-aos="fade-up" className='flex items-center relative'>
                                     <FormControl>
-                                        <Input
-                                            className='w-full font-sans font-semibold p-3 border bg-[#F4F4F4] border-gray-300 rounded-md'
-                                            placeholder='Password'
-                                            type={showPassword ? 'text' : 'password'}
-                                            {...field}
-                                        />
+                                        <div className="w-full">
+                                            <p className='font-semibold text-black'>Password</p>
+
+                                            <Input
+                                                className='w-full mt-2 font-sans font-semibold p-3 border bg-[#F4F4F4] border-gray-300 rounded-md'
+                                                placeholder='Password'
+                                                type={showPassword ? 'text' : 'password'}
+                                                {...field}
+                                            />
+                                        </div>
                                     </FormControl>
 
-                                    <button onClick={() => setShowPassword(!showPassword)} type="button" className='absolute right-5'>{showPassword ? <EyeOff /> : <Eye />}</button>
+                                    <button onClick={() => setShowPassword(!showPassword)} type="button" className='bottom-2 absolute right-5'>{showPassword ? <EyeOff /> : <Eye />}</button>
                                 </div>
 
                                 <FormMessage />
+
+                                <div className="text-sm mt-3 space-y-1">
+                                    <p className={isMinLength ? "text-green-600" : "text-red-500"}>
+                                        {isMinLength ? "✓" : "✗"} Minimal 8 Karakter
+                                    </p>
+                                    <p className={hasNumber ? "text-green-600" : "text-red-500"}>
+                                        {hasNumber ? "✓" : "✗"} Minimal 1 Angka
+                                    </p>
+                                    <p className={hasUppercase ? "text-green-600" : "text-red-500"}>
+                                        {hasUppercase ? "✓" : "✗"} Minimal 1 huruf Kapital
+                                    </p>
+                                    <p className={hasSpecialChar ? "text-green-600" : "text-red-500"}>
+                                        {hasSpecialChar ? "✓" : "✗"} Minimal 1 Spesial Karakter
+                                    </p>
+                                </div>
                             </FormItem>
                         )}
                     />
@@ -295,15 +399,19 @@ export const FormPersonal = ({
                             <FormItem className='w-full'>
                                 <div data-aos="fade-up" className='flex items-center relative'>
                                     <FormControl>
-                                        <Input
-                                            className='w-full font-sans font-semibold p-3 border bg-[#F4F4F4] border-gray-300 rounded-md'
-                                            placeholder='Retype Password'
-                                            type={showPasswordConfirm ? 'text' : 'password'}
-                                            {...field}
-                                        />
+                                        <div className="w-full">
+                                            <p className='font-semibold text-black'>Konfirmasi Password</p>
+
+                                            <Input
+                                                className='w-full mt-2 font-sans font-semibold p-3 border bg-[#F4F4F4] border-gray-300 rounded-md'
+                                                placeholder='Retype Password'
+                                                type={showPasswordConfirm ? 'text' : 'password'}
+                                                {...field}
+                                            />
+                                        </div>
                                     </FormControl>
 
-                                    <button onClick={() => setShowPasswordConfirm(!showPasswordConfirm)} type="button" className='absolute right-5'>{showPasswordConfirm ? <EyeOff /> : <Eye />}</button>
+                                    <button onClick={() => setShowPasswordConfirm(!showPasswordConfirm)} type="button" className='bottom-2 absolute right-5'>{showPasswordConfirm ? <EyeOff /> : <Eye />}</button>
                                 </div>
 
                                 <FormMessage />
@@ -319,7 +427,7 @@ export const FormPersonal = ({
                         Selanjutnya <ChevronRight />
                     </Button>
                 </div>
-            </form>
-        </Form>
+            </form >
+        </Form >
     )
 }
