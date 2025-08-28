@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ChevronLeft, Sheet, Smartphone, Store, UserRound } from "lucide-react"
+import { ChevronLeft, QrCode, Smartphone, Store, UserRound } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useEffect, useState } from "react"
@@ -56,6 +56,8 @@ const Signup = () => {
         }), z.string().url()]),
         ownerName: z.string().min(2, {
             message: "Nama pemilik harus terdiri dari minimal 2 karakter.",
+        }).regex(/^[A-Za-z\s]+$/, {
+            message: "Nama hanya boleh mengandung huruf dan spasi.",
         }),
         gender: z.enum(["Laki - Laki", "Perempuan"], {
             message: "Harap pilih jenis kelamin.",
@@ -106,7 +108,7 @@ const Signup = () => {
             photo: undefined,
             ownerName: "",
             gender: undefined,
-            dateOfBirth: new Date(),
+            dateOfBirth: new Date("2000-01-01"), // Set default date to 1 January 2000
             email: "",
             nik: "",
             phoneNumber: "",
@@ -114,8 +116,6 @@ const Signup = () => {
             confirmPassword: "",
         },
     })
-
-
 
     const FormSchemaMerchant = z.object({
         typeBusinessEntity: z.enum(
@@ -126,6 +126,8 @@ const Signup = () => {
         ),
         merchantName: z.string().min(3, {
             message: "Nama merchant harus terdiri dari minimal 3 karakter.",
+        }).regex(/^[A-Za-z\s]+$/, {
+            message: "Nama hanya boleh mengandung huruf dan spasi.",
         }),
         merchantCategory: z.string().min(1, {
             message: "Harap pilih kategori merchant.",
@@ -137,9 +139,7 @@ const Signup = () => {
         rw_number: z.string().min(1, {
             message: "RW harus terdiri wajib diisi.",
         }),
-        block_number: z.string().min(1, {
-            message: "Nomor/Blok Tempat Usaha wajib diisi.",
-        }),
+        block_number: z.string().optional(),
         merchantProvince: z.string().min(1, {
             message: "Nama provinsi wajib diisi.",
         }),
@@ -311,7 +311,7 @@ const Signup = () => {
         formData.append("merchantVillage", merchantData.merchantVillage);
         formData.append("rt_number", merchantData.rt_number);
         formData.append("rw_number", merchantData.rw_number);
-        formData.append("block_number", merchantData.block_number);
+        formData.append("block_number", merchantData.block_number ?? "");
         // Asumsi `mcc` masih ada di state
         formData.append("mcc_code", mcc.code);
         formData.append("mcc_name", mcc.name);
@@ -491,9 +491,9 @@ const Signup = () => {
                             {
                                 currentSection === 0 && (<ChevronLeft className="cursor-pointer" onClick={() => setShowTermsandConditions(true)} />)
                             }
+
                             {
                                 currentSection === 3 && (<ChevronLeft className="cursor-pointer" onClick={() => navigate('/')} />)
-
                             }
 
                             <p data-aos="zoom-in" className="uppercase m-auto text-center font-semibold text-2xl">{currentSection === 0 ? 'Data Personal' : currentSection === 1 ? 'Data Merchant' : currentSection === 2 ? 'Pengajuan QRIS' : 'Kode OTP'}</p>
@@ -513,7 +513,7 @@ const Signup = () => {
                             <div className="w-full h-[2px] bg-black"></div>
 
                             <div className={`${section[2] ? 'bg-orange-500' : 'bg-gray-500'} transition-all w-12 min-w-12 h-12 rounded-full flex items-center justify-center`}>
-                                <Sheet className="text-white" />
+                                <QrCode className="text-white" />
                             </div>
 
                             <div className="w-full h-[2px] bg-black"></div>

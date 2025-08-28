@@ -17,7 +17,7 @@ interface OTPProps {
 	phone: string;
 }
 
-const   OTP = ({ currentSection, setCreatePin, phone }: OTPProps) => {
+const OTP = ({ currentSection, setCreatePin, phone }: OTPProps) => {
 	const [value, setValue] = useState("");
 	// const [phoneNumber, setPhoneNumber] = useState("");
 	const [codeSent, setCodeSent] = useState(false);
@@ -171,6 +171,8 @@ const   OTP = ({ currentSection, setCreatePin, phone }: OTPProps) => {
 							className="rounded-sm border border-black px-4 w-full py-3"
 						/>
 					</div>
+
+					<p className="text-md text-gray-500 text-center font-semibold">Mohon segera melakukan verifikasi kode OTP dengan Klik tombol "Kirim" dibawah ini</p>
 
 					<Button
 						onClick={sendCode}

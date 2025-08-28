@@ -32,7 +32,7 @@ import { ChevronDown, ChevronLeft, ChevronRight, ChevronsUpDown } from 'lucide-r
 
 import { UseFormReturn } from 'react-hook-form';
 import mccList from '@/data/mcc.json'
-
+import { useState, useRef, useEffect } from "react";
 
 interface MerchantFormValues {
     formMerchant: UseFormReturn<any>;
@@ -78,6 +78,15 @@ export const FormMerchant = ({
     mcc,
     setMcc,
 }: MerchantFormValues) => {
+    const [menuWidth, setMenuWidth] = useState<number | null>(null);
+    const triggerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (triggerRef.current) {
+            setMenuWidth(triggerRef.current.offsetWidth);
+        }
+    }, []);
+
     return (
         <Form {...formMerchant}>
             <form onSubmit={formMerchant.handleSubmit(onSubmitMerchant)}>
@@ -90,21 +99,34 @@ export const FormMerchant = ({
                                 <FormControl>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <div data-aos="fade-up" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                <button className="">
-                                                    {field.value || "Tipe Usaha"} {/* Display selected value */}
-                                                </button>
+                                            <div>
+                                                <p className="font-semibold text-black">Tipe Usaha</p>
 
-                                                <ChevronDown />
+                                                <div
+                                                    ref={triggerRef}
+                                                    className="p-3 mt-2 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between cursor-pointer"
+                                                >
+                                                    <span>{field.value || "Tipe Usaha"}</span>
+                                                    <ChevronDown />
+                                                </div>
                                             </div>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max">
+
+                                        <DropdownMenuContent
+                                            align="start"
+                                            style={{ width: menuWidth ?? "auto" }}
+                                            className="p-0"
+                                        >
                                             <DropdownMenuSeparator />
-                                            <DropdownMenuItem onSelect={() => field.onChange("Perorangan")} className="w-full">Perorangan</DropdownMenuItem>
-                                            <DropdownMenuItem onSelect={() => field.onChange("CV")} className="w-full">CV</DropdownMenuItem>
-                                            <DropdownMenuItem onSelect={() => field.onChange("Koperasi")} className="w-full">Koperasi</DropdownMenuItem>
-                                            <DropdownMenuItem onSelect={() => field.onChange("Firma")} className="w-full">Firma</DropdownMenuItem>
-                                            <DropdownMenuItem onSelect={() => field.onChange("Perseroan Terbatas")} className="w-full">Perseroan Terbatas</DropdownMenuItem>
+                                            {["Perorangan", "CV", "Koperasi", "Firma", "Perseroan Terbatas"].map((item) => (
+                                                <DropdownMenuItem
+                                                    key={item}
+                                                    onSelect={() => field.onChange(item)}
+                                                    className="w-full"
+                                                >
+                                                    {item}
+                                                </DropdownMenuItem>
+                                            ))}
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </FormControl>
@@ -118,11 +140,25 @@ export const FormMerchant = ({
                         name="merchantName"
                         render={({ field }) => (
                             <FormItem className="w-full">
-                                <FormControl className="flex items-center gap-3">
-                                    <Input data-aos="fade-up" data-aos-delay="100" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nama Usaha" {...field} />
+                                <FormControl className="flex gap-3">
+                                    <div className="flex flex-col w-full">
+                                        <p className="font-semibold text-start text-black">Nama Usaha</p>
+
+                                        <Input
+                                            className="w-full bg-[#F4F4F4] font-sans font-semibold"
+                                            placeholder="Nama Usaha"
+                                            {...field}
+                                            onChange={(e) => {
+                                                const onlyLetters = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+                                                field.onChange(onlyLetters);
+                                            }}
+                                        />
+                                    </div>
                                 </FormControl>
 
-                                <p className="text-sm text-gray-500 italic">*Nama Usaha adalah Nama yang akan di tampilkan di QRIS Anda</p>
+                                <p className="text-sm text-gray-500 italic">
+                                    *Nama Usaha adalah Nama yang akan di tampilkan di QRIS Anda
+                                </p>
 
                                 <FormMessage />
                             </FormItem>
@@ -137,16 +173,20 @@ export const FormMerchant = ({
                                 <FormControl>
                                     <Popover open={openSearch} onOpenChange={setOpenSearch}>
                                         <PopoverTrigger asChild>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                role="combobox"
-                                                aria-expanded={openSearch}
-                                                className="w-full bg-[#F4F4F4] justify-between border border-gray-300 rounded-lg"
-                                            >
-                                                {mcc.name || "Pilih Kategori Usaha"}
-                                                <ChevronsUpDown className="opacity-50" />
-                                            </Button>
+                                            <div>
+                                                <p className="font-semibold text-black">Pilih Kategori Usaha</p>
+
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    role="combobox"
+                                                    aria-expanded={openSearch}
+                                                    className="w-full mt-2 bg-[#F4F4F4] justify-between border border-gray-300 rounded-lg"
+                                                >
+                                                    {mcc.name || "Pilih Kategori Usaha"}
+                                                    <ChevronsUpDown className="opacity-50" />
+                                                </Button>
+                                            </div>
                                         </PopoverTrigger>
 
                                         <PopoverContent
@@ -201,9 +241,19 @@ export const FormMerchant = ({
                             render={({ field }) => (
                                 <FormItem className="w-full">
                                     <FormControl>
-                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="RT Sesuai Alamat" {...field} />
+                                        <div>
+                                            <p className="font-semibold text-black">RT</p>
+                                            <Input
+                                                className="w-full mt-2 bg-[#F4F4F4] font-sans font-semibold"
+                                                placeholder="RT Sesuai Alamat"
+                                                {...field}
+                                                onChange={(e) => {
+                                                    const onlyDigits = e.target.value.replace(/\D/g, "").slice(0, 3);
+                                                    field.onChange(onlyDigits);
+                                                }}
+                                            />
+                                        </div>
                                     </FormControl>
-
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -215,9 +265,19 @@ export const FormMerchant = ({
                             render={({ field }) => (
                                 <FormItem className="w-full">
                                     <FormControl>
-                                        <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="RW Sesuai Alamat" {...field} />
+                                        <div>
+                                            <p className="font-semibold text-black">RW</p>
+                                            <Input
+                                                className="w-full mt-2 bg-[#F4F4F4] font-sans font-semibold"
+                                                placeholder="RW Sesuai Alamat"
+                                                {...field}
+                                                onChange={(e) => {
+                                                    const onlyDigits = e.target.value.replace(/\D/g, "").slice(0, 3);
+                                                    field.onChange(onlyDigits);
+                                                }}
+                                            />
+                                        </div>
                                     </FormControl>
-
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -230,7 +290,11 @@ export const FormMerchant = ({
                         render={({ field }) => (
                             <FormItem className="w-full">
                                 <FormControl>
-                                    <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Nomor/Blok Tempat Usaha" {...field} />
+                                    <div>
+                                        <p className="font-semibold text-black">Nomor/Blok Tempat Usaha</p>
+
+                                        <Input className="w-full mt-2 bg-[#F4F4F4] font-sans font-semibold" placeholder="Nomor/Blok Tempat Usaha" {...field} />
+                                    </div>
                                 </FormControl>
 
                                 <FormMessage />
@@ -244,7 +308,11 @@ export const FormMerchant = ({
                         render={({ field }) => (
                             <FormItem className="w-full">
                                 <FormControl>
-                                    <Input data-aos="fade-up" className="w-full bg-[#F4F4F4] font-sans font-semibold" placeholder="Alamat Usaha" {...field} />
+                                    <div>
+                                        <p className="font-semibold text-black">Alamat Usaha</p>
+
+                                        <Input className="w-full mt-2 bg-[#F4F4F4] font-sans font-semibold" placeholder="Alamat Usaha" {...field} />
+                                    </div>
                                 </FormControl>
 
                                 <p className="text-sm text-gray-500 italic">*Jika tidak ada Toko Fisik, Anda dapat mengisi alamat sesuai KTP</p>
@@ -262,30 +330,41 @@ export const FormMerchant = ({
                                 <FormControl>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <div data-aos="fade-up" data-aos-delay="200" className="p-3 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between">
-                                                <button type="button">
-                                                    {field.value || "Pilih Provinsi"}
-                                                </button>
-                                                <ChevronDown />
+                                            <div>
+                                                <p className="font-semibold text-black">Pilih Provinsi</p>
+
+                                                <div
+                                                    ref={triggerRef}
+                                                    className="p-3 mt-2 bg-[#F4F4F4] font-sans font-semibold flex items-center w-full justify-between cursor-pointer"
+                                                >
+                                                    <span>{field.value || "Pilih Provinsi"}</span>
+                                                    <ChevronDown />
+                                                </div>
                                             </div>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max max-h-64 overflow-y-auto">
+
+                                        <DropdownMenuContent
+                                            align="start"
+                                            style={{ width: menuWidth ?? "auto" }}
+                                            className="max-h-64 overflow-y-auto p-0 z-50"
+                                        >
                                             {loading ? (
-                                                <div>Loading...</div>
+                                                <div className="px-4 py-2 text-sm text-muted-foreground">Loading...</div>
                                             ) : (
                                                 provinces.map((province) => (
                                                     <DropdownMenuItem
                                                         key={province.id}
                                                         onSelect={() => {
-                                                            field.onChange(province.name); // Store name instead of id
-                                                            setSelectedProvince(province.id); // Keep ID for fetching dependent data
-                                                            // Reset dependent fields
+                                                            field.onChange(province.name); // Simpan nama provinsi
+                                                            setSelectedProvince(province.id); // Simpan ID untuk kebutuhan API lanjutan
+                                                            // Reset field turunan
                                                             formMerchant.setValue('merchantRegency', '');
                                                             formMerchant.setValue('merchantDistrict', '');
                                                             formMerchant.setValue('merchantVillage', '');
                                                             setSelectedRegency(null);
                                                             setSelectedDistrict(null);
                                                         }}
+                                                        className="w-full"
                                                     >
                                                         {province.name}
                                                     </DropdownMenuItem>
@@ -298,6 +377,7 @@ export const FormMerchant = ({
                             </FormItem>
                         )}
                     />
+
                     <FormField
                         control={formMerchant.control}
                         name="merchantRegency"
@@ -306,25 +386,32 @@ export const FormMerchant = ({
                                 <FormControl>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <div
-                                                data-aos="fade-up" data-aos-delay="300"
-                                                className={`p-3 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4]`}
-                                            >
-                                                <button
-                                                    disabled={!selectedProvince}
-                                                    className="w-full text-left"
-                                                    type="button"
-                                                    style={{ pointerEvents: !selectedProvince ? "none" : "auto" }}
+                                            <div>
+                                                <p className="font-semibold text-black">Pilih Kota/Kabupaten</p>
+
+                                                <div
+                                                    ref={triggerRef}
+                                                    className={`p-3 mt-2 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4] cursor-pointer ${!selectedProvince ? "opacity-50 cursor-not-allowed" : ""
+                                                        }`}
                                                 >
-                                                    {field.value || "Pilih Kota"}
-                                                </button>
-                                                <ChevronDown />
+                                                    <span className="w-full text-left">
+                                                        {field.value || "Pilih Kota"}
+                                                    </span>
+                                                    <ChevronDown />
+                                                </div>
                                             </div>
                                         </DropdownMenuTrigger>
+
                                         {selectedProvince && (
-                                            <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max max-h-64 overflow-y-auto">
+                                            <DropdownMenuContent
+                                                align="start"
+                                                style={{ width: menuWidth ?? "auto" }}
+                                                className="max-h-64 overflow-y-auto p-0 z-50"
+                                            >
                                                 {loading ? (
-                                                    <div>Loading...</div>
+                                                    <div className="px-4 py-2 text-sm text-muted-foreground">
+                                                        Loading...
+                                                    </div>
                                                 ) : (
                                                     regencies.map((regency) => (
                                                         <DropdownMenuItem
@@ -332,11 +419,11 @@ export const FormMerchant = ({
                                                             onSelect={() => {
                                                                 field.onChange(regency.name);
                                                                 setSelectedRegency(regency.id);
-                                                                // Reset dependent fields
-                                                                formMerchant.setValue('merchantDistrict', '');
-                                                                formMerchant.setValue('merchantVillage', '');
+                                                                formMerchant.setValue("merchantDistrict", "");
+                                                                formMerchant.setValue("merchantVillage", "");
                                                                 setSelectedDistrict(null);
                                                             }}
+                                                            className="w-full"
                                                         >
                                                             {regency.name}
                                                         </DropdownMenuItem>
@@ -359,25 +446,30 @@ export const FormMerchant = ({
                                 <FormControl>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <div
-                                                data-aos="fade-up" data-aos-delay="400"
-                                                className={`p-3 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4]`}
-                                            >
-                                                <button
-                                                    disabled={!selectedRegency}
-                                                    className="w-full text-left"
-                                                    type="button"
-                                                    style={{ pointerEvents: !selectedRegency ? "none" : "auto" }}
+                                            <div>
+                                                <p className="font-semibold text-black">Pilih Kecamatan</p>
+
+                                                <div
+                                                    ref={triggerRef}
+                                                    className={`p-3 mt-2 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4] cursor-pointer ${!selectedRegency ? "opacity-50 cursor-not-allowed" : ""
+                                                        }`}
                                                 >
-                                                    {field.value || "Pilih Kecamatan"}
-                                                </button>
-                                                <ChevronDown />
+                                                    <span className="w-full text-left">
+                                                        {field.value || "Pilih Kecamatan"}
+                                                    </span>
+                                                    <ChevronDown />
+                                                </div>
                                             </div>
                                         </DropdownMenuTrigger>
+
                                         {selectedRegency && (
-                                            <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max max-h-64 overflow-y-auto">
+                                            <DropdownMenuContent
+                                                align="start"
+                                                style={{ width: menuWidth ?? "auto" }}
+                                                className="max-h-64 overflow-y-auto p-0 z-50"
+                                            >
                                                 {loading ? (
-                                                    <div>Loading...</div>
+                                                    <div className="px-4 py-2 text-sm text-muted-foreground">Loading...</div>
                                                 ) : (
                                                     districts.map((district) => (
                                                         <DropdownMenuItem
@@ -385,8 +477,9 @@ export const FormMerchant = ({
                                                             onSelect={() => {
                                                                 field.onChange(district.name);
                                                                 setSelectedDistrict(district.id);
-                                                                formMerchant.setValue('merchantVillage', '');
+                                                                formMerchant.setValue("merchantVillage", "");
                                                             }}
+                                                            className="w-full"
                                                         >
                                                             {district.name}
                                                         </DropdownMenuItem>
@@ -409,33 +502,40 @@ export const FormMerchant = ({
                                 <FormControl>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <div
-                                                data-aos="fade-up" data-aos-delay="500"
-                                                className={`p-3 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4]`}
-                                            >
-                                                <button
-                                                    disabled={!selectedDistrict}
-                                                    className="w-full text-left"
-                                                    type="button"
-                                                    style={{ pointerEvents: !selectedDistrict ? "none" : "auto" }}
+                                            <div>
+                                                <p className="font-semibold text-black">Pilih Kelurahan/Desa</p>
 
+                                                <div
+                                                    ref={triggerRef}
+                                                    className={`p-3 mt-2 font-sans font-semibold flex items-center w-full justify-between bg-[#F4F4F4] cursor-pointer ${!selectedDistrict ? "opacity-50 cursor-not-allowed" : ""
+                                                        }`}
                                                 >
-                                                    {field.value || "Pilih Kelurahan"}
-                                                </button>
-                                                <ChevronDown />
+                                                    <span className="w-full text-left">
+                                                        {field.value || "Pilih Kelurahan"}
+                                                    </span>
+                                                    <ChevronDown />
+                                                </div>
                                             </div>
                                         </DropdownMenuTrigger>
-                                        {selectedDistrict && ( // Render menu content only if `selectedDistrict` is valid
-                                            <DropdownMenuContent className="w-full sm:min-w-[600px] min-w-max max-h-64 overflow-y-auto">
+
+                                        {selectedDistrict && (
+                                            <DropdownMenuContent
+                                                align="start"
+                                                style={{ width: menuWidth ?? "auto" }}
+                                                className="max-h-64 overflow-y-auto p-0 z-50"
+                                            >
                                                 {loading ? (
-                                                    <div>Loading...</div>
+                                                    <div className="px-4 py-2 text-sm text-muted-foreground">
+                                                        Loading...
+                                                    </div>
                                                 ) : (
                                                     villages.map((village) => (
                                                         <DropdownMenuItem
                                                             key={village.id}
                                                             onSelect={() => {
-                                                                field.onChange(village.name); // Store name instead of id
+                                                                field.onChange(village.name);
                                                             }}
+                                                            className="w-full"
                                                         >
                                                             {village.name}
                                                         </DropdownMenuItem>
@@ -447,7 +547,6 @@ export const FormMerchant = ({
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
-
                         )}
                     />
 
@@ -457,19 +556,22 @@ export const FormMerchant = ({
                         render={({ field }) => (
                             <FormItem className="w-full">
                                 <FormControl>
-                                    <Input
-                                        data-aos="fade-up"
-                                        className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                        type="number"
-                                        placeholder="Kode Pos"
-                                        {...field}
-                                        onInput={(e) => {
-                                            const value = (e.target as HTMLInputElement).value;
-                                            if (value.length > 5) {
-                                                (e.target as HTMLInputElement).value = value.slice(0, 5); // Limit to 5 digits
-                                            }
-                                        }}
-                                    />
+                                    <div>
+                                        <p className="font-semibold text-black">Kode Pos</p>
+
+                                        <Input
+                                            className="w-full mt-2 bg-[#F4F4F4] font-sans font-semibold"
+                                            type="number"
+                                            placeholder="Kode Pos"
+                                            {...field}
+                                            onInput={(e) => {
+                                                const value = (e.target as HTMLInputElement).value;
+                                                if (value.length > 5) {
+                                                    (e.target as HTMLInputElement).value = value.slice(0, 5); // Limit to 5 digits
+                                                }
+                                            }}
+                                        />
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -482,18 +584,21 @@ export const FormMerchant = ({
                         render={({ field }) => (
                             <FormItem className="w-full">
                                 <FormControl>
-                                    <Input
-                                        data-aos="fade-up"
-                                        className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                        type="tel"
-                                        placeholder="0812..."
-                                        {...field}
-                                        onChange={(e) => {
-                                            // Validasi manual untuk panjang dan hanya angka
-                                            const value = e.target.value.replace(/\D/g, '').slice(0, 15);
-                                            field.onChange(value);
-                                        }}
-                                    />
+                                    <div>
+                                        <p className="font-semibold text-black">Nomor HP Merchant</p>
+
+                                        <Input
+                                            className="w-full mt-2 bg-[#F4F4F4] font-sans font-semibold"
+                                            type="tel"
+                                            placeholder="0812..."
+                                            {...field}
+                                            onChange={(e) => {
+                                                // Validasi manual untuk panjang dan hanya angka
+                                                const value = e.target.value.replace(/\D/g, '').slice(0, 15);
+                                                field.onChange(value);
+                                            }}
+                                        />
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -506,13 +611,16 @@ export const FormMerchant = ({
                         render={({ field }) => (
                             <FormItem className="w-full">
                                 <FormControl>
-                                    <Input
-                                        data-aos="fade-up"
-                                        className="w-full bg-[#F4F4F4] font-sans font-semibold"
-                                        placeholder="Email Merchant"
-                                        {...field}
-                                        onChange={(e) => field.onChange(e.target.value.toLowerCase())}
-                                    />
+                                    <div>
+                                        <p className="font-semibold text-black">Email Merchant</p>
+
+                                        <Input
+                                            className="w-full mt-2 bg-[#F4F4F4] font-sans font-semibold"
+                                            placeholder="Email Merchant"
+                                            {...field}
+                                            onChange={(e) => field.onChange(e.target.value.toLowerCase())}
+                                        />
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -520,7 +628,7 @@ export const FormMerchant = ({
                     />
                 </div>
 
-                <div data-aos="fade-up" className="flex items-center w-full justify-between gap-5">
+                <div className="flex items-center w-full justify-between gap-5">
                     <Button type="button" onClick={() => { setCurrentSection(0) }} className={`${currentSection === 1 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-orange-400 hover:bg-orange-400 rounded-lg`}> <ChevronLeft /> Kembali</Button>
                     <Button
                         type="submit"
@@ -528,5 +636,5 @@ export const FormMerchant = ({
                         className={`${currentSection === 1 ? 'flex' : 'hidden'} w-full md:w-max mt-10 px-5 py-3 font-sans font-semibold bg-[#7ED321] hover:bg-[#7ED321] rounded-lg `}>  Selanjutnya <ChevronRight /> </Button>
                 </div>
             </form>
-        </Form>)
+        </Form >)
 }
