@@ -272,7 +272,7 @@ export const FormPersonal = ({
                                         </div>
                                     </FormControl>
 
-                                    <p className="text-xs italic text-gray-500 mt-2">Harap pastikan nomor HP yang Anda daftarkan adalah nomor <span className="font-bold text-black">WhatsApp</span> yang aktif untuk pengiriman untuk menerima <span className="font-bold text-black">kode OTP</span>.</p>
+                                    <p className="text-xs italic text-gray-500 mt-2">Harap pastikan nomor HP yang Anda daftarkan adalah nomor <span className="font-bold text-black">WhatsApp</span> yang aktif untuk pengiriman <span className="font-bold text-black">kode OTP</span>.</p>
                                 </div>
                                 <FormMessage />
                             </FormItem>
