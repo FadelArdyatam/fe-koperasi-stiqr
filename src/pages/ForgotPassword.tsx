@@ -1,6 +1,6 @@
 import { ChevronLeft, MailCheck } from 'lucide-react'
 import logo from '../images/logo.png'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Form, FormField, FormItem, FormControl, FormMessage } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -16,6 +16,10 @@ const ForgotPassword = () => {
     const [Notification, setNotification] = useState({ status: false, address: '', notificationSuccess: true })
     const [timer, setTimer] = useState(0);
     const [isCounting, setIsCounting] = useState(false);
+
+    const [searchParams] = useSearchParams();
+
+    const fromApp = searchParams.get("from");
 
     useEffect(() => {
         let interval: any;
@@ -54,11 +58,20 @@ const ForgotPassword = () => {
 
     async function onSubmitEmail(data: z.infer<typeof FormEmailSchema>) {
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
-                email: data.email,
-            });
+            if (fromApp === "app") {
+                const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/forgot-password?from=app`, {
+                    email: data.email,
+                });
 
-            console.log(response.data)
+                console.log(response?.data)
+
+            } else {
+                const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
+                    email: data.email,
+                });
+
+                console.log(response?.data)
+            }
 
             setNotification({ status: true, address: data.email, notificationSuccess: true })
             startTimer();

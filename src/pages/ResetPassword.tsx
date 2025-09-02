@@ -104,9 +104,15 @@ const ResetPassword = () => {
             // Tampilkan notifikasi sukses
             setNotification({ message: "Password berhasil diubah!", type: "success" });
 
-            setTimeout(() => {
-                navigate('/'); // Arahkan ke halaman utama setelah 2 detik
-            }, 2000);
+            const fromApp = searchParams.get("from");
+
+            if (fromApp === "app") {
+                window.location.href = "stiqr://login";
+            } else {
+                setTimeout(() => {
+                    navigate('/'); // Arahkan ke halaman utama setelah 2 detik
+                }, 2000);
+            }
         } catch (error) {
             console.error("Error submitting new password:", error);
             const errorMessage = (error as any).response?.data?.message || "Failed to update the password. Please try again.";
