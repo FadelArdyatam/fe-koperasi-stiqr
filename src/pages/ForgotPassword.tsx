@@ -58,11 +58,20 @@ const ForgotPassword = () => {
 
     async function onSubmitEmail(data: z.infer<typeof FormEmailSchema>) {
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
-                email: data.email,
-            });
+            if (fromApp === "app") {
+                const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/forgot-password?from=app`, {
+                    email: data.email,
+                });
 
-            console.log(response.data)
+                console.log(response?.data)
+
+            } else {
+                const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
+                    email: data.email,
+                });
+
+                console.log(response?.data)
+            }
 
             setNotification({ status: true, address: data.email, notificationSuccess: true })
             startTimer();
