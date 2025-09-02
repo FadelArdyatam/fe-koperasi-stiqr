@@ -359,7 +359,9 @@ const Riwayat = () => {
                                                                         : "QRCode"
                                                                     : "Penjualan"}{" "}
                                                                 | {history.payment_method}
-                                                            </p>                                                            <div className={`${history.transaction_status === "success" ? "bg-green-400 " : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} w-fit px-2 rounded-md text-white text-xs py-[0.5]"`}>
+                                                            </p>
+
+                                                            <div className={`${history.transaction_status === "success" ? "bg-green-400 " : history.transaction_status === "pending" ? "bg-yellow-400" : "bg-red-400"} w-fit px-2 rounded-md text-white text-xs py-[0.5]"`}>
                                                                 <p>{history.transaction_status}</p>
                                                             </div>
                                                         </div>
@@ -376,7 +378,7 @@ const Riwayat = () => {
                                                 <div className="flex flex-col items-end md:mt-0 mt-2">
                                                     <p className="text-md font-semibold">{formatRupiah(history.total_amount)}</p>
                                                     {
-                                                        (history.payment_method == 'QRIS' || history.payment_method == 'QRIS Static') && (
+                                                        history.payment_method == 'QRIS' || history.payment_method == 'QRIS Static' && (
                                                             <p className="text-xs text-red-500 mb-2">
                                                                 - {history.net_amount == null || history.total_amount == history.net_amount
                                                                     ? formatRupiah(0)
