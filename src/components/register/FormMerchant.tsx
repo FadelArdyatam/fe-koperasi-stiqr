@@ -607,6 +607,31 @@ export const FormMerchant = ({
 
                     <FormField
                         control={formMerchant.control}
+                        name="kodeKoperasiInduk"
+                        render={({ field }) => (
+                            <FormItem className="w-full">
+                                <FormControl>
+                                    <div>
+                                        <p className="font-semibold text-black">Kode Koperasi Induk (Opsional)</p>
+                                        <p className="text-sm text-gray-500 italic mb-2">
+                                            *Jika Anda adalah anggota koperasi, masukkan kode koperasi induk Anda
+                                        </p>
+
+                                        <Input
+                                            className="w-full mt-2 bg-[#F4F4F4] font-sans font-semibold"
+                                            placeholder="KOPERASI-123"
+                                            {...field}
+                                            onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                                        />
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={formMerchant.control}
                         name="merchantEmail"
                         render={({ field }) => (
                             <FormItem className="w-full">

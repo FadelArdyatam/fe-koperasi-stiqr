@@ -31,10 +31,36 @@ import DataCustomer from './pages/Profile/DataCustomer.tsx'
 import Customer from './pages/Customer.tsx'
 import NotFound from './pages/NotFound.tsx'
 import HelpCenter from './pages/Profile/HelpCenter.tsx'
+import RegisterKoperasi from './pages/RegisterKoperasi.tsx'
+import KoperasiDashboard from './pages/KoperasiDashboard.tsx'
 import EReceipt from './pages/Casheer/EReceipt.tsx'
 import EReceiptCustomer from './pages/Casheer/EReceiptCustomer.tsx'
+import { RequireAnggotaKoperasiSimple, RequireIndukKoperasiSimple } from './routes/guards-simple.tsx'
+import KoperasiMembers from './pages/KoperasiMembers'
+import KoperasiMemberDetail from './pages/KoperasiMemberDetail'
+import LoansProducts from './pages/LoansProducts'
+import LoansApplications from './pages/LoansApplications'
+import LoansInstallments from './pages/LoansInstallments'
+import KoperasiMargins from './pages/KoperasiMargins'
+import KoperasiCatalog from './pages/KoperasiCatalog'
 
 const router = createBrowserRouter([
+  {
+    path: '/koperasi-margins',
+    element: (
+      <RequireIndukKoperasiSimple>
+        <KoperasiMargins />
+      </RequireIndukKoperasiSimple>
+    ),
+  },
+  {
+    path: '/koperasi-catalog',
+    element: (
+      <RequireIndukKoperasiSimple>
+        <KoperasiCatalog />
+      </RequireIndukKoperasiSimple>
+    ),
+  },
   {
     path: '/',
     element: <App />,
@@ -42,6 +68,67 @@ const router = createBrowserRouter([
   {
     path: '/signup',
     element: <Signup />,
+  },
+  {
+    path: '/register-koperasi',
+    element: <RegisterKoperasi />,
+  },
+  // Koperasi routes (protected by guards)
+  {
+    path: '/koperasi-dashboard',
+    element: (
+      <RequireIndukKoperasiSimple>
+        <KoperasiDashboard />
+      </RequireIndukKoperasiSimple>
+    ),
+  },
+  {
+    path: '/koperasi-members',
+    element: (
+      <RequireIndukKoperasiSimple>
+        <KoperasiMembers />
+      </RequireIndukKoperasiSimple>
+    ),
+  },
+  {
+    path: '/koperasi-members/:id',
+    element: (
+      <RequireIndukKoperasiSimple>
+        <KoperasiMemberDetail />
+      </RequireIndukKoperasiSimple>
+    ),
+  },
+  {
+    path: '/koperasi-loans/products',
+    element: (
+      <RequireIndukKoperasiSimple>
+        <LoansProducts />
+      </RequireIndukKoperasiSimple>
+    ),
+  },
+  {
+    path: '/koperasi-loans/applications',
+    element: (
+      <RequireIndukKoperasiSimple>
+        <LoansApplications />
+      </RequireIndukKoperasiSimple>
+    ),
+  },
+  {
+    path: '/koperasi-loans/installments',
+    element: (
+      <RequireIndukKoperasiSimple>
+        <LoansInstallments />
+      </RequireIndukKoperasiSimple>
+    ),
+  },
+  {
+    path: '/anggota',
+    element: (
+      <RequireAnggotaKoperasiSimple>
+        <Dashboard />
+      </RequireAnggotaKoperasiSimple>
+    ),
   },
   {
     path: '/forgot-password',

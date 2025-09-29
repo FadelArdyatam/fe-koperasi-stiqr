@@ -170,6 +170,7 @@ const Signup = () => {
             message: "Alamat email tidak valid.",
         }),
         merchantContact: z.string().optional(),
+        kodeKoperasiInduk: z.string().optional(),
     });
 
     const formMerchant = useForm<z.infer<typeof FormSchemaMerchant>>({
@@ -189,6 +190,7 @@ const Signup = () => {
             merchantAddress: "",
             phoneNumberMerchant: "",
             merchantEmail: "",
+            kodeKoperasiInduk: "",
         },
     });
 
@@ -316,6 +318,11 @@ const Signup = () => {
         formData.append("mcc_code", mcc.code);
         formData.append("mcc_name", mcc.name);
 
+        // Optional Kode Koperasi
+        if (merchantData.kodeKoperasiInduk) {
+            formData.append("kodeKoperasiInduk", merchantData.kodeKoperasiInduk);
+        }
+
         // Data QRIS Submission
         formData.append("annual_revenue", qrisData.annual_revenue);
         formData.append("daily_income", qrisData.daily_income);
@@ -411,10 +418,16 @@ const Signup = () => {
         const fetchProvinces = async () => {
             setLoading(true);
             try {
+                console.log("[Signup] Fetching provinces from:", axiosInstance.defaults.baseURL + "/merchant/list/provinces");
                 const response = await axiosInstance.get("/merchant/list/provinces");
-                setProvinces(response.data);
+                console.log("[Signup] Raw response:", response);
+                const payload = response.data;
+                console.log("[Signup] Response data:", payload);
+                const items = Array.isArray(payload) ? payload : (Array.isArray(payload?.data) ? payload.data : []);
+                console.log("[Signup] Normalized items:", items);
+                setProvinces(items);
             } catch (error) {
-                console.error("Error fetching provinces:", error);
+                console.error("[Signup] Error fetching provinces:", error);
             } finally {
                 setLoading(false);
             }
@@ -430,7 +443,9 @@ const Signup = () => {
                     const response = await axiosInstance.get(
                         `/merchant/list/regencies/${selectedProvince}`
                     );
-                    setRegencies(response.data);
+                    const payload = response.data;
+                    const items = Array.isArray(payload) ? payload : (Array.isArray(payload?.data) ? payload.data : []);
+                    setRegencies(items);
                 } catch (error) {
                     console.error("Error fetching regencies:", error);
                 } finally {
@@ -449,7 +464,9 @@ const Signup = () => {
                     const response = await axiosInstance.get(
                         `/merchant/list/districts/${selectedRegency}`
                     );
-                    setDistricts(response.data);
+                    const payload = response.data;
+                    const items = Array.isArray(payload) ? payload : (Array.isArray(payload?.data) ? payload.data : []);
+                    setDistricts(items);
                 } catch (error) {
                     console.error("Error fetching districts:", error);
                 } finally {
@@ -468,7 +485,9 @@ const Signup = () => {
                     const response = await axiosInstance.get(
                         `/merchant/list/villages/${selectedDistrict}`
                     );
-                    setVillages(response.data);
+                    const payload = response.data;
+                    const items = Array.isArray(payload) ? payload : (Array.isArray(payload?.data) ? payload.data : []);
+                    setVillages(items);
                 } catch (error) {
                     console.error("Error fetching villages:", error);
                 } finally {

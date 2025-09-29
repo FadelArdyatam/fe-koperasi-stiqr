@@ -1,4 +1,4 @@
-import { CircleDollarSign, CreditCard, Droplet, HandCoins, Home, Mail, ScanQrCode, ShieldCheck, Smartphone, Zap, UserRound, X, FileText, ClipboardList, CirclePercent, EyeOff, Eye, UsersRound, ChevronsLeft, ChevronsRight, ChevronRight, ChevronLeft } from "lucide-react";
+import { CircleDollarSign, Droplet, HandCoins, Mail, ShieldCheck, Smartphone, Zap, X, ClipboardList, CirclePercent, EyeOff, Eye, UsersRound, ChevronsLeft, ChevronsRight, ChevronRight, ChevronLeft, Building2, Home, ScanQrCode, CreditCard, FileText, UserRound } from "lucide-react";
 import logo from "@/images/logo.png";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -12,6 +12,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { convertDate, convertTime } from "@/hooks/convertDate";
 import Joyride from 'react-joyride';
+import { useAffiliation } from "@/hooks/useAffiliation";
 
 interface History {
     image: string;
@@ -64,6 +65,13 @@ const Dashboard = () => {
     });
     const [user, setUser] = useState<any>();
     const [unreadCount, setUnreadCount] = useState(0);
+    const { data: affiliation, loading: affiliationLoading } = useAffiliation();
+    
+    // Debug logging
+    useEffect(() => {
+        console.log('[Dashboard] Affiliation data:', affiliation);
+        console.log('[Dashboard] Affiliation loading:', affiliationLoading);
+    }, [affiliation, affiliationLoading]);
 
     useEffect(() => {
         const fetchUnreadNotifications = async () => {
@@ -97,6 +105,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         setUser(userData);
+        
         const checkProfile = async () => {
             try {
                 const response = await axiosInstance.get(
@@ -193,40 +202,7 @@ const Dashboard = () => {
 
     // 
     return (
-        <div className="w-full">
-            <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
-                <Link to={'/dashboard'} className="flex gap-3 text-orange-400 flex-col items-center">
-                    <Home />
-
-                    <p className="uppercase">Home</p>
-                </Link>
-
-                <Link to={'/qr-code'} className="flex gap-3 flex-col items-center">
-                    <ScanQrCode />
-
-                    <p className="uppercase">Qr Code</p>
-                </Link>
-
-                <Link to={'/settlement'} data-cy='penarikan-btn' className="flex relative gap-3 flex-col items-center">
-                    <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
-                        <CreditCard />
-                    </div>
-
-                    <p className="uppercase">Penarikan</p>
-                </Link>
-
-                <Link to={'/catalog'} className="flex gap-3 flex-col items-center">
-                    <FileText />
-
-                    <p className="uppercase">Catalog</p>
-                </Link>
-
-                <Link to={'/profile'} className="flex gap-3 flex-col items-center" data-cy="profile-link">
-                    <UserRound />
-
-                    <p className="uppercase">Profile</p>
-                </Link>
-            </div>
+        <div className="w-full pb-20">
 
             {/* Notification */}
             <div className={`${showNotification ? 'fixed' : 'hidden'} top-0 bottom-0 bg-black bg-opacity-50 w-full left-[50%] -translate-x-[50%] shadow-lg z-20 flex items-end justify-center`}>
@@ -250,7 +226,29 @@ const Dashboard = () => {
 
             <div className="w-full relative px-10 pt-10 pb-32 bg-orange-400">
                 <div className="flex items-center gap-5">
-                    <p className="text-2xl m-auto uppercase font-semibold text-center text-white" data-aos="zoom-in">Home</p>
+                    <p className="text-2xl m-auto uppercase font-semibold text-center text-white" data-aos="zoom-in">
+                        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    </p>
 
                     <Link id="inbox" to={'/inbox'} className="bg-transparent text-white right-5 hover:bg-transparent absolute">
                         <Mail className="scale-[1.3]" />
@@ -415,6 +413,43 @@ const Dashboard = () => {
                     </Link>
                 </div>
             </div>
+
+            {/* Koperasi Button - Only show for KOPERASI_INDUK */}
+            {affiliation?.affiliation === 'KOPERASI_INDUK' && (
+                <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
+                    <Link 
+                        to={'/koperasi-dashboard'} 
+                        className="flex items-center justify-center gap-3 p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        data-aos="fade-up" 
+                        data-aos-delay="600"
+                    >
+                        <Building2 className="text-white scale-110" />
+                        <div className="text-center">
+                            <p className="font-semibold text-lg">Kelola Koperasi</p>
+                            <p className="text-sm opacity-90">Manage Anggota & Simpan Pinjam</p>
+                        </div>
+                    </Link>
+                </div>
+            )}
+
+            {/* Status info for KOPERASI_ANGGOTA */}
+            {affiliation?.affiliation === 'KOPERASI_ANGGOTA' && (
+                <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
+                    <div className={`p-4 rounded-lg ${affiliation?.approval_status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+                        <div className="flex items-center gap-3">
+                            <Building2 className="text-current" />
+                            <div>
+                                <p className="font-semibold">
+                                    {affiliation?.approval_status === 'PENDING' ? 'Menunggu Persetujuan' : 'Anggota Koperasi'}
+                                </p>
+                                <p className="text-sm">{affiliation?.koperasi?.nama_koperasi}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            
 
             <div id="date" className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg p-5 bg-white shadow-lg">
                 <p className="text-center font-semibold text-lg my-5">Riwayat Transaksi Hari Ini</p>
@@ -683,6 +718,38 @@ const Dashboard = () => {
                     />
                 )
             }
+
+            {/* Bottom Navbar */}
+            <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
+                <Link to={'/dashboard'} className="flex gap-3 text-orange-400 flex-col items-center">
+                    <Home />
+                    <p className="uppercase">Home</p>
+                </Link>
+                <Link to={'/qr-code'} className="flex gap-3 flex-col items-center">
+                    <ScanQrCode />
+                    <p className="uppercase">Qr Code</p>
+                </Link>
+                <Link to={'/settlement'} data-cy='penarikan-btn' className="flex relative gap-3 flex-col items-center">
+                    <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
+                        <CreditCard />
+                    </div>
+                    <p className="uppercase">Penarikan</p>
+                </Link>
+                <Link to={'/catalog'} className="flex gap-3 flex-col items-center">
+                    <FileText />
+                    <p className="uppercase">Catalog</p>
+                </Link>
+                {/* {affiliation?.affiliation === 'KOPERASI_INDUK' && (
+                    <Link to={'/koperasi-dashboard'} className="flex gap-3 flex-col items-center">
+                        <Building2 />
+                        <p className="uppercase">Koperasi</p>
+                    </Link>
+                )} */}
+                <Link to={'/profile'} className="flex gap-3 flex-col items-center" data-cy="profile-link">
+                    <UserRound />
+                    <p className="uppercase">Profile</p>
+                </Link>
+            </div>
 
         </div >
     );
