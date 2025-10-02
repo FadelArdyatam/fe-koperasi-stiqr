@@ -9,8 +9,9 @@ import axiosInstance from "@/hooks/axiosInstance";
 import Product from "./Product";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { useAffiliation } from "@/hooks/useAffiliation";
 
-interface Product {
+interface ProductType {
     id: number;
     detail_product: any;
     product_id: string;
@@ -89,7 +90,7 @@ const stok_options = ["Stok Tersedia", "Stok Habis"]
 
 const Catalog = () => {
     const [show, setShow] = useState('Produk');
-    const [products, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<ProductType[]>([]);
     const [variants, setVariants] = useState<Variant[]>([]);
     const [variantsProduct, setVariantsProduct] = useState<Variant[]>([]);
     const [etalases, setEtalases] = useState<Etalase[]>([]);
@@ -108,6 +109,8 @@ const Catalog = () => {
 
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
+    const { affiliation, koperasiId } = useAffiliation();
+    console.log("ID Koperasi dari Catalog.tsx:", koperasiId);
     const [showFilterSection, setShowFilterSection] = useState(false);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'new' | 'highest' | 'lowest' | 'Semua' | 'Aktif' | 'Non-aktif' | 'Stok Tersedia' | 'Stok Habis'>('new');
     const [sortOrderVarian, setSortOrderVarian] = useState<'asc' | 'desc' | 'new' | 'Semua' | 'Aktif' | 'Non-aktif'>('new');
@@ -124,8 +127,6 @@ const Catalog = () => {
                 const response = await axiosInstance.get(`/product/${userData?.merchant?.id}`);
                 if (Array.isArray(response.data)) {
                     setProducts(response.data);
-                    // setAllProducts(response.data); // Simpan data awal
-                    // setOriginalProducts(response.data); // Simpan data awal
                 } else {
                     console.error("Invalid response format for products:", response.data);
                 }
@@ -202,7 +203,6 @@ const Catalog = () => {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            // Convert UI sort/filter values to API parameters
             let status = undefined;
             if (sortOrder === 'Aktif') status = 'active';
             if (sortOrder === 'Non-aktif') status = 'inactive';
@@ -211,7 +211,6 @@ const Catalog = () => {
             if (sortOrder === 'Stok Tersedia') is_stok = 'Tersedia';
             if (sortOrder === 'Stok Habis') is_stok = 'Habis';
 
-            // Only pass sort parameter if it's a sorting option
             const sortParam = ['asc', 'desc', 'new', 'highest', 'lowest'].includes(sortOrder)
                 ? sortOrder
                 : undefined;
@@ -239,7 +238,6 @@ const Catalog = () => {
             if (sortOrderVarian === 'Aktif') status = 'active';
             if (sortOrderVarian === 'Non-aktif') status = 'inactive';
 
-            // Only pass sort parameter if it's a sorting option
             const sortParam = ['asc', 'desc', 'new'].includes(sortOrderVarian)
                 ? sortOrderVarian
                 : undefined;
@@ -261,7 +259,6 @@ const Catalog = () => {
         }
     };
 
-    // Validasi sebelum memanggil filter
     const filteredProducts = Array.isArray(products)
         ? products.filter(product =>
             product?.product_name?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -286,8 +283,6 @@ const Catalog = () => {
         allOptions = [...options, ...stok_options];
     }
 
-
-
     return (
         <div className="w-full flex flex-col min-h-screen items-center bg-orange-50">
             <div className={`${addProduct || addVariant || addEtalase || open.status || showVariantProductHandler.status ? 'hidden' : 'block'} p-5 w-full`}>
@@ -296,12 +291,10 @@ const Catalog = () => {
                 </div>
 
                 <div data-aos="zoom-in" data-aos-delay="100" className="mt-10 relative">
-                    {/* Ikon Pencarian */}
                     <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500">
                         <Search />
                     </div>
 
-                    {/* Input */}
                     <Input
                         placeholder={show === 'Produk' ? 'Cari produk' : show === 'Varian' ? 'Cari varian' : 'Cari etalase'}
                         value={searchTerm}
@@ -309,13 +302,11 @@ const Catalog = () => {
                         className="pl-10 pr-12 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-orange-500"
                     />
 
-                    {/* Ikon Pengaturan */}
                     <div className={`${show === "Etalase" ? 'hidden' : 'absolute'} right-3 top-1/2 transform -translate-y-1/2 text-orange-500`} onClick={() => setShowFilterSection(true)}>
                         <SlidersHorizontal />
                     </div>
                 </div>
 
-                {/* Filter Section */}
                 {showFilterSection && (
                     <div className="fixed w-full h-full bg-black bg-opacity-50 top-0 left-0 z-20 flex items-end">
                         <div data-aos="fade-up" className="w-full bg-white rounded-t-xl p-5">
@@ -353,8 +344,6 @@ const Catalog = () => {
                             <p className="font-semibold text-2xl">Urutkan Berdasarkan</p>
 
                             <div className="mt-5 flex flex-col gap-3">
-                                {/* Produk Terbaru */}
-                                {/* Produk Terbaru */}
                                 <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
                                     <input
                                         type="radio"
@@ -367,7 +356,6 @@ const Catalog = () => {
                                     <span className="text-orange-500 font-medium">{`${show === "Varian" ? 'Varian' : 'Produk'}`} Terbaru</span>
                                 </label>
 
-                                {/* Abjad A-Z */}
                                 <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
                                     <input
                                         type="radio"
@@ -380,7 +368,6 @@ const Catalog = () => {
                                     <span className="text-orange-500 font-medium">Abjad A-Z</span>
                                 </label>
 
-                                {/* Abjad Z-A */}
                                 <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer">
                                     <input
                                         type="radio"
@@ -393,8 +380,6 @@ const Catalog = () => {
                                     <span className="text-orange-500 font-medium">Abjad Z-A</span>
                                 </label>
 
-
-                                {/* Highest Price */}
                                 <label className={`${show === "Varian" ? 'hidden' : 'flex'} items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer`}>
                                     <input
                                         type="radio"
@@ -407,7 +392,6 @@ const Catalog = () => {
                                     <span className="text-orange-500 font-medium">Harga Tertinggi</span>
                                 </label>
 
-                                {/* Lowest Price */}
                                 <label className={`${show === "Varian" ? 'hidden' : 'flex'} items-center gap-3 p-3 border border-gray-300 rounded-xl cursor-pointer`}>
                                     <input
                                         type="radio"
@@ -421,7 +405,6 @@ const Catalog = () => {
                                 </label>
                             </div>
 
-                            {/* Tombol Tampilkan */}
                             <Button
                                 onClick={applyFilter}
                                 className="mt-5 w-full h-12 bg-orange-500 text-white rounded-xl"
@@ -478,7 +461,7 @@ const Catalog = () => {
             </div>
 
             <div className="w-full">
-                {show === 'Produk' && <Product products={searchTerm !== '' ? filteredProducts : products} setProducts={setProducts} addProduct={addProduct} setAddProduct={setAddProduct} setOpen={setOpen} open={open} setEtalases={setEtalases} etalases={etalases} variants={variantsProduct} setVariants={setVariants} setReset={setReset} />}
+                {show === 'Produk' && <Product koperasiId={koperasiId} products={searchTerm !== '' ? filteredProducts : products} setProducts={setProducts} addProduct={addProduct} setAddProduct={setAddProduct} setOpen={setOpen} open={open} setEtalases={setEtalases} etalases={etalases} variants={variantsProduct} setVariants={setVariants} setReset={setReset} />}
             </div>
 
             <div className="w-full">

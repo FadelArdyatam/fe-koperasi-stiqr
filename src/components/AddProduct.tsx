@@ -68,90 +68,32 @@ interface Choice {
 }
 
 interface AddProductProps {
-    setProducts: (products: Array<{
-        id: number,
-        detail_product: any;
-        product_id: string,
-        product_name: string,
-        product_sku: string,
-        product_weight: string,
-        product_category: string,
-        product_price: number,
-        product_status: boolean,
-        product_description: string,
-        product_image: string,
-        created_at: string,
-        updated_at: string,
-        merchant_id: string,
-        product_variant: Array<{
-            variant: any;
-            variant_id: string;
-        }> & { product_variant: Array<{ variant_id: string }> };
-    }>) => void;
-
-    products: Array<{
-        id: number,
-        detail_product: any;
-        product_id: string,
-        product_name: string,
-        product_sku: string,
-        product_weight: string,
-        product_category: string,
-        product_price: number,
-        product_status: boolean,
-        product_description: string,
-        product_image: string,
-        created_at: string,
-        updated_at: string,
-        merchant_id: string,
-        product_variant: Array<{
-            variant: any;
-            variant_id: string;
-        }> & { product_variant: Array<{ variant_id: string }> };
-    }>;
+    koperasiId?: string; // Added to receive koperasiId
+    setProducts: (products: Array<any>) => void;
+    products: Array<any>;
     setAddProduct: (value: boolean) => void;
-    setEtalases: (etalases: Array<{
-        id: number;
-        showcase_id: string;
-        showcase_name: string;
-        created_at: string;
-        updated_at: string;
-        merchant_id: string;
-        showcase_product: ShowcaseProduct[],
-        merchant: Merchant,
-    }>) => void;
-    etalases: Array<{
-        id: number;
-        showcase_id: string;
-        showcase_name: string;
-        created_at: string;
-        updated_at: string;
-        merchant_id: string;
-        showcase_product: ShowcaseProduct[],
-        merchant: Merchant,
-    }>;
-    variants: Variant[];
-    setVariants: React.Dispatch<React.SetStateAction<Variant[]>>;
+    setEtalases: (etalases: Array<any>) => void;
+    etalases: Array<any>;
+    variants: any[];
+    setVariants: React.Dispatch<React.SetStateAction<any[]>>;
     setReset: (reset: boolean) => void;
 }
 
-const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddProduct, etalases, setEtalases, variants, setVariants, setReset }) => {
+const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, products, setAddProduct, etalases, setEtalases, variants, setVariants, setReset }) => {
     const [quantity, setQuantity] = useState('g');
     const [showNotification, setShowNotification] = useState(false);
     const [showNotificationEtalase, setShowNotificationEtalase] = useState(false);
     const [showNotificationVariant, setShowNotificationVariant] = useState(false);
     const [showNotificationAddProduct, setShowNotificationAddProduct] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-    // const [selectedEtalase, setSelectedEtalase] = useState<string | undefined>(undefined);
     const [selectedEtalase, setSelectedEtalase] = useState<string[]>([]);
     const handleCheckboxChange = (etalaseId: string) => {
         setSelectedEtalase((prev) =>
             prev.includes(etalaseId)
-                ? prev.filter((id) => id !== etalaseId) // Hapus jika sudah dipilih
-                : [...prev, etalaseId] // Tambahkan jika belum ada
+                ? prev.filter((id) => id !== etalaseId)
+                : [...prev, etalaseId]
         );
     };
-    console.log(selectedEtalase);
     const [selectedVariants, setSelectedVariants] = useState<{ variant_id: string }[]>([]);
     const [showPopUpAddEtalase, setShowPopUpAddEtalase] = useState(false);
     const [showPopUpAddVariant, setShowPopUpAddVariant] = useState(false);
@@ -174,9 +116,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         AOS.init({ duration: 500, once: true, offset: 100 });
     }, []);
 
-    console.log("Product", products)
-
-    // Cleanup preview URL when component unmounts
     useEffect(() => {
         return () => {
             if (imagePreview) {
@@ -185,7 +124,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         };
     }, [imagePreview]);
 
-    // Validation schema for form
     const FormSchema = z.object({
         product_image: z.instanceof(File, {
             message: "Photo must be a valid file.",
@@ -211,44 +149,27 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
         },
     });
 
-    console.log("selectedEtalase", selectedEtalase)
-
-    console.log("selectedVariant", selectedVariants)
-
     async function onSubmit(data: z.infer<typeof FormSchema>) {
-        // Buat objek FormData
         const formData = new FormData();
-
-        // Tambahkan data ke FormData
         formData.append("product_name", data.product_name);
         formData.append("product_sku", data.product_SKU);
         formData.append("product_weight", (data.product_weight + quantity).toString());
         formData.append("product_category", "Kain");
-        formData.append("product_price", data.product_price.toString()); // Pastikan angka dikonversi ke string
-        formData.append("product_status", "true"); // FormData tidak mendukung boolean langsung
+        formData.append("product_price", data.product_price.toString());
+        formData.append("product_status", "true");
         formData.append("product_description", data.product_description || "");
-        // formData.append("showcase_id", selectedEtalase.join(',')); // Jika tidak ada etalase yang dipilih, gunakan etalase "Semua Produk"
 
-        // Ambil merchant_id dari sessionStorage
         const merchantId = sessionStorage.getItem("user")
             ? JSON.parse(sessionStorage.getItem("user")!).merchant?.id || "Unknown"
             : "Unknown";
 
         formData.append("merchant_id", merchantId);
 
-        // Handle gambar jika ada
         if (data.product_image) {
             formData.append("product_image", data.product_image);
         }
 
-        console.log("FormData Debug:");
-        for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1], typeof pair[1]); // Cek apakah `product_image` terbaca sebagai `File`
-        }
-
-        // Update allData dengan FormData (hanya untuk debugging, tidak bisa langsung digunakan di state)
         setAllData([...allData, Object.fromEntries(formData.entries())]);
-
         setSection({ addProduct: true, detailProduct: true });
     }
 
@@ -273,14 +194,8 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                 merchant_id: userData?.merchant?.id,
             };
             const response = await axiosInstance.post(`showcase/create`, requestBody);
-
-            console.log("Etalase successfully added to API:", response.data);
-
-            // Agar etalase yang baru ditambahkan langsung muncul di halaman etalase
             setEtalases([...etalases, response?.data?.data]);
-
             setShowPopUpAddEtalase(false);
-
             setShowNotificationEtalase(true);
         } catch (error: any) {
             console.error("Error while adding etalase to API:", error);
@@ -295,7 +210,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                 price: z.number().refine((val) => val >= 0, {
                     message: "Harga tidak boleh negatif",
                 }),
-                show: z.boolean(),  // Tambahkan atribut show
+                show: z.boolean(),
             })
         ),
         mustBeSelected: z.boolean(),
@@ -323,22 +238,15 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
 
         const payload = {
             variant_name: data.name,
-            product_id: data.products.join(","), // Konversi array ke string dengan koma
-            variant_description: "Deskripsi untuk variant", // Bisa diambil dari form jika diperlukan
+            product_id: data.products.join(","),
+            variant_description: "Deskripsi untuk variant",
             is_multiple: data.methods === "more",
-            multiple_value: displayChoises, // Semua pilihan nama
-            merchant_id: userData?.merchant?.id, // ID merchant
+            multiple_value: displayChoises,
+            merchant_id: userData?.merchant?.id,
         };
 
         try {
-            const response = await axiosInstance.post(
-                "/varian/create",
-                payload
-            );
-
-            console.log("variant");
-            console.log(response.data.data);
-
+            const response = await axiosInstance.post("/varian/create", payload);
             if (response.status === 200 || response.status === 201) {
                 setVariants(prevVariants => [...prevVariants, response.data.data]);
                 setShowPopUpAddVariant(false)
@@ -363,33 +271,47 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             stok_minimum: stock.minimumStock,
         };
 
-        // Menggabungkan semua objek dalam `allData` dengan `data`
         const mergedData = allData.reduce((acc: any, obj: any) => ({ ...acc, ...obj }), {});
         mergedData.details_products = data;
 
-        console.log("Merged Data:", mergedData);
         try {
             setloading(true)
 
+            // Step 1: Create the master product
             const response = await axiosInstance.post("/product/create", mergedData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             });
 
-            console.log("Product successfully added to API:", response.data);
+            const newProductId = response.data?.data?.product_id;
+
+            // Step 2: Link the new product to the cooperative catalog
+            if (koperasiId && newProductId) {
+                const koperasiPostBody = {
+                    product_id: newProductId,
+                    is_active: true, // Default to active
+                    visibility: "PUBLIC",
+                    pinned: false,
+                    notes: ""
+                };
+                try {
+                    await axiosInstance.post(`/koperasi/${koperasiId}/catalog/items`, koperasiPostBody);
+                    console.log(`Successfully linked product ${newProductId} to koperasi ${koperasiId}`);
+                } catch (koperasiError) {
+                    // Log this error but don't block the main success message
+                    console.error("Failed to link product to koperasi catalog:", koperasiError);
+                }
+            }
 
             setProducts([...products, response.data.data]);
 
             if (selectedEtalase.length > 0) {
-                const response2 = await axiosInstance.post("/showcase-product/create", {
-                    product_id: response?.data?.data?.product_id,
-                    showcase_id: selectedEtalase, // Kirim sebagai array
+                await axiosInstance.post("/showcase-product/create", {
+                    product_id: newProductId,
+                    showcase_id: selectedEtalase,
                 });
-
-                console.log(response2);
             }
-
 
             setShowNotification(true);
         } catch (error: any) {
@@ -400,7 +322,7 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
             setloading(false)
         }
     };
-
+    
     const addNewChoice = () => {
         if (newChoiceName && newChoicePrice !== "") {
             if (newChoicePrice < 0) {
@@ -440,8 +362,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                 : [...prevSelected, { variant_id }] // Tambah jika belum dipilih
         );
     };
-
-    console.log("All Data", allData)
 
     return (
         <>
@@ -1141,42 +1061,6 @@ const AddProduct: React.FC<AddProductProps> = ({ setProducts, products, setAddPr
                                         </FormItem>
                                     )}
                                 />
-
-                                {/* Products */}
-                                {/* <FormField
-                                    control={formVariant.control}
-                                    name="products"
-                                    render={({ field }) => (
-                                        <FormItem data-aos="fade-up" data-aos-delay="500">
-                                            <FormLabel>Produk</FormLabel>
-                                            <FormControl>
-                                                <div>
-                                                    {products.map((product) => (
-                                                        <label key={product.id} className="flex items-center mb-2">
-                                                            <input
-                                                                type="checkbox"
-                                                                value={product.product_id}
-                                                                checked={field.value.includes(product.product_id)} // Memastikan `product_id` digunakan
-                                                                onChange={(e) => {
-                                                                    if (e.target.checked) {
-                                                                        field.onChange([...field.value, product.product_id]); // Tambahkan jika checked
-                                                                    } else {
-                                                                        field.onChange(
-                                                                            field.value.filter((id) => id !== product.product_id) // Hapus jika unchecked
-                                                                        );
-                                                                    }
-                                                                }}
-                                                                className="mr-2"
-                                                            />
-                                                            <span>{product.product_name}</span>
-                                                        </label>
-                                                    ))}
-                                                </div>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                /> */}
 
                                 <Button type="submit" className="w-full bg-green-500 text-white">
                                     Simpan Varian
