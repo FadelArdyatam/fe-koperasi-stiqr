@@ -32,72 +32,88 @@ import Customer from './pages/Customer.tsx'
 import NotFound from './pages/NotFound.tsx'
 import HelpCenter from './pages/Profile/HelpCenter.tsx'
 import RegisterKoperasi from './pages/RegisterKoperasi.tsx'
-import KoperasiDashboard from './pages/KoperasiDashboard.tsx'
 import EReceipt from './pages/Casheer/EReceipt.tsx'
 import EReceiptCustomer from './pages/Casheer/EReceiptCustomer.tsx'
 import { RequireAnggotaKoperasiSimple, RequireIndukKoperasiSimple } from './routes/guards-simple.tsx'
-import KoperasiMembers from './pages/KoperasiMembers'
-import KoperasiMemberDetail from './pages/KoperasiMemberDetail'
+
+// Old Koperasi imports for loan routes that are kept
 import LoansProducts from './pages/LoansProducts'
 import LoansApplications from './pages/LoansApplications'
 import LoansInstallments from './pages/LoansInstallments'
-import KoperasiMargins from './pages/KoperasiMargins'
-import KoperasiCatalog from './pages/KoperasiCatalog'
+
+// New Koperasi Induk Imports
+import DashboardInduk from './pages/Induk/DashboardInduk.tsx';
+import ManajemenAnggota from './pages/Induk/ManajemenAnggota.tsx';
+import DetailAnggota from './pages/Induk/DetailAnggota.tsx';
+import ManajemenKeuangan from './pages/Induk/ManajemenKeuangan.tsx';
+import ManajemenKatalog from './pages/Induk/ManajemenKatalog.tsx';
+import ManajemenSimpanan from './pages/Induk/ManajemenSimpanan.tsx';
+
+// New Koperasi Anggota Imports
+import DashboardAnggota from './pages/Anggota/DashboardAnggota.tsx';
 
 const router = createBrowserRouter([
+  // New Koperasi Induk Routes
   {
-    path: '/koperasi-margins',
+    path: '/induk/dashboard',
     element: (
       <RequireIndukKoperasiSimple>
-        <KoperasiMargins />
+        <DashboardInduk />
       </RequireIndukKoperasiSimple>
     ),
   },
   {
-    path: '/koperasi-catalog',
+    path: '/induk/manajemen-anggota',
     element: (
       <RequireIndukKoperasiSimple>
-        <KoperasiCatalog />
+        <ManajemenAnggota />
       </RequireIndukKoperasiSimple>
     ),
   },
   {
-    path: '/',
-    element: <App />,
-  },
-  {
-    path: '/signup',
-    element: <Signup />,
-  },
-  {
-    path: '/register-koperasi',
-    element: <RegisterKoperasi />,
-  },
-  // Koperasi routes (protected by guards)
-  {
-    path: '/koperasi-dashboard',
+    path: '/induk/detail-anggota/:id',
     element: (
       <RequireIndukKoperasiSimple>
-        <KoperasiDashboard />
+        <DetailAnggota />
       </RequireIndukKoperasiSimple>
     ),
   },
   {
-    path: '/koperasi-members',
+    path: '/induk/manajemen-keuangan',
     element: (
       <RequireIndukKoperasiSimple>
-        <KoperasiMembers />
+        <ManajemenKeuangan />
       </RequireIndukKoperasiSimple>
     ),
   },
   {
-    path: '/koperasi-members/:id',
+    path: '/induk/manajemen-katalog',
     element: (
       <RequireIndukKoperasiSimple>
-        <KoperasiMemberDetail />
+        <ManajemenKatalog />
       </RequireIndukKoperasiSimple>
     ),
   },
+  {
+    path: '/induk/manajemen-simpanan',
+    element: (
+      <RequireIndukKoperasiSimple>
+        <ManajemenSimpanan />
+      </RequireIndukKoperasiSimple>
+    ),
+  },
+
+  // New Koperasi Anggota Routes
+  {
+    path: '/anggota/dashboard',
+    element: (
+      <RequireAnggotaKoperasiSimple>
+        <DashboardAnggota />
+      </RequireAnggotaKoperasiSimple>
+    ),
+  },
+
+  // Kept old loan routes as requested
   {
     path: '/koperasi-loans/products',
     element: (
@@ -121,6 +137,20 @@ const router = createBrowserRouter([
         <LoansInstallments />
       </RequireIndukKoperasiSimple>
     ),
+  },
+
+  // General Routes
+  {
+    path: '/',
+    element: <App />,
+  },
+  {
+    path: '/signup',
+    element: <Signup />,
+  },
+  {
+    path: '/register-koperasi',
+    element: <RegisterKoperasi />,
   },
   {
     path: '/anggota',
