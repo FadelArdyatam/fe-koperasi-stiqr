@@ -1,194 +1,201 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axiosInstance from '@/hooks/axiosInstance';
 import Notification from '@/components/Notification';
-import Loading from '@/components/Loading';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAffiliation } from '@/hooks/useAffiliation';
+
 import {
-    Home,
-    ScanQrCode,
-    CreditCard,
-    FileText,
-    UserRound,
     Users,
     Percent,
     ShoppingBag,
+    FileText,
+    ArrowLeft,
+    Store,
+    Home,
+    ScanQrCode,
+    CreditCard,
+    UserRound,
+    Building2
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface PendingMerchantKoperasi {
-    id: string,
-    name: string,
-    email: string,
-    phone_number: string,
-    approval_status: string,
+    id: string;
+    name: string;
+    email: string;
+    phone_number: string;
+    approval_status: string;
     user: {
-        username: string,
-        email: string,
-        phone_number: string,
-    }
+        username: string;
+        email: string;
+        phone_number: string;
+    };
 }
 
 const KoperasiDashboard: React.FC = () => {
+    const { data: affiliationData } = useAffiliation();
     const [pendingMerchants, setPendingMerchants] = useState<PendingMerchantKoperasi[]>([]);
-    const [loadingPage, setLoadingPage] = useState(false);
-    const [loadingAction] = useState(false);
+    const [loadingPage, setLoadingPage] = useState(true);
+    const [loadingAction, setLoadingAction] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
-    const [koperasiId] = useState<string>('');
     const navigate = useNavigate();
 
-    const fetchPendingApprovals = async (koperasiId: string) => {
-        setLoadingPage(true);
-        try {
-            const response = await axiosInstance.get(`/koperasi/pending-approvals/${koperasiId}`)
-            setPendingMerchants(response.data)
-        } catch (error) {
+    const koperasiId = affiliationData?.koperasi?.id;
 
-        }
-    }
+    useEffect(() => {
+        const fetchPendingApprovals = async (id: string) => {
+            try {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const response = await axiosInstance.get(`/koperasi/pending-approvals/${id}`);
+                setPendingMerchants(response.data || []);
+            } catch (error) {
+                setErrorMessage('Gagal memuat data merchant.');
+                setShowNotification(true);
+            } finally {
+                setLoadingPage(false);
+            }
+        };
 
-    const approveMerchant = async (merchantId: string) => {
-        setLoadingPage(true)
-        try {
-            await axiosInstance.put(`/koperasi/approve/${merchantId}`)
-            setSuccessMessage('Merchant berhasil di approve!');
-            setShowNotification(true);
-            if (koperasiId) fetchPendingApprovals(koperasiId)
-
-        } catch (err: any) {
-            setErrorMessage(err.response?.data?.message || 'Failed to approve merchant!')
-            setShowNotification(true)
-        } finally {
-            setLoadingPage(false)
-        }
-    }
-
-    const rejectMerchant = async (merchantId: string) => {
-        setLoadingPage(true)
-        try {
-            await axiosInstance.put(`/koperasi/reject/${merchantId}`);
-            setSuccessMessage('Merchant Berhasil ditolak!')
-            setShowNotification(true)
-            if (koperasiId) fetchPendingApprovals(koperasiId);
-        } catch (err: any) {
-            setErrorMessage(err.response?.data?.message || 'failed to reject a merchant')
-            setShowNotification(true);
-        } finally {
+        if (koperasiId) {
+            fetchPendingApprovals(koperasiId);
+        } else if (affiliationData) {
             setLoadingPage(false);
         }
-    }
+    }, [koperasiId, affiliationData]);
 
+    const handleAction = async (action: 'approve' | 'reject', merchantId: string) => {
+        setLoadingAction(true);
+        try {
+            await axiosInstance.put(`/koperasi/${action}/${merchantId}`);
+            setSuccessMessage(`Merchant berhasil di ${action === 'approve' ? 'setujui' : 'tolak'}!`);
+            setShowNotification(true);
+            setPendingMerchants(prev => prev.filter(m => m.id !== merchantId));
+        } catch (err: any) {
+            setErrorMessage(err.response?.data?.message || `Gagal untuk ${action} merchant.`);
+            setShowNotification(true);
+        } finally {
+            setLoadingAction(false);
+        }
+    };
+
+    const menuItems = [
+        { label: 'Anggota', icon: <Users className="w-6 h-6 text-orange-500" />, path: '/koperasi-members' },
+        { label: 'Produk Pinjaman', icon: <ShoppingBag className="w-6 h-6 text-orange-500" />, path: '/koperasi-loans/products' },
+        { label: 'Pengajuan', icon: <FileText className="w-6 h-6 text-orange-500" />, path: '/koperasi-loans/applications' },
+        { label: 'Margin Rules', icon: <Percent className="w-6 h-6 text-orange-500" />, path: '/koperasi-margins' },
+        { label: 'Katalog', icon: <Store className="w-6 h-6 text-orange-500" />, path: '/koperasi-catalog' },
+    ];
+
+    const PendingApprovalSkeleton = () => (
+        <div className="divide-y divide-slate-100">
+            {[...Array(2)].map((_, i) => (
+                <div key={i} className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex-grow space-y-2">
+                        <div className="h-5 w-40 bg-gray-200 rounded animate-pulse"></div>
+                        <div className="h-4 w-60 bg-gray-200 rounded animate-pulse"></div>
+                        <div className="h-3 w-48 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                    <div className="flex items-center gap-3 flex-shrink-0 self-end sm:self-center">
+                        <div className="h-9 w-20 bg-gray-200 rounded-md animate-pulse"></div>
+                        <div className="h-9 w-20 bg-gray-200 rounded-md animate-pulse"></div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
 
     return (
-        <div className=''>
-            <div className="m-10 flex items-center justify-between mb-6">
-                <h1 className="text-2xl md:text-3xl font-bold">Dashboard Koperasi Induk</h1>
-                <div className="text-sm text-gray-500">ID: {koperasiId || '-'}</div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="m-10 grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-                <button
-                    onClick={() => navigate('/koperasi-members')}
-                    className="p-4 bg-white rounded-lg shadow hover:shadow-md transition flex items-center gap-3"
-                >
-                    <Users className="text-orange-500" />
-                    <span>Anggota</span>
-                </button>
-                <button
-                    onClick={() => navigate('/koperasi-loans/products')}
-                    className="p-4 bg-white rounded-lg shadow hover:shadow-md transition flex items-center gap-3"
-                >
-                    <ShoppingBag className="text-orange-500" />
-                    <span>Produk Pinjaman</span>
-                </button>
-                <button
-                    onClick={() => navigate('/koperasi-loans/applications')}
-                    className="p-4 bg-white rounded-lg shadow hover:shadow-md transition flex items-center gap-3"
-                >
-                    <FileText className="text-orange-500" />
-                    <span>Pengajuan</span>
-                </button>
-                <button
-                    onClick={() => navigate(`/koperasi-margins`)}
-                    className="p-4 bg-white rounded-lg shadow hover:shadow-md transition flex items-center gap-3"
-                >
-                    <Percent className="text-orange-500" />
-                    <span>Margin Rules</span>
-                </button>
-                <button
-                    onClick={() => navigate('/koperasi-catalog')}
-                    className="p-4 bg-white rounded-lg shadow hover:shadow-md transition flex items-center gap-3"
-                >
-                    <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
-                    <span>Katalog</span>
-                </button>
-            </div>
-
-            {/* Pending Approvals */}
-            <div className="m-10 bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold">Menunggu Persetujuan</h2>
-                    <span className="text-sm text-gray-500">
-                        {pendingMerchants.length} merchant
+        <div className="pb-28 p-4 bg-gray-50 min-h-screen font-sans">
+            {/* Header */}
+            <header className="flex items-center gap-4 mb-6">
+                <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => navigate(-1)}>
+                    <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <h1 className="text-xl md:text-2xl font-bold text-slate-800">Dashboard Koperasi</h1>
+                {koperasiId && (
+                    <span className="ml-auto text-xs sm:text-sm font-mono text-slate-500 bg-slate-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">
+                        ID: {koperasiId}
                     </span>
-                </div>
-
-                {loadingPage && <Loading />}
-
-                {!loadingPage && pendingMerchants.length === 0 && (
-                    <div className="text-gray-500 text-sm">
-                        Tidak ada merchant yang menunggu persetujuan.
-                    </div>
                 )}
+            </header>
 
-                {!loadingPage && pendingMerchants.length > 0 && (
-                    <div className="space-y-3">
-                        {pendingMerchants.map((merchant) => (
-                            <div
-                                key={merchant.id}
-                                className="border rounded-lg p-4 bg-gray-50 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
-                            >
-                                <div>
-                                    <h3 className="font-semibold text-lg">{merchant.name}</h3>
-                                    <div className="text-gray-600 text-sm">
-                                        {merchant.email} • {merchant.phone_number}
-                                    </div>
-                                    <div className="text-gray-600 text-sm">
-                                        Username: {merchant.user.username}
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <span
-                                        className={`px-3 py-1 rounded-full text-xs font-medium ${merchant.approval_status === 'PENDING'
-                                            ? 'bg-yellow-100 text-yellow-800'
-                                            : 'bg-gray-100 text-gray-600'
-                                            }`}
-                                    >
-                                        {merchant.approval_status}
-                                    </span>
-                                    <button
-                                        onClick={() => approveMerchant(merchant.id)}
-                                        disabled={loadingAction}
-                                        className="px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
-                                    >
-                                        Setujui
-                                    </button>
-                                    <button
-                                        onClick={() => rejectMerchant(merchant.id)}
-                                        disabled={loadingAction}
-                                        className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
-                                    >
-                                        Tolak
-                                    </button>
-                                </div>
+            {/* Quick Actions Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+                {menuItems.map((item) => (
+                    <Card
+                        key={item.label}
+                        className="text-center hover:shadow-lg hover:border-orange-300 transition-all duration-300 cursor-pointer group"
+                        onClick={() => navigate(item.path)}
+                    >
+                        <CardContent className="p-4 flex flex-col items-center justify-center gap-2">
+                            <div className="bg-orange-100 p-3 rounded-full group-hover:bg-orange-200 transition-colors">
+                                {item.icon}
                             </div>
-                        ))}
-                    </div>
-                )}
+                            <p className="text-sm font-medium text-center text-slate-700 group-hover:text-orange-600">{item.label}</p>
+                        </CardContent>
+                    </Card>
+                ))}
             </div>
+
+            {/* Pending Approvals Section */}
+            <Card className="overflow-hidden">
+                <CardHeader className="bg-white border-b">
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="text-xl font-semibold text-slate-800">Menunggu Persetujuan</CardTitle>
+                        {!loadingPage && (
+                            <span className="px-3 py-1 text-sm font-semibold text-orange-600 bg-orange-100 rounded-full">
+                                {pendingMerchants.length} Merchant
+                            </span>
+                        )}
+                    </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                    {loadingPage ? (
+                        <PendingApprovalSkeleton />
+                    ) : pendingMerchants.length === 0 ? (
+                        <div className="text-center p-10 text-slate-500">
+                            <p className="font-medium">Tidak ada data</p>
+                            <p className="text-sm">Saat ini tidak ada merchant yang menunggu persetujuan.</p>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-slate-100">
+                            {pendingMerchants.map((merchant) => (
+                                <div
+                                    key={merchant.id}
+                                    className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+                                >
+                                    <div className="flex-grow">
+                                        <p className="font-semibold text-slate-800">{merchant.name}</p>
+                                        <p className="text-sm text-slate-500">{merchant.email} &bull; {merchant.phone_number}</p>
+                                        <p className="text-xs text-slate-500 mt-1">Username: <span className="font-mono">{merchant.user.username}</span></p>
+                                    </div>
+                                    <div className="flex items-center gap-3 flex-shrink-0 self-end sm:self-center">
+                                        <Button
+                                            onClick={() => handleAction('approve', merchant.id)}
+                                            disabled={loadingAction}
+                                            size="sm"
+                                            className="bg-green-500 hover:bg-green-600 text-white"
+                                        >
+                                            Setujui
+                                        </Button>
+                                        <Button
+                                            onClick={() => handleAction('reject', merchant.id)}
+                                            disabled={loadingAction}
+                                            size="sm"
+                                            variant="destructive"
+                                        >
+                                            Tolak
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
             {showNotification && (
                 <Notification
@@ -197,7 +204,6 @@ const KoperasiDashboard: React.FC = () => {
                     status={errorMessage ? 'error' : 'success'}
                 />
             )}
-
 
             {/* Bottom Navbar */}
             <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -230,8 +236,8 @@ const KoperasiDashboard: React.FC = () => {
                     <p className="uppercase">Profile</p>
                 </Link>
             </div>
-
         </div>
-    )
-}
+    );
+};
+
 export default KoperasiDashboard;

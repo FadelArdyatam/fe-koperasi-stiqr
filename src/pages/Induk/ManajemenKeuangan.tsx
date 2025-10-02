@@ -22,7 +22,7 @@ interface MarginRule {
   created_at?: string;
 }
 
-const KoperasiMargins: React.FC = () => {
+const ManajemenKeuangan: React.FC = () => {
     const navigate = useNavigate();
     const [koperasiId, setKoperasiId] = useState<string>('');
     const [rules, setRules] = useState<MarginRule[]>([]);
@@ -46,39 +46,30 @@ const KoperasiMargins: React.FC = () => {
         MEMBER_USAHA: 'Anggota Usaha',
     };
 
-    const fetchInitialData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const res = await axiosInstance.get('/koperasi/affiliation/me');
-            const id = res.data?.koperasi?.id;
-            if (id) {
-                setKoperasiId(id);
-                await fetchRules(id);
-            } else {
-                setErrorMessage('Anda bukan induk koperasi');
-                setShowNotification(true);
-            }
-        } catch (e: any) {
-            setErrorMessage(e?.response?.data?.message || 'Gagal mengambil data');
-            setShowNotification(true);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
     useEffect(() => {
-        fetchInitialData();
-    }, [fetchInitialData]);
+        const fetchAllData = async () => {
+            setLoading(true);
+            try {
+                const res = await axiosInstance.get('/koperasi/affiliation/me');
+                const id = res.data?.koperasi?.id;
+                if (id) {
+                    setKoperasiId(id);
+                    const rulesRes = await axiosInstance.get(`/koperasi/margin/${id}`);
+                    setRules(rulesRes.data || []);
+                } else {
+                    setErrorMessage('Anda bukan induk koperasi');
+                    setShowNotification(true);
+                }
+            } catch (e: any) {
+                setErrorMessage(e?.response?.data?.message || 'Gagal mengambil data');
+                setShowNotification(true);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const fetchRules = async (id: string) => {
-        try {
-            const res = await axiosInstance.get(`/koperasi/margin/${id}`);
-            setRules(res.data || []);
-        } catch (e: any) {
-            setErrorMessage(e?.response?.data?.message || 'Gagal mengambil aturan margin');
-            setShowNotification(true);
-        }
-    };
+        fetchAllData();
+    }, []);
 
     const submitRule = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -263,12 +254,6 @@ const KoperasiMargins: React.FC = () => {
                     <FileText />
                     <p className="uppercase">Catalog</p>
                 </Link>
-                {/* {affiliation?.affiliation === 'KOPERASI_INDUK' && (
-                    <Link to={'/koperasi-dashboard'} className="flex gap-3 flex-col items-center">
-                        <Building2 />
-                        <p className="uppercase">Koperasi</p>
-                    </Link>
-                )} */}
                 <Link to={'/profile'} className="flex gap-3 flex-col items-center" data-cy="profile-link">
                     <UserRound />
                     <p className="uppercase">Profile</p>
@@ -278,4 +263,4 @@ const KoperasiMargins: React.FC = () => {
     );
 };
 
-export default KoperasiMargins;
+export default ManajemenKeuangan;

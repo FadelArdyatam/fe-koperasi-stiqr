@@ -1,291 +1,242 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAffiliation } from '../hooks/useAffiliation';
-import axios from 'axios';
-import { CreditCard, FileText, Home, ScanQrCode, UserRound } from 'lucide-react';
+import axiosInstance from '@/hooks/axiosInstance';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ArrowLeft, Search, ChevronDown, ShoppingBag, Building2, Tag, Package, DollarSign, Home, ScanQrCode, CreditCard, UserRound, FileText } from 'lucide-react';
+import { getEffectiveTier } from '../utils/tier';
+import { AuthClaims, EffectiveTier } from '../types/auth';
+
+// Helper to decode JWT token to get claims
+const decodeToken = (token: string | null): AuthClaims | null => {
+    if (!token) return null;
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload as AuthClaims;
+    } catch (e) {
+        console.error("Failed to decode token", e);
+        return null;
+    }
+};
+
+interface TierPrice {
+    tier: EffectiveTier;
+    price: number;
+}
 
 interface Product {
-  id: string;
-  product_name: string;
-  product_price: number;
-  finalPrice: number;
-  tier: string;
-  product_image?: string;
-  product_description?: string;
-  merchant: {
     id: string;
     name: string;
-    email: string;
-    affiliation: string;
-    approval_status: string;
-  };
-  product_variant: any[];
-  detail_product: any[];
+    description?: string;
+    base_price: number;
+    tier_prices: TierPrice[];
+    koperasi_id: string;
+    stok: number;
+    category: string;
+    product_image?: string;
+    // These will be calculated on the frontend
+    finalPrice?: number;
+    displayTier?: EffectiveTier;
 }
 
 const KoperasiCatalog: React.FC = () => {
-  const navigate = useNavigate();
-  const { affiliation, koperasiId, loading, error } = useAffiliation();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loadingProducts, setLoadingProducts] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterTier, setFilterTier] = useState('ALL');
+    const navigate = useNavigate();
+    const { affiliation, koperasiId, loading: affiliationLoading } = useAffiliation();
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loadingProducts, setLoadingProducts] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterTier, setFilterTier] = useState('ALL');
+    const [tierLabel, setTierLabel] = useState('Semua Tier');
 
-  useEffect(() => {
-    console.log('[KoperasiCatalog] Debug info:', {
-      affiliation,
-      koperasiId,
-      loading,
-      error
-    });
-    
-    if (koperasiId && !loading) {
-      fetchProducts();
-    }
-  }, [koperasiId, loading]);
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const userClaims = useMemo(() => decodeToken(token), [token]);
+    const effectiveUserTier = useMemo(() => koperasiId ? getEffectiveTier(userClaims, koperasiId) : 'UMUM', [userClaims, koperasiId]);
 
-  const fetchProducts = async () => {
-    if (!koperasiId) return;
-    
-    setLoadingProducts(true);
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`/koperasi/${koperasiId}/catalog`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setProducts(response.data);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    } finally {
-      setLoadingProducts(false);
-    }
-  };
+    const calculateProductPrices = useCallback((fetchedProducts: Product[]) => {
+        return fetchedProducts.map(product => {
+            let finalPrice = product.base_price;
+            let displayTier: EffectiveTier = 'UMUM';
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.merchant.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTier = filterTier === 'ALL' || product.tier === filterTier;
-    return matchesSearch && matchesTier;
-  });
+            // Find the price for the effective user tier
+            const tierPrice = product.tier_prices.find(tp => tp.tier === effectiveUserTier);
+            if (tierPrice) {
+                finalPrice = tierPrice.price;
+                displayTier = effectiveUserTier;
+            } else {
+                // Fallback to UMUM if specific tier price not found
+                const umumPrice = product.tier_prices.find(tp => tp.tier === 'UMUM');
+                if (umumPrice) {
+                    finalPrice = umumPrice.price;
+                }
+                displayTier = 'UMUM';
+            }
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
+            return { ...product, finalPrice, displayTier };
+        });
+    }, [effectiveUserTier]);
+
+    const fetchProducts = useCallback(async () => {
+        if (!koperasiId) return;
+        setLoadingProducts(true);
+        try {
+            await new Promise(res => setTimeout(res, 500)); // Simulate loading
+            const response = await axiosInstance.get(`/koperasi/${koperasiId}/catalog`);
+            console.log(response)
+            const processedProducts = calculateProductPrices(response.data || []);
+            setProducts(processedProducts);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            setProducts([]);
+        } finally {
+            setLoadingProducts(false);
+        }
+    }, [koperasiId, calculateProductPrices]);
+
+    useEffect(() => {
+        if (koperasiId && !affiliationLoading) {
+            fetchProducts();
+        }
+        if (!affiliationLoading && affiliation !== 'KOPERASI_INDUK') {
+            setLoadingProducts(false);
+        }
+    }, [koperasiId, affiliationLoading, affiliation, fetchProducts]);
+
+    const filteredProducts = useMemo(() => products.filter(product => {
+        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              product.category.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesTier = filterTier === 'ALL' || product.displayTier === filterTier;
+        return matchesSearch && matchesTier;
+    }), [products, searchTerm, filterTier]);
+
+    const formatPrice = (price: number) => new Intl.NumberFormat('id-ID', {
+        style: 'currency', currency: 'IDR', minimumFractionDigits: 0
     }).format(price);
-  };
 
-  const getTierColor = (tier: string) => {
-    switch (tier) {
-      case 'NON_MEMBER': return 'bg-gray-100 text-gray-800';
-      case 'MEMBER': return 'bg-blue-100 text-blue-800';
-      case 'MEMBER_USAHA': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
+    const tierDisplay: Record<EffectiveTier, { label: string, className: string }> = {
+        UMUM: { label: 'Umum', className: 'border-gray-300 bg-gray-50 text-gray-800' },
+        NON_MEMBER: { label: 'Non-Anggota', className: 'border-gray-300 bg-gray-50 text-gray-800' },
+        MEMBER: { label: 'Anggota', className: 'border-blue-300 bg-blue-50 text-blue-800' },
+        MEMBER_USAHA: { label: 'Anggota Usaha', className: 'border-green-300 bg-green-50 text-green-800' },
+    };
 
-  const getTierLabel = (tier: string) => {
-    switch (tier) {
-      case 'NON_MEMBER': return 'Non Member';
-      case 'MEMBER': return 'Member';
-      case 'MEMBER_USAHA': return 'Member Wirausaha';
-      default: return tier;
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Debug affiliation check
-  console.log('[KoperasiCatalog] Affiliation check:', {
-    affiliation,
-    isKoperasiInduk: affiliation === 'KOPERASI_INDUK',
-    loading,
-    error
-  });
-
-  if (affiliation !== 'KOPERASI_INDUK') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-4">
-            Only Koperasi Induk can access this page.
-            <br />
-            Current affiliation: {affiliation || 'undefined'}
-            <br />
-            Loading: {loading ? 'true' : 'false'}
-            {error && <><br />Error: {error}</>}
-          </p>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-          >
-            Back to Dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Katalog Koperasi</h1>
-              <p className="text-gray-600">Kelola produk dan harga untuk anggota koperasi</p>
-            </div>
-            <button
-              onClick={() => navigate('/koperasi-dashboard')}
-              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-            >
-              ← Kembali
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Cari Produk
-              </label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Cari nama produk atau merchant..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Filter Tier
-              </label>
-              <select
-                value={filterTier}
-                onChange={(e) => setFilterTier(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="ALL">Semua Tier</option>
-                <option value="NON_MEMBER">Non Member</option>
-                <option value="MEMBER">Member</option>
-                <option value="MEMBER_USAHA">Member Wirausaha</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Products Grid */}
-        {loadingProducts ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-gray-400 text-6xl mb-4">📦</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak ada produk</h3>
-            <p className="text-gray-600">
-              {searchTerm || filterTier !== 'ALL' 
-                ? 'Tidak ada produk yang sesuai dengan filter' 
-                : 'Belum ada produk yang terdaftar di koperasi ini'
-              }
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                        {product.product_name}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-2">
-                        oleh {product.merchant.name}
-                      </p>
-                    </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTierColor(product.tier)}`}>
-                      {getTierLabel(product.tier)}
-                    </span>
-                  </div>
-
-                  {product.product_image && (
-                    <div className="mb-4">
-                      <img
-                        src={product.product_image}
-                        alt={product.product_name}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                    </div>
-                  )}
-
-                  {product.product_description && (
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                      {product.product_description}
-                    </p>
-                  )}
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Harga Asli:</span>
-                      <span className="text-sm text-gray-600 line-through">
-                        {formatPrice(product.product_price)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-700">Harga Final:</span>
-                      <span className="text-lg font-bold text-blue-600">
-                        {formatPrice(product.finalPrice)}
-                      </span>
-                    </div>
-                    {product.finalPrice !== product.product_price && (
-                      <div className="text-xs text-green-600 font-medium">
-                        Diskon: {formatPrice(product.product_price - product.finalPrice)}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>Status: {product.merchant.approval_status}</span>
-                      <span>Affiliation: {product.merchant.affiliation}</span>
-                    </div>
-                  </div>
+    const ProductSkeletonCard = () => (
+        <Card className="animate-pulse overflow-hidden">
+            <div className="h-40 bg-gray-200"></div>
+            <CardContent className="p-4 space-y-3">
+                <div className="h-5 w-3/4 bg-gray-200 rounded"></div>
+                <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
+                <div className="flex justify-between items-center pt-2">
+                    <div className="h-4 w-1/3 bg-gray-200 rounded"></div>
+                    <div className="h-6 w-2/5 bg-gray-200 rounded"></div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+            </CardContent>
+        </Card>
+    );
 
-        {/* Summary */}
-        {filteredProducts.length > 0 && (
-          <div className="mt-6 bg-white rounded-lg shadow-sm p-4">
-            <div className="flex justify-between items-center text-sm text-gray-600">
-              <span>Menampilkan {filteredProducts.length} dari {products.length} produk</span>
-              <span>Total produk: {products.length}</span>
+    if (affiliationLoading) {
+        return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div></div>;
+    }
+
+    if (affiliation !== 'KOPERASI_INDUK') {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-2">Akses Ditolak</h1>
+                    <p className="text-gray-600 mb-6">Hanya Koperasi Induk yang dapat mengakses halaman ini.</p>
+                    <Button onClick={() => navigate('/koperasi-dashboard')}>Kembali ke Dashboard</Button>
+                </div>
             </div>
-          </div>
-        )}
-      </div>
+        );
+    }
 
+    return (
+        <div className="pb-28 bg-gray-50 min-h-screen">
+            <header className="p-4 flex items-center gap-4 mb-0 bg-white border-b sticky top-0 z-20">
+                <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => navigate('/koperasi-dashboard')}>
+                    <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <h1 className="text-xl font-bold">Katalog Koperasi</h1>
+            </header>
 
+            <div className="p-4 space-y-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Filter Katalog</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col sm:flex-row gap-2">
+                        <div className="relative flex-grow">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                            <Input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Cari nama produk atau kategori..." className="pl-10" />
+                        </div>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" className="w-full sm:w-auto justify-between min-w-[180px]">
+                                    {tierLabel}
+                                    <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
+                                <DropdownMenuItem onSelect={() => { setFilterTier('ALL'); setTierLabel('Semua Tier'); }}>Semua Tier</DropdownMenuItem>
+                                {Object.keys(tierDisplay).map(tierKey => (
+                                    <DropdownMenuItem key={tierKey} onSelect={() => { setFilterTier(tierKey); setTierLabel(tierDisplay[tierKey as EffectiveTier].label); }}>
+                                        {tierDisplay[tierKey as EffectiveTier].label}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </CardContent>
+                </Card>
+
+                {loadingProducts ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {[...Array(6)].map((_, i) => <ProductSkeletonCard key={i} />)}
+                    </div>
+                ) : filteredProducts.length === 0 ? (
+                    <div className="text-center py-16 px-4 bg-white rounded-lg border">
+                        <ShoppingBag className="mx-auto h-12 w-12 text-gray-400" />
+                        <h3 className="mt-2 text-lg font-medium text-gray-900">Tidak Ada Produk</h3>
+                        <p className="mt-1 text-sm text-gray-500">Tidak ada produk yang ditemukan dengan filter saat ini.</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {filteredProducts.map((product) => (
+                            <Card key={product.id} className="overflow-hidden flex flex-col group hover:shadow-lg transition-shadow">
+                                <div className="h-40 bg-gray-100 flex items-center justify-center overflow-hidden">
+                                    {product.product_image ? (
+                                        <img src={product.product_image} alt={product.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                    ) : (
+                                        <ShoppingBag className="w-16 h-16 text-gray-300" />
+                                    )}
+                                </div>
+                                <div className="p-4 flex flex-col flex-grow">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${tierDisplay[product.displayTier || 'UMUM']?.className || tierDisplay.UMUM.className}`}>
+                                            {tierDisplay[product.displayTier || 'UMUM']?.label || 'Umum'}
+                                        </span>
+                                        <span className="text-xs text-gray-500">Stok: {product.stok}</span>
+                                    </div>
+                                    <h3 className="font-semibold text-gray-800 leading-snug truncate group-hover:text-orange-600 transition-colors">{product.name}</h3>
+                                    <p className="text-xs text-gray-500 mb-3">Kategori: {product.category}</p>
+                                    
+                                    <div className="mt-auto pt-3 space-y-2 border-t">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-gray-500">Harga Dasar</span>
+                                            <span className="text-sm text-gray-500 line-through">{formatPrice(product.base_price)}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm font-semibold text-gray-800">Harga Anda</span>
+                                            <span className="text-lg font-bold text-orange-600">{formatPrice(product.finalPrice || product.base_price)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+            </div>
 
             {/* Bottom Navbar */}
             <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
@@ -318,8 +269,8 @@ const KoperasiCatalog: React.FC = () => {
                     <p className="uppercase">Profile</p>
                 </Link>
             </div>
-    </div>
-  );
+        </div>
+    );
 };
 
 export default KoperasiCatalog;

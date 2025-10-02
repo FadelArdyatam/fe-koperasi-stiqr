@@ -26,7 +26,7 @@ const StatusBadge = ({ status }: { status: string }) => {
     );
 };
 
-const KoperasiMembers: React.FC = () => {
+const ManajemenAnggota: React.FC = () => {
     const { data } = useAffiliation();
     const navigate = useNavigate();
     const [members, setMembers] = useState<any[]>([]);
@@ -95,7 +95,7 @@ const KoperasiMembers: React.FC = () => {
     const MemberCard = ({ member }: { member: any }) => (
         <Card 
             className="hover:shadow-md hover:border-orange-300 transition-all duration-300 cursor-pointer"
-            onClick={() => navigate(`/koperasi-members/${member.id}`)}
+            onClick={() => navigate(`/induk/detail-anggota/${member.id}`)}
         >
             <CardContent className="p-4 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4 flex-grow overflow-hidden">
@@ -191,12 +191,6 @@ const KoperasiMembers: React.FC = () => {
                     <FileText />
                     <p className="uppercase">Catalog</p>
                 </Link>
-                {/* {affiliation?.affiliation === 'KOPERASI_INDUK' && (
-                    <Link to={'/koperasi-dashboard'} className="flex gap-3 flex-col items-center">
-                        <Building2 />
-                        <p className="uppercase">Koperasi</p>
-                    </Link>
-                )} */}
                 <Link to={'/profile'} className="flex gap-3 flex-col items-center" data-cy="profile-link">
                     <UserRound />
                     <p className="uppercase">Profile</p>
@@ -206,4 +200,4 @@ const KoperasiMembers: React.FC = () => {
     );
 };
 
-export default KoperasiMembers;
+export default ManajemenAnggota;
