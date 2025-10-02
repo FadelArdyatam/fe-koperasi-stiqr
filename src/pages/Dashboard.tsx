@@ -418,7 +418,7 @@ const Dashboard = () => {
             {affiliation?.affiliation === 'KOPERASI_INDUK' && (
                 <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
                     <Link 
-                        to={'/koperasi-dashboard'} 
+                        to={'/induk/dashboard'} 
                         className="flex items-center justify-center gap-3 p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                         data-aos="fade-up" 
                         data-aos-delay="600"
@@ -426,7 +426,7 @@ const Dashboard = () => {
                         <Building2 className="text-white scale-110" />
                         <div className="text-center">
                             <p className="font-semibold text-lg">Kelola Koperasi</p>
-                            <p className="text-sm opacity-90">Manage Anggota & Simpan Pinjam</p>
+                            <p className="text-sm opacity-90">Manage Anggota & Simpanan</p>
                         </div>
                     </Link>
                 </div>
@@ -435,17 +435,24 @@ const Dashboard = () => {
             {/* Status info for KOPERASI_ANGGOTA */}
             {affiliation?.affiliation === 'KOPERASI_ANGGOTA' && (
                 <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
-                    <div className={`p-4 rounded-lg ${affiliation?.approval_status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
-                        <div className="flex items-center gap-3">
-                            <Building2 className="text-current" />
-                            <div>
-                                <p className="font-semibold">
-                                    {affiliation?.approval_status === 'PENDING' ? 'Menunggu Persetujuan' : 'Anggota Koperasi'}
-                                </p>
-                                <p className="text-sm">{affiliation?.koperasi?.nama_koperasi}</p>
+                    <Link to={affiliation?.approval_status === 'APPROVED' ? "/anggota/dashboard" : '#'} className={`block ${affiliation?.approval_status !== 'APPROVED' ? 'cursor-not-allowed' : ''}`}>
+                        <div className={`p-4 rounded-lg ${affiliation?.approval_status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800 hover:bg-green-200 transition-colors'}`}>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <Building2 className="text-current" />
+                                    <div>
+                                        <p className="font-semibold">
+                                            {affiliation?.approval_status === 'PENDING' ? 'Menunggu Persetujuan' : 'Anggota Koperasi'}
+                                        </p>
+                                        <p className="text-sm">{affiliation?.koperasi?.nama_koperasi}</p>
+                                    </div>
+                                </div>
+                                {affiliation?.approval_status === 'APPROVED' && (
+                                    <ChevronRight className="text-current" />
+                                )}
                             </div>
                         </div>
-                    </div>
+                    </Link>
                 </div>
             )}
 
