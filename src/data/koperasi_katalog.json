@@ -1,0 +1,26 @@
+[
+  {
+    "id": "prod-001",
+    "name": "Gula Pasir 1kg",
+    "price": 15000,
+    "description": "Gula pasir putih berkualitas dari tebu pilihan.",
+    "is_active": true,
+    "source": "stiqr"
+  },
+  {
+    "id": "prod-002",
+    "name": "Minyak Goreng 2L",
+    "price": 32000,
+    "description": "Minyak goreng kelapa sawit, jernih dan berkualitas.",
+    "is_active": true,
+    "source": "stiqr"
+  },
+  {
+    "id": "prod-003",
+    "name": "Kopi Bubuk 250g",
+    "price": 25000,
+    "description": "Kopi bubuk robusta asli.",
+    "is_active": false,
+    "source": "stiqr"
+  }
+]

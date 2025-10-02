@@ -1,0 +1,16 @@
+[
+  {
+    "id": "member-001",
+    "name": "Budi Santoso",
+    "merchant_name": "Toko Roti Budi",
+    "status": "pending_approval",
+    "join_date": "2024-01-15"
+  },
+  {
+    "id": "member-002",
+    "name": "Citra Lestari",
+    "merchant_name": "Warung Makan Citra",
+    "status": "approved",
+    "join_date": "2023-11-20"
+  }
+]
