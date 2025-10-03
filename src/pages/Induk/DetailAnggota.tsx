@@ -337,7 +337,7 @@ const DetailAnggota: React.FC = () => {
                 <DataField
                   icon={<Fingerprint size={14} />}
                   label="Submission ID"
-                  value={detail.Qris_Submission.id}
+                  value={detail.Qris_Submission.qris_submission_id}
                 />
                 <DataField
                   icon={<BadgeHelp size={14} />}
@@ -382,10 +382,10 @@ const DetailAnggota: React.FC = () => {
                   )}
                 </DataField>
                 <DataField icon={<Briefcase size={14} />} label="Foto Usaha">
-                  {detail.Qris_Submission.business_photo ? (
+                  {detail.Qris_Submission.bussiness_photo ? (
                     <Button asChild variant="link" className="p-0 h-auto">
                       <a
-                        href={detail.Qris_Submission.business_photo}
+                        href={detail.Qris_Submission.bussiness_photo}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
