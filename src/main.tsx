@@ -41,7 +41,7 @@ import LoansProducts from './pages/LoansProducts'
 import LoansApplications from './pages/LoansApplications'
 import LoansInstallments from './pages/LoansInstallments'
 
-// New Koperasi Induk Imports
+// Koperasi Induk Imports
 import DashboardInduk from './pages/Induk/DashboardInduk.tsx';
 import ManajemenAnggota from './pages/Induk/ManajemenAnggota.tsx';
 import DetailAnggota from './pages/Induk/DetailAnggota.tsx';
@@ -49,94 +49,78 @@ import ManajemenKeuangan from './pages/Induk/ManajemenKeuangan.tsx';
 import ManajemenKatalog from './pages/Induk/ManajemenKatalog.tsx';
 import ManajemenSimpanan from './pages/Induk/ManajemenSimpanan.tsx';
 
-// New Koperasi Anggota Imports
+// Koperasi Anggota Imports
 import DashboardAnggota from './pages/Anggota/DashboardAnggota.tsx';
+import KatalogProduk from './pages/Anggota/KatalogProduk.tsx';
+import Simpanan from './pages/Anggota/Simpanan.tsx';
+
+// Koperasi Umum/Public Imports
+import PilihKoperasi from './pages/Umum/PilihKoperasi.tsx';
+import KatalogPublik from './pages/Umum/KatalogPublik.tsx';
 
 const router = createBrowserRouter([
-  // New Koperasi Induk Routes
+  // Koperasi Induk Routes
   {
     path: '/induk/dashboard',
-    element: (
-      <RequireIndukKoperasiSimple>
-        <DashboardInduk />
-      </RequireIndukKoperasiSimple>
-    ),
+    element: <RequireIndukKoperasiSimple><DashboardInduk /></RequireIndukKoperasiSimple>,
   },
   {
     path: '/induk/manajemen-anggota',
-    element: (
-      <RequireIndukKoperasiSimple>
-        <ManajemenAnggota />
-      </RequireIndukKoperasiSimple>
-    ),
+    element: <RequireIndukKoperasiSimple><ManajemenAnggota /></RequireIndukKoperasiSimple>,
   },
   {
     path: '/induk/detail-anggota/:id',
-    element: (
-      <RequireIndukKoperasiSimple>
-        <DetailAnggota />
-      </RequireIndukKoperasiSimple>
-    ),
+    element: <RequireIndukKoperasiSimple><DetailAnggota /></RequireIndukKoperasiSimple>,
   },
   {
     path: '/induk/manajemen-keuangan',
-    element: (
-      <RequireIndukKoperasiSimple>
-        <ManajemenKeuangan />
-      </RequireIndukKoperasiSimple>
-    ),
+    element: <RequireIndukKoperasiSimple><ManajemenKeuangan /></RequireIndukKoperasiSimple>,
   },
   {
     path: '/induk/manajemen-katalog',
-    element: (
-      <RequireIndukKoperasiSimple>
-        <ManajemenKatalog />
-      </RequireIndukKoperasiSimple>
-    ),
+    element: <RequireIndukKoperasiSimple><ManajemenKatalog /></RequireIndukKoperasiSimple>,
   },
   {
     path: '/induk/manajemen-simpanan',
-    element: (
-      <RequireIndukKoperasiSimple>
-        <ManajemenSimpanan />
-      </RequireIndukKoperasiSimple>
-    ),
+    element: <RequireIndukKoperasiSimple><ManajemenSimpanan /></RequireIndukKoperasiSimple>,
   },
 
-  // New Koperasi Anggota Routes
+  // Koperasi Anggota Routes
   {
     path: '/anggota/dashboard',
-    element: (
-      <RequireAnggotaKoperasiSimple>
-        <DashboardAnggota />
-      </RequireAnggotaKoperasiSimple>
-    ),
+    element: <RequireAnggotaKoperasiSimple><DashboardAnggota /></RequireAnggotaKoperasiSimple>,
+  },
+  {
+    path: '/anggota/katalog',
+    element: <RequireAnggotaKoperasiSimple><KatalogProduk /></RequireAnggotaKoperasiSimple>,
+  },
+  {
+    path: '/anggota/simpanan',
+    element: <RequireAnggotaKoperasiSimple><Simpanan /></RequireAnggotaKoperasiSimple>,
+  },
+
+  // Koperasi Umum/Public Routes
+  {
+    path: '/pilih-koperasi',
+    element: <PilihKoperasi />,
+  },
+  {
+    path: '/koperasi/:koperasiId/katalog',
+    element: <KatalogPublik />,
   },
 
   // Kept old loan routes as requested
   {
     path: '/koperasi-loans/products',
-    element: (
-      <RequireIndukKoperasiSimple>
-        <LoansProducts />
-      </RequireIndukKoperasiSimple>
-    ),
+    element: <RequireIndukKoperasiSimple><LoansProducts /></RequireIndukKoperasiSimple>,
   },
   {
     path: '/koperasi-loans/applications',
-    element: (
-      <RequireIndukKoperasiSimple>
-        <LoansApplications />
-      </RequireIndukKoperasiSimple>
-    ),
+    element: <RequireIndukKoperasiSimple><LoansApplications /></RequireIndukKoperasiSimple>,
   },
   {
     path: '/koperasi-loans/installments',
-    element: (
-      <RequireIndukKoperasiSimple>
-        <LoansInstallments />
-      </RequireIndukKoperasiSimple>
-    ),
+    element: <RequireIndukKoperasiSimple><LoansInstallments /></RequireIndukKoperasiSimple>,
   },
 
   // General Routes
@@ -154,11 +138,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/anggota',
-    element: (
-      <RequireAnggotaKoperasiSimple>
-        <Dashboard />
-      </RequireAnggotaKoperasiSimple>
-    ),
+    element: <RequireAnggotaKoperasiSimple><Dashboard /></RequireAnggotaKoperasiSimple>,
   },
   {
     path: '/forgot-password',

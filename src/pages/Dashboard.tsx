@@ -1,4 +1,4 @@
-import { CircleDollarSign, Droplet, HandCoins, Mail, ShieldCheck, Smartphone, Zap, X, ClipboardList, CirclePercent, EyeOff, Eye, UsersRound, ChevronsLeft, ChevronsRight, ChevronRight, ChevronLeft, Building2, Home, ScanQrCode, CreditCard, FileText, UserRound } from "lucide-react";
+import { CircleDollarSign, Droplet, HandCoins, Mail, ShieldCheck, Smartphone, Zap, X, ClipboardList, CirclePercent, EyeOff, Eye, UsersRound, ChevronsLeft, ChevronsRight, ChevronRight, ChevronLeft, Building2, Home, ScanQrCode, CreditCard, FileText, UserRound, Store } from "lucide-react";
 import logo from "@/images/logo.png";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -413,6 +413,24 @@ const Dashboard = () => {
                     </Link>
                 </div>
             </div>
+
+            {/* Public Koperasi Catalog Button - Show only for non-affiliated users */}
+            {!affiliationLoading && affiliation?.affiliation !== 'KOPERASI_INDUK' && affiliation?.affiliation !== 'KOPERASI_ANGGOTA' && (
+                <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
+                    <Link 
+                        to={'/pilih-koperasi'} 
+                        className="flex items-center justify-center gap-3 p-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                        data-aos="fade-up" 
+                        data-aos-delay="500"
+                    >
+                        <Store className="text-white scale-110" />
+                        <div className="text-center">
+                            <p className="font-semibold text-lg">Katalog Koperasi</p>
+                            <p className="text-sm opacity-90">Lihat produk dari berbagai koperasi</p>
+                        </div>
+                    </Link>
+                </div>
+            )}
 
             {/* Koperasi Button - Only show for KOPERASI_INDUK */}
             {affiliation?.affiliation === 'KOPERASI_INDUK' && (
