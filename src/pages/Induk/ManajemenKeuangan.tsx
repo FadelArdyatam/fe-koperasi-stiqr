@@ -54,7 +54,7 @@ const ManajemenKeuangan: React.FC = () => {
                 const id = res.data?.koperasi?.id;
                 if (id) {
                     setKoperasiId(id);
-                    const rulesRes = await axiosInstance.get(`/koperasi/margin/${id}`);
+                    const rulesRes = await axiosInstance.get(`/koperasi/${id}/margins`);
                     setRules(rulesRes.data || []);
                 } else {
                     setErrorMessage('Anda bukan induk koperasi');
@@ -76,8 +76,7 @@ const ManajemenKeuangan: React.FC = () => {
         if (!koperasiId || !form.value) return;
         setActionLoading(true);
         try {
-            await axiosInstance.post('/koperasi/margin/set', {
-                koperasi_id: koperasiId,
+            await axiosInstance.post(`/koperasi/${koperasiId}/margins`, {
                 tier: form.tier,
                 type: form.type,
                 value: Number(form.value),
@@ -86,7 +85,7 @@ const ManajemenKeuangan: React.FC = () => {
             setShowNotification(true);
 
             // Re-fetch the rules directly after successful submission
-            const rulesRes = await axiosInstance.get(`/koperasi/margin/${koperasiId}`);
+            const rulesRes = await axiosInstance.get(`/koperasi/${koperasiId}/margins`);
             setRules(rulesRes.data || []);
 
             setForm({ ...form, value: '' });

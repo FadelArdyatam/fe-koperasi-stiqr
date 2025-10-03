@@ -48,7 +48,7 @@ const DashboardInduk: React.FC = () => {
         const fetchPendingApprovals = async (id: string) => {
             try {
                 await new Promise(resolve => setTimeout(resolve, 500));
-                const response = await axiosInstance.get(`/koperasi/pending-approvals/${id}`);
+                const response = await axiosInstance.get(`/koperasi/${id}/pending-approvals`);
                 setPendingMerchants(response.data || []);
             } catch (error) {
                 setErrorMessage('Gagal memuat data merchant.');
