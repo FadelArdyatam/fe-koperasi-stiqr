@@ -84,7 +84,11 @@ const ManajemenKeuangan: React.FC = () => {
             });
             setSuccessMessage('Aturan margin berhasil disimpan');
             setShowNotification(true);
-            await fetchRules(koperasiId);
+
+            // Re-fetch the rules directly after successful submission
+            const rulesRes = await axiosInstance.get(`/koperasi/margin/${koperasiId}`);
+            setRules(rulesRes.data || []);
+
             setForm({ ...form, value: '' });
         } catch (e: any) {
             setErrorMessage(e?.response?.data?.message || 'Gagal menyimpan aturan margin');
