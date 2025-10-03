@@ -70,13 +70,10 @@ const ManajemenAnggota: React.FC = () => {
         <Card className="animate-pulse">
             <CardContent className="p-4">
                 <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4 flex-grow">
-                        <div className="w-12 h-12 rounded-full bg-gray-200 flex-shrink-0"></div>
-                        <div className="space-y-2 flex-grow">
-                            <div className="h-5 w-3/5 bg-gray-200 rounded"></div>
-                            <div className="h-4 w-4/5 bg-gray-200 rounded"></div>
-                            <div className="h-4 w-2/5 bg-gray-200 rounded"></div>
-                        </div>
+                    <div className="space-y-2 flex-grow">
+                        <div className="h-5 w-3/5 bg-gray-200 rounded"></div>
+                        <div className="h-4 w-4/5 bg-gray-200 rounded"></div>
+                        <div className="h-4 w-2/5 bg-gray-200 rounded"></div>
                     </div>
                     <div className="h-6 w-1/4 max-w-[100px] bg-gray-200 rounded-full"></div>
                 </div>
@@ -98,17 +95,12 @@ const ManajemenAnggota: React.FC = () => {
             onClick={() => navigate(`/induk/detail-anggota/${member.id}`)}
         >
             <CardContent className="p-4 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4 flex-grow overflow-hidden">
-                    <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                        <UserRound className="w-6 h-6 text-orange-500" />
-                    </div>
-                    <div className="flex-grow overflow-hidden">
-                        <p className="font-semibold text-gray-800 truncate text-lg">{member.name}</p>
-                        <p className="text-sm text-gray-500 truncate">{member.email}</p>
-                        <p className="text-sm font-mono text-gray-600 truncate">{member.phone_number}</p>
-                    </div>
+                <div className="flex-grow overflow-hidden">
+                    <p className="font-semibold text-gray-800 truncate text-lg">{member.name}</p>
+                    <p className="text-sm text-gray-500 truncate">{member.email}</p>
+                    <p className="text-sm font-mono text-gray-600 truncate">{member.phone_number}</p>
                 </div>
-                <div className="flex-shrink-0 ml-2">
+                <div className="flex-shrink-0">
                     <StatusBadge status={member.approval_status} />
                 </div>
             </CardContent>
