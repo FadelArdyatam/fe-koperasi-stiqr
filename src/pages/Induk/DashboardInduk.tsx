@@ -14,7 +14,8 @@ import {
     ScanQrCode,
     CreditCard,
     UserRound,
-    Landmark
+    Landmark,
+    CirclePercent
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -85,6 +86,7 @@ const DashboardInduk: React.FC = () => {
         { label: 'Katalog', icon: <Store className="w-6 h-6 text-orange-500" />, path: '/induk/manajemen-katalog' },
         { label: 'Margin', icon: <Percent className="w-6 h-6 text-orange-500" />, path: '/induk/manajemen-keuangan' },
         { label: 'Simpanan', icon: <Landmark className="w-6 h-6 text-orange-500" />, path: '/induk/manajemen-simpanan' },
+        { label: 'Kasir', icon: <CirclePercent className="w-6 h-6 text-orange-500" />, path: '/induk/kasir' },
     ];
 
     const PendingApprovalSkeleton = () => (
@@ -119,7 +121,7 @@ const DashboardInduk: React.FC = () => {
                 )}
             </header>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
                 {menuItems.map((item) => (
                     <Card
                         key={item.label}
@@ -200,7 +202,7 @@ const DashboardInduk: React.FC = () => {
                 />
             )}
 
-                        <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 left-0 border z-10">
+            <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 left-0 border z-10">
                 <Link to={'/dashboard'} className="flex gap-3 text-orange-400 flex-col items-center">
                     <Home />
                     <p className="uppercase">Home</p>
