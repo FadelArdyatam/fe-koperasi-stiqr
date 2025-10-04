@@ -143,7 +143,7 @@ const ManajemenKeuangan: React.FC = () => {
                                 <CardDescription>Aturan yang sudah ada akan diperbarui jika Anda menyimpan tier dan tipe yang sama.</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <form onSubmit={submitRule} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                <form onSubmit={submitRule} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                                     <div className="space-y-1.5">
                                         <label className="text-sm font-medium">Tingkat Anggota</label>
                                         <DropdownMenu>
