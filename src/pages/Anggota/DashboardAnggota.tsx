@@ -4,14 +4,14 @@ import { useAffiliation } from '@/hooks/useAffiliation';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Building2, Store, Landmark, Home, ScanQrCode, CreditCard, FileText, UserRound } from 'lucide-react';
+import { ArrowLeft, Building2, Store, Landmark, Home, ScanQrCode, CreditCard, FileText, UserRound, CirclePercent } from 'lucide-react';
 
 const DashboardAnggota: React.FC = () => {
     const navigate = useNavigate();
     const { data: affiliation, loading: affiliationLoading } = useAffiliation();
 
     const menuItems = [
-        { label: 'Katalog', icon: <Store className="w-8 h-8 text-orange-500" />, path: '/anggota/katalog' },
+        { label: 'Kasir', icon: <CirclePercent className="w-8 h-8 text-orange-500" />, path: '/anggota/kasir' },
         { label: 'Simpanan', icon: <Landmark className="w-8 h-8 text-orange-500" />, path: '/anggota/simpanan' },
     ];
 

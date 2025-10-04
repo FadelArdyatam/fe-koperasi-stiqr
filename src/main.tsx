@@ -48,10 +48,11 @@ import DetailAnggota from './pages/Induk/DetailAnggota.tsx';
 import ManajemenKeuangan from './pages/Induk/ManajemenKeuangan.tsx';
 import ManajemenKatalog from './pages/Induk/ManajemenKatalog.tsx';
 import ManajemenSimpanan from './pages/Induk/ManajemenSimpanan.tsx';
+import KasirKoperasi from './pages/Induk/KasirKoperasi.tsx';
 
 // Koperasi Anggota Imports
 import DashboardAnggota from './pages/Anggota/DashboardAnggota.tsx';
-import KatalogProduk from './pages/Anggota/KatalogProduk.tsx';
+import KasirAnggota from './pages/Anggota/KasirAnggota.tsx';
 import Simpanan from './pages/Anggota/Simpanan.tsx';
 
 // Koperasi Umum/Public Imports
@@ -84,6 +85,10 @@ const router = createBrowserRouter([
     path: '/induk/manajemen-simpanan',
     element: <RequireIndukKoperasiSimple><ManajemenSimpanan /></RequireIndukKoperasiSimple>,
   },
+  {
+    path: '/induk/kasir',
+    element: <RequireIndukKoperasiSimple><KasirKoperasi /></RequireIndukKoperasiSimple>,
+  },
 
   // Koperasi Anggota Routes
   {
@@ -91,8 +96,8 @@ const router = createBrowserRouter([
     element: <RequireAnggotaKoperasiSimple><DashboardAnggota /></RequireAnggotaKoperasiSimple>,
   },
   {
-    path: '/anggota/katalog',
-    element: <RequireAnggotaKoperasiSimple><KatalogProduk /></RequireAnggotaKoperasiSimple>,
+    path: '/anggota/kasir',
+    element: <RequireAnggotaKoperasiSimple><KasirAnggota /></RequireAnggotaKoperasiSimple>,
   },
   {
     path: '/anggota/simpanan',
