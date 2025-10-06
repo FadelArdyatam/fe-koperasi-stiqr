@@ -19,7 +19,7 @@ export const MarginRules: React.FC<MarginRulesProps> = ({ koperasiId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [validationError, setValidationError] = useState<string | null>(null);
+  const [validationError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMarginRules();
@@ -46,30 +46,30 @@ export const MarginRules: React.FC<MarginRulesProps> = ({ koperasiId }) => {
     }
   };
 
-  const validateHierarchy = (newRules: MarginRule[]) => {
-    const tierValues = {
-      UMUM: 0,
-      MEMBER: 0,
-      MEMBER_USAHA: 0
-    };
+  // const validateHierarchy = (newRules: MarginRule[]) => {
+  //   const tierValues = {
+  //     UMUM: 0,
+  //     MEMBER: 0,
+  //     MEMBER_USAHA: 0
+  //   };
 
-    // Calculate effective values for each tier
-    newRules.forEach(rule => {
-      if (rule.isActive) {
-        const value = rule.type === 'FLAT' ? rule.value : 100 * rule.value / 100;
-        tierValues[rule.tier] = value;
-      }
-    });
+  //   // Calculate effective values for each tier
+  //   newRules.forEach(rule => {
+  //     if (rule.isActive) {
+  //       const value = rule.type === 'FLAT' ? rule.value : 100 * rule.value / 100;
+  //       tierValues[rule.tier] = value;
+  //     }
+  //   });
 
-    // Check hierarchy: UMUM >= MEMBER >= MEMBER_USAHA
-    if (tierValues.UMUM < tierValues.MEMBER || tierValues.MEMBER < tierValues.MEMBER_USAHA) {
-      setValidationError('Hierarki margin tidak valid: UMUM ≥ MEMBER ≥ MEMBER_USAHA');
-      return false;
-    }
+  //   // Check hierarchy: UMUM >= MEMBER >= MEMBER_USAHA
+  //   if (tierValues.UMUM < tierValues.MEMBER || tierValues.MEMBER < tierValues.MEMBER_USAHA) {
+  //     setValidationError('Hierarki margin tidak valid: UMUM ≥ MEMBER ≥ MEMBER_USAHA');
+  //     return false;
+  //   }
 
-    setValidationError(null);
-    return true;
-  };
+  //   setValidationError(null);
+  //   return true;
+  // };
 
   const handleAddRule = async (newRule: Omit<MarginRule, 'id' | 'createdAt'>) => {
     try {
@@ -277,10 +277,8 @@ interface AddMarginRuleModalProps {
 }
 
 const AddMarginRuleModal: React.FC<AddMarginRuleModalProps> = ({
-  koperasiId,
   onClose,
   onAdd,
-  existingRules
 }) => {
   const [formData, setFormData] = useState({
     tier: 'UMUM' as 'UMUM' | 'MEMBER' | 'MEMBER_USAHA',

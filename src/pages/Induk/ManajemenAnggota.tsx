@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Home, ScanQrCode, CreditCard, FileText, UserRound, Building2, Search, ChevronDown, ArrowLeft, Users } from 'lucide-react';
+import { Home, ScanQrCode, CreditCard, FileText, UserRound,  Search, ChevronDown, ArrowLeft, Users } from 'lucide-react';
 
 // Helper component for status badges
 const StatusBadge = ({ status }: { status: string }) => {

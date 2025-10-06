@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Home, ScanQrCode, CreditCard, FileText, UserRound, Building2 } from 'lucide-react';
+import { Home, ScanQrCode, CreditCard, FileText, UserRound } from 'lucide-react';
 
 const LoansApplications: React.FC = () => {
   return (

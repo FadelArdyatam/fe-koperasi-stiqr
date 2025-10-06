@@ -4,8 +4,8 @@ import axiosInstance from '@/hooks/axiosInstance';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Home, ScanQrCode, CreditCard, FileText, UserRound, Building2, User, Mail, Phone, Check, X, Fingerprint, Info, Camera, Briefcase } from 'lucide-react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { ArrowLeft, Home, ScanQrCode, CreditCard, FileText, UserRound, Check, X, } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 // --- Helper Components ---
 const StatusBadge = ({ status }: { status: string }) => {

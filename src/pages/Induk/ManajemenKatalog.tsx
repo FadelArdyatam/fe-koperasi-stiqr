@@ -4,7 +4,7 @@ import { useAffiliation } from '../../hooks/useAffiliation';
 import axiosInstance from '@/hooks/axiosInstance';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from "@/components/ui/switch";
@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import Notification from '@/components/Notification';
 
-import { ArrowLeft, ShoppingBag, Pencil, Trash2, RefreshCw, Home, ScanQrCode, CreditCard, FileText, UserRound } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Pencil, Trash2, Home, ScanQrCode, CreditCard, FileText, UserRound } from 'lucide-react';
 
 // --- Interface ---
 interface MasterProduct {
@@ -43,7 +43,7 @@ const ManajemenKatalog: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<Partial<CatalogItem> | null>(null);
-    const [isBackfilling, setIsBackfilling] = useState(false);
+    
 
     const [showNotification, setShowNotification] = useState(false);
     const [notification, setNotification] = useState({ message: '', status: 'success' as 'success' | 'error' });

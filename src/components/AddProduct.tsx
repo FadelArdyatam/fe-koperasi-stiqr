@@ -19,47 +19,47 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { formatRupiah } from "@/hooks/convertRupiah";
 
-interface Merchant {
-    id: string;
-    name: string;
-    phone_number: string;
-    email: string;
-    address: string;
-    post_code: string;
-    category: string;
-    city: string;
-    type: string;
-    pin: string | null;
-    created_at: string;
-    updated_at: string;
-    user_id: number;
-}
+// interface Merchant {
+//     id: string;
+//     name: string;
+//     phone_number: string;
+//     email: string;
+//     address: string;
+//     post_code: string;
+//     category: string;
+//     city: string;
+//     type: string;
+//     pin: string | null;
+//     created_at: string;
+//     updated_at: string;
+//     user_id: number;
+// }
 
-interface ShowcaseProduct {
-    id: number,
-    showcase_product_id: string,
-    showcase_id: string,
-    product_id: string,
-    created_at: string,
-    updated_at: string
-}
+// interface ShowcaseProduct {
+//     id: number,
+//     showcase_product_id: string,
+//     showcase_id: string,
+//     product_id: string,
+//     created_at: string,
+//     updated_at: string
+// }
 
-interface Variant {
-    variant_status: any;
-    product_variant: any;
-    id: number;
-    variant_id: string;
-    variant_name: string;
-    product_id: string;
-    variant_description: string;
-    is_multiple: boolean;
-    merchant_id: string;
-    products: number[];
-    mustBeSelected: boolean;
-    methods: string;
-    choises: [];
-    showVariant: boolean;
-}
+// interface Variant {
+//     variant_status: any;
+//     product_variant: any;
+//     id: number;
+//     variant_id: string;
+//     variant_name: string;
+//     product_id: string;
+//     variant_description: string;
+//     is_multiple: boolean;
+//     merchant_id: string;
+//     products: number[];
+//     mustBeSelected: boolean;
+//     methods: string;
+//     choises: [];
+//     showVariant: boolean;
+// }
 
 interface Choice {
     name: string;

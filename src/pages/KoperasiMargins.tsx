@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ArrowLeft, Home, ScanQrCode, CreditCard, FileText, UserRound, Building2, Percent, Tag, ListOrdered, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Home, ScanQrCode, CreditCard, FileText, UserRound, Percent, Tag, ListOrdered, ChevronDown } from 'lucide-react';
 
 type Tier = 'NON_MEMBER' | 'MEMBER' | 'MEMBER_USAHA';
 type RuleType = 'FLAT' | 'PERCENT';

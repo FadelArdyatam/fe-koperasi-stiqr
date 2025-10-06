@@ -6,7 +6,7 @@ import axiosInstance from '@/hooks/axiosInstance';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, ShoppingBag, Search, X, Plus, Minus } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Search,  Plus, Minus } from 'lucide-react';
 import Notification from '@/components/Notification';
 import noProduct from "@/images/no-product.png";
 
@@ -33,7 +33,7 @@ interface Pagination {
 // --- Main Component ---
 const KasirAnggota: React.FC = () => {
     const navigate = useNavigate();
-    const { koperasiId, loading: affiliationLoading } = useAffiliation();
+    const { koperasiId } = useAffiliation();
     
     const [products, setProducts] = useState<Product[]>([]);
     const [cart, setCart] = useState<CartItem[]>([]);

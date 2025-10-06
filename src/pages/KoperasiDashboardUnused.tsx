@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axiosInstance from '@/hooks/axiosInstance';
 import Notification from '@/components/Notification';
 import Loading from '@/components/Loading';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate  } from 'react-router-dom';
 import {
   Home,
   ScanQrCode,
@@ -36,7 +36,6 @@ const KoperasiDashboardUnused: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [koperasiId, setKoperasiId] = useState<string>('');
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     fetchAffiliation();

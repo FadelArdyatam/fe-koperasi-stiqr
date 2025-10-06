@@ -4,7 +4,7 @@ import { useAffiliation } from '@/hooks/useAffiliation';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Building2, Store, Landmark, Home, ScanQrCode, CreditCard, FileText, UserRound, CirclePercent } from 'lucide-react';
+import { ArrowLeft, Building2,  Landmark, Home, ScanQrCode, CreditCard, FileText, UserRound, CirclePercent } from 'lucide-react';
 
 const DashboardAnggota: React.FC = () => {
     const navigate = useNavigate();

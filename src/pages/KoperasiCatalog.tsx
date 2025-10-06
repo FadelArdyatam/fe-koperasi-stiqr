@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ArrowLeft, Search, ChevronDown, ShoppingBag, Building2, Tag, Package, DollarSign, Home, ScanQrCode, CreditCard, UserRound, FileText } from 'lucide-react';
+import { ArrowLeft, Search, ChevronDown, ShoppingBag,Home, ScanQrCode, CreditCard, UserRound, FileText } from 'lucide-react';
 import { getEffectiveTier } from '../utils/tier';
 import { AuthClaims, EffectiveTier } from '../types/auth';
 

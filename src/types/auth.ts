@@ -23,4 +23,4 @@ export type AuthClaims = {
   is_first_login: boolean;
 };
 
-export type EffectiveTier = 'UMUM' | 'MEMBER' | 'MEMBER_USAHA';
+export type EffectiveTier = 'UMUM' | 'MEMBER' | 'MEMBER_USAHA' | 'NON_MEMBER';

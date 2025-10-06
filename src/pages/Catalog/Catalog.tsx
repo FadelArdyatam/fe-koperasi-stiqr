@@ -109,7 +109,7 @@ const Catalog = () => {
 
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
-    const { affiliation, koperasiId } = useAffiliation();
+    const { koperasiId } = useAffiliation();
     console.log("ID Koperasi dari Catalog.tsx:", koperasiId);
     const [showFilterSection, setShowFilterSection] = useState(false);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'new' | 'highest' | 'lowest' | 'Semua' | 'Aktif' | 'Non-aktif' | 'Stok Tersedia' | 'Stok Habis'>('new');
