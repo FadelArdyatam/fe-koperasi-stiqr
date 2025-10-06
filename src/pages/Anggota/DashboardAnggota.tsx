@@ -1,17 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAffiliation } from '@/hooks/useAffiliation';
+import axiosInstance from '@/hooks/axiosInstance';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Building2,  Landmark, Home, ScanQrCode, CreditCard, FileText, UserRound, CirclePercent } from 'lucide-react';
+import { ArrowLeft, Building2, Store, Landmark, Home, ScanQrCode, CreditCard, FileText, UserRound, CirclePercent } from 'lucide-react';
 
 const DashboardAnggota: React.FC = () => {
     const navigate = useNavigate();
-    const { data: affiliation, loading: affiliationLoading } = useAffiliation();
+    const { data: affiliation, loading: affiliationLoading, koperasiId } = useAffiliation();
+    const [memberId, setMemberId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (koperasiId) {
+            axiosInstance.get(`/koperasi-simpan-pinjam/${koperasiId}/my-member-id`)
+                .then(res => {
+                    setMemberId(res.data.member_id);
+                })
+                .catch(err => {
+                    console.error("Failed to fetch member ID:", err);
+                });
+        }
+    }, [koperasiId]);
 
     const menuItems = [
-        { label: 'Kasir', icon: <CirclePercent className="w-8 h-8 text-orange-500" />, path: '/anggota/kasir' },
+        { label: 'Katalog', icon: <Store className="w-8 h-8 text-orange-500" />, path: '/anggota/katalog' },
         { label: 'Simpanan', icon: <Landmark className="w-8 h-8 text-orange-500" />, path: '/anggota/simpanan' },
     ];
 
@@ -21,6 +35,11 @@ const DashboardAnggota: React.FC = () => {
                 <ArrowLeft className="h-4 w-4" />
             </Button>
             <h1 className="text-xl font-bold truncate">Dashboard Anggota</h1>
+            {memberId && (
+                <span className="ml-auto text-xs sm:text-sm font-mono text-slate-500 bg-slate-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">
+                    ID: {memberId}
+                </span>
+            )}
         </header>
     );
 
