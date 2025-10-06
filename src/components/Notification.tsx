@@ -56,7 +56,7 @@ const Notification: React.FC<NotificationProps> = ({ message, onClose, status, t
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[99] flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[999] flex items-center justify-center">
             <div data-aos="zoom-in" className="bg-white w-[90%] max-w-sm rounded-lg shadow-lg p-5">
                 {getIcon()}
                 <p className={`text-center mt-5 text-sm font-medium ${getTextColor()}`}>
