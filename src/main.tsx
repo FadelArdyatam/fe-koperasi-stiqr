@@ -52,7 +52,7 @@ import KasirKoperasi from './pages/Induk/KasirKoperasi.tsx';
 
 // Koperasi Anggota Imports
 import DashboardAnggota from './pages/Anggota/DashboardAnggota.tsx';
-import KasirAnggota from './pages/Anggota/KasirAnggota.tsx';
+import KatalogProduk from './pages/Anggota/KatalogProduk.tsx';
 import Simpanan from './pages/Anggota/Simpanan.tsx';
 
 // Koperasi Umum/Public Imports
@@ -96,8 +96,8 @@ const router = createBrowserRouter([
     element: <RequireAnggotaKoperasiSimple><DashboardAnggota /></RequireAnggotaKoperasiSimple>,
   },
   {
-    path: '/anggota/kasir',
-    element: <RequireAnggotaKoperasiSimple><KasirAnggota /></RequireAnggotaKoperasiSimple>,
+    path: '/anggota/katalog',
+    element: <RequireAnggotaKoperasiSimple><KatalogProduk /></RequireAnggotaKoperasiSimple>,
   },
   {
     path: '/anggota/simpanan',
