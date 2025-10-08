@@ -437,7 +437,7 @@ const Dashboard = () => {
                 <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
                     <Link 
                         to={'/induk/dashboard'} 
-                        className="flex items-center justify-center gap-3 p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        className="flex items-center justify-center gap-3 p-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                         data-aos="fade-up" 
                         data-aos-delay="600"
                     >
@@ -454,7 +454,7 @@ const Dashboard = () => {
             {affiliation?.affiliation === 'KOPERASI_ANGGOTA' && (
                 <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
                     <Link to={affiliation?.approval_status === 'APPROVED' ? "/anggota/dashboard" : '#'} className={`block ${affiliation?.approval_status !== 'APPROVED' ? 'cursor-not-allowed' : ''}`}>
-                        <div className={`p-4 rounded-lg ${affiliation?.approval_status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800 hover:bg-green-200 transition-colors'}`}>
+                        <div className={`p-4 rounded-lg ${affiliation?.approval_status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-orange-100 text-orange-800 hover:bg-orange-200 transition-colors'}`}>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <Building2 className="text-current" />
