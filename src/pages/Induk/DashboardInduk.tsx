@@ -15,7 +15,8 @@ import {
     CreditCard,
     UserRound,
     Landmark,
-    CirclePercent
+    CirclePercent,
+    History
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -87,6 +88,7 @@ const DashboardInduk: React.FC = () => {
         { label: 'Margin', icon: <Percent className="w-6 h-6 text-orange-500" />, path: '/induk/manajemen-keuangan' },
         { label: 'Simpanan', icon: <Landmark className="w-6 h-6 text-orange-500" />, path: '/induk/manajemen-simpanan' },
         { label: 'Kasir', icon: <CirclePercent className="w-6 h-6 text-orange-500" />, path: '/induk/kasir' },
+        { label: 'Riwayat', icon: <History className="w-6 h-6 text-orange-500" />, path: '/induk/riwayat' },
     ];
 
     const PendingApprovalSkeleton = () => (
