@@ -37,6 +37,7 @@ interface Member { id: string; name: string; email: string; phone_number: string
 interface ApiResponse<T> { success: boolean; data?: T; message?: string;}
 interface CheckoutResponse { qr_code?: string; order_id: string;}
 interface PaymentStatusResponse { status: string;}
+interface MarginRule { tier: "NON_MEMBER" | "MEMBER" | "MEMBER_USAHA" | "UMUM"; type: 'FLAT' | 'PERCENT'; value: number; }
 
 // --- SUB-COMPONENTS --- //
 
@@ -198,6 +199,7 @@ const KasirKoperasi: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [basket, setBasket] = useState<BasketItem[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
+  const [marginRules, setMarginRules] = useState<MarginRule[]>([]);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -221,7 +223,7 @@ const KasirKoperasi: React.FC = () => {
     if (!koperasiId) return;
     setLoading(true);
     try {
-      const response = await axiosInstance.get(`/koperasi/${koperasiId}/catalog/merchant`);
+      const response = await axiosInstance.get(`/koperasi/${koperasiId}/catalog/items`);
       const payload = response.data?.data ?? response.data ?? [];
       const items = Array.isArray(payload) ? payload : [];
       const mapped: Product[] = items.map((it: any) => ({ id: String(it.product?.id ?? it.id ?? it.product_id ?? Math.random()), product_id: String(it.product?.product_id ?? it.product_id ?? it.id), product_name: it.product?.product_name ?? it.product_name ?? it.name ?? "", product_price: Number(it.product?.product_price ?? it.product_price ?? it.price ?? 0), price_non_member: it.price_non_member !== undefined ? it.price_non_member : it.product?.price_non_member ?? null, price_member: it.price_member !== undefined ? it.price_member : it.product?.price_member ?? null, price_member_usaha: it.price_member_usaha !== undefined ? it.price_member_usaha : it.product?.price_member_usaha ?? null, product_image: it.product?.product_image ?? it.product_image ?? it.image ?? undefined, stock: Number(it.product?.stock ?? it.stock ?? 99999), merchant: it.product?.merchant ?? {}, tier: "NON_MEMBER", product_description: it.product?.product_description ?? "" }));
@@ -239,15 +241,52 @@ const KasirKoperasi: React.FC = () => {
     } catch (error) { console.error("Error fetching members:", error); }
   }, [koperasiId]);
 
-  useEffect(() => { if (koperasiId && !affiliationLoading) { fetchProducts(); fetchMembers(""); } }, [koperasiId, affiliationLoading, fetchProducts, fetchMembers]);
+  const fetchMarginRules = useCallback(async (): Promise<void> => {
+    if (!koperasiId) return;
+    try {
+        const res = await axiosInstance.get(`/koperasi/${koperasiId}/margins`);
+        setMarginRules(res.data || []);
+    } catch (error) {
+        console.error("Error fetching margin rules:", error);
+        setNotification({ message: 'Gagal memuat aturan margin.', status: 'error' });
+    }
+  }, [koperasiId]);
+
+  useEffect(() => { if (koperasiId && !affiliationLoading) { fetchProducts(); fetchMembers(""); fetchMarginRules(); } }, [koperasiId, affiliationLoading, fetchProducts, fetchMembers, fetchMarginRules]);
+
+  useEffect(() => {
+    const handleCatalogUpdate = () => {
+        fetchProducts();
+    };
+
+    window.addEventListener('catalog-item-updated', handleCatalogUpdate);
+
+    return () => {
+        window.removeEventListener('catalog-item-updated', handleCatalogUpdate);
+    };
+  }, [fetchProducts]);
+
+  const calculateSellingPrice = useCallback((basePrice: number, tier: string) => {
+      const rule = marginRules.find(r => r.tier === tier);
+      if (!rule) return basePrice;
+
+      if (rule.type === 'FLAT') {
+          return basePrice + rule.value;
+      }
+      if (rule.type === 'PERCENT') {
+          return basePrice + (basePrice * (rule.value / 100));
+      }
+      return basePrice;
+  }, [marginRules]);
 
   const computeFinalPriceForProduct = useCallback((product: Product, memberTier?: string): number => {
     const tier = memberTier || "NON_MEMBER";
+    const basePrice = Number(product.product_price) || 0;
     if (tier === "MEMBER_USAHA" && product.price_member_usaha != null) return Number(product.price_member_usaha);
     if (tier === "MEMBER" && product.price_member != null) return Number(product.price_member);
     if (tier === "NON_MEMBER" && product.price_non_member != null) return Number(product.price_non_member);
-    return Number(product.product_price) || 0;
-  }, []);
+    return calculateSellingPrice(basePrice, tier);
+  }, [calculateSellingPrice]);
 
   const updateMemberSelection = (member: Member | null) => {
     const newMember = member || { id: "non-member", name: "Non Anggota", email: "", phone_number: "", tier: "NON_MEMBER" };
