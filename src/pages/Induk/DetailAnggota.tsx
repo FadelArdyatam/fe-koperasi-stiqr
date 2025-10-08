@@ -28,6 +28,7 @@ import {
   Camera,
   Briefcase,
   BadgeHelp,
+  CalendarDays,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -273,6 +274,14 @@ const DetailAnggota: React.FC = () => {
                 {detail.name}
               </h2>
               <p className="text-base text-gray-600">{detail.email}</p>
+              {detail.created_at && (
+                <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
+                    <CalendarDays size={14} />
+                    <span>
+                        Anggota koperasi sejak {new Date(detail.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
+                </div>
+              )}
               <div className="pt-3">
                 <StatusBadge status={detail.approval_status} />
               </div>
