@@ -49,6 +49,8 @@ import ManajemenKeuangan from './pages/Induk/ManajemenKeuangan.tsx';
 import ManajemenKatalog from './pages/Induk/ManajemenKatalog.tsx';
 import ManajemenSimpanan from './pages/Induk/ManajemenSimpanan.tsx';
 import KasirKoperasi from './pages/Induk/KasirKoperasi.tsx';
+import RiwayatTransaksi from './pages/Induk/RiwayatTransaksi.tsx';
+import Notifikasi from './pages/Induk/Notifikasi.tsx';
 
 // Koperasi Anggota Imports
 import DashboardAnggota from './pages/Anggota/DashboardAnggota.tsx';
@@ -88,6 +90,14 @@ const router = createBrowserRouter([
   {
     path: '/induk/kasir',
     element: <RequireIndukKoperasiSimple><KasirKoperasi /></RequireIndukKoperasiSimple>,
+  },
+  {
+    path: '/induk/riwayat',
+    element: <RequireIndukKoperasiSimple><RiwayatTransaksi /></RequireIndukKoperasiSimple>,
+  },
+  {
+    path: '/induk/notifikasi',
+    element: <RequireIndukKoperasiSimple><Notifikasi /></RequireIndukKoperasiSimple>,
   },
 
   // Koperasi Anggota Routes
