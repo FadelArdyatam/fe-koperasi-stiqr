@@ -27,6 +27,7 @@ import {
   Camera,
   Briefcase,
   BadgeHelp,
+  CalendarDays 
 } from "lucide-react";
 import {
   AlertDialog,
@@ -286,6 +287,11 @@ const DetailAnggota: React.FC = () => {
                 icon={<Building2 size={14} />}
                 label="Koperasi"
                 value={detail.koperasi?.nama_koperasi}
+              />
+              <DataField
+                icon={<CalendarDays size={14} />}
+                label="Bergabung Sejak"
+                value={new Date(detail.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
               />
             </CardContent>
           </Card>
