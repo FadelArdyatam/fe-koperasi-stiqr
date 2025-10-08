@@ -126,30 +126,30 @@ const Simpanan: React.FC = () => {
         }
     };
 
-    const handleWithdraw = async () => {
-        setFormError('');
-        if (Number(form.amount) < 1000) {
-            setFormError('Penarikan minimum adalah Rp 1.000');
-            return;
-        }
-        if (!koperasiId || !memberId) return;
+    // const handleWithdraw = async () => {
+    //     setFormError('');
+    //     if (Number(form.amount) < 1000) {
+    //         setFormError('Penarikan minimum adalah Rp 1.000');
+    //         return;
+    //     }
+    //     if (!koperasiId || !memberId) return;
 
-        setActionLoading(true);
-        try {
-            const response = await axiosInstance.post(`/koperasi-simpan-pinjam/${koperasiId}/withdraw`, {
-                member_id: memberId,
-                amount: Number(form.amount),
-                notes: form.notes
-            });
-            handleCloseModal();
-            setNotification({ message: response.data.message || 'Penarikan berhasil!', status: 'success' });
-            fetchInitialData(false);
-        } catch (err: any) {
-            setNotification({ message: err.response?.data?.message || 'Gagal melakukan penarikan.', status: 'error' });
-        } finally {
-            setActionLoading(false);
-        }
-    };
+    //     setActionLoading(true);
+    //     try {
+    //         const response = await axiosInstance.post(`/koperasi-simpan-pinjam/${koperasiId}/withdraw`, {
+    //             member_id: memberId,
+    //             amount: Number(form.amount),
+    //             notes: form.notes
+    //         });
+    //         handleCloseModal();
+    //         setNotification({ message: response.data.message || 'Penarikan berhasil!', status: 'success' });
+    //         fetchInitialData(false);
+    //     } catch (err: any) {
+    //         setNotification({ message: err.response?.data?.message || 'Gagal melakukan penarikan.', status: 'error' });
+    //     } finally {
+    //         setActionLoading(false);
+    //     }
+    // };
 
     const getStatusChip = (status: string) => {
         switch (status) {
@@ -189,9 +189,9 @@ const Simpanan: React.FC = () => {
                     </CardContent>
                 </Card>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                     <Button variant="default" className="h-24 flex-col gap-2 text-base bg-white text-gray-800 border shadow-sm hover:bg-gray-100" onClick={() => handleOpenModal('deposit')}><ArrowUpCircle className="w-7 h-7 text-green-500"/>Setor Dana</Button>
-                    <Button variant="default" className="h-24 flex-col gap-2 text-base bg-white text-gray-800 border shadow-sm hover:bg-gray-100" onClick={() => handleOpenModal('withdraw')}><ArrowDownCircle className="w-7 h-7 text-red-500"/>Tarik Dana</Button>
+                    {/* <Button variant="default" className="h-24 flex-col gap-2 text-base bg-white text-gray-800 border shadow-sm hover:bg-gray-100" onClick={() => handleOpenModal('withdraw')}><ArrowDownCircle className="w-7 h-7 text-red-500"/>Tarik Dana</Button> */}
                 </div>
 
                 <Card>
@@ -264,7 +264,7 @@ const Simpanan: React.FC = () => {
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={modalState.type === 'withdraw'} onOpenChange={handleCloseModal}>
+            {/* <Dialog open={modalState.type === 'withdraw'} onOpenChange={handleCloseModal}>
                 <DialogContent>
                     <DialogHeader><DialogTitle>Tarik Dana</DialogTitle></DialogHeader>
                     <div className="py-4 space-y-4">
@@ -283,7 +283,7 @@ const Simpanan: React.FC = () => {
                         <Button onClick={handleWithdraw} variant="destructive" disabled={actionLoading}>{actionLoading ? <Loader2 className="animate-spin"/> : 'Tarik'}</Button>
                     </DialogFooter>
                 </DialogContent>
-            </Dialog>
+            </Dialog> */}
 
             <Dialog open={modalState.type === 'show_qris'} onOpenChange={handleCloseModal}>
                 <DialogContent>
