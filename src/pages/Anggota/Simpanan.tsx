@@ -126,6 +126,7 @@ const Simpanan: React.FC = () => {
         }
     };
 
+    /*
     const handleWithdraw = async () => {
         setFormError('');
         if (Number(form.amount) < 1000) {
@@ -150,6 +151,7 @@ const Simpanan: React.FC = () => {
             setActionLoading(false);
         }
     };
+    */
 
     const getStatusChip = (status: string) => {
         switch (status) {
@@ -191,7 +193,7 @@ const Simpanan: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                     <Button variant="default" className="h-24 flex-col gap-2 text-base bg-white text-gray-800 border shadow-sm hover:bg-gray-100" onClick={() => handleOpenModal('deposit')}><ArrowUpCircle className="w-7 h-7 text-green-500"/>Setor Dana</Button>
-                    <Button variant="default" className="h-24 flex-col gap-2 text-base bg-white text-gray-800 border shadow-sm hover:bg-gray-100" onClick={() => handleOpenModal('withdraw')}><ArrowDownCircle className="w-7 h-7 text-red-500"/>Tarik Dana</Button>
+                    {/* <Button variant="default" className="h-24 flex-col gap-2 text-base bg-white text-gray-800 border shadow-sm hover:bg-gray-100" onClick={() => handleOpenModal('withdraw' )}><ArrowDownCircle className="w-7 h-7 text-red-500"/>Tarik Dana</Button> */}
                 </div>
 
                 <Card>
@@ -264,6 +266,7 @@ const Simpanan: React.FC = () => {
                 </DialogContent>
             </Dialog>
 
+            {/*
             <Dialog open={modalState.type === 'withdraw'} onOpenChange={handleCloseModal}>
                 <DialogContent>
                     <DialogHeader><DialogTitle>Tarik Dana</DialogTitle></DialogHeader>
@@ -284,6 +287,7 @@ const Simpanan: React.FC = () => {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            */}
 
             <Dialog open={modalState.type === 'show_qris'} onOpenChange={handleCloseModal}>
                 <DialogContent>
