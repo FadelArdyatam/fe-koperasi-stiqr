@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '@/hooks/axiosInstance';
+import { useAffiliation } from '@/hooks/useAffiliation';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -39,6 +40,8 @@ const KoperasiMemberDetail: React.FC = () => {
     const [detail, setDetail] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
+    const { data: affiliationData } = useAffiliation();
+    const koperasiId = affiliationData?.koperasi?.id;
 
     const fetchDetail = useCallback(async () => {
         if (!id) return;
@@ -59,9 +62,14 @@ const KoperasiMemberDetail: React.FC = () => {
     }, [fetchDetail]);
 
     const handleAction = async (action: 'approve' | 'reject') => {
+        if (!koperasiId) {
+            alert('Koperasi ID tidak tersedia.');
+            return;
+        }
         setActionLoading(true);
         try {
-            await axiosInstance.post(`/koperasi/member/${id}/${action}`);
+            const verb = action === 'approve' ? 'approve-merchant' : 'reject-merchant';
+            await axiosInstance.post(`/koperasi/${koperasiId}/${verb}/${id}`);
             await fetchDetail();
         } catch (error) {
             console.error(`Failed to ${action} member`, error);

@@ -5,7 +5,7 @@ import axiosInstance from '@/hooks/axiosInstance';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Building2, Store, Landmark, Home, ScanQrCode, CreditCard, FileText, UserRound, CirclePercent } from 'lucide-react';
+import { ArrowLeft, Building2, Store, Landmark, Home, ScanQrCode, CreditCard, FileText, UserRound } from 'lucide-react';
 
 const DashboardAnggota: React.FC = () => {
     const navigate = useNavigate();
@@ -30,9 +30,9 @@ const DashboardAnggota: React.FC = () => {
     ];
 
     const Header = () => (
-        <header className="p-4 flex items-center gap-4 mb-4 bg-white border-b sticky top-0 z-20">
+        <header className="sticky top-0 z-20 flex items-center gap-4 p-4 mb-4 bg-white border-b">
             <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => navigate('/dashboard')}>
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="w-4 h-4" />
             </Button>
             <h1 className="text-xl font-bold truncate">Dashboard Anggota</h1>
             {memberId && (
@@ -45,13 +45,13 @@ const DashboardAnggota: React.FC = () => {
 
     if (affiliationLoading) {
         return (
-            <div className="pb-28 bg-gray-50 min-h-screen">
+            <div className="min-h-screen pb-28 bg-gray-50">
                 <Header />
                 <div className="p-4 space-y-4 animate-pulse">
-                    <div className="h-24 w-full bg-gray-200 rounded-lg"></div>
+                    <div className="w-full h-24 bg-gray-200 rounded-lg"></div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="h-32 w-full bg-gray-200 rounded-lg"></div>
-                        <div className="h-32 w-full bg-gray-200 rounded-lg"></div>
+                        <div className="w-full h-32 bg-gray-200 rounded-lg"></div>
+                        <div className="w-full h-32 bg-gray-200 rounded-lg"></div>
                     </div>
                 </div>
             </div>
@@ -59,7 +59,7 @@ const DashboardAnggota: React.FC = () => {
     }
 
     return (
-        <div className="pb-28 bg-gray-50 min-h-screen font-sans">
+        <div className="min-h-screen font-sans pb-28 bg-gray-50">
             <Header />
 
             <div className="p-4 space-y-6">
@@ -67,10 +67,10 @@ const DashboardAnggota: React.FC = () => {
                 <Card className="bg-green-100 border-green-200 shadow-sm">
                     <CardContent className="p-4">
                         <div className="flex items-center gap-4">
-                            <Building2 className="w-6 h-6 text-green-800 flex-shrink-0" />
+                            <Building2 className="flex-shrink-0 w-6 h-6 text-green-800" />
                             <div>
                                 <p className="text-sm text-green-800">Anda terdaftar sebagai anggota di:</p>
-                                <p className="font-bold text-lg text-green-900">{affiliation?.koperasi?.nama_koperasi || 'Nama Koperasi'}</p>
+                                <p className="text-lg font-bold text-green-900">{affiliation?.koperasi?.nama_koperasi || 'Nama Koperasi'}</p>
                             </div>
                         </div>
                     </CardContent>
@@ -81,11 +81,11 @@ const DashboardAnggota: React.FC = () => {
                     {menuItems.map((item) => (
                         <Card
                             key={item.label}
-                            className="text-center hover:shadow-lg hover:border-orange-300 transition-all duration-300 cursor-pointer group"
+                            className="text-center transition-all duration-300 cursor-pointer hover:shadow-lg hover:border-orange-300 group"
                             onClick={() => navigate(item.path)}
                         >
-                            <CardContent className="p-6 flex flex-col items-center justify-center gap-3">
-                                <div className="bg-orange-100 p-4 rounded-full group-hover:bg-orange-200 transition-colors">
+                            <CardContent className="flex flex-col items-center justify-center gap-3 p-6">
+                                <div className="p-4 transition-colors bg-orange-100 rounded-full group-hover:bg-orange-200">
                                     {item.icon}
                                 </div>
                                 <p className="text-base font-semibold text-center text-slate-700 group-hover:text-orange-600">{item.label}</p>
@@ -96,26 +96,26 @@ const DashboardAnggota: React.FC = () => {
             </div>
 
             {/* Bottom Navbar */}
-            <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
-                <Link to={'/dashboard'} className="flex gap-3 text-orange-400 flex-col items-center">
+            <div id="navbar" className="fixed bottom-0 z-10 flex items-end justify-between w-full gap-5 px-3 py-2 text-xs bg-white border">
+                <Link to={'/dashboard'} className="flex flex-col items-center gap-3 text-orange-400">
                     <Home />
                     <p className="uppercase">Home</p>
                 </Link>
-                <Link to={'/qr-code'} className="flex gap-3 flex-col items-center">
+                <Link to={'/qr-code'} className="flex flex-col items-center gap-3">
                     <ScanQrCode />
                     <p className="uppercase">Qr Code</p>
                 </Link>
-                <Link to={'/settlement'} data-cy='penarikan-btn' className="flex relative gap-3 flex-col items-center">
-                    <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
+                <Link to={'/settlement'} data-cy='penarikan-btn' className="relative flex flex-col items-center gap-3">
+                    <div className="absolute flex items-center justify-center w-16 h-16 text-white bg-orange-400 rounded-full shadow-md -top-20">
                         <CreditCard />
                     </div>
                     <p className="uppercase">Penarikan</p>
                 </Link>
-                <Link to={'/catalog'} className="flex gap-3 flex-col items-center">
+                <Link to={'/catalog'} className="flex flex-col items-center gap-3">
                     <FileText />
                     <p className="uppercase">Catalog</p>
                 </Link>
-                <Link to={'/profile'} className="flex gap-3 flex-col items-center" data-cy="profile-link">
+                <Link to={'/profile'} className="flex flex-col items-center gap-3" data-cy="profile-link">
                     <UserRound />
                     <p className="uppercase">Profile</p>
                 </Link>

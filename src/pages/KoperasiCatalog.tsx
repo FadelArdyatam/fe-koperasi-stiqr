@@ -7,8 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ArrowLeft, Search, ChevronDown, ShoppingBag,Home, ScanQrCode, CreditCard, UserRound, FileText } from 'lucide-react';
-import { getEffectiveTier } from '../utils/tier';
-import { AuthClaims, EffectiveTier } from '../types/auth';
+import { EffectiveTier } from '../types/auth';
 
 // Helper to decode JWT token to get claims
 const decodeToken = (token: string | null): AuthClaims | null => {
@@ -22,24 +21,17 @@ const decodeToken = (token: string | null): AuthClaims | null => {
     }
 };
 
-interface TierPrice {
-    tier: EffectiveTier;
-    price: number;
-}
-
 interface Product {
     id: string;
-    name: string;
-    description?: string;
-    base_price: number;
-    tier_prices: TierPrice[];
-    koperasi_id: string;
-    stok: number;
-    category: string;
+    product_id?: string;
+    product_name: string;
+    product_price: number;
     product_image?: string;
-    // These will be calculated on the frontend
+    category?: string;
     finalPrice?: number;
     displayTier?: EffectiveTier;
+    stok?: number;
+    base_price?: number;
 }
 
 const KoperasiCatalog: React.FC = () => {
@@ -52,40 +44,31 @@ const KoperasiCatalog: React.FC = () => {
     const [tierLabel, setTierLabel] = useState('Semua Tier');
 
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    const userClaims = useMemo(() => decodeToken(token), [token]);
-    const effectiveUserTier = useMemo(() => koperasiId ? getEffectiveTier(userClaims, koperasiId) : 'UMUM', [userClaims, koperasiId]);
 
-    const calculateProductPrices = useCallback((fetchedProducts: Product[]) => {
-        return fetchedProducts.map(product => {
-            let finalPrice = product.base_price;
-            let displayTier: EffectiveTier = 'UMUM';
-
-            // Find the price for the effective user tier
-            const tierPrice = product.tier_prices.find(tp => tp.tier === effectiveUserTier);
-            if (tierPrice) {
-                finalPrice = tierPrice.price;
-                displayTier = effectiveUserTier;
-            } else {
-                // Fallback to UMUM if specific tier price not found
-                const umumPrice = product.tier_prices.find(tp => tp.tier === 'UMUM');
-                if (umumPrice) {
-                    finalPrice = umumPrice.price;
-                }
-                displayTier = 'UMUM';
-            }
-
-            return { ...product, finalPrice, displayTier };
-        });
-    }, [effectiveUserTier]);
+    const calculateProductPrices = useCallback((fetchedProducts: any[]) => {
+        // Backend already returns finalPrice and tier information for each product in merchant-scoped endpoint
+        return fetchedProducts.map(p => ({
+            id: String(p.id || p.product_id || p.product_id),
+            product_id: p.product_id || p.id,
+            product_name: p.product_name || p.name || p.product_name,
+            product_price: p.product_price || p.base_price || 0,
+            product_image: p.product_image || p.image || p.product_image,
+            category: p.product_category || p.category || '',
+            finalPrice: p.finalPrice ?? p.final_price ?? p.finalPrice,
+            displayTier: p.tier || 'UMUM',
+            stok: p.stok || p.stock || 0,
+            base_price: p.product_price || p.base_price || 0,
+        })) as Product[];
+    }, []);
 
     const fetchProducts = useCallback(async () => {
         if (!koperasiId) return;
         setLoadingProducts(true);
         try {
             await new Promise(res => setTimeout(res, 500)); // Simulate loading
-            const response = await axiosInstance.get(`/koperasi/${koperasiId}/catalog`);
-            console.log(response)
-            const processedProducts = calculateProductPrices(response.data || []);
+            const response = await axiosInstance.get(`/koperasi/${koperasiId}/catalog/merchant`);
+            const raw = response.data && response.data.data ? response.data.data : (Array.isArray(response.data) ? response.data : []);
+            const processedProducts = calculateProductPrices(raw);
             setProducts(processedProducts);
         } catch (error) {
             console.error('Error fetching products:', error);
@@ -105,8 +88,8 @@ const KoperasiCatalog: React.FC = () => {
     }, [koperasiId, affiliationLoading, affiliation, fetchProducts]);
 
     const filteredProducts = useMemo(() => products.filter(product => {
-        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              product.category.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = (product.product_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              (product.category || '').toLowerCase().includes(searchTerm.toLowerCase());
         const matchesTier = filterTier === 'ALL' || product.displayTier === filterTier;
         return matchesSearch && matchesTier;
     }), [products, searchTerm, filterTier]);
@@ -205,8 +188,8 @@ const KoperasiCatalog: React.FC = () => {
                         {filteredProducts.map((product) => (
                             <Card key={product.id} className="overflow-hidden flex flex-col group hover:shadow-lg transition-shadow">
                                 <div className="h-40 bg-gray-100 flex items-center justify-center overflow-hidden">
-                                    {product.product_image ? (
-                                        <img src={product.product_image} alt={product.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                        {product.product_image ? (
+                                        <img src={product.product_image} alt={product.product_name} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
                                     ) : (
                                         <ShoppingBag className="w-16 h-16 text-gray-300" />
                                     )}
@@ -218,17 +201,17 @@ const KoperasiCatalog: React.FC = () => {
                                         </span>
                                         <span className="text-xs text-gray-500">Stok: {product.stok}</span>
                                     </div>
-                                    <h3 className="font-semibold text-gray-800 leading-snug truncate group-hover:text-orange-600 transition-colors">{product.name}</h3>
+                                    <h3 className="font-semibold text-gray-800 leading-snug truncate group-hover:text-orange-600 transition-colors">{product.product_name}</h3>
                                     <p className="text-xs text-gray-500 mb-3">Kategori: {product.category}</p>
                                     
                                     <div className="mt-auto pt-3 space-y-2 border-t">
                                         <div className="flex justify-between items-center">
                                             <span className="text-sm text-gray-500">Harga Dasar</span>
-                                            <span className="text-sm text-gray-500 line-through">{formatPrice(product.base_price)}</span>
+                                            <span className="text-sm text-gray-500 line-through">{formatPrice(product.base_price ?? product.product_price ?? 0)}</span>
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <span className="text-sm font-semibold text-gray-800">Harga Anda</span>
-                                            <span className="text-lg font-bold text-orange-600">{formatPrice(product.finalPrice || product.base_price)}</span>
+                                            <span className="text-lg font-bold text-orange-600">{formatPrice(product.finalPrice ?? product.base_price ?? product.product_price ?? 0)}</span>
                                         </div>
                                     </div>
                                 </div>

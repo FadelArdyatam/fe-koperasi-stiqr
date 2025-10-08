@@ -48,7 +48,7 @@ const KoperasiDashboard: React.FC = () => {
         const fetchPendingApprovals = async (id: string) => {
             try {
                 await new Promise(resolve => setTimeout(resolve, 500));
-                const response = await axiosInstance.get(`/koperasi/pending-approvals/${id}`);
+                const response = await axiosInstance.get(`/koperasi/${id}/pending-approvals`);
                 setPendingMerchants(response.data || []);
             } catch (error) {
                 setErrorMessage('Gagal memuat data merchant.');
@@ -66,9 +66,15 @@ const KoperasiDashboard: React.FC = () => {
     }, [koperasiId, affiliationData]);
 
     const handleAction = async (action: 'approve' | 'reject', merchantId: string) => {
+        if (!koperasiId) {
+            setErrorMessage('Koperasi ID tidak tersedia.');
+            setShowNotification(true);
+            return;
+        }
         setLoadingAction(true);
         try {
-            await axiosInstance.put(`/koperasi/${action}/${merchantId}`);
+            const verb = action === 'approve' ? 'approve-merchant' : 'reject-merchant';
+            await axiosInstance.post(`/koperasi/${koperasiId}/${verb}/${merchantId}`);
             setSuccessMessage(`Merchant berhasil di ${action === 'approve' ? 'setujui' : 'tolak'}!`);
             setShowNotification(true);
             setPendingMerchants(prev => prev.filter(m => m.id !== merchantId));

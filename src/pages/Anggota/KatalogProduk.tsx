@@ -6,7 +6,7 @@ import axiosInstance from '@/hooks/axiosInstance';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, ShoppingBag, Search, X, Plus, Minus, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Search,  Plus, Minus, ShoppingCart } from 'lucide-react';
 import Notification from '@/components/Notification';
 import noProduct from "@/images/no-product.png";
 
@@ -55,7 +55,8 @@ const KatalogProduk: React.FC = () => {
                     setPagination(response.data.pagination);
                 })
                 .catch(err => {
-                    setError('Gagal memuat katalog.');
+                    setError('Gagal memuat katalog. ${err}', );
+                    return err;
                 })
                 .finally(() => setLoading(false));
         } else {
@@ -106,30 +107,30 @@ const KatalogProduk: React.FC = () => {
             <CardHeader>
                 <CardTitle>Keranjang</CardTitle>
             </CardHeader>
-            <CardContent className="flex-grow overflow-y-auto p-4 space-y-3">
+            <CardContent className="flex-grow p-4 space-y-3 overflow-y-auto">
                 {cart.length === 0 ? (
-                    <div className="text-center text-gray-500 pt-16">
-                        <ShoppingBag className="mx-auto h-12 w-12" />
+                    <div className="pt-16 text-center text-gray-500">
+                        <ShoppingBag className="w-12 h-12 mx-auto" />
                         <p className="mt-2">Keranjang masih kosong</p>
                     </div>
                 ) : (
                     cart.map(item => (
-                        <div key={item.id} className="flex items-center gap-3 border-b pb-3">
-                            <img src={item.product_image || noProduct} alt={item.product_name} className="w-12 h-12 rounded-md object-cover" />
+                        <div key={item.id} className="flex items-center gap-3 pb-3 border-b">
+                            <img src={item.product_image || noProduct} alt={item.product_name} className="object-cover w-12 h-12 rounded-md" />
                             <div className="flex-grow">
                                 <p className="text-sm font-medium truncate">{item.product_name}</p>
                                 <p className="text-xs text-gray-600">{formatRupiah(item.product_price)}</p>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}><Minus className="h-4 w-4" /></Button>
-                                <span className="w-6 text-center font-semibold">{item.quantity}</span>
-                                <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}><Plus className="h-4 w-4" /></Button>
+                                <Button size="icon" variant="outline" className="w-6 h-6" onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}><Minus className="w-4 h-4" /></Button>
+                                <span className="w-6 font-semibold text-center">{item.quantity}</span>
+                                <Button size="icon" variant="outline" className="w-6 h-6" onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}><Plus className="w-4 h-4" /></Button>
                             </div>
                         </div>
                     ))
                 )}
             </CardContent>
-            <div className="p-4 border-t space-y-4 bg-gray-50">
+            <div className="p-4 space-y-4 border-t bg-gray-50">
                 <div className="flex justify-between font-semibold">
                     <span>Total</span>
                     <span>{formatRupiah(totalCartPrice)}</span>
@@ -143,49 +144,49 @@ const KatalogProduk: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             {error && <Notification message={error} status="error" onClose={() => setError(null)} />}
-            <header className="p-4 flex items-center gap-4 bg-white border-b sticky top-0 z-20">
+            <header className="sticky top-0 z-20 flex items-center gap-4 p-4 bg-white border-b">
                 <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => navigate(-1)}>
-                    <ArrowLeft className="h-4 w-4" />
+                    <ArrowLeft className="w-4 h-4" />
                 </Button>
                 <h1 className="text-xl font-bold truncate">Katalog Anggota</h1>
             </header>
 
             <div className="flex flex-col md:flex-row h-[calc(100vh-65px)]">
-                <div className="w-full md:w-2/3 p-4 overflow-y-auto pb-24 md:pb-4">
+                <div className="w-full p-4 pb-24 overflow-y-auto md:w-2/3 md:pb-4">
                     <div className="relative mb-4">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                        <Search className="absolute w-4 h-4 text-gray-500 -translate-y-1/2 left-3 top-1/2" />
                         <Input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Cari nama produk..." className="pl-10 bg-white" />
                     </div>
 
                     {loading ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                             {Array.from({ length: 8 }).map((_, i) => <div key={i} className="h-56 bg-gray-200 rounded-lg animate-pulse"></div>)}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                             {filteredProducts.map(product => {
                                 const cartItem = cart.find(item => item.id === product.id);
                                 const quantityInCart = cartItem ? cartItem.quantity : 0;
 
                                 return (
-                                    <Card key={product.id} className="overflow-hidden flex flex-col justify-between">
+                                    <Card key={product.id} className="flex flex-col justify-between overflow-hidden">
                                         <div onClick={() => quantityInCart === 0 && handleAddToCart(product)} className="cursor-pointer">
-                                            <div className="h-28 bg-gray-100 flex items-center justify-center">
-                                                <img src={product.product_image || noProduct} alt={product.product_name} className="h-full w-full object-cover" />
+                                            <div className="flex items-center justify-center bg-gray-100 h-28">
+                                                <img src={product.product_image || noProduct} alt={product.product_name} className="object-cover w-full h-full" />
                                             </div>
                                             <CardContent className="p-2">
-                                                <h3 className="text-sm font-semibold truncate h-10">{product.product_name}</h3>
+                                                <h3 className="h-10 text-sm font-semibold truncate">{product.product_name}</h3>
                                                 <p className="text-sm font-bold text-orange-600">{formatRupiah(product.product_price)}</p>
                                             </CardContent>
                                         </div>
-                                        <div className="md:hidden mt-auto p-2 border-t">
+                                        <div className="p-2 mt-auto border-t md:hidden">
                                             {quantityInCart === 0 ? (
                                                 <Button variant="outline" className="w-full" onClick={() => handleAddToCart(product)}>Tambah</Button>
                                             ) : (
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleUpdateQuantity(product.id, quantityInCart - 1)}><Minus className="h-4 w-4" /></Button>
-                                                    <span className="w-8 text-center font-bold text-lg">{quantityInCart}</span>
-                                                    <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleUpdateQuantity(product.id, quantityInCart + 1)}><Plus className="h-4 w-4" /></Button>
+                                                    <Button size="icon" variant="outline" className="w-8 h-8" onClick={() => handleUpdateQuantity(product.id, quantityInCart - 1)}><Minus className="w-4 h-4" /></Button>
+                                                    <span className="w-8 text-lg font-bold text-center">{quantityInCart}</span>
+                                                    <Button size="icon" variant="outline" className="w-8 h-8" onClick={() => handleUpdateQuantity(product.id, quantityInCart + 1)}><Plus className="w-4 h-4" /></Button>
                                                 </div>
                                             )}
                                         </div>
@@ -196,7 +197,7 @@ const KatalogProduk: React.FC = () => {
                     )}
 
                     {pagination && pagination.totalPages > 1 && (
-                        <div className="flex justify-center items-center gap-4 mt-6">
+                        <div className="flex items-center justify-center gap-4 mt-6">
                             <Button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Sebelumnya</Button>
                             <span>Halaman {pagination.currentPage} dari {pagination.totalPages}</span>
                             <Button onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))} disabled={currentPage === pagination.totalPages}>Berikutnya</Button>
@@ -204,23 +205,23 @@ const KatalogProduk: React.FC = () => {
                     )}
                 </div>
 
-                <div className="hidden md:flex w-full md:w-1/3 bg-white border-l flex-col h-full">
+                <div className="flex-col hidden w-full h-full bg-white border-l md:flex md:w-1/3">
                     <CartContent />
                 </div>
             </div>
 
-            <div className="md:hidden fixed bottom-5 right-5 z-30">
-                <Button onClick={() => setIsCartOpen(true)} size="icon" className="h-16 w-16 rounded-full bg-orange-500 shadow-lg">
-                    <ShoppingCart className="h-8 w-8" />
+            <div className="fixed z-30 md:hidden bottom-5 right-5">
+                <Button onClick={() => setIsCartOpen(true)} size="icon" className="w-16 h-16 bg-orange-500 rounded-full shadow-lg">
+                    <ShoppingCart className="w-8 h-8" />
                     {totalCartItems > 0 && 
-                        <span className="absolute top-0 right-0 block h-6 w-6 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">{totalCartItems}</span>
+                        <span className="absolute top-0 right-0 flex items-center justify-center block w-6 h-6 text-xs text-white bg-red-600 rounded-full">{totalCartItems}</span>
                     }
                 </Button>
             </div>
 
             {isCartOpen && (
-                <div className="md:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setIsCartOpen(false)}>
-                    <div className="absolute bottom-0 left-0 right-0 bg-white h-3/4 rounded-t-2xl flex flex-col" onClick={(e) => e.stopPropagation()}>
+                <div className="fixed inset-0 z-40 md:hidden bg-black/50" onClick={() => setIsCartOpen(false)}>
+                    <div className="absolute bottom-0 left-0 right-0 flex flex-col bg-white h-3/4 rounded-t-2xl" onClick={(e) => e.stopPropagation()}>
                         <CartContent />
                     </div>
                 </div>

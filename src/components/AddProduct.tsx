@@ -298,6 +298,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                 try {
                     await axiosInstance.post(`/koperasi/${koperasiId}/catalog/items`, koperasiPostBody);
                     console.log(`Successfully linked product ${newProductId} to koperasi ${koperasiId}`);
+                    // margin computation/assignment removed: per-item margin is derived in ManajemenKatalog from price fields
                 } catch (koperasiError) {
                     // Log this error but don't block the main success message
                     console.error("Failed to link product to koperasi catalog:", koperasiError);
@@ -367,17 +368,17 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
         <>
             <div className={`${showNotification ? 'hidden' : 'block'} pt-5 w-full mb-32`}>
                 <div className="flex items-center gap-5 text-black">
-                    <button onClick={() => setAddProduct(false)}>
+                    <button onClick={() => setAddProduct(false)} aria-label="Kembali">
                         <ChevronLeft />
                     </button>
 
-                    <p data-aos="zoom-in" className="font-semibold text-xl text-center uppercase">Tambah Produk</p>
+                    <p data-aos="zoom-in" className="text-xl font-semibold text-center uppercase">Tambah Produk</p>
                 </div>
 
                 <div className="w-full mt-10">
                     <p className="font-semibold"><span className="text-gray-500">{section.detailProduct ? '2' : '1'}/2:</span> {section.addProduct ? 'Informasi Product' : 'Detail Product'}</p>
 
-                    <div className="mt-2 flex items-center gap-3">
+                    <div className="flex items-center gap-3 mt-2">
                         <div className={`${section.addProduct ? 'bg-orange-500' : 'bg-gray-300'} w-full h-1.5 transition-all rounded-full`}></div>
 
                         <div className={`${section.detailProduct ? 'bg-orange-500' : 'bg-gray-300'} w-full h-1.5 transition-all rounded-full`}></div>
@@ -439,7 +440,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                                     field.onChange(e);
                                                 }}
                                             />
-                                            <p className="absolute right-2 -bottom-7 text-sm text-gray-500">
+                                            <p className="absolute text-sm text-gray-500 right-2 -bottom-7">
                                                 {field.value.length}/50
                                             </p>
                                         </div>
@@ -465,7 +466,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                                     field.onChange(e);
                                                 }}
                                             />
-                                            <p className="absolute right-2 -bottom-5 text-sm text-gray-500">
+                                            <p className="absolute text-sm text-gray-500 right-2 -bottom-5">
                                                 {field.value.length}/20
                                             </p>
                                         </div>
@@ -511,6 +512,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                             }}
                         />
 
+
                         {/* Weight */}
                         <FormField
                             control={form.control}
@@ -524,10 +526,11 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                                 type="number"
                                                 placeholder="Masukkan berat"
                                                 {...field}
-                                                className="p-2 border border-gray-300 w-full rounded-md"
+                                                className="w-full p-2 border border-gray-300 rounded-md"
                                             />
                                             <select
-                                                className="h-10 border border-gray-300 w-full rounded-md"
+                                                className="w-full h-10 border border-gray-300 rounded-md"
+                                                aria-label="Satuan berat"
                                                 value={quantity}
                                                 onChange={(e) => setQuantity(e.target.value)}
                                             >
@@ -551,14 +554,14 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                     <FormControl>
                                         <div className="relative">
                                             <textarea
-                                                className="block w-full border rounded-lg p-3"
+                                                className="block w-full p-3 border rounded-lg"
                                                 placeholder="Jelaskan apa yang spesial dari produkmu"
                                                 {...field}
                                                 onChange={(e) => {
                                                     field.onChange(e);
                                                 }}
                                             />
-                                            <p className="absolute right-2 -bottom-5 text-sm text-gray-500">
+                                            <p className="absolute text-sm text-gray-500 right-2 -bottom-5">
                                                 {(field.value?.length ?? 0)}/100
                                             </p>
                                         </div>
@@ -577,12 +580,12 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                     <FormLabel className="flex items-center gap-5">
                                         <p>Etalase</p>
 
-                                        <button onClick={() => setShowPopUpAddEtalase(true)} className="p-2 rounded-lg bg-orange-500 text-white" type="button">+ Tambah Etalase</button>
+                                        <button onClick={() => setShowPopUpAddEtalase(true)} className="p-2 text-white bg-orange-500 rounded-lg" type="button">+ Tambah Etalase</button>
                                     </FormLabel>
 
                                     {etalases?.filter((etalase) => etalase?.showcase_name !== "Semua Produk")
                                         .map((etalase, index) => (
-                                            <label key={etalase.showcase_id || `etalase-${index}`} className="flex items-center mt-2 gap-2">
+                                            <label key={etalase.showcase_id || `etalase-${index}`} className="flex items-center gap-2 mt-2">
                                                 <input
                                                     type="checkbox"
                                                     name="etalase"
@@ -607,12 +610,12 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                     <FormLabel className="flex items-center gap-5">
                                         <p>Varian</p>
 
-                                        <button onClick={() => setShowPopUpAddVariant(true)} className="p-2 rounded-lg bg-orange-500 text-white" type="button">+ Add Variant</button>
+                                        <button onClick={() => setShowPopUpAddVariant(true)} className="p-2 text-white bg-orange-500 rounded-lg" type="button">+ Add Variant</button>
                                     </FormLabel>
 
                                     {variants
                                         .map((variant, index) => (
-                                            <label key={variant.variant_id || `variant-${index}`} className="flex items-center mt-2 gap-2">
+                                            <label key={variant.variant_id || `variant-${index}`} className="flex items-center gap-2 mt-2">
                                                 <input
                                                     type="radio"
                                                     name="variant"
@@ -628,7 +631,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                             )}
                         /> */}
 
-                        <Button data-aos="fade-up" type="submit" className="w-full bg-green-500 text-white">
+                        <Button data-aos="fade-up" type="submit" className="w-full text-white bg-green-500">
                             Simpan
                         </Button>
                     </form>
@@ -643,6 +646,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                 className={`flex items-center justify-center w-14 min-w-14 h-8 p-1 rounded-full cursor-pointer 
                                 ${showField.stock ? 'bg-orange-500' : 'bg-gray-300'} transition-colors`}
                                 onClick={() => setShowField({ ...showField, stock: !showField.stock })}
+                                aria-label="Toggle stok"
                             >
                                 <div
                                     className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform 
@@ -680,6 +684,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                 className={`flex items-center justify-center w-14 min-w-14 h-8 p-1 rounded-full cursor-pointer 
                                 ${showField.variant ? 'bg-orange-500' : 'bg-gray-300'} transition-colors`}
                                 onClick={() => setShowField({ ...showField, variant: !showField.variant })}
+                                aria-label="Toggle variant"
                             >
                                 <div
                                     className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform 
@@ -692,39 +697,39 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
 
                         <div className={`${showField.variant ? "flex" : "hidden"} w-full flex-col mt-5 items-center gap-3`}>
                             {selectedVariants.map((variant, i) => (
-                                <p key={i} className="p-3 border w-full border-orange-500 rounded-lg flex items-center  gap-3 font-semibold">
+                                <p key={i} className="flex items-center w-full gap-3 p-3 font-semibold border border-orange-500 rounded-lg">
                                     {variants.find((v) => v.variant_id === variant.variant_id)?.variant_name}
                                 </p>
                             ))}
                         </div>
 
                         <div className={`${showField.variant ? 'flex' : 'hidden'} flex-col mt-5 items-center gap-3`}>
-                            <Button onClick={() => setShowAddVariant(true)} className="bg-orange-500 text-white border border-orange-500 w-full">
+                            <Button onClick={() => setShowAddVariant(true)} className="w-full text-white bg-orange-500 border border-orange-500">
                                 <p>Pilih Variant</p>
                             </Button>
                         </div>
                     </div>
 
-                    <Button onClick={() => { setSection({ addProduct: true, detailProduct: false }) }} className="w-full bg-orange-500 text-white">Kembali</Button>
+                    <Button onClick={() => { setSection({ addProduct: true, detailProduct: false }) }} className="w-full text-white bg-orange-500">Kembali</Button>
 
                     <Button onClick={addProductHandler} disabled={loading ? true : false}>Simpan</Button>
                 </div>
 
                 {/* Variant Control */}
                 {showAddVariant && (
-                    <div className="mt-5 bg-white p-5 rounded-lg w-full gap-5">
+                    <div className="w-full gap-5 p-5 mt-5 bg-white rounded-lg">
                         <div className="flex items-center justify-between">
-                            <p className="font-semibold text-xl">Pilih Variant</p>
-                            <button onClick={() => setShowAddVariant(false)}>
+                            <p className="text-xl font-semibold">Pilih Variant</p>
+                            <button onClick={() => setShowAddVariant(false)} aria-label="Tutup pilih variant">
                                 <X />
                             </button>
                         </div>
 
-                        <Button onClick={() => setShowPopUpAddVariant(true)} className="mt-5 w-full bg-orange-100 text-orange-500">+ Tambah Variant Baru</Button>
+                        <Button onClick={() => setShowPopUpAddVariant(true)} className="w-full mt-5 text-orange-500 bg-orange-100">+ Tambah Variant Baru</Button>
 
                         <div className="mt-5">
                             {variants.map((variant, index) => (
-                                <label key={variant.variant_id || `variant-${index}`} className="p-3 border border-orange-500 rounded-lg flex items-center mt-5 gap-3 font-semibold">
+                                <label key={variant.variant_id || `variant-${index}`} className="flex items-center gap-3 p-3 mt-5 font-semibold border border-orange-500 rounded-lg">
                                     <input
                                         type="checkbox"
                                         name="variant"
@@ -743,18 +748,18 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
 
             {/* Add Etalase Pop Up */}
             {showPopUpAddEtalase && (
-                <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                     <div data-aos="fade-up" className="bg-white p-5 rounded-lg w-[90%]">
                         <div className="flex items-center justify-between">
-                            <p className="font-semibold text-xl">Tambah Etalase
+                            <p className="text-xl font-semibold">Tambah Etalase
                             </p>
-                            <button onClick={() => setShowPopUpAddEtalase(false)}>
+                            <button onClick={() => setShowPopUpAddEtalase(false)} aria-label="Tutup tambah etalase">
                                 <X />
                             </button>
                         </div>
 
                         <Form {...formEtalase}>
-                            <form onSubmit={formEtalase.handleSubmit(onSubmitEtalase)} className="space-y-10 mt-10">
+                            <form onSubmit={formEtalase.handleSubmit(onSubmitEtalase)} className="mt-10 space-y-10">
                                 <FormField
                                     control={formEtalase.control}
                                     name="showcase_name"
@@ -772,7 +777,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                     )}
                                 />
 
-                                <Button type="submit" className="w-full bg-green-500 text-white">
+                                <Button type="submit" className="w-full text-white bg-green-500">
                                     Submit
                                 </Button>
                             </form>
@@ -783,17 +788,17 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
 
             {/* Add Variant Pop Up */}
             {showPopUpAddVariant && (
-                <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-start overflow-y-auto py-10 justify-center">
+                <div className="fixed inset-0 z-50 flex items-start justify-center py-10 overflow-y-auto bg-black bg-opacity-50">
                     <div data-aos="fade-up" className="bg-white p-5 rounded-lg w-[90%]">
                         <div className="flex items-center justify-between">
-                            <p className="font-semibold text-xl">Tambah Varian</p>
-                            <button onClick={() => setShowPopUpAddVariant(false)}>
+                            <p className="text-xl font-semibold">Tambah Varian</p>
+                            <button onClick={() => setShowPopUpAddVariant(false)} aria-label="Tutup tambah varian">
                                 <X />
                             </button>
                         </div>
 
                         <Form {...formVariant}>
-                            <form onSubmit={formVariant.handleSubmit(onSubmitVariant)} className="space-y-8 mt-6 bg-white p-5 rounded-lg">
+                            <form onSubmit={formVariant.handleSubmit(onSubmitVariant)} className="p-5 mt-6 space-y-8 bg-white rounded-lg">
                                 {/* Name */}
                                 <FormField
                                     control={formVariant.control}
@@ -812,7 +817,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                     )}
                                 />
 
-                                <Button data-aos="fade-up" data-aos-delay="200" type="button" onClick={() => setShowChoisesInput(true)} className="bg-transparent hover:bg-transparent border-2 border-orange-400 w-full text-orange-400">Tambah Pilihan</Button>
+                                <Button data-aos="fade-up" data-aos-delay="200" type="button" onClick={() => setShowChoisesInput(true)} className="w-full text-orange-400 bg-transparent border-2 border-orange-400 hover:bg-transparent">Tambah Pilihan</Button>
 
                                 {/* Choises */}
                                 <div className="mt-5">
@@ -820,14 +825,14 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                         <div data-aos="fade-up" data-aos-delay={index * 100} key={index} className="mt-5">
                                             <p>Pilihan {index + 1}</p>
 
-                                            <div className="border border-gray-500 p-5 rounded-lg mt-3">
-                                                <div className="flex items-center gap-5 justify-between">
+                                            <div className="p-5 mt-3 border border-gray-500 rounded-lg">
+                                                <div className="flex items-center justify-between gap-5">
                                                     <p>{choise.name}</p>
 
                                                     <button type="button" onClick={() => setShowEditChoisesInput({ status: true, index: index })} className="text-orange-400">Ubah</button>
                                                 </div>
 
-                                                <div className="mt-3 flex items-center gap-5 justify-between">
+                                                <div className="flex items-center justify-between gap-5 mt-3">
                                                     <p className="text-gray-500">{choise.price}</p>
 
                                                     <div
@@ -846,9 +851,9 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
 
                                 {/* Popup untuk Input Harga dan Nama */}
                                 {showChoisesInput && (
-                                    <div className="fixed bg-black bg-opacity-50 inset-0 z-20 h-screen -translate-y-8">
-                                        <div data-aos="fade-up" className="bg-white p-4 rounded-t-lg mt-10 absolute bottom-0 w-full">
-                                            <p className="text-center mb-10 text-lg font-semibold">Tambah Pilihan</p>
+                                    <div className="fixed inset-0 z-20 h-screen -translate-y-8 bg-black bg-opacity-50">
+                                        <div data-aos="fade-up" className="absolute bottom-0 w-full p-4 mt-10 bg-white rounded-t-lg">
+                                            <p className="mb-10 text-lg font-semibold text-center">Tambah Pilihan</p>
 
                                             <div>
                                                 <p>Nama Pilihan</p>
@@ -874,7 +879,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                                         setNewChoicePrice(rawValue ? Number(rawValue) : 0);
                                                     }}
                                                 />
-                                                {showError && <p className="text-red-500 text-sm">Harga harus positif</p>}
+                                                {showError && <p className="text-sm text-red-500">Harga harus positif</p>}
                                             </div>
 
                                             <div className="mt-5">
@@ -895,7 +900,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                             <div className="flex items-center gap-5 mt-5">
                                                 <Button
                                                     onClick={addNewChoice}
-                                                    className="bg-green-500 w-full"
+                                                    className="w-full bg-green-500"
                                                 >
                                                     Simpan
                                                 </Button>
@@ -903,7 +908,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                                 <Button
                                                     type="button"
                                                     onClick={() => setShowChoisesInput(false)}
-                                                    className="bg-gray-300 w-full"
+                                                    className="w-full bg-gray-300"
                                                 >
                                                     Tutup
                                                 </Button>
@@ -917,9 +922,9 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
 
                                 {/* Popup untuk Edit Harga dan Nama */}
                                 {showEditChoisesInput.status && (
-                                    <div className="fixed bg-black bg-opacity-50 inset-0 z-20 h-screen -translate-y-8">
-                                        <div data-aos="fade-up" className="bg-white p-4 rounded-t-lg mt-10 translate-y-10 absolute bottom-0 w-full">
-                                            <p className="text-center mb-10 text-lg font-semibold">Ubah Pilihan</p>
+                                    <div className="fixed inset-0 z-20 h-screen -translate-y-8 bg-black bg-opacity-50">
+                                        <div data-aos="fade-up" className="absolute bottom-0 w-full p-4 mt-10 translate-y-10 bg-white rounded-t-lg">
+                                            <p className="mb-10 text-lg font-semibold text-center">Ubah Pilihan</p>
 
                                             <div>
                                                 <p>Nama Pilihan</p>
@@ -981,7 +986,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                             <div className="flex items-center gap-5 mt-5">
                                                 <Button
                                                     onClick={() => setShowEditChoisesInput({ status: false, index: -1 })}
-                                                    className="bg-green-500 w-full"
+                                                    className="w-full bg-green-500"
                                                 >
                                                     Simpan
                                                 </Button>
@@ -989,7 +994,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                                 <Button
                                                     type="button"
                                                     onClick={() => setShowEditChoisesInput({ status: false, index: -1 })}
-                                                    className="bg-gray-300 w-full"
+                                                    className="w-full bg-gray-300"
                                                 >
                                                     Tutup
                                                 </Button>
@@ -1004,7 +1009,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                     name="mustBeSelected"
                                     render={({ field }) => (
                                         <FormItem data-aos="fade-up" data-aos-delay="300">
-                                            <div className="flex items-center gap-5 justify-between">
+                                            <div className="flex items-center justify-between gap-5">
                                                 <FormLabel>Apakah varian wajib dipilih ?</FormLabel>
                                                 <FormControl>
                                                     <div
@@ -1062,7 +1067,7 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                                     )}
                                 />
 
-                                <Button type="submit" className="w-full bg-green-500 text-white">
+                                <Button type="submit" className="w-full text-white bg-green-500">
                                     Simpan Varian
                                 </Button>
                             </form>
@@ -1088,9 +1093,9 @@ const AddProduct: React.FC<AddProductProps> = ({ koperasiId, setProducts, produc
                 <div className="p-10">
                     <CircleCheck className="text-green-500 scale-[3] mt-10 m-auto" />
 
-                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 font-semibold text-xl text-center">Berhasil menambahkan produk</p>
+                    <p data-aos="fade-up" data-aos-delay="100" className="mt-10 text-xl font-semibold text-center">Berhasil menambahkan produk</p>
 
-                    <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setAddProduct(false)} className="w-full bg-green-500 text-white mt-10">
+                    <Button data-aos="fade-up" data-aos-delay="200" onClick={() => setAddProduct(false)} className="w-full mt-10 text-white bg-green-500">
                         Done
                     </Button>
                 </div>
