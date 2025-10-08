@@ -1,30 +1,118 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axiosInstance from '@/hooks/axiosInstance';
 import Notification from '@/components/Notification';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Home, ScanQrCode, CreditCard, FileText, UserRound } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Wallet, Landmark, Users, Shield, Crown } from 'lucide-react';
 
-// Tier type not required in this view
+// --- TYPES ---
+interface ProfitSummary {
+    total_revenue: number;
+    total_margin: number;
+    per_tier: {
+        [key: string]: {
+            total_transactions: number;
+            total_revenue: number;
+            total_margin: number;
+        }
+    }
+}
+
+interface SavingsSummary {
+    data?: {
+        total_saldo_semua: number;
+        total_anggota_tercatat: number;
+    }
+}
+
+// --- HELPER COMPONENTS ---
+
+const formatCurrency = (value: number | null | undefined) => {
+    if (value === null || value === undefined) return '-';
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
+}
+
+const StatCard = ({ title, value, subtitle, icon, color = 'orange' }: { title: string, value: string, subtitle: string, icon: React.ReactNode, color?: string }) => (
+    <Card className="shadow-sm hover:shadow-md transition-shadow">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">{title}</CardTitle>
+            <div className={`h-8 w-8 flex items-center justify-center rounded-full bg-${color}-100 text-${color}-500`}>
+                {icon}
+            </div>
+        </CardHeader>
+        <CardContent>
+            <div className="text-3xl font-bold text-gray-800">{value}</div>
+            <p className="text-xs text-gray-500">{subtitle}</p>
+        </CardContent>
+    </Card>
+);
+
+const TierProfitRow = ({ tier, data }: { tier: string, data: any }) => {
+    const tierInfo = {
+        NON_MEMBER: { label: 'Non Anggota', icon: Users, color: 'gray' },
+        MEMBER: { label: 'Member', icon: Shield, color: 'blue' },
+        MEMBER_USAHA: { label: 'Member Usaha', icon: Crown, color: 'orange' },
+    }[tier] || { label: tier, icon: Users, color: 'gray' };
+
+    return (
+        <div className="flex items-center justify-between py-3 px-4 rounded-lg transition-colors hover:bg-gray-50">
+            <div className="flex items-center gap-4">
+                <div className={`h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-full bg-${tierInfo.color}-100 text-${tierInfo.color}-500`}>
+                    {React.createElement(tierInfo.icon, { className: "h-5 w-5" })}
+                </div>
+                <div>
+                    <p className="font-semibold text-gray-800">{tierInfo.label}</p>
+                    <p className="text-xs text-gray-500">{data.total_transactions ?? 0} Transaksi</p>
+                </div>
+            </div>
+            <div className="flex items-center gap-8 text-right">
+                <div>
+                    <p className="text-xs text-gray-500">Omzet</p>
+                    <p className="font-semibold text-gray-700">{formatCurrency(data.total_revenue)}</p>
+                </div>
+                <div>
+                    <p className="text-xs text-gray-500">Profit</p>
+                    <p className="font-semibold text-green-600">{formatCurrency(data.total_margin)}</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const SkeletonLoader = () => (
+    <div className="space-y-6 animate-pulse">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="h-28 bg-gray-200 rounded-lg"></div>
+            <div className="h-28 bg-gray-200 rounded-lg"></div>
+            <div className="h-28 bg-gray-200 rounded-lg"></div>
+        </div>
+        <Card>
+            <CardHeader>
+                <div className="w-1/3 h-6 bg-gray-200 rounded"></div>
+                <div className="w-2/3 h-4 mt-2 bg-gray-200 rounded"></div>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-4">
+                <div className="h-12 bg-gray-200 rounded"></div>
+                <div className="h-12 bg-gray-200 rounded"></div>
+                <div className="h-12 bg-gray-200 rounded"></div>
+            </CardContent>
+        </Card>
+    </div>
+);
+
+// --- MAIN COMPONENT ---
 
 const ManajemenKeuangan: React.FC = () => {
     const navigate = useNavigate();
     const [koperasiId, setKoperasiId] = useState<string>('');
-    // rules removed (deprecated in UI) - margin rules maintained in catalog/margin service
-    const [stats, setStats] = useState<any>(null);
-    const [marginSummary, setMarginSummary] = useState<any>(null);
-    const [profitSummary, setProfitSummary] = useState<any>(null);
-    const [savingsSummary, setSavingsSummary] = useState<any>(null);
+    const [profitSummary, setProfitSummary] = useState<ProfitSummary | null>(null);
+    const [savingsSummary, setSavingsSummary] = useState<SavingsSummary | null>(null);
     const [loading, setLoading] = useState(true);
     
     const [showNotification, setShowNotification] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
-
-    
-
-    // tier labels not needed in this view
 
     useEffect(() => {
         const fetchAllData = async () => {
@@ -40,28 +128,17 @@ const ManajemenKeuangan: React.FC = () => {
                 }
                 setKoperasiId(id);
 
-                // Parallel fetch important data for Manajemen Keuangan
-                const [statsRes, marginRes, profitRes, savingsRes] = await Promise.all([
-                    axiosInstance.get(`/koperasi/${id}/dashboard/stats`),
-                    axiosInstance.get(`/koperasi/${id}/summary/margins`),
-                    axiosInstance.get(`/koperasi/${id}/catalog/profit`, { params: { start_date: undefined, end_date: undefined } }),
+                const [profitRes, savingsRes] = await Promise.all([
+                    axiosInstance.get(`/koperasi/${id}/catalog/profit`),
                     axiosInstance.get(`/koperasi-simpan-pinjam/${id}/summary/savings`),
                 ]);
 
-                setStats(statsRes.data || null);
-                setMarginSummary(marginRes.data || null);
-
-                // profitRes is expected to return { success: true, data: { per_tier: {...}, total_revenue, total_margin } }
                 const profitPayload = profitRes?.data;
-                if (profitPayload) {
-                    setProfitSummary(profitPayload?.data || profitPayload);
-                } else {
-                    setProfitSummary(null);
-                }
-
+                setProfitSummary(profitPayload?.data || profitPayload || null);
                 setSavingsSummary(savingsRes.data || null);
+
             } catch (e: any) {
-                setErrorMessage(e?.response?.data?.message || 'Gagal mengambil data');
+                setErrorMessage(e?.response?.data?.message || 'Gagal mengambil data keuangan');
                 setShowNotification(true);
             } finally {
                 setLoading(false);
@@ -71,39 +148,9 @@ const ManajemenKeuangan: React.FC = () => {
         fetchAllData();
     }, []);
 
-    // margin creation handled from Manajemen Katalog; UI here is read-only summary
-
-    const SkeletonLoader = () => (
-        <div className="space-y-4 animate-pulse">
-            <Card>
-                <CardHeader>
-                    <div className="w-1/3 h-6 bg-gray-200 rounded"></div>
-                    <div className="w-2/3 h-4 bg-gray-200 rounded"></div>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                        <div className="h-10 bg-gray-200 rounded"></div>
-                        <div className="h-10 bg-gray-200 rounded"></div>
-                        <div className="h-10 bg-gray-200 rounded"></div>
-                        <div className="h-10 bg-gray-200 rounded"></div>
-                    </div>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <div className="w-1/4 h-6 bg-gray-200 rounded"></div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                    <div className="h-12 bg-gray-200 rounded"></div>
-                    <div className="h-12 bg-gray-200 rounded"></div>
-                </CardContent>
-            </Card>
-        </div>
-    );
-
     return (
-        <div className="min-h-screen pb-28 bg-gray-50">
-            <header className="sticky top-0 z-20 flex items-center gap-4 p-4 mb-0 bg-white border-b">
+        <div className="min-h-screen bg-gray-50">
+            <header className="sticky top-0 z-20 flex items-center gap-4 p-4 bg-white border-b">
                 <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => navigate(-1)}>
                     <ArrowLeft className="w-4 h-4" />
                 </Button>
@@ -111,92 +158,51 @@ const ManajemenKeuangan: React.FC = () => {
                 {koperasiId && <span className="ml-auto text-xs sm:text-sm font-mono text-slate-500 bg-slate-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">ID: {koperasiId}</span>}
             </header>
 
-            <div className="p-4 space-y-4">
+            <div className="p-4 lg:p-6 space-y-6">
                 {loading ? (
                     <SkeletonLoader />
                 ) : (
                     <>
-                        {/* KPI Cards */}
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                            <Card>
-                                <CardContent>
-                                    <div className="text-sm text-gray-500">Total Omzet</div>
-                                    <div className="text-2xl font-semibold text-gray-800">{profitSummary?.total_revenue ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(profitSummary.total_revenue) : (stats?.month?.revenue ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(stats.month.revenue) : '-')}</div>
-                                    <div className="text-xs text-gray-500">Periode: {stats?.month ? 'Bulan ini' : (stats?.period || '-')}</div>
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardContent>
-                                    <div className="text-sm text-gray-500">Total Profit</div>
-                                    <div className="text-2xl font-semibold text-gray-800">{profitSummary?.total_margin ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(profitSummary.total_margin) : '-'}</div>
-                                    <div className="text-xs text-gray-500">Margin rata-rata: {marginSummary?.data?.average_margin ?? marginSummary?.average_margin ? `${marginSummary.data?.average_margin ?? marginSummary.average_margin}%` : '-'}</div>
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardContent>
-                                    <div className="text-sm text-gray-500">Total Simpanan</div>
-                                    <div className="text-2xl font-semibold text-gray-800">{savingsSummary?.data?.total_saldo_semua ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(savingsSummary.data.total_saldo_semua) : '-'}</div>
-                                    <div className="text-xs text-gray-500">Jumlah anggota: {savingsSummary?.data?.total_anggota_tercatat ?? '-'}</div>
-                                </CardContent>
-                            </Card>
+                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                            <StatCard 
+                                title="Total Omzet" 
+                                value={formatCurrency(profitSummary?.total_revenue)} 
+                                subtitle="Dari seluruh penjualan produk"
+                                icon={<TrendingUp className="w-4 h-4"/>}
+                            />
+                            <StatCard 
+                                title="Total Profit" 
+                                value={formatCurrency(profitSummary?.total_margin)} 
+                                subtitle="Dari seluruh margin produk"
+                                icon={<Wallet className="w-4 h-4"/>}
+                                color="green"
+                            />
+                            <StatCard 
+                                title="Total Simpanan Anggota" 
+                                value={formatCurrency(savingsSummary?.data?.total_saldo_semua)} 
+                                subtitle={`${savingsSummary?.data?.total_anggota_tercatat ?? '-'} anggota tercatat`}
+                                icon={<Landmark className="w-4 h-4"/>}
+                                color="blue"
+                            />
                         </div>
 
-                        {/* Profit & Omzet per Tier */}
-                        <Card>
+                        <Card className="shadow-sm">
                             <CardHeader>
                                 <CardTitle>Profit & Omzet per Tier</CardTitle>
-                                <CardDescription>Ringkasan omzet dan profit dibagi berdasarkan tier pelanggan.</CardDescription>
+                                <CardDescription>Ringkasan pendapatan dibagi berdasarkan tier pelanggan.</CardDescription>
                             </CardHeader>
-                            <CardContent>
-                                {profitSummary ? (
-                                    <div className="space-y-3">
-                                        {['NON_MEMBER', 'MEMBER', 'MEMBER_USAHA'].map((t) => {
-                                            const item = profitSummary.per_tier?.[t] || {};
-                                            return (
-                                                <div key={t} className="flex items-center justify-between pb-2 border-b">
-                                                    <div>
-                                                        <div className="font-medium">{t}</div>
-                                                        <div className="text-xs text-gray-500">Transaksi: {item.total_transactions ?? 0}</div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <div className="text-sm text-gray-500">Omzet</div>
-                                                        <div className="font-semibold">{item.total_revenue ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.total_revenue) : '-'}</div>
-                                                        <div className="text-sm text-gray-500">Profit</div>
-                                                        <div className="font-semibold">{item.total_margin ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.total_margin) : '-'}</div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
+                            <CardContent className="p-0">
+                                {profitSummary?.per_tier ? (
+                                    <div className="divide-y divide-gray-100">
+                                        {['NON_MEMBER', 'MEMBER', 'MEMBER_USAHA'].map((tier) => (
+                                            <TierProfitRow key={tier} tier={tier} data={profitSummary.per_tier[tier] || {}} />
+                                        ))}
                                     </div>
                                 ) : (
-                                    <div className="py-6 text-center text-gray-500">Belum ada data ringkasan profit.</div>
+                                    <div className="py-10 text-center text-gray-500">Belum ada data ringkasan profit.</div>
                                 )}
                             </CardContent>
                         </Card>
-
-                        {/* Margin summary (read-only) - left as single card for reference */}
-                        <div className="grid grid-cols-1 gap-4">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Ringkasan Margin</CardTitle>
-                                    <CardDescription>Ringkasan margin per tier (informasi saja).</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    {marginSummary?.data || marginSummary ? (
-                                        <div className="space-y-2">
-                                            {(marginSummary?.data?.tiers || marginSummary?.tiers || []).map((t: any) => (
-                                                <div key={t.tier} className="flex items-center justify-between">
-                                                    <div className="text-sm text-gray-700">{t.tier}</div>
-                                                    <div className="font-semibold">{t.margin_display ?? (t.margin ? `${t.margin}%` : '-')}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="text-gray-500">Tidak ada data ringkasan margin.</div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </div>
                     </>
                 )}
             </div>
@@ -208,32 +214,6 @@ const ManajemenKeuangan: React.FC = () => {
                     status={errorMessage ? 'error' : 'success'}
                 />
             )}
-
-            {/* Bottom Navbar */}
-            <div id="navbar" className="fixed bottom-0 z-10 flex items-end justify-between w-full gap-5 px-3 py-2 text-xs bg-white border">
-                <Link to={'/dashboard'} className="flex flex-col items-center gap-3 text-orange-400">
-                    <Home />
-                    <p className="uppercase">Home</p>
-                </Link>
-                <Link to={'/qr-code'} className="flex flex-col items-center gap-3">
-                    <ScanQrCode />
-                    <p className="uppercase">Qr Code</p>
-                </Link>
-                <Link to={'/settlement'} data-cy='penarikan-btn' className="relative flex flex-col items-center gap-3">
-                    <div className="absolute flex items-center justify-center w-16 h-16 text-white bg-orange-400 rounded-full shadow-md -top-20">
-                        <CreditCard />
-                    </div>
-                    <p className="uppercase">Penarikan</p>
-                </Link>
-                <Link to={'/catalog'} className="flex flex-col items-center gap-3">
-                    <FileText />
-                    <p className="uppercase">Catalog</p>
-                </Link>
-                <Link to={'/profile'} className="flex flex-col items-center gap-3" data-cy="profile-link">
-                    <UserRound />
-                    <p className="uppercase">Profile</p>
-                </Link>
-            </div>
         </div>
     );
 };
