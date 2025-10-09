@@ -118,7 +118,7 @@ test-curl:
     - docker inspect $CI_REG_PROJECT_NAME
     - apk add curl
     - sleep 10
-    - curl -vvv --fail http://127.0.0.1
+    - curl -vvv --fail //127.0.0.1
     - docker stop $CI_REG_PROJECT_NAME
   allow_failure: true  # Pipeline tidak akan gagal meskipun job ini gagal
 
