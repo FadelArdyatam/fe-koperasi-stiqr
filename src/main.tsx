@@ -56,10 +56,12 @@ import Notifikasi from './pages/Induk/Notifikasi.tsx';
 import DashboardAnggota from './pages/Anggota/DashboardAnggota.tsx';
 import KatalogProduk from './pages/Anggota/KatalogProduk.tsx';
 import Simpanan from './pages/Anggota/Simpanan.tsx';
+import QRPayment from './pages/Anggota/QRPayment.tsx';
 
 // Koperasi Umum/Public Imports
 import PilihKoperasi from './pages/Umum/PilihKoperasi.tsx';
 import KatalogPublik from './pages/Umum/KatalogPublik.tsx';
+import QRPaymentUmum from './pages/Umum/QRPayment.tsx';
 
 const router = createBrowserRouter([
   // Koperasi Induk Routes
@@ -113,6 +115,10 @@ const router = createBrowserRouter([
     path: '/anggota/simpanan',
     element: <RequireAnggotaKoperasiSimple><Simpanan /></RequireAnggotaKoperasiSimple>,
   },
+  {
+    path: '/anggota/qr-payment/:transactionId',
+    element: <RequireAnggotaKoperasiSimple><QRPayment /></RequireAnggotaKoperasiSimple>,
+  },
 
   // Koperasi Umum/Public Routes
   {
@@ -122,6 +128,10 @@ const router = createBrowserRouter([
   {
     path: '/koperasi/:koperasiId/katalog',
     element: <KatalogPublik />,
+  },
+  {
+    path: '/umum/qr-payment',
+    element: <QRPaymentUmum />,
   },
 
   // Kept old loan routes as requested

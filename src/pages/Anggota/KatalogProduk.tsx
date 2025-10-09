@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { ArrowLeft, ShoppingBag, Search, Plus, Minus, ShoppingCart, X } from 'lucide-react';
 import Notification from '@/components/Notification';
 import noProduct from "@/images/no-product.png";
+import PaymentMethodSelector from '@/components/PaymentMethodSelector';
 
 // --- Interfaces ---
 interface Product {
@@ -16,6 +17,7 @@ interface Product {
     product_id: string;
     product_name: string;
     product_price: number;
+    finalPrice: number;
     product_status: boolean;
     product_image: string | null;
 }
@@ -84,6 +86,8 @@ const KatalogProduk: React.FC = () => {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [checkoutLoading, setCheckoutLoading] = useState(false);
+    const [showPaymentSelector, setShowPaymentSelector] = useState(false);
 
     useEffect(() => {
         if (koperasiId) {
@@ -133,11 +137,69 @@ const KatalogProduk: React.FC = () => {
     };
 
     const totalCartItems = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
-    const totalCartPrice = useMemo(() => cart.reduce((total, item) => total + (item.product_price * item.quantity), 0), [cart]);
+    const totalCartPrice = useMemo(() => cart.reduce((total, item) => total + (item.finalPrice * item.quantity), 0), [cart]);
 
-    const handleCheckout = () => {
-        // Placeholder for future checkout logic
-        alert(`Checkout dengan total: ${formatRupiah(totalCartPrice)}`);
+    const handleCheckout = async () => {
+        if (cart.length === 0) return;
+        setShowPaymentSelector(true);
+    };
+
+    const handlePaymentMethodSelect = async (method: 'QRIS' | 'SALDO_NON_CASH', pin?: string) => {
+        try {
+            setCheckoutLoading(true);
+            setShowPaymentSelector(false);
+
+            // Prepare checkout data
+            const checkoutData = {
+                koperasi_id: koperasiId,
+                items: cart.map(item => ({
+                    product_id: item.product_id,
+                    quantity: item.quantity,
+                    notes: ''
+                })),
+                payment_method: method,
+                customer_info: {
+                    name: 'Customer Name', // You might want to get this from user profile
+                    phone: '081234567890', // You might want to get this from user profile
+                    email: 'customer@example.com' // You might want to get this from user profile
+                },
+                pin: pin || '' // PIN for saldo payment
+            };
+
+            // Call checkout API
+            const response = await axiosInstance.post('/checkout-anggota', checkoutData);
+
+            if (response.data.success) {
+                const { transaction_id, payment_result } = response.data.data;
+
+                if (method === 'QRIS' && payment_result?.qrCode) {
+                    // Navigate to QR payment page
+                    navigate(`/anggota/qr-payment/${transaction_id}`, {
+                        state: {
+                            qrCode: payment_result.qrCode,
+                            amount: totalCartPrice,
+                            transactionId: transaction_id
+                        }
+                    });
+                } else if (method === 'SALDO_NON_CASH') {
+                    // For saldo payment, show success message
+                    alert(`Pembayaran berhasil! Transaction ID: ${transaction_id}`);
+                    setCart([]); // Clear cart
+                    navigate('/anggota/dashboard');
+                } else {
+                    // For other payment methods
+                    alert(`Checkout berhasil! Transaction ID: ${transaction_id}`);
+                    setCart([]); // Clear cart
+                }
+            } else {
+                alert(`Checkout gagal: ${response.data.message}`);
+            }
+        } catch (error: any) {
+            console.error('Checkout error:', error);
+            alert(`Error: ${error.response?.data?.message || error.message}`);
+        } finally {
+            setCheckoutLoading(false);
+        }
     };
 
     const CartContent = () => (
@@ -157,7 +219,7 @@ const KatalogProduk: React.FC = () => {
                             <img src={item.product_image || noProduct} alt={item.product_name} className="object-cover w-12 h-12 rounded-md bg-gray-100" />
                             <div className="flex-grow">
                                 <p className="text-sm font-medium truncate">{item.product_name}</p>
-                                <p className="text-xs text-gray-600">{formatRupiah(item.product_price)}</p>
+                                <p className="text-xs text-gray-600">{formatRupiah(item.finalPrice)}</p>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Button size="icon" variant="outline" className="w-6 h-6" onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}><Minus className="w-4 h-4" /></Button>
@@ -173,7 +235,9 @@ const KatalogProduk: React.FC = () => {
                     <span>Total</span>
                     <span>{formatRupiah(totalCartPrice)}</span>
                 </div>
-                <Button onClick={handleCheckout} className="w-full bg-orange-500 hover:bg-orange-600" disabled={cart.length === 0}>Checkout</Button>
+                <Button onClick={handleCheckout} className="w-full bg-orange-500 hover:bg-orange-600" disabled={cart.length === 0 || checkoutLoading}>
+                    {checkoutLoading ? 'Memproses...' : 'Checkout'}
+                </Button>
                 <Button onClick={() => setCart([])} className="w-full" variant="outline" disabled={cart.length === 0}>Kosongkan Keranjang</Button>
             </div>
         </div>
@@ -215,7 +279,7 @@ const KatalogProduk: React.FC = () => {
                                             </div>
                                             <CardContent className="p-2">
                                                 <h3 className="h-10 text-sm font-semibold line-clamp-2">{product.product_name}</h3>
-                                                <p className="text-sm font-bold text-orange-600">{formatRupiah(product.product_price)}</p>
+                                                <p className="text-sm font-bold text-orange-600">{formatRupiah(product.finalPrice)}</p>
                                             </CardContent>
                                         </div>
                                         <div className="p-2 mt-auto border-t">
@@ -264,6 +328,16 @@ const KatalogProduk: React.FC = () => {
                     <CartContent />
                 </MobileBasketDrawer>
             </div>
+
+            {/* Payment Method Selector Modal */}
+            {showPaymentSelector && (
+                <PaymentMethodSelector
+                    onSelectMethod={handlePaymentMethodSelect}
+                    onCancel={() => setShowPaymentSelector(false)}
+                    totalAmount={totalCartPrice}
+                    loading={checkoutLoading}
+                />
+            )}
         </div>
     );
 };

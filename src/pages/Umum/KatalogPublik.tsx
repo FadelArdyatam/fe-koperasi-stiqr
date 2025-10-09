@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, ShoppingBag, Search, Plus, Minus, ShoppingCart, X } from 'lucide-react';
 import Notification from '@/components/Notification';
+import PaymentMethodSelector from '@/components/PaymentMethodSelector';
 import noProduct from "@/images/no-product.png";
 
 // --- Interfaces ---
@@ -78,7 +79,9 @@ const KatalogPublik: React.FC = () => {
     const [pagination, setPagination] = useState<Pagination | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
-    const [isCartOpen, setIsCartOpen] = useState(false);
+    const [checkoutLoading, setCheckoutLoading] = useState(false);
+const [showPaymentSelector, setShowPaymentSelector] = useState(false);
+const [isCartOpen, setIsCartOpen] = useState(false);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -132,7 +135,86 @@ const KatalogPublik: React.FC = () => {
     const totalCartPrice = useMemo(() => cart.reduce((total, item) => total + (item.finalPrice * item.quantity), 0), [cart]);
 
     const handleCheckout = () => {
-        alert(`Checkout dengan total: ${formatRupiah(totalCartPrice)}`);
+        if (cart.length === 0) return;
+        setShowPaymentSelector(true);
+    };
+
+    const handlePaymentMethodSelect = async (method: 'QRIS' | 'SALDO_NON_CASH', pin?: string) => {
+        try {
+            setCheckoutLoading(true);
+            setShowPaymentSelector(false);
+
+            // Prepare checkout data sesuai backend schema
+            const checkoutData = {
+                koperasi_id: koperasiId, // Optional, backend akan auto-detect jika tidak ada
+                items: cart.map(item => ({
+                    product_id: item.product_id,
+                    quantity: item.quantity,
+                    notes: '' // Optional per item
+                })),
+                payment_method: method,
+                customer_info: {
+                    name: 'Merchant UMUM', // TODO: Get from user profile
+                    phone: '081234567890', // TODO: Get from user profile
+                    email: 'umum@example.com' // TODO: Get from user profile
+                },
+                pin: pin || '' // Required untuk SALDO_NON_CASH
+            };
+
+            // Call checkout API dengan endpoint yang benar
+            const response = await axiosInstance.post('/umum-checkout/koperasi-catalog', checkoutData);
+
+            if (response.data.success) {
+                const { order_id, qr_code, payment_method: pm } = response.data.data;
+
+                if (pm === 'QRIS' && qr_code) {
+                    // Navigate to QR payment page
+                    navigate('/umum/qr-payment', { 
+                        state: { 
+                            qrCode: qr_code, 
+                            orderId: order_id,
+                            amount: totalCartPrice
+                        } 
+                    });
+                } else if (pm === 'SALDO_NON_CASH') {
+                    // Untuk SALDO_NON_CASH, order masih PENDING
+                    // User perlu confirm payment dengan PIN
+                    const confirmPayment = window.confirm(`Order berhasil dibuat! ID: ${order_id}\nKonfirmasi pembayaran dengan SALDO_NON_CASH?`);
+                    
+                    if (confirmPayment && pin) {
+                        try {
+                            const payResponse = await axiosInstance.post(
+                                `/umum-checkout/koperasi-catalog/${order_id}/pay`,
+                                { pin }
+                            );
+
+                            if (payResponse.data.success) {
+                                alert('Pembayaran berhasil!');
+                                setCart([]); // Clear cart
+                                navigate('/umum/pilih-koperasi');
+                            }
+                        } catch (payError: any) {
+                            alert(`Pembayaran gagal: ${payError.response?.data?.message || payError.message}`);
+                        }
+                    } else {
+                        // User cancel atau tidak ada PIN
+                        alert(`Order dibuat dengan status PENDING. Order ID: ${order_id}`);
+                        navigate('/umum/pilih-koperasi');
+                    }
+                } else {
+                    alert(`Checkout berhasil! Order ID: ${order_id}`);
+                    setCart([]); // Clear cart
+                    setShowPaymentSelector(false);
+                }
+            } else {
+                alert(`Checkout gagal: ${response.data.message}`);
+            }
+        } catch (error: any) {
+            console.error('Checkout error:', error);
+            alert(`Error: ${error.response?.data?.message || error.message}`);
+        } finally {
+            setCheckoutLoading(false);
+        }
     };
 
     const CartContent = () => (
@@ -176,6 +258,17 @@ const KatalogPublik: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            {/* Payment Method Selector */}
+            {showPaymentSelector && (
+                <PaymentMethodSelector
+                    onSelectMethod={handlePaymentMethodSelect}
+                    onCancel={() => setShowPaymentSelector(false)}
+                    totalAmount={totalCartPrice}
+                    loading={checkoutLoading}
+                    availableMethods={['QRIS', 'SALDO_NON_CASH']}
+                />
+            )}
+
             {error && <Notification message={error} status="error" onClose={() => setError(null)} />}
             <header className="sticky top-0 z-20 flex items-center gap-4 p-4 bg-white border-b">
                 <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => navigate(-1)}><ArrowLeft className="w-4 h-4" /></Button>
