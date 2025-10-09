@@ -1,5 +1,5 @@
 default:
-  image: dns-regs.dnstech.co.id/library/docker:24.0.5
+  image: harbor-regs.wachid.web.id/library/docker:24.0.5
 
 variables:
 
@@ -71,7 +71,7 @@ generate-variables:
 
 build-app:
   stage: build
-  image: dns-regs.dnstech.co.id/library/docker:24.0.5
+  image: harbor-regs.wachid.web.id/library/docker:24.0.5
   script:
     - source variables.env
     - echo "Building Docker image..."
