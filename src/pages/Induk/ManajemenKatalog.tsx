@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAffiliation } from '../../hooks/useAffiliation';
 import axiosInstance from '@/hooks/axiosInstance';
 
@@ -12,7 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import Notification from '@/components/Notification';
 
-import { ArrowLeft, Pencil, Trash2, Home, ScanQrCode, CreditCard, FileText, UserRound, Tag, Percent } from 'lucide-react';
+
+import { ArrowLeft, Pencil, Trash2,Tag, Percent, Plus } from 'lucide-react';
 
 // --- Interfaces ---
 type Tier = 'NON_MEMBER' | 'MEMBER' | 'MEMBER_USAHA' | 'UMUM';
@@ -45,7 +46,7 @@ interface MarginRule {
 // --- Main Component ---
 const ManajemenKatalog: React.FC = () => {
     const navigate = useNavigate();
-    const { koperasiId, loading: affiliationLoading } = useAffiliation();
+    const { koperasiId, loading: affiliationLoading, data: affiliation } = useAffiliation();
 
     const [items, setItems] = useState<CatalogItem[]>([]);
     const [marginRules, setMarginRules] = useState<MarginRule[]>([]);
@@ -193,9 +194,13 @@ const ManajemenKatalog: React.FC = () => {
     const Header = () => (
         <header className="sticky top-0 z-20 flex items-center justify-between gap-4 p-4 mb-0 bg-white border-b">
             <div className="flex items-center gap-4">
-                <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => navigate(-1)}><ArrowLeft className="w-4 h-4" /></Button>
+                {/* <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => navigate(-1)}><ArrowLeft className="w-4 h-4" /></Button> */}
                 <h1 className="text-xl font-bold">Manajemen Katalog</h1>
             </div>
+            <Button onClick={() => navigate('/induk/tambah-produk')}>
+                <Plus className="w-4 h-4 mr-2" />
+                Tambah Produk
+            </Button>
         </header>
     );
 
@@ -328,13 +333,6 @@ const ManajemenKatalog: React.FC = () => {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            <div id="navbar" className="fixed bottom-0 z-10 flex items-end justify-between w-full gap-5 px-3 py-2 text-xs bg-white border">
-                <Link to={'/dashboard'} className="flex flex-col items-center gap-3 text-orange-400"><Home /><p className="uppercase">Home</p></Link>
-                <Link to={'/qr-code'} className="flex flex-col items-center gap-3"><ScanQrCode /><p className="uppercase">Qr Code</p></Link>
-                <Link to={'/settlement'} data-cy='penarikan-btn' className="relative flex flex-col items-center gap-3"><div className="absolute flex items-center justify-center w-16 h-16 text-white bg-orange-400 rounded-full shadow-md -top-20"><CreditCard /></div><p className="uppercase">Penarikan</p></Link>
-                <Link to={'/catalog'} className="flex flex-col items-center gap-3"><FileText /><p className="uppercase">Catalog</p></Link>
-                <Link to={'/profile'} className="flex flex-col items-center gap-3" data-cy="profile-link"><UserRound /><p className="uppercase">Profile</p></Link>
-            </div>
         </div>
     );
 };
