@@ -53,6 +53,8 @@ interface IBalance {
     non_cash_amount: number;
     cash_amount: number;
 }
+
+
 const Dashboard = () => {
     const userItem = sessionStorage.getItem("user");
     const userData = userItem ? JSON.parse(userItem) : null;
@@ -66,6 +68,10 @@ const Dashboard = () => {
     const [user, setUser] = useState<any>();
     const [unreadCount, setUnreadCount] = useState(0);
     const { data: affiliation, loading: affiliationLoading } = useAffiliation();
+
+    // Determine paths based on affiliation
+    const isIndukKoperasi = affiliation?.affiliation === 'KOPERASI_INDUK';
+    const kasirPath = isIndukKoperasi ? '/induk/kasir' : '/casheer';
     
     // Debug logging
     useEffect(() => {
@@ -364,7 +370,7 @@ const Dashboard = () => {
                     <p className="text-sm uppercase">Pemesanan</p>
                 </Link>
 
-                <Link data-aos="fade-up" data-aos-delay="400" to={"/casheer"} className="flex flex-col gap-2 items-center justify-center">
+                <Link data-aos="fade-up" data-aos-delay="400" to={kasirPath} className="flex flex-col gap-2 items-center justify-center">
                     <div className="flex items-center justify-center p-3 bg-orange-400 rounded-full">
                         <CirclePercent className="text-white scale-[1.1]" />
                     </div>
@@ -744,37 +750,7 @@ const Dashboard = () => {
                 )
             }
 
-            {/* Bottom Navbar */}
-            <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
-                <Link to={'/dashboard'} className="flex gap-3 text-orange-400 flex-col items-center">
-                    <Home />
-                    <p className="uppercase">Home</p>
-                </Link>
-                <Link to={'/qr-code'} className="flex gap-3 flex-col items-center">
-                    <ScanQrCode />
-                    <p className="uppercase">Qr Code</p>
-                </Link>
-                <Link to={'/settlement'} data-cy='penarikan-btn' className="flex relative gap-3 flex-col items-center">
-                    <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
-                        <CreditCard />
-                    </div>
-                    <p className="uppercase">Penarikan</p>
-                </Link>
-                <Link to={'/catalog'} className="flex gap-3 flex-col items-center">
-                    <FileText />
-                    <p className="uppercase">Catalog</p>
-                </Link>
-                {/* {affiliation?.affiliation === 'KOPERASI_INDUK' && (
-                    <Link to={'/koperasi-dashboard'} className="flex gap-3 flex-col items-center">
-                        <Building2 />
-                        <p className="uppercase">Koperasi</p>
-                    </Link>
-                )} */}
-                <Link to={'/profile'} className="flex gap-3 flex-col items-center" data-cy="profile-link">
-                    <UserRound />
-                    <p className="uppercase">Profile</p>
-                </Link>
-            </div>
+            
 
         </div >
     );
