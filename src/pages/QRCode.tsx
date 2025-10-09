@@ -470,39 +470,7 @@ const QRCodePage: React.FC<QRCodePageProps> = ({ type, orderId, stringQR, showQR
                     </p>
                 </div>
 
-                <div className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-30">
-                    <Link to={'/dashboard'} className="flex gap-3 flex-col items-center">
-                        <Home />
-
-                        <p className="uppercase">Home</p>
-                    </Link>
-
-                    <Link to={'/qr-code'} className="flex gap-3 flex-col text-orange-400 items-center">
-                        <ScanQrCode />
-
-                        <p className="uppercase">Qr Code</p>
-                    </Link>
-
-                    <Link to={'/settlement'} className="flex relative gap-3 flex-col items-center">
-                        <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
-                            <CreditCard />
-                        </div>
-
-                        <p className="uppercase">Penarikan</p>
-                    </Link>
-
-                    <Link to={'/catalog'} className="flex gap-3 flex-col items-center">
-                        <FileText />
-
-                        <p className="uppercase">Catalog</p>
-                    </Link>
-
-                    <Link to={'/profile'} className="flex gap-3 flex-col items-center">
-                        <UserRound />
-
-                        <p className="uppercase">Profile</p>
-                    </Link>
-                </div>
+                
 
                 {loading && (
                     <div className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-50 w-full h-full flex items-center justify-center z-50">
