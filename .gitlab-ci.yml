@@ -69,14 +69,44 @@ generate-variables:
       - variables.env
   when: on_success
 
-build-app:
+
+build-app-onstag:
   stage: build
   image: harbor-regs.wachid.web.id/library/docker:24.0.5
   script:
     - source variables.env
     - echo "Building Docker image..."
-    - docker build -t "$IMAGE_TAG_PRE" . -f Dockerfile
+    - docker build -t "$IMAGE_TAG_PRE" . -f Dockerfile.onprem
     - docker push "$IMAGE_TAG_PRE"
+  only: 
+    - development
+    - main
+    - dev
+
+build-app-ondev:
+  stage: build
+  image: harbor-regs.wachid.web.id/library/docker:24.0.5
+  script:
+    - source variables.env
+    - echo "Building Docker image..."
+    - docker build -t "$IMAGE_TAG_PRE" . -f Dockerfile.ondev
+    - docker push "$IMAGE_TAG_PRE"
+  only: 
+    - on-development
+
+
+build-app-cloud:
+  stage: build
+  image: dns-regs.dnstech.co.id/library/docker:24.0.5
+  script:
+    - source variables.env
+    - echo "Building Docker image..."
+    - docker build -t "$IMAGE_TAG_PRE" . -f Dockerfile.cloud
+    - docker push "$IMAGE_TAG_PRE"
+  only: 
+    - production
+    - on-cloud
+
 
 test-curl:
   stage: test
@@ -84,10 +114,11 @@ test-curl:
     - source variables.env
     - echo "Testing $CI_REG_PROJECT_NAME connectivity using cURL..."
     - docker network create net-$CI_REG_PROJECT_NAME
-    - docker run --network=net-$CI_REG_PROJECT_NAME -d --name $CI_REG_PROJECT_NAME -e DATABASE_URL="${DATABASE_URL}" -e JWT_SECRET="${JWT_SECRET}" -e PORT="${PORT}" $IMAGE_TAG_PRE
+    - docker run --network=net-$CI_REG_PROJECT_NAME -d --name $CI_REG_PROJECT_NAME -p 80:80 -e DATABASE_URL="${DATABASE_URL}" -e JWT_SECRET="${JWT_SECRET}" -e PORT="${PORT}" $IMAGE_TAG_PRE
     - docker inspect $CI_REG_PROJECT_NAME
+    - apk add curl
     - sleep 10
-    - docker exec $CI_REG_PROJECT_NAME curl -vvv --fail //127.0.0.1/api/
+    - curl -vvv --fail //127.0.0.1
     - docker stop $CI_REG_PROJECT_NAME
   allow_failure: true  # Pipeline tidak akan gagal meskipun job ini gagal
 
@@ -112,7 +143,7 @@ release:
     - docker commit "$CI_REG_PROJECT_NAME" "$IMAGE_TAG_LATEST"
     - docker push "$IMAGE_TAG_LATEST"
 
-deploy-onprem:
+deploy-onstag:
   stage: deploy
   script:
     - source variables.env
@@ -127,6 +158,7 @@ deploy-onprem:
       echo "Error: Required environment variables are not set." >&2;
       exit 1;
       fi
+    - echo "Membuat deployment script..."
     - |
       cat <<EOF > /tmp/curl-deploy.sh
       #!/bin/bash
@@ -146,6 +178,7 @@ deploy-onprem:
   only: 
     - development
     - main
+    - dev
 
 deploy-ondev:
   stage: deploy
@@ -154,7 +187,7 @@ deploy-ondev:
     - echo "Deploying $CI_REG_PROJECT_NAME to production..."
     - apk add curl
     - echo "Validating required environment variables..."
-    - echo "Using DEPLOYMENT_API ":"" "$DEPLOYMENT_API_DEV"
+    - echo "Using DEPLOYMENT_API ":"" "$DEPLOYMENT_API"
     - echo "Using TOKEN_API ":"" "(hidden)"
     - echo "Using IMAGE_TAG ":"" "$IMAGE_TAG"
     - >
@@ -162,6 +195,7 @@ deploy-ondev:
       echo "Error: Required environment variables are not set." >&2;
       exit 1;
       fi
+    - echo "Membuat deployment script..."
     - |
       cat <<EOF > /tmp/curl-deploy.sh
       #!/bin/bash
@@ -181,6 +215,7 @@ deploy-ondev:
   only: 
     - on-development
 
+
 deploy-oncloud:
   stage: deploy
   script:
@@ -193,10 +228,11 @@ deploy-oncloud:
     - echo "Using RNC_TOKEN ":"" "(hidden)"
     - echo "Using IMAGE_TAG ":"" "$IMAGE_TAG"
     - >
-      if [ -z "$DEPLOYMENT_API_CLOUD" ] || [ -z "$RNC_TOKEN_CLOUD" ] || [ -z "$IMAGE_TAG" ]; then
+      if [ -z "$DEPLOYMENT_API_CLOUD" ] || [ -z "$TOKEN_API_CLOUD" ] || [ -z "$IMAGE_TAG" ]; then
       echo "Error: Required environment variables are not set." >&2;
       exit 1;
       fi
+    - echo "Membuat deployment script..."
     - |
       cat <<EOF > /tmp/curl-deploy.sh
       #!/bin/bash
@@ -207,7 +243,7 @@ deploy-oncloud:
       EOF
     - echo "Customizing deployment script..."
     - sed -i "s|DEPLOYMENT_API|$DEPLOYMENT_API_CLOUD|g" /tmp/curl-deploy.sh
-    - sed -i "s|AUTHTOKEN|$RNC_TOKEN_CLOUD|g" /tmp/curl-deploy.sh
+    - sed -i "s|AUTHTOKEN|$TOKEN_API_CLOUD|g" /tmp/curl-deploy.sh
     - sed -i "s|IMAGETAG|$IMAGE_TAG|g" /tmp/curl-deploy.sh
     - chmod +x /tmp/curl-deploy.sh
     - cat /tmp/curl-deploy.sh
@@ -216,3 +252,4 @@ deploy-oncloud:
   only: 
     - production
     - on-cloud
+    
