@@ -1,5 +1,5 @@
 # Tahap 1: Build Stage
-FROM dns-regs.dnstech.co.id/library/node:20.17.0-alpine AS builder
+FROM harbor-regs.wachid.web.id/library/node:20.17.0-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -18,7 +18,7 @@ COPY .env.docker.ondev .env
 RUN npm run build
 
 # Tahap 2: Production Stage
-FROM dns-regs.dnstech.co.id/library/node:20.17.0-alpine AS production
+FROM harbor-regs.wachid.web.id/library/node:20.17.0-alpine AS production
 
 # Install dependensi tambahan untuk produksi
 RUN apk update && apk add --no-cache dumb-init
