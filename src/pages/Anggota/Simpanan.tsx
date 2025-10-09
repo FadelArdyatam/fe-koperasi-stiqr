@@ -48,7 +48,7 @@ const Simpanan: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const [modalState, setModalState] = useState<{ type: 'deposit' | 'withdraw' | 'status' | 'show_qris' | null, data?: any }>({ type: null });
-    const [form, setForm] = useState({ amount: '', notes: '', type: 'SUKARELA' as 'WAJIB' | 'SUKARELA', method: 'CASH' as 'CASH' | 'QRIS_NOBU' });
+    const [form, setForm] = useState({ amount: '', notes: '', type: null as 'POKOK' | 'WAJIB' | 'SUKARELA' | null, method: 'CASH' as 'CASH' | 'QRIS_NOBU' });
     const [formError, setFormError] = useState('');
     
     const [loading, setLoading] = useState(true);
@@ -88,7 +88,7 @@ const Simpanan: React.FC = () => {
 
     // --- Handlers ---
     const handleOpenModal = (type: 'deposit' | 'withdraw') => {
-        setForm({ amount: '', notes: '', type: 'SUKARELA', method: 'CASH' });
+        setForm({ amount: '', notes: '', type: null, method: 'CASH' });
         setFormError('');
         setModalState({ type });
     };
@@ -99,6 +99,10 @@ const Simpanan: React.FC = () => {
 
     const handleDeposit = async () => {
         setFormError('');
+        if (!form.type) {
+            setFormError('Silahkan pilih tipe simpanan.');
+            return;
+        }
         if (Number(form.amount) < 1000) {
             setFormError('Setoran minimum adalah Rp 1.000');
             return;
@@ -120,7 +124,10 @@ const Simpanan: React.FC = () => {
                 setModalState({ type: 'status', data: { transaction_id: response.data.transaction_id } });
             }
         } catch (err: any) {
-            setNotification({ message: err.response?.data?.message || 'Gagal melakukan setoran.', status: 'error' });
+            handleCloseModal(); // Close modal first
+            setTimeout(() => { // Use timeout to allow modal to close before showing notification
+                setNotification({ message: err.response?.data?.message || 'Gagal melakukan setoran.', status: 'error' });
+            }, 300);
         } finally {
             setActionLoading(false);
         }
@@ -191,9 +198,9 @@ const Simpanan: React.FC = () => {
                     </CardContent>
                 </Card>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <Button variant="default" className="h-24 flex-col gap-2 text-base bg-white text-gray-800 border shadow-sm hover:bg-gray-100" onClick={() => handleOpenModal('deposit')}><ArrowUpCircle className="w-7 h-7 text-green-500"/>Setor Dana</Button>
-                    {/* <Button variant="default" className="h-24 flex-col gap-2 text-base bg-white text-gray-800 border shadow-sm hover:bg-gray-100" onClick={() => handleOpenModal('withdraw' )}><ArrowDownCircle className="w-7 h-7 text-red-500"/>Tarik Dana</Button> */}
+                <div className="flex gap-4">
+                    <Button variant="default" className="w-full h-24 flex-col gap-2 text-base bg-white text-gray-800 border shadow-sm hover:bg-gray-100" onClick={() => handleOpenModal('deposit')}><ArrowUpCircle className="w-7 h-7 text-green-500"/>Setor Dana</Button>
+                    {/* <Button variant="default" className="w-full h-24 flex-col gap-2 text-base bg-white text-gray-800 border shadow-sm hover:bg-gray-100" onClick={() => handleOpenModal('withdraw' )}><ArrowDownCircle className="w-7 h-7 text-red-500"/>Tarik Dana</Button> */}
                 </div>
 
                 <Card>
@@ -249,9 +256,10 @@ const Simpanan: React.FC = () => {
                         </div>
                         <div>
                             <Label>Tipe Simpanan</Label>
-                            <RadioGroup defaultValue="SUKARELA" value={form.type} onValueChange={(value: 'WAJIB' | 'SUKARELA') => setForm(f => ({...f, type: value}))} className="mt-2">
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="SUKARELA" id="r-sukarela" /><Label htmlFor="r-sukarela">Sukarela</Label></div>
+                            <RadioGroup value={form.type || ''} onValueChange={(value: 'POKOK' | 'WAJIB' | 'SUKARELA') => setForm(f => ({...f, type: value}))} className="mt-2">
                                 <div className="flex items-center space-x-2"><RadioGroupItem value="WAJIB" id="r-wajib" /><Label htmlFor="r-wajib">Wajib</Label></div>
+                                <div className="flex items-center space-x-2"><RadioGroupItem value="POKOK" id="r-pokok" /><Label htmlFor="r-pokok">Pokok</Label></div>
+                                <div className="flex items-center space-x-2"><RadioGroupItem value="SUKARELA" id="r-sukarela" /><Label htmlFor="r-sukarela">Sukarela</Label></div>
                             </RadioGroup>
                         </div>
                         <div>
