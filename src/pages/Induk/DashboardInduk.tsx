@@ -1,26 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '@/hooks/axiosInstance';
 import Notification from '@/components/Notification';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAffiliation } from '@/hooks/useAffiliation';
 
 import {
     Users,
     Percent,
     History,
-    FileText, 
     ArrowLeft, 
-    Store, 
-    Home, 
-    ScanQrCode, 
-    CreditCard, 
-    UserRound, 
     Landmark,
-    ShoppingCart,
-    Bell
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import NotificationBell from '@/components/NotificationBell';
 
 interface PendingMerchantKoperasi {
     id: string;
@@ -34,7 +27,6 @@ interface PendingMerchantKoperasi {
 const DashboardInduk: React.FC = () => {
     const { data: affiliationData } = useAffiliation();
     const [pendingMerchants, setPendingMerchants] = useState<PendingMerchantKoperasi[]>([]);
-    const [unreadCount, setUnreadCount] = useState(0);
     const [loadingPage, setLoadingPage] = useState(true);
     const [loadingAction, setLoadingAction] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
@@ -53,19 +45,11 @@ const DashboardInduk: React.FC = () => {
         const fetchDashboardData = async () => {
             setLoadingPage(true);
             try {
-                // Fetch pending approvals and notification count in parallel
-                const [approvalRes, notifRes] = await Promise.all([
-                    axiosInstance.get(`/koperasi/${koperasiId}/pending-approvals`),
-                    axiosInstance.get(`/koperasi/${koperasiId}/notifications`, { params: { limit: 100 } }) // Fetch up to 100 to get a reliable unread count
-                ]);
+                // Fetch pending approvals
+                const approvalRes = await axiosInstance.get(`/koperasi/${koperasiId}/pending-approvals`);
 
                 // Set pending merchants for the main card
                 setPendingMerchants(approvalRes.data || []);
-
-                // Calculate unread notification count
-                const unreadGeneral = notifRes.data?.data?.filter((n: any) => !n.is_read).length || 0;
-                const pendingApprovalsCount = approvalRes.data?.length || 0;
-                setUnreadCount(unreadGeneral + pendingApprovalsCount);
 
             } catch (error) {
                 setErrorMessage('Gagal memuat data dashboard.');
@@ -85,8 +69,6 @@ const DashboardInduk: React.FC = () => {
             setSuccessMessage(`Merchant berhasil di ${action === 'approve' ? 'setujui' : 'tolak'}!`);
             setShowNotification(true);
             setPendingMerchants(prev => prev.filter(m => m.id !== merchantId));
-            // Decrement notification count as an action is taken
-            setUnreadCount(prev => Math.max(0, prev - 1));
         } catch (err: any) {
             setErrorMessage(err.response?.data?.message || `Gagal untuk ${action} merchant.`);
             setShowNotification(true);
@@ -97,12 +79,9 @@ const DashboardInduk: React.FC = () => {
 
     const menuItems = [
         { label: 'Anggota', icon: <Users className="w-6 h-6 text-orange-500" />, path: '/induk/manajemen-anggota' },
-        { label: 'Katalog', icon: <Store className="w-6 h-6 text-orange-500" />, path: '/induk/manajemen-katalog' },
         { label: 'Margin', icon: <Percent className="w-6 h-6 text-orange-500" />, path: '/induk/manajemen-keuangan' },
         { label: 'Simpanan', icon: <Landmark className="w-6 h-6 text-orange-500" />, path: '/induk/manajemen-simpanan' },
-        { label: 'Kasir', icon: <ShoppingCart className="w-6 h-6 text-orange-500" />, path: '/induk/kasir' },
         { label: 'Riwayat', icon: <History className="w-6 h-6 text-orange-500" />, path: '/induk/riwayat' },
-        { label: 'Notifikasi', icon: <Bell className="w-6 h-6 text-orange-500" />, path: '/induk/notifikasi' },
     ];
 
     const PendingApprovalSkeleton = () => (
@@ -130,14 +109,17 @@ const DashboardInduk: React.FC = () => {
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <h1 className="text-xl md:text-2xl font-bold text-slate-800">Dashboard Koperasi</h1>
-                {koperasiId && (
-                    <span className="ml-auto text-xs sm:text-sm font-mono text-slate-500 bg-slate-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">
-                        ID: {koperasiId}
-                    </span>
-                )}
+                <div className="ml-auto flex items-center gap-4">
+                    <NotificationBell />
+                    {koperasiId && (
+                        <span className="text-xs sm:text-sm font-mono text-slate-500 bg-slate-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">
+                            ID: {koperasiId}
+                        </span>
+                    )}
+                </div>
             </header>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 {menuItems.map((item) => (
                     <Card
                         key={item.label}
@@ -145,11 +127,6 @@ const DashboardInduk: React.FC = () => {
                         onClick={() => navigate(item.path)}
                     >
                         <CardContent className="p-4 flex flex-col items-center justify-center gap-2 relative">
-                            {item.label === 'Notifikasi' && unreadCount > 0 && (
-                                <span className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
-                                    {unreadCount > 9 ? '9+' : unreadCount}
-                                </span>
-                            )}
                             <div className="bg-orange-100 p-3 rounded-full group-hover:bg-orange-200 transition-colors">
                                 {item.icon}
                             </div>
@@ -223,30 +200,7 @@ const DashboardInduk: React.FC = () => {
                 />
             )}
 
-            <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 left-0 border z-10">
-                <Link to={'/dashboard'} className="flex gap-3 text-orange-400 flex-col items-center">
-                    <Home />
-                    <p className="uppercase">Home</p>
-                </Link>
-                <Link to={'/qr-code'} className="flex gap-3 flex-col items-center">
-                    <ScanQrCode />
-                    <p className="uppercase">Qr Code</p>
-                </Link>
-                <Link to={'/settlement'} data-cy='penarikan-btn' className="flex relative gap-3 flex-col items-center">
-                    <div className="absolute -top-20 shadow-md text-white w-16 h-16 rounded-full bg-orange-400 flex items-center justify-center">
-                        <CreditCard />
-                    </div>
-                    <p className="uppercase">Penarikan</p>
-                </Link>
-                <Link to={'/catalog'} className="flex gap-3 flex-col items-center">
-                    <FileText />
-                    <p className="uppercase">Catalog</p>
-                </Link>
-                <Link to={'/profile'} className="flex gap-3 flex-col items-center" data-cy="profile-link">
-                    <UserRound />
-                    <p className="uppercase">Profile</p>
-                </Link>
-            </div>
+            
         </div>
     );
 };
