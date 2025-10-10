@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Layout from './components/Layout';
+import NavBottom from './components/NavBottom.tsx';
 import Signup from './pages/Signup.tsx'
 import ForgotPassword from './pages/ForgotPassword.tsx'
 import Dashboard from './pages/Dashboard.tsx'
@@ -62,239 +62,215 @@ import QRPayment from './pages/Anggota/QRPayment.tsx';
 import PilihKoperasi from './pages/Umum/PilihKoperasi.tsx';
 import KatalogPublik from './pages/Umum/KatalogPublik.tsx';
 import QRPaymentUmum from './pages/Umum/QRPayment.tsx';
-import MemberSimpanPinjam from './pages/KoperasiSimpanPinjam/Member/MemberSimpanPinjam.tsx';
+// import MemberSimpanPinjam from './pages/KoperasiSimpanPinjam/Member/MemberSimpanPinjam.tsx';
 
-// Access Info Import
-import AccessInfo from './pages/AccessInfo.tsx';
+import Simpanan from './pages/Anggota/Simpanan.tsx';
 
-const router = createBrowserRouter([
-  // Routes without the shared navbar
-  {
-    path: '/',
-    element: <App />,
-  },
-  {
-    path: '/signup',
-    element: <Signup />,
-  },
-  {
-    path: '/register-koperasi',
-    element: <RegisterKoperasi />,
-  },
-  {
-    path: '/forgot-password',
-    element: <ForgotPassword />,
-  },
-  {
-    path: '/reset-password',
-    element: <ResetPassword />,
-  },
-  {
-    path: '/payment-success',
-    element: <PaymentSuccess />
-  },
-  {
-    path: '/order',
-    element: <EReceipt />
-  },
-  {
-    path: '/orderCustomer',
-    element: <EReceiptCustomer />
-  },
-  {
-    path: '/pilih-koperasi',
-    element: <PilihKoperasi />,
-  },
-  {
-    path: '/koperasi/:koperasiId/katalog',
-    element: <KatalogPublik />,
-  },
-  {
-    path: '/umum/qr-payment',
-    element: <QRPaymentUmum />,
-  },
-  {
-    path: '/access-info',
-    element: <AccessInfo />,
-  },
-  {
-    path: '*',
-    element: <NotFound />
-  },
+const router = createBrowserRouter(
+  [
+    // == Routes WITHOUT NavBottom ==
+    { path: "/", element: <App /> },
+    { path: "/signup", element: <Signup /> },
+    { path: "/register-koperasi", element: <RegisterKoperasi /> },
+    { path: "/forgot-password", element: <ForgotPassword /> },
+    { path: "/reset-password", element: <ResetPassword /> },
+    { path: "/payment-success", element: <PaymentSuccess /> },
+    { path: "/order", element: <EReceipt /> },
+    { path: "/orderCustomer", element: <EReceiptCustomer /> },
+    { path: "/pilih-koperasi", element: <PilihKoperasi /> },
+    { path: "/koperasi/:koperasiId/katalog", element: <KatalogPublik /> },
+    { path: "/umum/qr-payment", element: <QRPaymentUmum /> },
 
-  // Routes WITH the shared navbar (wrapped in Layout)
+    // == Induk Koperasi ==
+    {
+      path: "/induk/dashboard",
+      element: (
+        <RequireIndukKoperasiSimple>
+          <DashboardInduk />
+        </RequireIndukKoperasiSimple>
+      ),
+    },
+    {
+      path: "/induk/manajemen-anggota",
+      element: (
+        <RequireIndukKoperasiSimple>
+          <ManajemenAnggota />
+        </RequireIndukKoperasiSimple>
+      ),
+    },
+    {
+      path: "/induk/detail-anggota/:id",
+      element: (
+        <RequireIndukKoperasiSimple>
+          <DetailAnggota />
+        </RequireIndukKoperasiSimple>
+      ),
+    },
+    {
+      path: "/induk/manajemen-keuangan",
+      element: (
+        <RequireIndukKoperasiSimple>
+          <ManajemenKeuangan />
+        </RequireIndukKoperasiSimple>
+      ),
+    },
+    {
+      path: "/induk/tambah-produk",
+      element: (
+        <RequireIndukKoperasiSimple>
+          <TambahProdukInduk />
+        </RequireIndukKoperasiSimple>
+      ),
+    },
+    {
+      path: "/induk/manajemen-simpanan",
+      element: (
+        <RequireIndukKoperasiSimple>
+          <ManajemenSimpanan />
+        </RequireIndukKoperasiSimple>
+      ),
+    },
+    {
+      path: "/induk/kasir",
+      element: (
+        <RequireIndukKoperasiSimple>
+          <KasirKoperasi />
+        </RequireIndukKoperasiSimple>
+      ),
+    },
+    {
+      path: "/induk/riwayat",
+      element: (
+        <RequireIndukKoperasiSimple>
+          <RiwayatTransaksi />
+        </RequireIndukKoperasiSimple>
+      ),
+    },
+
+    // == Anggota Koperasi ==
+    {
+      path: "/anggota/dashboard",
+      element: (
+        <RequireAnggotaKoperasiSimple>
+          <DashboardAnggota />
+        </RequireAnggotaKoperasiSimple>
+      ),
+    },
+    {
+      path: "/anggota/katalog",
+      element: (
+        <RequireAnggotaKoperasiSimple>
+          <KatalogProduk />
+        </RequireAnggotaKoperasiSimple>
+      ),
+    },
+    {
+      path: "/anggota/simpanan",
+      element: (
+        <RequireAnggotaKoperasiSimple>
+          <Simpanan />
+        </RequireAnggotaKoperasiSimple>
+      ),
+    },
+    {
+      path: "/anggota",
+      element: (
+        <RequireAnggotaKoperasiSimple>
+          <Dashboard />
+        </RequireAnggotaKoperasiSimple>
+      ),
+    },
+
+    // == Koperasi Loans ==
+    {
+      path: "/koperasi-loans/products",
+      element: (
+        <RequireIndukKoperasiSimple>
+          <LoansProducts />
+        </RequireIndukKoperasiSimple>
+      ),
+    },
+    {
+      path: "/koperasi-loans/applications",
+      element: (
+        <RequireIndukKoperasiSimple>
+          <LoansApplications />
+        </RequireIndukKoperasiSimple>
+      ),
+    },
+    {
+      path: "/koperasi-loans/installments",
+      element: (
+        <RequireIndukKoperasiSimple>
+          <LoansInstallments />
+        </RequireIndukKoperasiSimple>
+      ),
+    },
+
+    // == Layanan Umum ==
+    { path: "/pulsa", element: <Pulsa /> },
+    { path: "/pam", element: <PAM /> },
+    { path: "/listrik", element: <Listrik /> },
+    { path: "/bpjs", element: <BPJS /> },
+
+    // == Lainnya ==
+    { path: "/inbox", element: <Inbox /> },
+    { path: "/casheer", element: <Casheer /> },
+    { path: "/booking", element: <Booking /> },
+    { path: "/customer", element: <Customer /> },
+    { path: "*", element: <NotFound /> },
+
+    // == Routes WITH NavBottom ==
+    {
+      element: <NavBottom />,
+      children: [
+        { path: "/dashboard", element: <Dashboard /> },
+        { path: "/qr-code", element: <QRCode type={""} /> },
+        { path: "/settlement", element: <Settlement /> },
+        { path: "/catalog", element: <Catalog /> },
+        { path: "/profile", element: <Profile /> },
+        { path: "/profile/security", element: <Keamanan /> },
+        { path: "/profile/owner-data", element: <DataPemilik /> },
+        { path: "/profile/merchant-data", element: <DataMerchant /> },
+        { path: "/profile/customer-data", element: <DataCustomer /> },
+        { path: "/profile/payment-data", element: <DataPembayaran /> },
+        { path: "/profile/history", element: <Riwayat /> },
+        { path: "/profile/help-center", element: <HelpCenter /> },
+        { path: "/profile/employee", element: <Employee /> },
+        {
+          path: "/anggota/qr-payment",
+          element: (
+            <RequireAnggotaKoperasiSimple>
+              <QRPayment />
+            </RequireAnggotaKoperasiSimple>
+          ),
+        },
+        {
+          path: "/induk/manajemen-katalog",
+          element: (
+            <RequireIndukKoperasiSimple>
+              <ManajemenKatalog />
+            </RequireIndukKoperasiSimple>
+          ),
+        },
+      ],
+    },
+  ],
   {
-    element: <Layout />,
-    children: [
-      {
-        path: '/induk/dashboard',
-        element: <RequireIndukKoperasiSimple><DashboardInduk /></RequireIndukKoperasiSimple>,
-      },
-      {
-        path: '/induk/manajemen-anggota',
-        element: <RequireIndukKoperasiSimple><ManajemenAnggota /></RequireIndukKoperasiSimple>,
-      },
-      {
-        path: '/induk/detail-anggota/:id',
-        element: <RequireIndukKoperasiSimple><DetailAnggota /></RequireIndukKoperasiSimple>,
-      },
-      {
-        path: '/induk/manajemen-keuangan',
-        element: <RequireIndukKoperasiSimple><ManajemenKeuangan /></RequireIndukKoperasiSimple>,
-      },
-      {
-        path: '/induk/manajemen-katalog',
-        element: <RequireIndukKoperasiSimple><ManajemenKatalog /></RequireIndukKoperasiSimple>,
-      },
-      {
-        path: '/induk/tambah-produk',
-        element: <RequireIndukKoperasiSimple><TambahProdukInduk /></RequireIndukKoperasiSimple>,
-      },
-      {
-        path: '/induk/manajemen-simpanan',
-        element: <RequireIndukKoperasiSimple><ManajemenSimpanan /></RequireIndukKoperasiSimple>,
-      },
-      {
-        path: '/induk/kasir',
-        element: <RequireIndukKoperasiSimple><KasirKoperasi /></RequireIndukKoperasiSimple>,
-      },
-      {
-        path: '/induk/riwayat',
-        element: <RequireIndukKoperasiSimple><RiwayatTransaksi /></RequireIndukKoperasiSimple>,
-      },
-      {
-        path: '/anggota/dashboard',
-        element: <RequireAnggotaKoperasiSimple><DashboardAnggota /></RequireAnggotaKoperasiSimple>,
-      },
-      {
-        path: '/anggota/katalog',
-        element: <RequireAnggotaKoperasiSimple><KatalogProduk /></RequireAnggotaKoperasiSimple>,
-      },
-      {
-        path: '/anggota/simpanan',
-        element: <RequireAnggotaKoperasiSimple><MemberSimpanPinjam /></RequireAnggotaKoperasiSimple>,
-      },
-      {
-        path: '/anggota/qr-payment/:transactionId',
-        element: <RequireAnggotaKoperasiSimple><QRPayment /></RequireAnggotaKoperasiSimple>,
-      },
-      {
-        path: '/koperasi-loans/products',
-        element: <RequireIndukKoperasiSimple><LoansProducts /></RequireIndukKoperasiSimple>,
-      },
-      {
-        path: '/koperasi-loans/applications',
-        element: <RequireIndukKoperasiSimple><LoansApplications /></RequireIndukKoperasiSimple>,
-      },
-      {
-        path: '/koperasi-loans/installments',
-        element: <RequireIndukKoperasiSimple><LoansInstallments /></RequireIndukKoperasiSimple>,
-      },
-      {
-        path: '/anggota',
-        element: <RequireAnggotaKoperasiSimple><Dashboard /></RequireAnggotaKoperasiSimple>,
-      },
-      {
-        path: '/dashboard',
-        element: <Dashboard />
-      },
-      {
-        path: '/pulsa',
-        element: <Pulsa />
-      },
-      {
-        path: '/pam',
-        element: <PAM />
-      },
-      {
-        path: '/listrik',
-        element: <Listrik />
-      },
-      {
-        path: '/bpjs',
-        element: <BPJS />
-      },
-      {
-        path: '/inbox',
-        element: <Inbox />
-      },
-      {
-        path: '/settlement',
-        element: <Settlement />
-      },
-      {
-        path: '/qr-code',
-        element: <QRCode type={''} />
-      },
-      {
-        path: '/profile',
-        element: <Profile />
-      },
-      {
-        path: '/profile/security',
-        element: <Keamanan />
-      },
-      {
-        path: '/profile/owner-data',
-        element: <DataPemilik />
-      },
-      {
-        path: '/profile/merchant-data',
-        element: <DataMerchant />
-      },
-      {
-        path: '/profile/customer-data',
-        element: <DataCustomer />
-      },
-      {
-        path: '/profile/payment-data',
-        element: <DataPembayaran />
-      },
-      {
-        path: '/profile/history',
-        element: <Riwayat />
-      },
-      {
-        path: '/profile/help-center',
-        element: <HelpCenter />
-      },
-      {
-        path: '/profile/employee',
-        element: <Employee />
-      },
-      {
-        path: '/catalog',
-        element: <Catalog />
-      },
-      {
-        path: '/casheer',
-        element: <Casheer />
-      },
-      {
-        path: '/booking',
-        element: <Booking />
-      },
-      {
-        path: '/customer',
-        element: <Customer />
-      },
-    ]
+    future: {
+      v7_startTransition: true,
+      v7_relativeSplatPath: true,
+      v7_fetcherPersist: true,
+      v7_normalizeFormMethod: true,
+      v7_partialHydration: true,
+      v7_skipActionErrorRevalidation: true,
+    } as any,
   }
-], {
-  future: {
-    v7_startTransition: true,
-    v7_relativeSplatPath: true,
-    v7_fetcherPersist: true,
-    v7_normalizeFormMethod: true,
-    v7_partialHydration: true,
-    v7_skipActionErrorRevalidation: true,
-  } as any,
-}
-)
+);
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <RouterProvider router={router} />
     <ModalExpired />
   </React.StrictMode>
-)
+);

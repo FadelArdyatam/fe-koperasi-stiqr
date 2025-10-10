@@ -3,7 +3,7 @@ import { useAffiliation } from '@/hooks/useAffiliation';
 import { Home, ScanQrCode, CreditCard, FileText, UserRound } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-const Layout = () => {
+const NavBottom = () => {
     const { data: affiliation } = useAffiliation();
     const { pathname } = useLocation();
     const [isNavbarVisible, setIsNavbarVisible] = useState(true);
@@ -175,4 +175,4 @@ const Layout = () => {
     );
 };
 
-export default Layout;
+export default NavBottom;
