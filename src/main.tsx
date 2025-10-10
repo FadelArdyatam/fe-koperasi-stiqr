@@ -56,6 +56,7 @@ import TambahProdukInduk from './pages/Induk/TambahProduk.tsx';
 // Koperasi Anggota Imports
 import DashboardAnggota from './pages/Anggota/DashboardAnggota.tsx';
 import KatalogProduk from './pages/Anggota/KatalogProduk.tsx';
+import Simpanan from './pages/Anggota/Simpanan.tsx';
 import QRPayment from './pages/Anggota/QRPayment.tsx';
 
 // Koperasi Umum/Public Imports
@@ -63,8 +64,6 @@ import PilihKoperasi from './pages/Umum/PilihKoperasi.tsx';
 import KatalogPublik from './pages/Umum/KatalogPublik.tsx';
 import QRPaymentUmum from './pages/Umum/QRPayment.tsx';
 // import MemberSimpanPinjam from './pages/KoperasiSimpanPinjam/Member/MemberSimpanPinjam.tsx';
-
-import Simpanan from './pages/Anggota/Simpanan.tsx';
 
 const router = createBrowserRouter(
   [
