@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAffiliation } from '@/hooks/useAffiliation';
 import { Home, ScanQrCode, CreditCard, FileText, UserRound } from 'lucide-react';
 
-const Layout = () => {
+const NavBottom = () => {
     const { data: affiliation } = useAffiliation();
     const { pathname } = useLocation();
 
@@ -44,4 +44,4 @@ const Layout = () => {
     );
 };
 
-export default Layout;
+export default NavBottom;
