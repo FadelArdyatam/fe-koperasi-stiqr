@@ -63,6 +63,7 @@ import QRPayment from './pages/Anggota/QRPayment.tsx';
 import PilihKoperasi from './pages/Umum/PilihKoperasi.tsx';
 import KatalogPublik from './pages/Umum/KatalogPublik.tsx';
 import QRPaymentUmum from './pages/Umum/QRPayment.tsx';
+import MemberSimpanPinjam from './pages/KoperasiSimpanPinjam/Member/MemberSimpanPinjam.tsx';
 
 const router = createBrowserRouter([
   // Routes without the shared navbar
@@ -165,7 +166,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/anggota/simpanan',
-        element: <RequireAnggotaKoperasiSimple><Simpanan /></RequireAnggotaKoperasiSimple>,
+        element: <RequireAnggotaKoperasiSimple><MemberSimpanPinjam /></RequireAnggotaKoperasiSimple>,
       },
       {
         path: '/anggota/qr-payment/:transactionId',

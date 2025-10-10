@@ -67,7 +67,7 @@ const Dashboard = () => {
     });
     const [user, setUser] = useState<any>();
     const [unreadCount, setUnreadCount] = useState(0);
-    const { data: affiliation, loading: affiliationLoading } = useAffiliation();
+    const { data: affiliation, loading: affiliationLoading, refetch: refetchAffiliation } = useAffiliation();
 
     // Determine paths based on affiliation
     const isIndukKoperasi = affiliation?.affiliation === 'KOPERASI_INDUK';
@@ -78,6 +78,31 @@ const Dashboard = () => {
         console.log('[Dashboard] Affiliation data:', affiliation);
         console.log('[Dashboard] Affiliation loading:', affiliationLoading);
     }, [affiliation, affiliationLoading]);
+
+    // Listen for approval status changes
+    useEffect(() => {
+        const handleApprovalChange = () => {
+            console.log('[Dashboard] Approval status changed, refetching affiliation...');
+            refetchAffiliation();
+        };
+
+        // Listen for custom events
+        window.addEventListener('approval-status-changed', handleApprovalChange);
+        
+        // Also listen for storage changes (when token is updated)
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'token') {
+                console.log('[Dashboard] Token changed, refetching affiliation...');
+                refetchAffiliation();
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('approval-status-changed', handleApprovalChange);
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, [refetchAffiliation]);
 
     useEffect(() => {
         const fetchUnreadNotifications = async () => {

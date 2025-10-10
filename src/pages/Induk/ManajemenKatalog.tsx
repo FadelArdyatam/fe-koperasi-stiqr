@@ -206,7 +206,7 @@ const ManajemenKatalog: React.FC = () => {
 
     if (affiliationLoading || loading) {
         return (
-            <div className="min-h-screen pb-28 bg-gray-50">
+            <div className="min-h-screen pb-32 bg-gray-50">
                 <Header />
                 <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {Array.from({ length: 8 }).map((_, i) => <div key={i} className="bg-gray-200 rounded-lg h-72 animate-pulse"></div>)}
@@ -216,7 +216,7 @@ const ManajemenKatalog: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen pb-28 bg-gray-50">
+        <div className="min-h-screen pb-32 bg-gray-50">
             {showNotification && <Notification message={notification.message} status={notification.status} onClose={() => setShowNotification(false)} />}
             <Header />
             <div className="p-4">

@@ -136,7 +136,7 @@ const KoperasiCatalog: React.FC = () => {
     }
 
     return (
-        <div className="pb-28 bg-gray-50 min-h-screen">
+        <div className="pb-32 bg-gray-50 min-h-screen">
             <header className="p-4 flex items-center gap-4 mb-0 bg-white border-b sticky top-0 z-20">
                 <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => navigate('/koperasi-dashboard')}>
                     <ArrowLeft className="h-4 w-4" />

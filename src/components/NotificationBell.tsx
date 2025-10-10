@@ -88,10 +88,10 @@ const NotificationItem = ({
         <p className="text-xs text-gray-400 mt-1">{timeAgo(createdAt)}</p>
         {type === "PENDING_APPROVAL" && (
           <div className="flex gap-2 mt-2">
-            <Button size="xs" className="bg-green-500 hover:bg-green-600 h-7" onClick={() => onApprove((notification as ApprovalNotification).merchantId)}>
+            <Button size="sm" className="bg-green-500 hover:bg-green-600 h-7" onClick={() => onApprove((notification as ApprovalNotification).merchantId)}>
               <Check className="w-3 h-3 mr-1" /> Setujui
             </Button>
-            <Button size="xs" variant="destructive" className="h-7" onClick={() => onReject((notification as ApprovalNotification).merchantId)}>
+            <Button size="sm" variant="destructive" className="h-7" onClick={() => onReject((notification as ApprovalNotification).merchantId)}>
               <X className="w-3 h-3 mr-1" /> Tolak
             </Button>
           </div>
@@ -188,13 +188,26 @@ const NotificationBell: React.FC = () => {
   };
 
   const handleAction = async (action: 'approve' | 'reject', merchantId: string) => {
+    if (!koperasiId) {
+      setSystemNotification({ message: 'Koperasi ID tidak tersedia', status: "error" });
+      return;
+    }
+
     const originalNotifications = notifications;
     setNotifications(prev => prev.filter(n => (n as ApprovalNotification).merchantId !== merchantId));
     setUnreadCount(prev => Math.max(0, prev - 1));
 
     try {
-      await axiosInstance.post(`/koperasi/${action}-merchant/${merchantId}`);
+      await axiosInstance.post(`/koperasi/${koperasiId}/${action}-merchant/${merchantId}`);
       setSystemNotification({ message: `Merchant berhasil di${action === 'approve' ? 'setujui' : 'tolak'}`, status: "success" });
+      
+      // Refresh data dari server untuk memastikan notifikasi terbaru
+      await fetchData(true);
+      
+      // Dispatch event to notify other components about approval status change
+      window.dispatchEvent(new CustomEvent('approval-status-changed', { 
+        detail: { merchantId, action } 
+      }));
     } catch (err: any) {
       setSystemNotification({ message: err.response?.data?.message || `Gagal ${action} merchant`, status: "error" });
       setNotifications(originalNotifications); // Revert on error

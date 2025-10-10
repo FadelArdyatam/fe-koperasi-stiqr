@@ -160,7 +160,7 @@ const ManajemenSimpanan: React.FC = () => {
     );
 
     return (
-        <div className="pb-28 bg-gray-50 min-h-screen font-sans">
+        <div className="pb-32 bg-gray-50 min-h-screen font-sans">
             {error && <Notification message={error} status="error" onClose={() => setError(null)} />}
             <header className="p-4 flex items-center gap-4 mb-4 bg-white border-b sticky top-0 z-20">
                 <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => navigate(-1)}>

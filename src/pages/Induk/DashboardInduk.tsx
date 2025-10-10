@@ -63,12 +63,23 @@ const DashboardInduk: React.FC = () => {
     }, [koperasiId, affiliationData]);
 
     const handleAction = async (action: 'approve' | 'reject', merchantId: string) => {
+        if (!koperasiId) {
+            setErrorMessage('Koperasi ID tidak tersedia');
+            setShowNotification(true);
+            return;
+        }
+        
         setLoadingAction(true);
         try {
-            await axiosInstance.post(`/koperasi/${action}-merchant/${merchantId}`);
+            await axiosInstance.post(`/koperasi/${koperasiId}/${action}-merchant/${merchantId}`);
             setSuccessMessage(`Merchant berhasil di ${action === 'approve' ? 'setujui' : 'tolak'}!`);
             setShowNotification(true);
             setPendingMerchants(prev => prev.filter(m => m.id !== merchantId));
+            
+            // Dispatch event to notify other components about approval status change
+            window.dispatchEvent(new CustomEvent('approval-status-changed', { 
+                detail: { merchantId, action } 
+            }));
         } catch (err: any) {
             setErrorMessage(err.response?.data?.message || `Gagal untuk ${action} merchant.`);
             setShowNotification(true);
@@ -103,7 +114,7 @@ const DashboardInduk: React.FC = () => {
     );
 
     return (
-        <div className="pb-28 p-4 bg-gray-50 min-h-screen font-sans">
+        <div className="pb-32 p-4 bg-gray-50 min-h-screen font-sans">
             <header className="flex items-center gap-4 mb-6">
                 <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => navigate(-1)}>
                     <ArrowLeft className="h-4 w-4" />

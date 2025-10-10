@@ -27,11 +27,18 @@ interface Transaction {
   saving_type: 'POKOK' | 'WAJIB' | 'SUKARELA';
   direction: 'DEPOSIT' | 'WITHDRAW';
   amount: number;
-  method: 'QRIS_NOBU' | 'SALDO_NON_CASH';
+  method: 'QRIS_NOBU' | 'SALDO_NON_CASH' | 'CASH';
   status: 'PENDING' | 'PAID' | 'FAILED';
+  transaction_id: string;
   created_at: string;
   paid_at?: string;
   notes?: string;
+  payment_result?: {
+    qrCode?: string;
+    expiry_time?: string;
+    payment_status?: 'PENDING' | 'PAID' | 'FAILED';
+    message?: string;
+  };
 }
 
 const MemberSimpanPinjam: React.FC = () => {
@@ -103,14 +110,67 @@ const MemberSimpanPinjam: React.FC = () => {
       return;
     }
 
+    if (parseFloat(amount) < 1000) {
+      setError('Minimum simpanan adalah Rp 1.000');
+      return;
+    }
+
+    if (parseFloat(amount) > 100000000) {
+      setError('Maksimum simpanan adalah Rp 100.000.000');
+      return;
+    }
+
     // Show payment modal
     setShowPaymentModal(true);
+  };
+
+  const [activeTransaction, setActiveTransaction] = useState<string | null>(null);
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
+    };
+  }, [pollingInterval]);
+
+  const checkTransactionStatus = async (txId: string) => {
+    try {
+      const response = await axiosInstance.get(
+        `/koperasi-simpan-pinjam/${koperasiId}/transaction/${txId}/status`
+      );
+      
+      if (response.data.status === 'PAID') {
+        if (pollingInterval) clearInterval(pollingInterval);
+        setActiveTransaction(null);
+        handlePaymentSuccess();
+      }
+    } catch (error) {
+      console.error('Error checking transaction status:', error);
+    }
+  };
+
+  const startPolling = (txId: string) => {
+    setActiveTransaction(txId);
+    const interval = setInterval(() => checkTransactionStatus(txId), 3000);
+    setPollingInterval(interval);
+
+    // Stop polling after 5 minutes
+    setTimeout(() => {
+      clearInterval(interval);
+      setPollingInterval(null);
+      setActiveTransaction(null);
+    }, 300000);
   };
 
   const handlePaymentSuccess = () => {
     // Reset form and refresh data
     setAmount('');
     setNotes('');
+    setShowPaymentModal(false);
+    setSubmitting(false);
     fetchData();
   };
 

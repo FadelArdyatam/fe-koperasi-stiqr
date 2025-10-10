@@ -113,7 +113,7 @@ const KoperasiDashboard: React.FC = () => {
     );
 
     return (
-        <div className="pb-28 p-4 bg-gray-50 min-h-screen font-sans">
+        <div className="pb-32 p-4 bg-gray-50 min-h-screen font-sans">
             {/* Header */}
             <header className="flex items-center gap-4 mb-6">
                 <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => navigate(-1)}>

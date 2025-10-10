@@ -5,10 +5,10 @@ import axiosInstance from '@/hooks/axiosInstance';
 import { formatRupiah } from '@/hooks/convertRupiah';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { ArrowLeft, Landmark, Wallet, PiggyBank, ArrowUpCircle, ArrowDownCircle, History, Loader2, XCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import { ArrowLeft, Wallet, ArrowUpCircle, History, Loader2, XCircle, TrendingUp, TrendingDown, QrCode } from 'lucide-react';
 import Notification from '@/components/Notification';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -48,8 +48,9 @@ const Simpanan: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const [modalState, setModalState] = useState<{ type: 'deposit' | 'withdraw' | 'status' | 'show_qris' | null, data?: any }>({ type: null });
-    const [form, setForm] = useState({ amount: '', notes: '', type: null as 'POKOK' | 'WAJIB' | 'SUKARELA' | null, method: 'CASH' as 'CASH' | 'QRIS_NOBU' });
+    const [form, setForm] = useState({ amount: '', notes: '', type: null as 'POKOK' | 'WAJIB' | 'SUKARELA' | null, method: 'SALDO_NON_CASH' as 'SALDO_NON_CASH' | 'QRIS_NOBU' });
     const [formError, setFormError] = useState('');
+    const [pin, setPin] = useState('');
     
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
@@ -88,8 +89,9 @@ const Simpanan: React.FC = () => {
 
     // --- Handlers ---
     const handleOpenModal = (type: 'deposit' | 'withdraw') => {
-        setForm({ amount: '', notes: '', type: null, method: 'CASH' });
+        setForm({ amount: '', notes: '', type: null, method: 'SALDO_NON_CASH' });
         setFormError('');
+        setPin('');
         setModalState({ type });
     };
 
@@ -107,6 +109,10 @@ const Simpanan: React.FC = () => {
             setFormError('Setoran minimum adalah Rp 1.000');
             return;
         }
+        if (form.method === 'SALDO_NON_CASH' && !pin) {
+            setFormError('PIN diperlukan untuk pembayaran dengan saldo');
+            return;
+        }
         if (!koperasiId || !memberId) return;
 
         setActionLoading(true);
@@ -116,10 +122,20 @@ const Simpanan: React.FC = () => {
                 type: form.type,
                 amount: Number(form.amount),
                 method: form.method,
-                notes: form.notes
+                notes: form.notes,
+                pin: form.method === 'SALDO_NON_CASH' ? pin : undefined
             });
+            
             if (form.method === 'QRIS_NOBU') {
-                setModalState({ type: 'show_qris', data: { qrCode: response.data.qrCode, transaction_id: response.data.transaction_id } });
+                setModalState({ 
+                    type: 'show_qris', 
+                    data: { 
+                        qrCode: response.data.qr_code, 
+                        transaction_id: response.data.transaction_id,
+                        amount: response.data.amount,
+                        koperasi_induk_name: response.data.koperasi_induk_name
+                    } 
+                });
             } else {
                 setModalState({ type: 'status', data: { transaction_id: response.data.transaction_id } });
             }
@@ -170,7 +186,7 @@ const Simpanan: React.FC = () => {
     };
 
     return (
-        <div className="pb-28 bg-gray-50 min-h-screen font-sans">
+        <div className="pb-32 bg-gray-50 min-h-screen font-sans">
             {notification && <Notification message={notification.message} status={notification.status} onClose={() => setNotification(null)} />}
             <header className="p-4 flex items-center gap-4 mb-4 bg-white border-b sticky top-0 z-20">
                 <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => navigate(-1)}><ArrowLeft className="h-4 w-4" /></Button>
@@ -230,7 +246,7 @@ const Simpanan: React.FC = () => {
                     {pagination && pagination.totalPages > 1 && (
                         <div className="flex justify-center items-center gap-4 p-4 border-t">
                             <Button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Sebelumnya</Button>
-                            <span>Halaman {pagination.page} dari {pagination.totalPages}</span>
+                            <span>Halaman {pagination.currentPage} dari {pagination.totalPages}</span>
                             <Button onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))} disabled={currentPage === pagination.totalPages}>Berikutnya</Button>
                         </div>
                     )}
@@ -244,11 +260,38 @@ const Simpanan: React.FC = () => {
                     <div className="py-4 space-y-4">
                         <div>
                             <Label>Metode Pembayaran</Label>
-                            <RadioGroup defaultValue="CASH" value={form.method} onValueChange={(value: 'CASH' | 'QRIS_NOBU') => setForm(f => ({...f, method: value}))} className="mt-2 grid grid-cols-2 gap-2">
-                                <Label htmlFor="r-cash" className={`border rounded-md p-4 text-center cursor-pointer ${form.method === 'CASH' ? 'border-orange-500 bg-orange-50' : ''}`}><RadioGroupItem value="CASH" id="r-cash" className="sr-only" />CASH</Label>
-                                <Label htmlFor="r-qris" className={`border rounded-md p-4 text-center cursor-pointer ${form.method === 'QRIS_NOBU' ? 'border-orange-500 bg-orange-50' : ''}`}><RadioGroupItem value="QRIS_NOBU" id="r-qris" className="sr-only" />QRIS</Label>
+                            <RadioGroup defaultValue="SALDO_NON_CASH" value={form.method} onValueChange={(value: 'SALDO_NON_CASH' | 'QRIS_NOBU') => setForm(f => ({...f, method: value}))} className="mt-2 grid grid-cols-2 gap-2">
+                                <Label htmlFor="r-saldo" className={`border rounded-md p-4 text-center cursor-pointer ${form.method === 'SALDO_NON_CASH' ? 'border-orange-500 bg-orange-50' : ''}`}>
+                                    <RadioGroupItem value="SALDO_NON_CASH" id="r-saldo" className="sr-only" />
+                                    <div className="flex flex-col items-center gap-1">
+                                        <Wallet className="w-5 h-5" />
+                                        <span className="text-sm font-medium">Saldo</span>
+                                    </div>
+                                </Label>
+                                <Label htmlFor="r-qris" className={`border rounded-md p-4 text-center cursor-pointer ${form.method === 'QRIS_NOBU' ? 'border-orange-500 bg-orange-50' : ''}`}>
+                                    <RadioGroupItem value="QRIS_NOBU" id="r-qris" className="sr-only" />
+                                    <div className="flex flex-col items-center gap-1">
+                                        <QrCode className="w-5 h-5" />
+                                        <span className="text-sm font-medium">QRIS</span>
+                                    </div>
+                                </Label>
                             </RadioGroup>
                         </div>
+                        
+                        {form.method === 'SALDO_NON_CASH' && (
+                            <div>
+                                <Label htmlFor="pin-deposit">PIN Transaksi</Label>
+                                <Input 
+                                    id="pin-deposit" 
+                                    type="password" 
+                                    value={pin} 
+                                    onChange={(e) => setPin(e.target.value)} 
+                                    placeholder="Masukkan PIN" 
+                                    className="mt-1"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">PIN diperlukan untuk pembayaran dengan saldo</p>
+                            </div>
+                        )}
                         <div>
                             <Label htmlFor="amount-deposit">Jumlah Setoran</Label>
                             <Input id="amount-deposit" type="text" value={formatRupiah(form.amount)} onChange={(e) => setForm(f => ({...f, amount: e.target.value.replace(/[^0-9]/g, '')}))} placeholder="Rp 0" />
@@ -298,14 +341,65 @@ const Simpanan: React.FC = () => {
             */}
 
             <Dialog open={modalState.type === 'show_qris'} onOpenChange={handleCloseModal}>
-                <DialogContent>
-                    <DialogHeader><DialogTitle>Pindai untuk Membayar</DialogTitle></DialogHeader>
-                    <div className="flex flex-col items-center justify-center p-4">
-                        <img src={modalState.data?.qrCode} alt="QRIS Code" className="w-64 h-64" />
-                        <p className="mt-4 text-sm text-gray-600">Pindai QR Code ini dengan aplikasi pembayaran Anda.</p>
-                        <div className="w-full mt-4">
-                            <TransactionStatusCheck transactionId={modalState.data?.transaction_id} koperasiId={koperasiId} onComplete={() => { handleCloseModal(); fetchInitialData(false); }} />
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-center">Setor Dana via QRIS Koperasi</DialogTitle>
+                        <p className="text-xs text-gray-500 text-center">
+                            QRIS diterbitkan oleh koperasi induk: pembayaran masuk ke rekening koperasi
+                        </p>
+                    </DialogHeader>
+                    <div className="flex flex-col items-center justify-center p-6 space-y-4">
+                        {/* QR Code Container */}
+                        <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-gray-100">
+                            <img 
+                                src={modalState.data?.qrCode} 
+                                alt="QRIS Code" 
+                                className="w-64 h-64 mx-auto rounded-lg" 
+                            />
                         </div>
+                        
+                        {/* Amount Display */}
+                        <div className="text-center">
+                            <p className="text-2xl font-bold text-green-600">
+                                {formatRupiah(modalState.data?.amount || 0)}
+                            </p>
+                            <p className="text-sm text-gray-600 mt-1">
+                                Tipe: {form.type} • ID: {modalState.data?.transaction_id}
+                            </p>
+                        </div>
+                        
+                        {/* Instructions */}
+                        <div className="bg-blue-50 p-4 rounded-lg w-full">
+                            <p className="text-sm text-blue-800 font-medium text-center mb-2">
+                                📱 Cara Pembayaran
+                            </p>
+                            <ol className="text-xs text-blue-700 space-y-1">
+                                <li>1. Buka aplikasi pembayaran (GoPay, OVO, DANA, dll)</li>
+                                <li>2. Pilih "Scan QR" atau "QRIS"</li>
+                                <li>3. Arahkan kamera ke QR code di atas</li>
+                                <li>4. Konfirmasi pembayaran</li>
+                            </ol>
+                        </div>
+                        
+                        {/* Status Check */}
+                        <div className="w-full">
+                            <TransactionStatusCheck 
+                                transactionId={modalState.data?.transaction_id || null} 
+                                koperasiId={koperasiId || null} 
+                                onComplete={() => { 
+                                    handleCloseModal(); 
+                                    fetchInitialData(false); 
+                                    setNotification({ 
+                                        message: 'Setoran berhasil! Saldo Anda telah diperbarui.', 
+                                        status: 'success' 
+                                    });
+                                }} 
+                            />
+                        </div>
+                        
+                        <Button variant="outline" className="w-full" onClick={handleCloseModal}>
+                            Tutup
+                        </Button>
                     </div>
                 </DialogContent>
             </Dialog>
@@ -313,7 +407,14 @@ const Simpanan: React.FC = () => {
             <Dialog open={modalState.type === 'status'} onOpenChange={handleCloseModal}>
                 <DialogContent>
                     <DialogHeader><DialogTitle>Memeriksa Status Transaksi</DialogTitle></DialogHeader>
-                    <TransactionStatusCheck transactionId={modalState.data?.transaction_id} koperasiId={koperasiId} onComplete={() => { handleCloseModal(); fetchInitialData(false); }} />
+                    <TransactionStatusCheck 
+                        transactionId={modalState.data?.transaction_id || null} 
+                        koperasiId={koperasiId || null} 
+                        onComplete={() => { 
+                            handleCloseModal(); 
+                            fetchInitialData(false); 
+                        }} 
+                    />
                 </DialogContent>
             </Dialog>
         </div>

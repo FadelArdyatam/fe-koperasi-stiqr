@@ -45,7 +45,7 @@ const DashboardAnggota: React.FC = () => {
 
     if (affiliationLoading) {
         return (
-            <div className="min-h-screen pb-28 bg-gray-50">
+            <div className="min-h-screen pb-32 bg-gray-50">
                 <Header />
                 <div className="p-4 space-y-4 animate-pulse">
                     <div className="w-full h-24 bg-gray-200 rounded-lg"></div>
@@ -59,7 +59,7 @@ const DashboardAnggota: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen font-sans pb-28 bg-gray-50">
+        <div className="min-h-screen font-sans pb-32 bg-gray-50">
             <Header />
 
             <div className="p-4 space-y-6">

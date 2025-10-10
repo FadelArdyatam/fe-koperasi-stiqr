@@ -54,17 +54,18 @@ export const ValidateMembers: React.FC<ValidateMembersProps> = ({ koperasiId }) 
     try {
       setProcessing(memberId);
       
-      const response = await fetch('/api/koperasi/approve', {
+      if (!koperasiId) {
+        throw new Error('Koperasi ID tidak tersedia');
+      }
+      
+      const verb = decision === 'ACTIVE' ? 'approve-merchant' : 'reject-merchant';
+      const response = await fetch(`/api/koperasi/${koperasiId}/${verb}/${memberId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        credentials: 'include',
-        body: JSON.stringify({
-          id: memberId,
-          decision
-        })
+        credentials: 'include'
       });
 
       if (!response.ok) {

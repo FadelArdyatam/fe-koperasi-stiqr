@@ -16,7 +16,7 @@ const Layout = () => {
             <Outlet />
 
             {/* Shared Bottom Navbar */}
-            <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-10">
+            <div id="navbar" className="w-full flex items-end gap-5 justify-between px-3 py-2 bg-white text-xs fixed bottom-0 border z-50 safe-area-pb">
                 <Link to={'/dashboard'} className={`flex gap-3 flex-col items-center ${pathname === '/dashboard' ? 'text-orange-400' : ''}`}>
                     <Home />
                     <p className="uppercase">Home</p>
