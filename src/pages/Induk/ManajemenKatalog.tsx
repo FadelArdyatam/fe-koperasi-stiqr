@@ -148,7 +148,7 @@ const ManajemenKatalog: React.FC = () => {
             setIsModalOpen(false);
             setEditingItem(null);
         } catch (error: any) {
-            triggerNotification(error.response?.data?.message || `Gagal menyimpan catatan.`, 'error');
+            triggerNotification(`Gagal menyimpan catatan.`, 'error');
         }
     }, [editingItem, koperasiId]);
 
@@ -158,7 +158,7 @@ const ManajemenKatalog: React.FC = () => {
             triggerNotification('Item berhasil dihapus dari katalog.', 'success');
             fetchItems(); // Re-fetch data on success
         } catch (error: any) {
-            triggerNotification(error.response?.data?.message || 'Gagal menghapus item.', 'error');
+            triggerNotification('Gagal menghapus item.', 'error');
         }
     }, [koperasiId, fetchItems]);
 
@@ -169,7 +169,7 @@ const ManajemenKatalog: React.FC = () => {
             triggerNotification(`Status item berhasil diperbarui.`, 'success');
             setItems(prevItems => prevItems.map(i => i.id === item.id ? { ...i, is_active: !item.is_active } : i));
         } catch (error: any) {
-            triggerNotification(error.response?.data?.message || 'Gagal memperbarui status.', 'error');
+            triggerNotification('Gagal memperbarui status.', 'error');
         }
     }, [koperasiId]);
 

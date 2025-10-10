@@ -59,7 +59,7 @@ const KoperasiMargins: React.FC = () => {
                 setShowNotification(true);
             }
         } catch (e: any) {
-            setErrorMessage(e?.response?.data?.message || 'Gagal mengambil data');
+            setErrorMessage('Gagal memuat data');
             setShowNotification(true);
         } finally {
             setLoading(false);
@@ -75,7 +75,7 @@ const KoperasiMargins: React.FC = () => {
             const res = await axiosInstance.get(`/koperasi/margin/${id}`);
             setRules(res.data || []);
         } catch (e: any) {
-            setErrorMessage(e?.response?.data?.message || 'Gagal mengambil aturan margin');
+            setErrorMessage('Gagal memuat aturan margin');
             setShowNotification(true);
         }
     };
@@ -96,7 +96,7 @@ const KoperasiMargins: React.FC = () => {
             await fetchRules(koperasiId);
             setForm({ ...form, value: '' });
         } catch (e: any) {
-            setErrorMessage(e?.response?.data?.message || 'Gagal menyimpan aturan margin');
+            setErrorMessage('Gagal menyimpan aturan margin');
             setShowNotification(true);
         } finally {
             setActionLoading(false);

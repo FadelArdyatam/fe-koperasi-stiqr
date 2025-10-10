@@ -79,7 +79,7 @@ const KoperasiDashboard: React.FC = () => {
             setShowNotification(true);
             setPendingMerchants(prev => prev.filter(m => m.id !== merchantId));
         } catch (err: any) {
-            setErrorMessage(err.response?.data?.message || `Gagal untuk ${action} merchant.`);
+            setErrorMessage(`Gagal untuk ${action} merchant.`);
             setShowNotification(true);
         } finally {
             setLoadingAction(false);
