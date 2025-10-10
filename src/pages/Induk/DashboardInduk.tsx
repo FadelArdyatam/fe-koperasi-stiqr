@@ -25,7 +25,7 @@ interface PendingMerchantKoperasi {
 }
 
 const DashboardInduk: React.FC = () => {
-    const { data: affiliationData } = useAffiliation();
+    const { data: affiliationData, loading: affiliationLoading } = useAffiliation();
     const [pendingMerchants, setPendingMerchants] = useState<PendingMerchantKoperasi[]>([]);
     const [loadingPage, setLoadingPage] = useState(true);
     const [loadingAction, setLoadingAction] = useState(false);
@@ -81,7 +81,7 @@ const DashboardInduk: React.FC = () => {
                 detail: { merchantId, action } 
             }));
         } catch (err: any) {
-            setErrorMessage(err.response?.data?.message || `Gagal untuk ${action} merchant.`);
+            setErrorMessage(`Gagal untuk ${action} merchant.`);
             setShowNotification(true);
         } finally {
             setLoadingAction(false);
@@ -122,7 +122,9 @@ const DashboardInduk: React.FC = () => {
                 <h1 className="text-xl md:text-2xl font-bold text-slate-800">Dashboard Koperasi</h1>
                 <div className="ml-auto flex items-center gap-4">
                     <NotificationBell />
-                    {koperasiId && (
+                    {affiliationLoading ? (
+                        <div className="h-5 w-24 bg-gray-200 rounded-md animate-pulse"></div>
+                    ) : koperasiId && (
                         <span className="text-xs sm:text-sm font-mono text-slate-500 bg-slate-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">
                             ID: {koperasiId}
                         </span>
