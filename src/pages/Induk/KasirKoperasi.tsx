@@ -118,7 +118,7 @@ const KasirKoperasi: React.FC = () => {
 
   // Payment states
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [, setPaymentMethod] = useState<"CASH" | "QRIS" | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "QRIS" | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -131,6 +131,10 @@ const KasirKoperasi: React.FC = () => {
   const [showQRModal, setShowQRModal] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'PENDING' | 'PAID' | 'FAILED' | 'EXPIRED'>('PENDING');
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
+  
+  // QRIS waiting states
+  const [showQRISWaiting, setShowQRISWaiting] = useState(false);
+  const [qrisError, setQrisError] = useState<string | null>(null);
 
   useEffect(() => { setSelectedMember({ id: "non-member", name: "Non Anggota", email: "", phone_number: "", tier: "NON_MEMBER" }); }, []);
 
@@ -187,7 +191,7 @@ const KasirKoperasi: React.FC = () => {
 
     const handleQRISGenerated = (data: any) => {
       console.log('[KasirKoperasi] QRIS generated:', data);
-      if (data.orderId === currentOrderId) {
+      if (data.orderId === currentOrderId && paymentMethod === 'QRIS') {
         setQrCode(data.qrCode);
         setShowQRModal(true);
         setPaymentStatus('PENDING');
@@ -200,7 +204,12 @@ const KasirKoperasi: React.FC = () => {
       if (data.orderId === currentOrderId) {
         setPaymentStatus('PAID');
         setShowQRModal(false);
-        setShowSuccess(true);
+        
+        // Only show success modal for QRIS payments, not cash
+        if (data.payment_method === 'QRIS') {
+          setShowSuccess(true);
+        }
+        
         setNotification({ 
           message: `Pembayaran berhasil! Order ID: ${data.orderId}`, 
           status: 'success' 
@@ -230,7 +239,7 @@ const KasirKoperasi: React.FC = () => {
       socket.off('payment:success', handlePaymentSuccess);
       socket.off('payment:failed', handlePaymentFailed);
     };
-  }, [currentOrderId]);
+  }, [currentOrderId, paymentMethod]);
 
   // Timer for QRIS countdown
   useEffect(() => {
@@ -329,42 +338,106 @@ const KasirKoperasi: React.FC = () => {
   };
 
   const handlePaymentMethodSelect = async (method: "CASH" | "QRIS") => {
+    // Validate PIN first
+    if (!pin || pin.length !== 6) {
+      setNotification({ 
+        message: "PIN harus 6 digit", 
+        status: "error" 
+      });
+      return;
+    }
+
     setPaymentMethod(method);
     setShowPaymentModal(false);
     setPaymentLoading(true);
+    
     try {
-      const checkoutData = { koperasi_id: koperasiId, items: basket.map((item) => ({ product_id: item.product_id, quantity: item.quantity, unit_price: item.finalPrice, original_price: item.price })), customer_info: { name: selectedMember?.name || "Guest", email: selectedMember?.email || "", phone: selectedMember?.phone_number || "" }, payment_method: method, order_summary: { subtotal: total - margin, margin, total }, selected_member_tier: selectedMember?.tier || "NON_MEMBER", pin: pin };
+      const checkoutData = { 
+        koperasi_id: koperasiId, 
+        items: basket.map((item) => ({ 
+          product_id: item.product_id, 
+          quantity: item.quantity, 
+          unit_price: item.finalPrice, 
+          original_price: item.price 
+        })), 
+        customer_info: { 
+          name: selectedMember?.name || "Guest", 
+          email: selectedMember?.email || "", 
+          phone: selectedMember?.phone_number || "" 
+        }, 
+        payment_method: method, 
+        order_summary: { 
+          subtotal: total - margin, 
+          margin, 
+          total 
+        }, 
+        selected_member_tier: selectedMember?.tier || "NON_MEMBER", 
+        pin: pin 
+      };
+      
       const response = await axiosInstance.post<ApiResponse<CheckoutResponse>>("/checkout/koperasi-catalog", checkoutData);
+      
       if (response.data.success && response.data.data) {
         setLastOrderData({ ...checkoutData, ...response.data.data });
-        setCurrentOrderId(response.data.data.order_id); // Set current order ID for WebSocket
+        setCurrentOrderId(response.data.data.order_id);
         
         if (method === "QRIS") {
-          // For QRIS, show loading state while waiting for WebSocket
+          // For QRIS, show waiting state
           setPaymentStatus('PENDING');
           setTimeLeft(300);
+          setShowQRISWaiting(true);
+          setQrisError(null);
           
           if (response.data.data.qr_code) {
-            // Fallback if WebSocket doesn't work
+            // QRIS available, show QR modal
           setQrCode(response.data.data.qr_code);
             setShowQRModal(true);
+            setShowQRISWaiting(false);
           } else {
-            // Show loading state while waiting for WebSocket event
+            // QRIS not available, show waiting state
             setNotification({ 
-              message: "Memproses QRIS...", 
+              message: "Menunggu QRIS...", 
               status: "success" 
             });
           }
         } else {
-          // For CASH, show receipt immediately
+          // For CASH, show receipt immediately and clear all QR states
           setShowReceipt(true);
-          setNotification({ message: "Pembayaran tunai berhasil dicatat.", status: "success" });
+          setShowQRModal(false);
+          setShowSuccess(false);
+          setQrCode(null);
+          setPaymentStatus('PENDING');
+          setCurrentOrderId(null);
+          setNotification({ 
+            message: "Pembayaran tunai berhasil dicatat.", 
+            status: "success" 
+          });
+          // Clear basket after successful payment
+          setBasket([]);
         }
       } else {
-        setNotification({ message: response.data.message || "Pembayaran gagal", status: "error" });
+        setNotification({ 
+          message: response.data.message || "Pembayaran gagal", 
+          status: "error" 
+        });
       }
     } catch (error: any) {
-      const message = error.response?.data?.message || "Terjadi kesalahan saat checkout";
+      console.error('Payment error:', error);
+      let message = "Terjadi kesalahan saat checkout";
+      
+      if (error.response?.data?.message) {
+        message = error.response.data.message;
+        
+        // Check if it's QRIS related error
+        if (message.includes("QRIS") || message.includes("qris") || message.includes("pengajuan")) {
+          setQrisError(message);
+          setShowQRISWaiting(true);
+          setPaymentMethod("QRIS");
+        }
+      } else if (error.message) {
+        message = error.message;
+      }
+      
       setNotification({ message, status: "error" });
     } finally {
       setPaymentLoading(false);
@@ -395,6 +468,10 @@ const KasirKoperasi: React.FC = () => {
     setPaymentStatus('PENDING');
     setTimeLeft(300);
     
+    // Reset QRIS waiting states
+    setShowQRISWaiting(false);
+    setQrisError(null);
+    
     if (status === 'cancelled') {
         setNotification({ message: 'Transaksi dibatalkan.', status: 'warning' });
     } else if (status === 'completed') {
@@ -410,7 +487,7 @@ const KasirKoperasi: React.FC = () => {
         {notification && <Notification message={notification.message} status={notification.status} onClose={() => setNotification(null)} />}
 
       {/* Main Layout - STIQR Style */}
-      <div className={`${showPaymentModal || showQRModal || showReceipt || showSuccess ? 'hidden' : 'flex'} w-full pb-32 flex-col min-h-screen items-center bg-orange-50`}>
+      <div className={`${showPaymentModal || showQRModal || showReceipt || showSuccess || showQRISWaiting ? 'hidden' : 'flex'} w-full pb-40 flex-col min-h-screen items-center bg-orange-50`}>
         <div className="p-5 w-full">
           {/* Header */}
           <div className="w-full flex items-center gap-5 justify-between">
@@ -531,7 +608,7 @@ const KasirKoperasi: React.FC = () => {
         {basket.length > 0 && basket.some((item) => item.quantity > 0) && (
           <Button
             onClick={() => setShowPaymentModal(true)}
-            className="fixed w-[90%] bottom-5 rounded-full left-[50%] -translate-x-[50%] bg-green-500 text-white px-5 py-[25px] flex items-center justify-between"
+            className="fixed w-[90%] bottom-20 rounded-full left-[50%] -translate-x-[50%] bg-green-500 text-white px-5 py-[25px] flex items-center justify-between shadow-lg"
           >
             <div className="flex items-center gap-5 justify-between w-full">
               <p className="text-base font-medium">{basket.reduce((total, item) => total + (item.quantity > 0 ? 1 : 0), 0)} Produk</p>
@@ -560,35 +637,58 @@ const KasirKoperasi: React.FC = () => {
               <label className="text-sm font-medium text-gray-700 mb-2 block">PIN Transaksi</label>
               <Input 
                 type="password" 
-                placeholder="Masukkan PIN" 
+                placeholder="Masukkan PIN (6 digit)" 
                 value={pin} 
-                onChange={(e) => setPin(e.target.value)}
-                className="w-full"
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, ''); // Only numbers
+                  if (value.length <= 6) {
+                    setPin(value);
+                  }
+                }}
+                maxLength={6}
+                className="w-full text-center text-lg tracking-widest"
+                inputMode="numeric"
+                pattern="[0-9]*"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                {pin.length}/6 digit
+              </p>
             </div>
 
             {/* Payment Methods */}
             <div className="space-y-3">
               <Button 
                 onClick={() => handlePaymentMethodSelect('CASH')} 
-                disabled={paymentLoading || !pin} 
-                className="w-full h-16 justify-start bg-orange-100 text-orange-500 hover:bg-orange-200"
+                disabled={paymentLoading || !pin || pin.length !== 6} 
+                className="w-full h-16 justify-start bg-orange-100 text-orange-500 hover:bg-orange-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Wallet className="mr-3" size={20} />
+                {paymentLoading && paymentMethod === 'CASH' ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-500 mr-3"></div>
+                ) : (
+                  <Wallet className="mr-3" size={20} />
+                )}
                 <div className="text-left">
-                  <div className="font-semibold">Bayar Tunai</div>
+                  <div className="font-semibold">
+                    {paymentLoading && paymentMethod === 'CASH' ? 'Memproses...' : 'Bayar Tunai'}
+                  </div>
                   <div className="text-sm opacity-75">Pembayaran langsung</div>
                 </div>
               </Button>
 
               <Button 
                 onClick={() => handlePaymentMethodSelect('QRIS')} 
-                disabled={paymentLoading || !pin} 
-                className="w-full h-16 justify-start bg-blue-100 text-blue-500 hover:bg-blue-200"
+                disabled={paymentLoading || !pin || pin.length !== 6} 
+                className="w-full h-16 justify-start bg-blue-100 text-blue-500 hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <QrCode className="mr-3" size={20} />
+                {paymentLoading && paymentMethod === 'QRIS' ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
+                ) : (
+                  <QrCode className="mr-3" size={20} />
+                )}
                 <div className="text-left">
-                  <div className="font-semibold">QRIS</div>
+                  <div className="font-semibold">
+                    {paymentLoading && paymentMethod === 'QRIS' ? 'Memproses...' : 'QRIS'}
+                  </div>
                   <div className="text-sm opacity-75">Scan QR untuk pembayaran</div>
                 </div>
               </Button>
@@ -690,6 +790,42 @@ const KasirKoperasi: React.FC = () => {
           <p className="text-2xl font-bold text-orange-600">{formatRupiah(total)}</p>
           <Button onClick={() => resetTransaction('completed')} className="mt-4 w-full">Transaksi Baru</Button>
       </CardContent></ModalTemplate>}
+
+      {/* QRIS Waiting Modal */}
+      {showQRISWaiting && !qrisError && <ModalTemplate title="Menunggu QRIS" onClose={() => resetTransaction('cancelled')}><CardContent className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <h3 className="text-lg font-semibold mb-2">Menunggu QRIS...</h3>
+          <p className="text-sm text-gray-600 mb-4">QRIS sedang diproses, mohon tunggu sebentar</p>
+          {currentOrderId && (
+            <div className="text-xs text-gray-500">
+              Order ID: {currentOrderId}
+            </div>
+          )}
+      </CardContent><CardFooter><Button variant="destructive" onClick={() => resetTransaction('cancelled')}>Batal</Button></CardFooter></ModalTemplate>}
+
+      {/* QRIS Error Modal */}
+      {showQRISWaiting && qrisError && <ModalTemplate title="QRIS Tidak Tersedia" onClose={() => resetTransaction('cancelled')}><CardContent className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+            <X className="w-8 h-8 text-red-500"/>
+          </div>
+          <h3 className="text-lg font-semibold mb-2 text-red-600">QRIS Belum Tersedia</h3>
+          <p className="text-sm text-gray-600 mb-4">{qrisError}</p>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
+            <p className="font-medium">Solusi:</p>
+            <ul className="text-left mt-2 space-y-1">
+              <li>• Pastikan koperasi induk sudah melakukan pengajuan QRIS</li>
+              <li>• Tunggu approval QRIS dari pihak NOBU</li>
+              <li>• Gunakan metode pembayaran tunai untuk sementara</li>
+            </ul>
+    </div>
+      </CardContent><CardFooter className="flex gap-2">
+          <Button variant="outline" onClick={() => resetTransaction('cancelled')}>Batal</Button>
+          <Button onClick={() => {
+            setShowQRISWaiting(false);
+            setQrisError(null);
+            setShowPaymentModal(true);
+          }}>Ganti Metode</Button>
+      </CardFooter></ModalTemplate>}
     </>
   );
 };

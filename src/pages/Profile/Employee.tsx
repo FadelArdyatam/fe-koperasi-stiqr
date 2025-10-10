@@ -136,7 +136,7 @@ const Employee = () => {
                     setAddEmployee(true)
                     setIsSuccess(false)
                 }}
-                    className={`${employees.length === 0 ? 'hidden' : 'block'} fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500 p-3 rounded-full text-white`}>
+                    className={`${employees.length === 0 ? 'hidden' : 'block'} fixed bottom-20 left-[50%] -translate-x-[50%] bg-orange-500 p-3 rounded-full text-white shadow-lg`}>
                     Tambah Pegawai
                 </button>
             </div>

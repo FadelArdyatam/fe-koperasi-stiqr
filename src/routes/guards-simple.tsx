@@ -37,11 +37,25 @@ export const RequireAnggotaKoperasiSimple: React.FC<{ children: React.ReactNode 
   
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
+    console.log('[RequireAnggotaKoperasiSimple] JWT payload:', payload);
+    console.log('[RequireAnggotaKoperasiSimple] affiliation:', payload.affiliation);
+    console.log('[RequireAnggotaKoperasiSimple] approval_status:', payload.approval_status);
+    
     if (payload.affiliation === 'KOPERASI_ANGGOTA') {
-      return <>{children}</>;
+      // Check approval status
+      if (payload.approval_status === 'APPROVED') {
+        console.log('[RequireAnggotaKoperasiSimple] ✅ Access granted - approved member');
+        return <>{children}</>;
+      } else {
+        console.log('[RequireAnggotaKoperasiSimple] ❌ Access denied - pending/rejected member');
+        return <Navigate to="/access-info" replace />;
+      }
     }
+    
+    console.log('[RequireAnggotaKoperasiSimple] ❌ Access denied - not a member');
     return <Navigate to="/dashboard" replace />;
   } catch (e) {
+    console.error('[RequireAnggotaKoperasiSimple] JWT decode error:', e);
     return <Navigate to="/dashboard" replace />;
   }
 };

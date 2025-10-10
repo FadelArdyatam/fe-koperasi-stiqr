@@ -202,7 +202,7 @@ const Variant: React.FC<VariantProps> = ({ variants, setVariants, addVariant, se
                     )}
                 </div>
 
-                <Button disabled onClick={() => { setAddVariant(true); setReset(false) }} className={`${variants?.length === 0 ? 'hidden' : 'block'} fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500`}>
+                <Button disabled onClick={() => { setAddVariant(true); setReset(false) }} className={`${variants?.length === 0 ? 'hidden' : 'block'} fixed bottom-20 left-[50%] -translate-x-[50%] bg-orange-500 shadow-lg`}>
                     Tambah Varian
                 </Button>
             </div>

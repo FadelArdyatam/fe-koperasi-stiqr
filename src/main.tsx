@@ -56,7 +56,6 @@ import TambahProdukInduk from './pages/Induk/TambahProduk.tsx';
 // Koperasi Anggota Imports
 import DashboardAnggota from './pages/Anggota/DashboardAnggota.tsx';
 import KatalogProduk from './pages/Anggota/KatalogProduk.tsx';
-import Simpanan from './pages/Anggota/Simpanan.tsx';
 import QRPayment from './pages/Anggota/QRPayment.tsx';
 
 // Koperasi Umum/Public Imports
@@ -64,6 +63,9 @@ import PilihKoperasi from './pages/Umum/PilihKoperasi.tsx';
 import KatalogPublik from './pages/Umum/KatalogPublik.tsx';
 import QRPaymentUmum from './pages/Umum/QRPayment.tsx';
 import MemberSimpanPinjam from './pages/KoperasiSimpanPinjam/Member/MemberSimpanPinjam.tsx';
+
+// Access Info Import
+import AccessInfo from './pages/AccessInfo.tsx';
 
 const router = createBrowserRouter([
   // Routes without the shared navbar
@@ -110,6 +112,10 @@ const router = createBrowserRouter([
   {
     path: '/umum/qr-payment',
     element: <QRPaymentUmum />,
+  },
+  {
+    path: '/access-info',
+    element: <AccessInfo />,
   },
   {
     path: '*',

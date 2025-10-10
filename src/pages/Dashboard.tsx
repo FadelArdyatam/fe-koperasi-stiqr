@@ -1,4 +1,4 @@
-import { CircleDollarSign, Droplet, HandCoins, Mail, ShieldCheck, Smartphone, Zap, X, ClipboardList, CirclePercent, EyeOff, Eye, UsersRound, ChevronsLeft, ChevronsRight, ChevronRight, ChevronLeft, Building2, Home, ScanQrCode, CreditCard, FileText, UserRound, Store } from "lucide-react";
+import { CircleDollarSign, Droplet, HandCoins, Mail, ShieldCheck, Smartphone, Zap, X, ClipboardList, CirclePercent, EyeOff, Eye, UsersRound, ChevronsLeft, ChevronsRight, ChevronRight, ChevronLeft, Building2, Store } from "lucide-react";
 import logo from "@/images/logo.png";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -484,24 +484,40 @@ const Dashboard = () => {
             {/* Status info for KOPERASI_ANGGOTA */}
             {affiliation?.affiliation === 'KOPERASI_ANGGOTA' && (
                 <div className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg overflow-hidden p-5 bg-white shadow-lg">
-                    <Link to={affiliation?.approval_status === 'APPROVED' ? "/anggota/dashboard" : '#'} className={`block ${affiliation?.approval_status !== 'APPROVED' ? 'cursor-not-allowed' : ''}`}>
-                        <div className={`p-4 rounded-lg ${affiliation?.approval_status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-orange-100 text-orange-800 hover:bg-orange-200 transition-colors'}`}>
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <Building2 className="text-current" />
-                                    <div>
-                                        <p className="font-semibold">
-                                            {affiliation?.approval_status === 'PENDING' ? 'Menunggu Persetujuan' : 'Anggota Koperasi'}
-                                        </p>
-                                        <p className="text-sm">{affiliation?.koperasi?.nama_koperasi}</p>
+                    {affiliation?.approval_status === 'APPROVED' ? (
+                        <Link to="/anggota/dashboard" className="block">
+                            <div className="p-4 rounded-lg bg-orange-100 text-orange-800 hover:bg-orange-200 transition-colors">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <Building2 className="text-current" />
+                                        <div>
+                                            <p className="font-semibold">Anggota Koperasi</p>
+                                            <p className="text-sm">{affiliation?.koperasi?.nama_koperasi}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                {affiliation?.approval_status === 'APPROVED' && (
                                     <ChevronRight className="text-current" />
-                                )}
+                                </div>
                             </div>
-                        </div>
-                    </Link>
+                        </Link>
+                    ) : (
+                        <Link to="/access-info" className="block">
+                            <div className={`p-4 rounded-lg ${affiliation?.approval_status === 'PENDING' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 'bg-red-100 text-red-800 hover:bg-red-200'} transition-colors`}>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <Building2 className="text-current" />
+                                        <div>
+                                            <p className="font-semibold">
+                                                {affiliation?.approval_status === 'PENDING' ? 'Menunggu Persetujuan' : 'Akses Ditolak'}
+                                            </p>
+                                            <p className="text-sm">{affiliation?.koperasi?.nama_koperasi}</p>
+                                            <p className="text-xs opacity-75">Klik untuk info lebih lanjut</p>
+                                        </div>
+                                    </div>
+                                    <ChevronRight className="text-current" />
+                                </div>
+                            </div>
+                        </Link>
+                    )}
                 </div>
             )}
 

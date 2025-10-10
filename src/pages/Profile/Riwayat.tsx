@@ -608,7 +608,7 @@ const Riwayat = () => {
 
             {/* {
                 type != "Uang Masuk" && (
-                    <div className={`${showDescription.status ? 'hidden' : 'fixed bottom-32 w-full m-auto flex items-center justify-center'} `}>
+                    <div className={`${showDescription.status ? 'hidden' : 'fixed bottom-20 w-full m-auto flex items-center justify-center'} `}>
                         <div className="flex relative items-center justify-center py-3 px-5 rounded-full bg-white shadow-lg gap-5">
                             <button onClick={() => setIsOpenFilter(!isOpenFilter)} className={`flex items-center gap-2 text-gray-500`}>
                                 <Filter />

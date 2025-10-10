@@ -116,7 +116,7 @@ const Etalase: React.FC<EtalaseProps> = ({ etalases, setEtalases, addEtalase, se
                     )}
                 </div>
 
-                <Button onClick={() => { setAddEtalase(true); setReset(false) }} className={`fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500 ${etalases.length === 0 ? 'hidden' : 'block'}`}>
+                <Button onClick={() => { setAddEtalase(true); setReset(false) }} className={`fixed bottom-20 left-[50%] -translate-x-[50%] bg-orange-500 shadow-lg ${etalases.length === 0 ? 'hidden' : 'block'}`}>
                     Tambah Etalase
                 </Button>
             </div>

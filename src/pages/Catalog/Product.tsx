@@ -252,7 +252,7 @@ const Product: React.FC<ProductProps> = ({
             setAddProduct(true);
             setReset(false);
           }}
-          className={`fixed bottom-32 left-[50%] -translate-x-[50%] bg-orange-500 
+          className={`fixed bottom-20 left-[50%] -translate-x-[50%] bg-orange-500 shadow-lg
         ${products?.length === 0 ? "hidden" : "block"}`}
         >
           Tambah Produk

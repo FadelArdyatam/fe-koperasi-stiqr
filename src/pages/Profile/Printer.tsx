@@ -180,7 +180,7 @@ const Printer = () => {
 
                 <button
                     onClick={() => setShowOption(true)}
-                    className={`fixed bottom-32 left-[50%] -translate-x-[50%] p-3 w-[90%] rounded-full text-white ${isConnecting ? "bg-gray-500 cursor-not-allowed" : "bg-orange-500"}`}
+                    className={`fixed bottom-20 left-[50%] -translate-x-[50%] p-3 w-[90%] rounded-full text-white shadow-lg ${isConnecting ? "bg-gray-500 cursor-not-allowed" : "bg-orange-500"}`}
                     disabled={isConnecting}
                 >
                     {isConnecting ? "Menyambungkan..." : "Tambah Perangkat Baru"}
