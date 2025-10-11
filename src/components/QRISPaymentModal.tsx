@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useCountdown } from '@/hooks/useCountdow                <QRCode
-                  value={qrCode}
-                  size={200}
-                  level="M"
-                  className="mx-auto"
-                />port { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCountdown } from '@/hooks/useCountdown';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, AlertCircle } from "lucide-react";
 import axiosInstance from '@/hooks/axiosInstance';
@@ -104,13 +100,13 @@ export const QRISPaymentModal: React.FC<QRISPaymentModalProps> = ({
           {status === 'waiting' && (
             <>
               <div className="p-4 bg-white border-2 border-gray-200 rounded-lg">
-                <QRCode
-                  value={qrCode}
-                  size={240}
-                  level="H"
-                  includeMargin={true}
-                  className="mx-auto"
-                />
+                <div className="flex justify-center">
+                  <QRCode
+                    value={qrCode}
+                    size={240}
+                    level="H"
+                  />
+                </div>
               </div>
               <div className="text-center">
                 <p className="text-lg font-semibold text-orange-600">

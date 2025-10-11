@@ -3,6 +3,7 @@ import axiosInstance from '@/hooks/axiosInstance';
 import Notification from '@/components/Notification';
 import { useNavigate } from 'react-router-dom';
 import { useAffiliation } from '@/hooks/useAffiliation';
+import { useDueDate } from '@/hooks/useDueDate';
 
 import {
     Users,
@@ -10,6 +11,11 @@ import {
     History,
     ArrowLeft, 
     Landmark,
+    Calendar,
+    AlertTriangle,
+    Clock,
+    CheckCircle,
+    XCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,9 +30,17 @@ interface PendingMerchantKoperasi {
     user: { username: string; email: string; phone_number: string; };
 }
 
+interface BalanceInfo {
+    total: number;
+    cash_amount: number;
+    non_cash_amount: number;
+}
+
 const DashboardInduk: React.FC = () => {
     const { data: affiliationData, loading: affiliationLoading } = useAffiliation();
+    const { summary } = useDueDate(affiliationData?.koperasi?.id);
     const [pendingMerchants, setPendingMerchants] = useState<PendingMerchantKoperasi[]>([]);
+    const [balance, setBalance] = useState<BalanceInfo | null>(null);
     const [loadingPage, setLoadingPage] = useState(true);
     const [loadingAction, setLoadingAction] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
@@ -45,11 +59,19 @@ const DashboardInduk: React.FC = () => {
         const fetchDashboardData = async () => {
             setLoadingPage(true);
             try {
-                // Fetch pending approvals
-                const approvalRes = await axiosInstance.get(`/koperasi/${koperasiId}/pending-approvals`);
+                // Fetch pending approvals and profit summary
+                const [approvalRes, profitRes] = await Promise.all([
+                    axiosInstance.get(`/koperasi/${koperasiId}/pending-approvals`),
+                    axiosInstance.get(`/koperasi/${koperasiId}/catalog/profit`).catch(() => null)
+                ]);
 
                 // Set pending merchants for the main card
                 setPendingMerchants(approvalRes.data || []);
+
+                // Set balance info
+                if (profitRes?.data?.data?.balance) {
+                    setBalance(profitRes.data.data.balance);
+                }
 
             } catch (error) {
                 setErrorMessage('Gagal memuat data dashboard.');
@@ -92,6 +114,7 @@ const DashboardInduk: React.FC = () => {
         { label: 'Anggota', icon: <Users className="w-6 h-6 text-orange-500" />, path: '/induk/manajemen-anggota' },
         { label: 'Margin', icon: <Percent className="w-6 h-6 text-orange-500" />, path: '/induk/manajemen-keuangan' },
         { label: 'Simpanan', icon: <Landmark className="w-6 h-6 text-orange-500" />, path: '/induk/manajemen-simpanan' },
+        { label: 'Jatuh Tempo', icon: <Calendar className="w-6 h-6 text-orange-500" />, path: '/induk/manajemen-jatuh-tempo' },
         { label: 'Riwayat', icon: <History className="w-6 h-6 text-orange-500" />, path: '/induk/riwayat' },
     ];
 
@@ -132,7 +155,41 @@ const DashboardInduk: React.FC = () => {
                 </div>
             </header>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {/* ✅ NEW: Balance Summary */}
+            {balance && (
+                <Card className="mb-6 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+                    <CardContent className="p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                            <Landmark className="w-5 h-5 text-blue-600" />
+                            <div>
+                                <h3 className="font-semibold text-blue-800">Saldo Koperasi</h3>
+                                <p className="text-2xl font-bold text-blue-900 mt-1">
+                                    Rp {balance.total.toLocaleString('id-ID')}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 text-center">
+                            <div className="bg-green-100 p-3 rounded-lg">
+                                <p className="text-xs text-gray-600 mb-1">💳 Non-Cash</p>
+                                <p className="text-lg font-bold text-green-700">
+                                    Rp {balance.non_cash_amount.toLocaleString('id-ID')}
+                                </p>
+                                <p className="text-xs text-gray-500">QRIS & Transfer</p>
+                            </div>
+                            <div className="bg-orange-100 p-3 rounded-lg">
+                                <p className="text-xs text-gray-600 mb-1">💵 Cash</p>
+                                <p className="text-lg font-bold text-orange-700">
+                                    Rp {balance.cash_amount.toLocaleString('id-ID')}
+                                </p>
+                                <p className="text-xs text-gray-500">Tunai</p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
+
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
                 {menuItems.map((item) => (
                     <Card
                         key={item.label}

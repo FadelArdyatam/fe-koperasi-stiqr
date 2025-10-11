@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useAffiliation } from '@/hooks/useAffiliation';
 import axiosInstance from '@/hooks/axiosInstance';
 import { formatRupiah } from '@/hooks/convertRupiah';
+import { useDueDate } from '@/hooks/useDueDate';
+import DueDateCard from '@/components/DueDateCard';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { ArrowLeft, Wallet, ArrowUpCircle, History, Loader2, XCircle, TrendingUp, TrendingDown, QrCode } from 'lucide-react';
+import { ArrowLeft, Wallet, ArrowUpCircle, History, Loader2, XCircle, TrendingUp, TrendingDown, QrCode, AlertTriangle } from 'lucide-react';
 import Notification from '@/components/Notification';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -39,6 +41,7 @@ interface Pagination {
 const Simpanan: React.FC = () => {
     const navigate = useNavigate();
     const { koperasiId } = useAffiliation();
+    const { dueDates, loading: dueDateLoading, error: dueDateError, refetch: refetchDueDates } = useDueDate(koperasiId);
 
     // States
     const [memberId, setMemberId] = useState<string | null>(null);
@@ -149,6 +152,17 @@ const Simpanan: React.FC = () => {
         }
     };
 
+    const handlePayDueDate = (dueDate: any) => {
+        // Set form untuk pembayaran jatuh tempo
+        setForm({
+            amount: dueDate.amount_required.toString(),
+            notes: `Pembayaran jatuh tempo ${dueDate.saving_type} - ${new Date(dueDate.due_date).toLocaleDateString('id-ID')}`,
+            type: dueDate.saving_type,
+            method: 'SALDO_NON_CASH'
+        });
+        setModalState({ type: 'deposit' });
+    };
+
 
     const getStatusChip = (status: string) => {
         switch (status) {
@@ -168,6 +182,111 @@ const Simpanan: React.FC = () => {
             </header>
 
             <div className="p-4 space-y-5">
+                {/* Debug Info */}
+                {process.env.NODE_ENV === 'development' && (
+                    <Card className="bg-blue-50 border-blue-200">
+                        <CardContent className="p-2">
+                            <p className="text-xs text-blue-800">
+                                Debug: dueDates={dueDates?.length || 0}, loading={dueDateLoading}, error={dueDateError}
+                            </p>
+                            <p className="text-xs text-blue-800">
+                                koperasiId: {koperasiId}
+                            </p>
+                            <p className="text-xs text-blue-800">
+                                loading state: {dueDateLoading ? 'true' : 'false'}
+                            </p>
+                            <p className="text-xs text-blue-800">
+                                error state: {dueDateError || 'none'}
+                            </p>
+                            <p className="text-xs text-blue-800">
+                                dueDates data: {JSON.stringify(dueDates, null, 2)}
+                            </p>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Jatuh Tempo Alert */}
+                {!dueDateLoading && dueDates && dueDates.length > 0 && (
+                    <Card className="shadow-sm border-orange-200 bg-orange-50">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-medium flex items-center gap-2 text-orange-800">
+                                <AlertTriangle className="w-4 h-4" />
+                                Jatuh Tempo Simpanan
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                            <div className="space-y-3">
+                                {dueDates.filter(dd => dd.status === 'PENDING').slice(0, 2).map((dueDate) => (
+                                    <DueDateCard
+                                        key={dueDate.id}
+                                        dueDate={dueDate}
+                                        onPayNow={() => handlePayDueDate(dueDate)}
+                                        showActions={true}
+                                    />
+                                ))}
+                                {dueDates.filter(dd => dd.status === 'PENDING').length > 2 && (
+                                    <Button 
+                                        variant="outline" 
+                                        size="sm" 
+                                        className="w-full"
+                                        onClick={() => navigate('/anggota/jatuh-tempo')}
+                                    >
+                                        Lihat Semua ({dueDates.filter(dd => dd.status === 'PENDING').length})
+                                    </Button>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Debug: Show all due dates regardless of status */}
+                {process.env.NODE_ENV === 'development' && dueDates && dueDates.length > 0 && (
+                    <Card className="bg-yellow-50 border-yellow-200">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-medium text-yellow-800">
+                                Debug: Semua Due Dates
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                            <div className="space-y-2">
+                                {dueDates.map((dueDate) => (
+                                    <div key={dueDate.id} className="p-2 bg-white rounded border text-xs">
+                                        <p><strong>ID:</strong> {dueDate.id}</p>
+                                        <p><strong>Status:</strong> {dueDate.status}</p>
+                                        <p><strong>Amount:</strong> {dueDate.amount_required}</p>
+                                        <p><strong>Due Date:</strong> {new Date(dueDate.due_date).toLocaleDateString()}</p>
+                                        <p><strong>Type:</strong> {dueDate.saving_type}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Loading State for Due Dates */}
+                {dueDateLoading && (
+                    <Card className="shadow-sm border-gray-200 bg-gray-50">
+                        <CardContent className="p-4">
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                                <span className="text-sm text-gray-600">Memuat data jatuh tempo...</span>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Error State for Due Dates */}
+                {dueDateError && (
+                    <Card className="shadow-sm border-red-200 bg-red-50">
+                        <CardContent className="p-4">
+                            <div className="flex items-center gap-2">
+                                <AlertTriangle className="w-4 h-4 text-red-600" />
+                                <span className="text-sm text-red-600">{dueDateError}</span>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
                 <Card className="shadow-sm">
                     <CardContent className="p-6 text-center">
                         {loading ? <div className="h-16 bg-gray-200 rounded-lg animate-pulse w-3/4 mx-auto"></div> : 
@@ -340,6 +459,7 @@ const Simpanan: React.FC = () => {
                                 onComplete={() => { 
                                     handleCloseModal(); 
                                     fetchInitialData(false); 
+                                    refetchDueDates(); // Refresh due dates after payment
                                     setNotification({ 
                                         message: 'Setoran berhasil! Saldo Anda telah diperbarui.', 
                                         status: 'success' 
@@ -364,6 +484,7 @@ const Simpanan: React.FC = () => {
                         onComplete={() => { 
                             handleCloseModal(); 
                             fetchInitialData(false); 
+                            refetchDueDates(); // Refresh due dates after payment
                         }} 
                     />
                 </DialogContent>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import axiosInstance from '@/hooks/axiosInstance';
 import Notification from '@/components/Notification';
 import { useNavigate } from 'react-router-dom';
@@ -17,7 +17,22 @@ interface ProfitSummary {
             total_revenue: number;
             total_margin: number;
         }
-    }
+    };
+    payment_breakdown?: {
+        cash: {
+            total_amount: number;
+            transaction_count: number;
+        };
+        non_cash: {
+            total_amount: number;
+            transaction_count: number;
+        };
+    };
+    balance?: {
+        total: number;
+        cash_amount: number;
+        non_cash_amount: number;
+    };
 }
 
 interface SavingsSummary {
@@ -180,11 +195,77 @@ const ManajemenKeuangan: React.FC = () => {
                             <StatCard 
                                 title="Total Simpanan Anggota" 
                                 value={formatCurrency(savingsSummary?.data?.total_saldo_semua)} 
-                                subtitle={`${savingsSummary?.data?.total_anggota_tercatat ?? '-'} anggota tercatat`}
+                                subtitle={`${savingsSummary?.data?.total_anggota_tercatat ?? '-'} anggota tercatat (Non-Cash)`}
                                 icon={<Landmark className="w-4 h-4"/>}
                                 color="blue"
                             />
                         </div>
+
+                        {/* ✅ NEW: Balance & Payment Breakdown */}
+                        {profitSummary?.balance && (
+                            <Card className="shadow-sm">
+                                <CardHeader>
+                                    <CardTitle>Saldo Koperasi Induk</CardTitle>
+                                    <CardDescription>Breakdown saldo berdasarkan metode pembayaran</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                        <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
+                                            <p className="text-sm text-gray-600 mb-1">Total Saldo</p>
+                                            <p className="text-2xl font-bold text-blue-900">{formatCurrency(profitSummary.balance.total)}</p>
+                                            <p className="text-xs text-gray-500 mt-1">Seluruh uang koperasi</p>
+                                        </div>
+                                        <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
+                                            <p className="text-sm text-gray-600 mb-1">💳 Non-Cash</p>
+                                            <p className="text-2xl font-bold text-green-900">{formatCurrency(profitSummary.balance.non_cash_amount)}</p>
+                                            <p className="text-xs text-gray-500 mt-1">QRIS & Transfer</p>
+                                        </div>
+                                        <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg">
+                                            <p className="text-sm text-gray-600 mb-1">💵 Cash</p>
+                                            <p className="text-2xl font-bold text-orange-900">{formatCurrency(profitSummary.balance.cash_amount)}</p>
+                                            <p className="text-xs text-gray-500 mt-1">Tunai</p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {/* ✅ NEW: Payment Method Breakdown */}
+                        {profitSummary?.payment_breakdown && (
+                            <Card className="shadow-sm">
+                                <CardHeader>
+                                    <CardTitle>Omzet per Metode Pembayaran</CardTitle>
+                                    <CardDescription>Total transaksi berdasarkan cara pembayaran</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <div className="flex items-center justify-between p-4 rounded-lg border-2 border-green-200 bg-green-50">
+                                            <div>
+                                                <p className="text-sm text-gray-600">💳 Non-Cash (QRIS/Transfer)</p>
+                                                <p className="text-2xl font-bold text-green-700 mt-1">
+                                                    {formatCurrency(profitSummary.payment_breakdown.non_cash.total_amount)}
+                                                </p>
+                                                <p className="text-xs text-gray-500 mt-1">
+                                                    {profitSummary.payment_breakdown.non_cash.transaction_count} transaksi
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between p-4 rounded-lg border-2 border-orange-200 bg-orange-50">
+                                            <div>
+                                                <p className="text-sm text-gray-600">💵 Cash (Tunai)</p>
+                                                <p className="text-2xl font-bold text-orange-700 mt-1">
+                                                    {formatCurrency(profitSummary.payment_breakdown.cash.total_amount)}
+                                                </p>
+                                                <p className="text-xs text-gray-500 mt-1">
+                                                    {profitSummary.payment_breakdown.cash.transaction_count} transaksi
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+
 
                         <Card className="shadow-sm">
                             <CardHeader>

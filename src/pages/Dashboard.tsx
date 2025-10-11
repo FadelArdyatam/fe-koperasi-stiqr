@@ -73,6 +73,10 @@ const Dashboard = () => {
     const isIndukKoperasi = affiliation?.affiliation === 'KOPERASI_INDUK';
     const kasirPath = isIndukKoperasi ? '/induk/kasir' : '/casheer';
     
+    // Tampilkan riwayat transaksi untuk semua user yang memiliki koperasiId
+    // (KOPERASI_INDUK dan member yang terafiliasi dengan koperasi)
+    const shouldShowTransactionHistory = !!affiliation?.koperasi?.id;
+    
     // Debug logging
     useEffect(() => {
         console.log('[Dashboard] Affiliation data:', affiliation);
@@ -523,21 +527,22 @@ const Dashboard = () => {
 
             
 
-            <div id="date" className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg p-5 bg-white shadow-lg">
-                <p className="text-center font-semibold text-lg my-5">Riwayat Transaksi Hari Ini</p>
+            {shouldShowTransactionHistory && (
+                <div id="date" className="w-[90%] m-auto mt-5 -translate-y-[110px] rounded-lg p-5 bg-white shadow-lg">
+                    <p className="text-center font-semibold text-lg my-5">Riwayat Transaksi Hari Ini</p>
 
-                <div className="md:w-[30%] lg:w-[20%] w-[80%] m-auto border border-orange-500 overflow-hidden rounded-lg flex items-center justify-between my-5">
-                    <button onClick={() => setSection("Penjualan")} type="button" className={`${section === "Penjualan" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all border-r w-full border-orange-500 p-1 duration-300 ease-in-out `}>
-                        Penjualan
-                    </button>
+                    <div className="md:w-[30%] lg:w-[20%] w-[80%] m-auto border border-orange-500 overflow-hidden rounded-lg flex items-center justify-between my-5">
+                        <button onClick={() => setSection("Penjualan")} type="button" className={`${section === "Penjualan" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all border-r w-full border-orange-500 p-1 duration-300 ease-in-out `}>
+                            Penjualan
+                        </button>
 
-                    <button onClick={() => setSection("Pembelian")} type="button" className={`${section === "Pembelian" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all border-l w-full border-orange-500 p-1 duration-300 ease-in-out `}>
-                        Pembelian
-                    </button>
-                </div>
+                        <button onClick={() => setSection("Pembelian")} type="button" className={`${section === "Pembelian" ? 'bg-orange-500 text-white' : 'bg-transparent text-black'} transition-all border-l w-full border-orange-500 p-1 duration-300 ease-in-out `}>
+                            Pembelian
+                        </button>
+                    </div>
 
                 <div className="mt-10 flex flex-col gap-5">
-                    {section === "Penjualan" && (
+                    {section === "Penjualan" && shouldShowTransactionHistory && (
                         histories.length > 0 ? (
                             <div>
                                 {histories.map((history, index) => (
@@ -641,7 +646,7 @@ const Dashboard = () => {
                         )
                     )}
 
-                    {section === "Pembelian" && (
+                    {section === "Pembelian" && shouldShowTransactionHistory && (
                         purchases.length === 0 ? (
                             <div className="flex flex-col items-center gap-5">
                                 <img className="p-5" src={imgNoTransaction} alt="No transactions" />
@@ -769,6 +774,7 @@ const Dashboard = () => {
                 </div>
 
             </div >
+            )}
 
             {/* Notification for BPJS */}
             {showNotificationBPJS && <Notification message={"Fitur ini akan segera hadir"} onClose={() => { setShowNotificationBPJS(false) }} status={"error"} />}

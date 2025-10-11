@@ -118,15 +118,27 @@ const SkeletonLoader = () => (
 
 
 const NotificationBell: React.FC = () => {
-  const { koperasiId } = useAffiliation();
+  const { koperasiId, data: affiliationData } = useAffiliation();
   const [notifications, setNotifications] = useState<UnifiedNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [systemNotification, setSystemNotification] = useState<{ message: string; status: "success" | "error"; } | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
+  // Tampilkan notifikasi untuk semua user yang memiliki koperasiId
+  // (KOPERASI_INDUK dan member yang terafiliasi dengan koperasi)
+  const shouldShowNotifications = !!koperasiId;
+  const isIndukKoperasi = affiliationData?.affiliation === 'KOPERASI_INDUK';
+
   const fetchData = useCallback(async (isBackgroundFetch = false) => {
-    if (!koperasiId) return;
+    // Fetch notifikasi untuk semua user yang memiliki koperasiId
+    if (!koperasiId || !shouldShowNotifications) {
+      setNotifications([]);
+      setUnreadCount(0);
+      setLoading(false);
+      return;
+    }
+    
     if (!isBackgroundFetch) {
         setLoading(true);
     }
@@ -136,13 +148,49 @@ const NotificationBell: React.FC = () => {
         axiosInstance.get(`/koperasi/${koperasiId}/pending-approvals`),
       ]);
 
-      const generalNotifs: UnifiedNotification[] = (notifRes.data.data || []).map((n: any) => ({
-        id: n.id, type: "TRANSACTION", title: n.title, description: n.description, createdAt: n.created_at, isRead: n.is_read,
-      }));
+      // Filter notifikasi berdasarkan afiliasi
+      const allNotifs = notifRes.data.data || [];
+      console.log('All notifications before filter:', allNotifs.length);
+      console.log('Is Induk Koperasi:', isIndukKoperasi);
+      
+      const generalNotifs: UnifiedNotification[] = allNotifs
+        .filter((n: any) => {
+          // Untuk KOPERASI_INDUK, tampilkan semua notifikasi
+          if (isIndukKoperasi) {
+            return true;
+          }
+          
+          // Untuk member, hanya tampilkan notifikasi yang relevan dengan koperasi induk
+          // Filter berdasarkan title/description yang mengandung kata kunci koperasi
+          const title = n.title?.toLowerCase() || '';
+          const description = n.description?.toLowerCase() || '';
+          
+          // Hanya tampilkan notifikasi yang tidak mengandung "Non Anggota" atau transaksi dari merchant lain
+          const isRelevantNotification = !title.includes('non anggota') && 
+                                        !description.includes('non anggota') &&
+                                        !title.includes('pesanan baru diterima') &&
+                                        !description.includes('pesanan baru diterima');
+          
+          console.log('Notification filter check:', {
+            title: n.title,
+            description: n.description,
+            isRelevant: isRelevantNotification
+          });
+          
+          return isRelevantNotification;
+        })
+        .map((n: any) => ({
+          id: n.id, type: "TRANSACTION", title: n.title, description: n.description, createdAt: n.created_at, isRead: n.is_read,
+        }));
+      
+      console.log('Filtered notifications:', generalNotifs.length);
 
-      const approvalNotifs: UnifiedNotification[] = (approvalRes.data || []).map((m: any) => ({
-        id: m.id, type: "PENDING_APPROVAL", title: "Persetujuan Anggota Baru", description: `"${m.name}" menunggu persetujuan.`, createdAt: m.created_at, isRead: false, merchantId: m.id,
-      }));
+      // Hanya tampilkan approval notifications untuk KOPERASI_INDUK
+      const approvalNotifs: UnifiedNotification[] = isIndukKoperasi 
+        ? (approvalRes.data || []).map((m: any) => ({
+            id: m.id, type: "PENDING_APPROVAL", title: "Persetujuan Anggota Baru", description: `"${m.name}" menunggu persetujuan.`, createdAt: m.created_at, isRead: false, merchantId: m.id,
+          }))
+        : [];
 
       const combined = [...approvalNotifs, ...generalNotifs].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setNotifications(combined);
@@ -157,7 +205,7 @@ const NotificationBell: React.FC = () => {
         setLoading(false);
       }
     }
-  }, [koperasiId]);
+  }, [koperasiId, shouldShowNotifications, isIndukKoperasi]);
 
   // Initial fetch for badge count on component mount
   useEffect(() => {
@@ -214,6 +262,11 @@ const NotificationBell: React.FC = () => {
       setUnreadCount(prev => prev + 1);
     }
   };
+
+  // Jangan tampilkan notifikasi bell untuk member
+  if (!shouldShowNotifications) {
+    return null;
+  }
 
   return (
     <>

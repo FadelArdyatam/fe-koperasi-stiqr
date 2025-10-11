@@ -49,6 +49,7 @@ import DetailAnggota from './pages/Induk/DetailAnggota.tsx';
 import ManajemenKeuangan from './pages/Induk/ManajemenKeuangan.tsx';
 import ManajemenKatalog from './pages/Induk/ManajemenKatalog.tsx';
 import ManajemenSimpanan from './pages/Induk/ManajemenSimpanan.tsx';
+import ManajemenJatuhTempo from './pages/Induk/ManajemenJatuhTempo.tsx';
 import KasirKoperasi from './pages/Induk/KasirKoperasi.tsx';
 import RiwayatTransaksi from './pages/Induk/RiwayatTransaksi.tsx';
 import TambahProdukInduk from './pages/Induk/TambahProduk.tsx';
@@ -57,6 +58,7 @@ import TambahProdukInduk from './pages/Induk/TambahProduk.tsx';
 import DashboardAnggota from './pages/Anggota/DashboardAnggota.tsx';
 import KatalogProduk from './pages/Anggota/KatalogProduk.tsx';
 import Simpanan from './pages/Anggota/Simpanan.tsx';
+import JatuhTempo from './pages/Anggota/JatuhTempo.tsx';
 import QRPayment from './pages/Anggota/QRPayment.tsx';
 
 // Koperasi Umum/Public Imports
@@ -130,6 +132,14 @@ const router = createBrowserRouter(
       ),
     },
     {
+      path: "/induk/manajemen-jatuh-tempo",
+      element: (
+        <RequireIndukKoperasiSimple>
+          <ManajemenJatuhTempo />
+        </RequireIndukKoperasiSimple>
+      ),
+    },
+    {
       path: "/induk/kasir",
       element: (
         <RequireIndukKoperasiSimple>
@@ -168,6 +178,14 @@ const router = createBrowserRouter(
       element: (
         <RequireAnggotaKoperasiSimple>
           <Simpanan />
+        </RequireAnggotaKoperasiSimple>
+      ),
+    },
+    {
+      path: "/anggota/jatuh-tempo",
+      element: (
+        <RequireAnggotaKoperasiSimple>
+          <JatuhTempo />
         </RequireAnggotaKoperasiSimple>
       ),
     },

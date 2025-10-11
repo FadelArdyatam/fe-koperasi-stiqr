@@ -34,6 +34,8 @@ const ManajemenAnggota: React.FC = () => {
     const [q, setQ] = useState('');
     const [status, setStatus] = useState<string>('');
     const [statusLabel, setStatusLabel] = useState('Semua Status');
+    const [refreshing, setRefreshing] = useState(false);
+    const [refreshMessage, setRefreshMessage] = useState<string|null>(null);
 
     const fetchMembers = useCallback(async () => {
         if (!data?.koperasi?.id) return;
@@ -64,6 +66,21 @@ const ManajemenAnggota: React.FC = () => {
     const handleStatusSelect = (value: string, label: string) => {
         setStatus(value);
         setStatusLabel(label);
+    };
+
+    const handleRefreshAffiliated = async () => {
+        if (!data?.koperasi?.id) return;
+        setRefreshing(true);
+        setRefreshMessage(null);
+        try {
+            const res = await axiosInstance.post(`/koperasi-member/${data.koperasi.id}/refresh-affiliated-members`);
+            setRefreshMessage(`${res.data.count || 0} anggota afiliasi berhasil dimasukkan.`);
+            fetchMembers();
+        } catch (e) {
+            setRefreshMessage('Gagal melakukan refresh.');
+        } finally {
+            setRefreshing(false);
+        }
     };
 
     const MemberSkeletonCard = () => (
@@ -145,6 +162,13 @@ const ManajemenAnggota: React.FC = () => {
                         </div>
                     </CardContent>
                 </Card>
+
+                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between mb-2">
+                    <Button onClick={handleRefreshAffiliated} disabled={refreshing} variant="outline">
+                        {refreshing ? 'Merefresh...' : 'Refresh Anggota Afiliasi'}
+                    </Button>
+                    {refreshMessage && <span className="text-xs text-green-700 ml-2">{refreshMessage}</span>}
+                </div>
 
                 <div className="space-y-3">
                     {loading ? (
